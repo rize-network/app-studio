@@ -7,13 +7,13 @@
 [![styled with prettier](https://img.shields.io/badge/styled_with-prettier-ff69b4.svg?style=for-the-badge)](https://github.com/prettier/prettier)
 
 
-[npm-image]: http://img.shields.io/npm/v/app-studio/app-studio.svg?style=flat-square
-[npm-url]: http://npmjs.org/package/app-studio/app-studio
+[npm-image]: http://img.shields.io/npm/v/app-studio.svg?style=flat-square
+[npm-url]: http://npmjs.org/package/app-studio
 [github-action-image]: https://github.com/rize-network/app-studio/workflows/%E2%9C%85%20test/badge.svg
 [github-action-url]: https://github.com/rize-network/app-studio/actions?query=workflow%3A%22%E2%9C%85+test%22
 
-[download-image]: https://img.shields.io/npm/dm/app-studio/app-studio.svg?style=flat-square
-[download-url]: https://npmjs.org/package/app-studio/app-studio
+[download-image]: https://img.shields.io/npm/dm/app-studio.svg?style=flat-square
+[download-url]: https://npmjs.org/package/app-studio
 
 [help-wanted-image]: https://flat.badgen.net/github/label-issues/rize-network/app-studio/help%20wanted/open
 [help-wanted-url]: https://github.com/rize-network/app-studio/issues?q=is%3Aopen+is%3Aissue+label%3A%22help+wanted%22
