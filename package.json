@@ -1,0 +1,114 @@
+{
+  "version": "0.0.1",
+  "name": "app-studio",
+  "description": "App Studio is a responsive and themeable framework to build cross platform applications",
+  "repository": "git@github.com:rize-network/app-studio.git",
+  "license": "MIT",
+  "bugs": "https://github.com/rize-network/app-studio/issues",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "keywords": [
+    "react",
+    "typescript",
+    "app",
+    "studio",
+    "styled",
+    "theme",
+    "props",
+    "responsive"
+  ],
+  "files": [
+    "dist",
+    "src"
+  ],
+  "engines": {
+    "node": ">=10"
+  },
+  "scripts": {
+    "start": "tsdx watch",
+    "build": "tsdx build",
+    "test": "tsdx test --passWithNoTests",
+    "lint": "npm run eslint && npm run prettier",
+    "lint:fix": "npm run eslint:fix && npm run prettier:fix",
+    "lint-staged": "lint-staged",
+    "lint-staged:eslint": "eslint --ext .js,.jsx,.ts,.tsx ",
+    "eslint:fix": "eslint --fix --cache --ext .js,.jsx,.ts,.tsx --format=codeframe ./src",
+    "eslint": "eslint --cache --ext .js,.jsx,.ts,.tsx --format=codeframe ./src",
+    "prettier:fix": "prettier --write ./src",
+    "prettier": "prettier --check ./src",
+    "prepare": "husky install",
+    "prepublishOnly": "npm run build",
+    "size": "size-limit",
+    "analyze": "size-limit --why",
+    "storybook": "start-storybook -p 6006",
+    "build-storybook": "build-storybook",
+    "upgrade": "ncu -u"
+  },
+  "peerDependencies": {
+    "react": ">= 16",
+    "styled-components": ">= 5"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run lint:fix"
+    }
+  },
+  "author": "Steedmonteiro <steed@rize.network>",
+  "module": "dist/app-studio.esm.js",
+  "devDependencies": {
+    "@babel/core": "^7.16.12",
+    "@commitlint/cli": "^16.1.0",
+    "@commitlint/config-conventional": "^16.0.0",
+    "@size-limit/preset-small-lib": "^7.0.5",
+    "@storybook/addon-essentials": "^6.4.17",
+    "@storybook/addon-info": "^5.3.21",
+    "@storybook/addon-links": "^6.4.17",
+    "@storybook/addons": "^6.4.17",
+    "@storybook/react": "^6.4.17",
+    "@types/react": "^17.0.38",
+    "@types/react-dom": "^17.0.11",
+    "@types/styled-components": "^5.1.21",
+    "@typescript-eslint/eslint-plugin": "^5.10.1",
+    "@typescript-eslint/parser": "^5.10.1",
+    "babel-loader": "^8.2.3",
+    "chalk": "^5.0.0",
+    "commitlint": "^16.1.0",
+    "cross-env": "^7.0.3",
+    "eslint": "^8.8.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-formatter-codeframe": "^7.32.1",
+    "eslint-import-resolver-alias": "^1.1.2",
+    "eslint-plugin-eslint-comments": "^3.2.0",
+    "eslint-plugin-import": "^2.25.4",
+    "eslint-plugin-jest": "^26.0.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "husky": "^7.0.4",
+    "lint-staged": "^12.3.2",
+    "prettier": "^2.5.1",
+    "react": "^17.0.2",
+    "size-limit": "^7.0.5",
+    "styled-components": "^5.3.3",
+    "tsdx": "^0.14.1",
+    "tslib": "^2.3.1",
+    "typescript": "^4.5.5"
+  },
+  "lint-staged": {
+    "./src/**/*.{md,json}": [
+      "prettier --write"
+    ],
+    "./src/**/*.{tsx,ts,js}": [
+      "eslint --cache --fix",
+      "prettier --write"
+    ]
+  },
+  "size-limit": [
+    {
+      "path": "dist/app-studio.cjs.production.min.js",
+      "limit": "10 KB"
+    },
+    {
+      "path": "dist/app-studio.esm.js",
+      "limit": "10 KB"
+    }
+  ]
+}

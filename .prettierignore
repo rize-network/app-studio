@@ -1,0 +1,17 @@
+node_modules/**
+**/*.md
+**/*.svg
+**/*.ejs
+**/*.html
+**/*.jpg
+**/*.png
+**/*.log
+**/*.toml
+**/*.lock
+.eslintcache
+.editorconfig
+.eslintignore
+.gitignore
+.prettierignore
+LICENSE
+/dist
