@@ -6,7 +6,7 @@ const Theme = () => {
   const theme = useTheme();
 
   console.log({ theme });
-  return <>{Object.keys(theme.main).join(', ')}</>;
+  return <>{Object.keys(theme.colors).join(', ')}</>;
 };
 
 const Responsive = () => {

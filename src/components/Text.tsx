@@ -2,7 +2,6 @@ import React from 'react';
 import { CSSProperties } from 'styled-components';
 import styled from 'styled-components';
 import { applyStyle } from './Element';
-import { useTheme } from '../providers/Theme';
 import {
   GenericStyleProp,
   TextProps,
@@ -54,7 +53,7 @@ export const formatTextStyle: any = ({
     return { ...props, opacity, fontSize };
   }
 
-  return props;
+  return applyStyle(props);
 };
 
 export const TextSpan: React.FC<CSSProperties> = styled.div(
@@ -65,54 +64,30 @@ export const TextSpan: React.FC<CSSProperties> = styled.div(
   }
 );
 
-export const TextComponent: React.FC<ComponentTextProps> = (textProps) => {
-  const { getColor } = useTheme();
+export class Text extends React.PureComponent<ComponentTextProps> {
+  render() {
+    const { toUpperCase = false, children, ...props } = this.props;
+    let content: any = children;
 
-  const styledProps = applyStyle(textProps);
-  const {
-    toUpperCase = false,
-    children,
-    textTypographyConfig,
-    ...props
-  } = styledProps;
-  let content: any = children;
-
-  if (children && typeof children === 'string') {
-    content = children.toString().trim();
-  }
-
-  if (typeof content === 'string' && toUpperCase) {
-    content = content.toUpperCase();
-  }
-
-  let style = props.style || {};
-
-  if (textTypographyConfig) {
-    style = formatTextStyle({ ...textTypographyConfig, ...style });
-  }
-
-  if (typeof content === 'string') {
-    content = content.split('\n').map((item, key) => {
-      return (
-        <span key={key.toString()}>
-          {item}
-          <br />
-        </span>
-      );
-    });
-  }
-
-  Object.values(style).map((val) => {
-    if (typeof val === 'string' && val.toLowerCase().indexOf('color') !== -1) {
-      val = getColor(val);
+    if (children && typeof children === 'string') {
+      content = children.toString().trim();
     }
-  });
 
-  return (
-    <TextSpan {...style} {...props}>
-      {content}
-    </TextSpan>
-  );
-};
+    if (typeof content === 'string' && toUpperCase) {
+      content = content.toUpperCase();
+    }
 
-export const Text: React.FC<ComponentTextProps> = TextComponent;
+    if (typeof content === 'string') {
+      content = content.split('\n').map((item, key) => {
+        return (
+          <span key={key.toString()}>
+            {item}
+            <br />
+          </span>
+        );
+      });
+    }
+
+    return <TextSpan {...props}>{content}</TextSpan>;
+  }
+}

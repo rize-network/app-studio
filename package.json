@@ -1,6 +1,6 @@
 {
   "version": "0.0.1",
-  "name": "appstudio",
+  "name": "app-studio",
   "description": "App Studio is a responsive and themeable framework to build cross platform applications",
   "repository": "git@github.com:rize-network/app-studio.git",
   "license": "MIT",

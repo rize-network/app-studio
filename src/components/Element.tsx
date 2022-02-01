@@ -399,6 +399,17 @@ export const applyStyle = (props: any) => {
 //   return mediaQueries;
 // };
 
+export const onlyStyle = (props: any) => {
+  const filteredProps: any = {};
+
+  Object.keys(props).map((property) => {
+    if (StyleProps[property] !== undefined) {
+      filteredProps[property] = props[property];
+    }
+  });
+  return applyStyle(filteredProps);
+};
+
 export const StyledView = styled.div((props: any) => {
   return applyStyle(props);
 });
