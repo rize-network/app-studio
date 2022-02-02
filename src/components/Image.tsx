@@ -2,23 +2,16 @@ import React from 'react';
 import { CSSProperties } from 'styled-components';
 import { ImageElement } from './Element';
 import { View } from './View';
-import {
-  ImageProps as ComponentImageProps,
-  ResponsiveStyle,
-} from '../types/style';
+import { ImageProps as ComponentImageProps } from '../types/style';
 
 export interface ImageProps
   extends Omit<ComponentImageProps, 'pointerEvents' | 'source'>,
     CSSProperties {
   size?: number;
-  className?: string;
-  backgroundColor?: string;
-  onPress?: () => void;
-  action?: string;
-  alt?: string;
+  on?: Record<string, CSSProperties>;
+  onPress?: (...args: any) => void;
   src: string | any;
-  style?: any;
-  responsive?: ResponsiveStyle;
+  shadow?: boolean | number;
 }
 
 export interface ImageBackgroundProps extends ImageProps {
@@ -27,7 +20,7 @@ export interface ImageBackgroundProps extends ImageProps {
 
 export class ImageBackground extends React.PureComponent<ImageBackgroundProps> {
   render() {
-    const { src, style, onClick, onPress, ...props } = this.props;
+    const { src, onClick, onPress, style = {}, ...props } = this.props;
 
     return (
       <View

@@ -36,7 +36,11 @@ export const Exemple: ComponentStory<typeof View> = () => {
   };
 
   return (
-    <View size={100} {...responsive[screen]}>
+    <View
+      size={100}
+      {...responsive[screen]}
+      on={{ hover: { backgroundColor: 'red' } }}
+    >
       {screen} - {on('mobile') ? 'Mobile' : 'Not Mobile'}
     </View>
   );

@@ -64,12 +64,15 @@ const Root = () => {
 
 ```jsx
 import React from 'react';
-import { View, useResponsive } from 'app-studio';
+import { View } from 'app-studio';
 
 function Example() {
- const {screen} = useResponsive()
 	return (
-		<View backgroundColor="grey" padding={ screen == 'xs' ? 10 : 20}>
+		<View 
+    backgroundColor="grey" 
+    padding={20}
+    on={{ hover: { backgroundColor: 'blue.100' } }}
+    >
 			Hello
 		</View>
 	);
@@ -105,7 +108,9 @@ const Example = () => {
   };
 
   return (
-    <View size={100} {...responsive[screen]}>
+    <View size={100} 
+    {...responsive[screen]}       
+>
       {screen} -  mobile : {on('mobile') ? 'yes' : 'no'}
     </View>
   );
@@ -142,13 +147,34 @@ import React from 'react';
 import { ThemeProvider, View } from 'app-studio';
 
 const theme = {
-	fontFamily: 'arial',
+
+  colors: {
+     orange: '#fff7ed', 
+     cyan:'#ecfeff',
+  },
+  palette:{
+    blueGray: {
+      50: '#f8fafc',
+      100: '#f1f5f9',
+      200: '#e2e8f0',
+      300: '#cbd5e1',
+      400: '#94a3b8',
+      500: '#64748b',
+      600: '#475569',
+      700: '#334155',
+      800: '#1e293b',
+      900: '#0f172a',
+    },
+  }
+	
 };
 
 function Example() {
 	return (
 		<ThemeProvider theme={theme}>
-			<View>Hello</View>
+      <View backgroundColor="cyan">
+			  <Text color="blue.200">Hello</Text>
+      </View>
 		</ThemeProvider>
 	);
 }
@@ -197,7 +223,10 @@ If you are a collaborator, please follow our [Pull Request principle](https://gi
 | title       | string | undefined | change the title      |
 | description | string | undefined | change the descrition | -->
 
+## Roadmap 
 
+- Integrate React Native 
+- manage csss selectors : https://drafts.csswg.org/selectors-4/
 
 ## Author
 

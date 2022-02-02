@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { useTheme } from '../providers/Theme';
-
+import { shadows } from '../utils/shadow';
 export const TransformStyleProps = [
   'transform',
   'transformMatrix',
@@ -334,21 +334,42 @@ export const applyStyle = (props: any) => {
     newProps.marginBottom = props.marginVertical;
   }
 
-  Object.keys(props)
-    .filter(
-      (property) => StyleProps[property] !== undefined || property[0] == '&'
-    )
-    .map((property) => {
-      newProps[property] = props[property];
+  if (props.shadow) {
+    const shawdowValue: number =
+      typeof props.shadow === 'number' && shadows[props.shadow] !== undefined
+        ? props.shadow
+        : 2;
 
-      //  console.log(property, propertyType);
-
-      if (property.toLowerCase().indexOf('color') !== -1) {
-        newProps[property] = getColor(props[property]);
+    if (shadows[shawdowValue]) {
+      for (const i in shadows[shawdowValue]) {
+        newProps[i] = shadows[shawdowValue][i];
       }
-    });
+    }
+  }
 
-  // return {newProps,responsive};
+  Object.keys(props).map((property) => {
+    if (StyleProps[property] !== undefined || property == 'on') {
+      if (typeof props[property] === 'number' && property !== 'fontWeight') {
+        newProps[property] = props[property] + 'px';
+      } else if (property.toLowerCase().indexOf('color') !== -1) {
+        newProps[property] = getColor(props[property]);
+      } else if (typeof props[property] === 'object') {
+        if (property === 'on') {
+          for (const event in props[property]) {
+            newProps['&:' + event] = applyStyle(props[property][event]);
+          }
+        } else {
+          newProps[property] = applyStyle(props[property]);
+        }
+      } else {
+        newProps[property] = props[property];
+      }
+    } else {
+      newProps[property] = props[property];
+    }
+  });
+
+  console.log({ props, newProps });
   return newProps;
 };
 

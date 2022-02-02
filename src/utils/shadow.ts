@@ -1,4 +1,4 @@
-export default {
+export const shadows: Record<number, any> = {
   0: {
     shadowColor: '#000',
     shadowOffset: {

@@ -2,59 +2,20 @@ import React from 'react';
 import { CSSProperties } from 'styled-components';
 import styled from 'styled-components';
 import { applyStyle } from './Element';
-import {
-  GenericStyleProp,
-  TextProps,
-  TextStyle,
-  ResponsiveStyle,
-} from '../types/style';
+import { TextProps as $TextProps } from '../types/style';
 
-export interface ComponentTextProps
-  extends Omit<TextProps, 'pointerEvents' | 'onPress'>,
+export interface TextProps
+  extends Omit<$TextProps, 'pointerEvents' | 'onPress'>,
     CSSProperties {
-  data?: object;
-  children?: string | any;
-  className?: string;
+  on?: Record<string, CSSProperties>;
+  onPress?: (...args: any) => void;
   paddingHorizontal?: number | string;
   marginHorizontal?: number | string;
   paddingVertical?: number | string;
   marginVertical?: number | string;
-  locale?: string;
   toUpperCase?: boolean;
-  style?: GenericStyleProp<TextStyle>;
-  responsive?: ResponsiveStyle;
-  backgroundColor?: string;
-
-  onPress?: void;
-  action?: string;
+  shadow?: boolean | number;
 }
-
-export const formatTextStyle: any = ({
-  hint = false,
-  disabled = false,
-  opacity,
-  fontSize,
-  ...props
-}: CSSProperties & {
-  disabled: number | boolean;
-  hint: number | boolean;
-  opacity: number;
-  fontSize?: number;
-}) => {
-  if (props) {
-    if (hint) {
-      opacity = hint as number;
-    }
-
-    if (disabled) {
-      opacity = disabled as number;
-    }
-
-    return { ...props, opacity, fontSize };
-  }
-
-  return applyStyle(props);
-};
 
 export const TextSpan: React.FC<CSSProperties> = styled.div(
   (props: CSSProperties) => {
@@ -64,7 +25,7 @@ export const TextSpan: React.FC<CSSProperties> = styled.div(
   }
 );
 
-export class Text extends React.PureComponent<ComponentTextProps> {
+export class Text extends React.PureComponent<TextProps> {
   render() {
     const { toUpperCase = false, children, ...props } = this.props;
     let content: any = children;
