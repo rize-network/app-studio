@@ -113,7 +113,6 @@
     }
   ],
   "dependencies": {
-    "color": "^4.2.0",
     "color-convert": "^2.0.1"
   }
 }
