@@ -2,6 +2,7 @@ import React from 'react';
 import { ViewElement } from './Element';
 import { ViewStyleProps } from '../types/style';
 import { CSSProperties } from 'styled-components';
+import { Shadow } from '../utils/shadow';
 
 export interface ViewProps
   extends Omit<ViewStyleProps, 'pointerEvents'>,
@@ -13,7 +14,7 @@ export interface ViewProps
   marginHorizontal?: number | string;
   paddingVertical?: number | string;
   marginVertical?: number | string;
-  shadow?: boolean | number;
+  shadow?: boolean | number | Shadow;
 }
 
 export const View = (props: ViewProps) => <ViewElement {...props} />;

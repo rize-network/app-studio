@@ -39,6 +39,7 @@ export const Exemple: ComponentStory<typeof View> = () => {
     <View
       size={100}
       {...responsive[screen]}
+      shadow={9}
       on={{ hover: { backgroundColor: 'red' } }}
     >
       {screen} - {on('mobile') ? 'Mobile' : 'Not Mobile'}

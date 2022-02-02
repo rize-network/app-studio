@@ -1,4 +1,5 @@
 import React from 'react';
+import Color from 'color-convert';
 import styled from 'styled-components';
 import { useTheme } from '../providers/Theme';
 import { shadows } from '../utils/shadow';
@@ -335,15 +336,27 @@ export const applyStyle = (props: any) => {
   }
 
   if (props.shadow) {
-    const shawdowValue: number =
-      typeof props.shadow === 'number' && shadows[props.shadow] !== undefined
-        ? props.shadow
-        : 2;
+    if (typeof props.shadow === 'number' || typeof props.shadow === 'boolean') {
+      const shawdowValue: number =
+        typeof props.shadow === 'number' && shadows[props.shadow] !== undefined
+          ? props.shadow
+          : 2;
 
-    if (shadows[shawdowValue]) {
-      for (const i in shadows[shawdowValue]) {
-        newProps[i] = shadows[shawdowValue][i];
+      if (shadows[shawdowValue]) {
+        const shadowColor = Color.hex
+          .rgb(shadows[shawdowValue].shadowColor)
+          .join(',');
+
+        newProps[
+          'boxShadow'
+        ] = `${shadows[shawdowValue].shadowOffset.height}px ${shadows[shawdowValue].shadowOffset.width}px ${shadows[shawdowValue].shadowRadius}px rgba(${shadowColor},${shadows[shawdowValue].shadowOpacity})`;
       }
+    } else {
+      const shadowColor = Color.hex.rgb(props.shadow.shadowColor).join(',');
+
+      newProps[
+        'boxShadow'
+      ] = `${props.shadow.shadowOffset.height}px ${props.shadow.shadowOffset.width}px ${props.shadow.shadowRadius}px rgba(${shadowColor},${props.shadow.shadowOpacity})`;
     }
   }
 
@@ -364,12 +377,9 @@ export const applyStyle = (props: any) => {
       } else {
         newProps[property] = props[property];
       }
-    } else {
-      newProps[property] = props[property];
     }
   });
 
-  console.log({ props, newProps });
   return newProps;
 };
 
@@ -419,17 +429,6 @@ export const applyStyle = (props: any) => {
 
 //   return mediaQueries;
 // };
-
-export const onlyStyle = (props: any) => {
-  const filteredProps: any = {};
-
-  Object.keys(props).map((property) => {
-    if (StyleProps[property] !== undefined) {
-      filteredProps[property] = props[property];
-    }
-  });
-  return applyStyle(filteredProps);
-};
 
 export const StyledView = styled.div((props: any) => {
   return applyStyle(props);

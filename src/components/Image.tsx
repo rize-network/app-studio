@@ -3,6 +3,7 @@ import { CSSProperties } from 'styled-components';
 import { ImageElement } from './Element';
 import { View } from './View';
 import { ImageStyleProps } from '../types/style';
+import { Shadow } from '../utils/shadow';
 
 export interface ImageProps
   extends Omit<ImageStyleProps, 'pointerEvents' | 'source'>,
@@ -11,7 +12,7 @@ export interface ImageProps
   on?: Record<string, CSSProperties>;
   onPress?: (...args: any) => void;
   src: string | any;
-  shadow?: boolean | number;
+  shadow?: boolean | number | Shadow;
 }
 
 export interface ImageBackgroundProps extends ImageProps {

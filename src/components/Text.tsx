@@ -3,6 +3,7 @@ import { CSSProperties } from 'styled-components';
 import styled from 'styled-components';
 import { applyStyle } from './Element';
 import { TextStyleProps } from '../types/style';
+import { Shadow } from '../utils/shadow';
 
 export interface TextProps
   extends Omit<TextStyleProps, 'pointerEvents' | 'onPress'>,
@@ -14,7 +15,7 @@ export interface TextProps
   paddingVertical?: number | string;
   marginVertical?: number | string;
   toUpperCase?: boolean;
-  shadow?: boolean | number;
+  shadow?: boolean | number | Shadow;
 }
 
 export const TextSpan: React.FC<CSSProperties> = styled.div(
