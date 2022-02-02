@@ -2,7 +2,7 @@ import React from 'react';
 import { CSSProperties } from 'styled-components';
 import { ImageElement } from './Element';
 import { View } from './View';
-import type { ImageStyleProps } from '../types/style';
+import { ImageStyleProps } from '../types/style';
 
 export interface ImageProps
   extends Omit<ImageStyleProps, 'pointerEvents' | 'source'>,
@@ -20,7 +20,7 @@ export interface ImageBackgroundProps extends ImageProps {
 
 export class ImageBackground extends React.PureComponent<ImageBackgroundProps> {
   render() {
-    const { src, onClick, onPress, style = {}, ...props } = this.props;
+    const { src, onClick, onPress, ...props } = this.props;
 
     return (
       <View
@@ -29,7 +29,6 @@ export class ImageBackground extends React.PureComponent<ImageBackgroundProps> {
           backgroundImage: `url("${src}")`,
           backgroundPosition: 'center center',
           backgroundRepeat: 'no-repeat',
-          ...style,
         }}
         onClick={onClick ? onClick : onPress}
         {...props}
