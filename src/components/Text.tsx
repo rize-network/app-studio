@@ -2,10 +2,10 @@ import React from 'react';
 import { CSSProperties } from 'styled-components';
 import styled from 'styled-components';
 import { applyStyle } from './Element';
-import { TextProps as $TextProps } from '../types/style';
+import { TextStyleProps } from '../types/style';
 
 export interface TextProps
-  extends Omit<$TextProps, 'pointerEvents' | 'onPress'>,
+  extends Omit<TextStyleProps, 'pointerEvents' | 'onPress'>,
     CSSProperties {
   on?: Record<string, CSSProperties>;
   onPress?: (...args: any) => void;

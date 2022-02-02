@@ -385,7 +385,7 @@ export type ViewStyle = AnimationStyles &
     WebkitOverflowScrolling?: 'auto' | 'touch';
   };
 
-export type ViewProps = {
+export type ViewStyleProps = {
   accessibilityLabel?: string | null | undefined;
   accessibilityLiveRegion?: 'none' | 'polite' | 'assertive';
   accessibilityRole?: string | null | undefined;
@@ -558,7 +558,7 @@ export type ImageStyle = AnimationStyles &
     tintColor?: ColorValue;
   };
 
-export type ImageProps = ViewProps & {
+export type ImageStyleProps = ViewStyleProps & {
   blurRadius?: number;
   defaultSource?: Source;
   draggable?: boolean;
@@ -655,7 +655,7 @@ export type TextStyle = ViewStyle & {
   WebkitFontSmoothing?: string | null | undefined;
 };
 
-export type TextProps = ViewProps & {
+export type TextStyleProps = ViewStyleProps & {
   accessibilityRole?:
     | 'button'
     | 'header'

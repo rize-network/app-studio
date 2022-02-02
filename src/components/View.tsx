@@ -1,10 +1,10 @@
 import React from 'react';
 import { ViewElement } from './Element';
-import { ViewProps as $ViewProps } from '../types/style';
+import { ViewStyleProps } from '../types/style';
 import { CSSProperties } from 'styled-components';
 
 export interface ViewProps
-  extends Omit<$ViewProps, 'pointerEvents'>,
+  extends Omit<ViewStyleProps, 'pointerEvents'>,
     CSSProperties {
   size?: number;
   on?: Record<string, CSSProperties>;

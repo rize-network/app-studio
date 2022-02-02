@@ -2,10 +2,10 @@ import React from 'react';
 import { CSSProperties } from 'styled-components';
 import { ImageElement } from './Element';
 import { View } from './View';
-import { ImageProps as ComponentImageProps } from '../types/style';
+import type { ImageStyleProps } from '../types/style';
 
 export interface ImageProps
-  extends Omit<ComponentImageProps, 'pointerEvents' | 'source'>,
+  extends Omit<ImageStyleProps, 'pointerEvents' | 'source'>,
     CSSProperties {
   size?: number;
   on?: Record<string, CSSProperties>;
