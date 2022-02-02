@@ -226,7 +226,8 @@ If you are a collaborator, please follow our [Pull Request principle](https://gi
 ## Roadmap 
 
 - Integrate React Native 
-- manage csss selectors : https://drafts.csswg.org/selectors-4/
+- Build a documentation website
+- manage  all pseudo class  : https://html.spec.whatwg.org/multipage/semantics-other.html#selector-hover
 
 ## Author
 
