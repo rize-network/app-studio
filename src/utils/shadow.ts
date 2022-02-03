@@ -12,8 +12,8 @@ export const shadows: Record<number, Shadow> = {
   0: {
     shadowColor: '#000',
     shadowOffset: {
-      width: 0,
-      height: 1,
+      width: 1,
+      height: 2,
     },
     shadowOpacity: 0.18,
     shadowRadius: 1.0,
@@ -21,8 +21,8 @@ export const shadows: Record<number, Shadow> = {
   1: {
     shadowColor: '#000',
     shadowOffset: {
-      width: 0,
-      height: 1,
+      width: 2,
+      height: 2,
     },
     shadowOpacity: 0.2,
     shadowRadius: 1.41,
@@ -30,8 +30,8 @@ export const shadows: Record<number, Shadow> = {
   2: {
     shadowColor: '#000',
     shadowOffset: {
-      width: 0,
-      height: 1,
+      width: 3,
+      height: 3,
     },
     shadowOpacity: 0.22,
     shadowRadius: 2.22,
@@ -39,8 +39,8 @@ export const shadows: Record<number, Shadow> = {
   3: {
     shadowColor: '#000',
     shadowOffset: {
-      width: 0,
-      height: 2,
+      width: 4,
+      height: 4,
     },
     shadowOpacity: 0.23,
     shadowRadius: 2.62,
@@ -48,8 +48,8 @@ export const shadows: Record<number, Shadow> = {
   4: {
     shadowColor: '#000',
     shadowOffset: {
-      width: 0,
-      height: 2,
+      width: 5,
+      height: 5,
     },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
@@ -57,8 +57,8 @@ export const shadows: Record<number, Shadow> = {
   5: {
     shadowColor: '#000',
     shadowOffset: {
-      width: 0,
-      height: 3,
+      width: 6,
+      height: 6,
     },
     shadowOpacity: 0.27,
     shadowRadius: 4.65,
@@ -66,8 +66,8 @@ export const shadows: Record<number, Shadow> = {
   6: {
     shadowColor: '#000',
     shadowOffset: {
-      width: 0,
-      height: 3,
+      width: 7,
+      height: 7,
     },
     shadowOpacity: 0.29,
     shadowRadius: 4.65,
@@ -75,8 +75,8 @@ export const shadows: Record<number, Shadow> = {
   7: {
     shadowColor: '#000',
     shadowOffset: {
-      width: 0,
-      height: 4,
+      width: 8,
+      height: 8,
     },
     shadowOpacity: 0.3,
     shadowRadius: 4.65,
@@ -84,8 +84,8 @@ export const shadows: Record<number, Shadow> = {
   8: {
     shadowColor: '#000',
     shadowOffset: {
-      width: 0,
-      height: 4,
+      width: 9,
+      height: 9,
     },
     shadowOpacity: 0.32,
     shadowRadius: 5.46,
@@ -93,8 +93,8 @@ export const shadows: Record<number, Shadow> = {
   9: {
     shadowColor: '#000',
     shadowOffset: {
-      width: 0,
-      height: 5,
+      width: 10,
+      height: 10,
     },
     shadowOpacity: 0.34,
     shadowRadius: 6.27,
