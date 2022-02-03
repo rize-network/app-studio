@@ -284,9 +284,33 @@ HeightStyleProperty.concat(WidthStyleProperty).map((property) => {
   SizeProps[property] = true;
 });
 
-const StyleProps: any = {};
+export const StyleProps: any = {};
 allStyleProps.map((property) => {
   StyleProps[property] = true;
+});
+
+const NumberPropsStyle: any = {};
+const NumberProps = [
+  'numberOfLines',
+  'fontWeight',
+  'timeStamp',
+  'flex',
+  'flexGrow',
+  'flexShrink',
+  'order',
+  'zIndex',
+  'aspectRatio',
+  'shadowOpacity',
+  'shadowRadius',
+  'scale',
+  'opacity',
+  'min',
+  'max',
+  'now',
+];
+
+NumberProps.map((property: string) => {
+  NumberPropsStyle[property] = true;
 });
 
 export const setSize = (newSize: string | number, newProps: any) => {
@@ -362,7 +386,12 @@ export const applyStyle = (props: any) => {
 
   Object.keys(props).map((property) => {
     if (StyleProps[property] !== undefined || property == 'on') {
-      if (property.toLowerCase().indexOf('color') !== -1) {
+      if (
+        typeof props[property] === 'number' &&
+        NumberPropsStyle[property] === undefined
+      ) {
+        newProps[property] = props[property] + 'px';
+      } else if (property.toLowerCase().indexOf('color') !== -1) {
         newProps[property] = getColor(props[property]);
       } else if (typeof props[property] === 'object') {
         if (property === 'on') {
