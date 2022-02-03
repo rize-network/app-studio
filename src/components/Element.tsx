@@ -284,7 +284,7 @@ HeightStyleProperty.concat(WidthStyleProperty).map((property) => {
   SizeProps[property] = true;
 });
 
-export const StyleProps: any = {};
+const StyleProps: any = {};
 allStyleProps.map((property) => {
   StyleProps[property] = true;
 });
@@ -362,9 +362,7 @@ export const applyStyle = (props: any) => {
 
   Object.keys(props).map((property) => {
     if (StyleProps[property] !== undefined || property == 'on') {
-      if (typeof props[property] === 'number' && property !== 'fontWeight') {
-        newProps[property] = props[property] + 'px';
-      } else if (property.toLowerCase().indexOf('color') !== -1) {
+      if (property.toLowerCase().indexOf('color') !== -1) {
         newProps[property] = getColor(props[property]);
       } else if (typeof props[property] === 'object') {
         if (property === 'on') {

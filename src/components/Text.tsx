@@ -15,6 +15,7 @@ export interface TextProps
   paddingVertical?: number | string;
   marginVertical?: number | string;
   toUpperCase?: boolean;
+  toFormat?: boolean;
   shadow?: boolean | number | Shadow;
 }
 
@@ -28,7 +29,12 @@ export const TextSpan: React.FC<CSSProperties> = styled.div(
 
 export class Text extends React.PureComponent<TextProps> {
   render() {
-    const { toUpperCase = false, children, ...props } = this.props;
+    const {
+      toUpperCase = false,
+      children,
+      toFormat = false,
+      ...props
+    } = this.props;
     let content: any = children;
 
     if (children && typeof children === 'string') {
@@ -39,7 +45,7 @@ export class Text extends React.PureComponent<TextProps> {
       content = content.toUpperCase();
     }
 
-    if (typeof content === 'string') {
+    if (typeof content === 'string' && toFormat) {
       content = content.split('\n').map((item, key) => {
         return (
           <span key={key.toString()}>
