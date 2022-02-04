@@ -117,6 +117,7 @@ export const TextStyleProps = [
   'textDecorationLine',
   'textShadowColor',
   'fontFamily',
+  'whiteSpace',
   'textShadowRadius',
   'includeFontPadding',
   'textAlignVertical',
