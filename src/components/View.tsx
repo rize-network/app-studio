@@ -14,6 +14,7 @@ export interface ViewProps
   marginHorizontal?: number | string;
   paddingVertical?: number | string;
   marginVertical?: number | string;
+  key?: string;
   shadow?: boolean | number | Shadow;
 }
 

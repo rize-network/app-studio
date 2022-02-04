@@ -15,7 +15,7 @@ export interface TextProps
   paddingVertical?: number | string;
   marginVertical?: number | string;
   toUpperCase?: boolean;
-  toFormat?: boolean;
+  key?: string;
   shadow?: boolean | number | Shadow;
 }
 
@@ -27,35 +27,30 @@ export const TextSpan: React.FC<CSSProperties> = styled.div(
   }
 );
 
-export class Text extends React.PureComponent<TextProps> {
-  render() {
-    const {
-      toUpperCase = false,
-      children,
-      toFormat = false,
-      ...props
-    } = this.props;
-    let content: any = children;
+export const Text = (props: TextProps) => {
+  const { toUpperCase = false, children, ...textPops } = props;
+  let content: any = children;
 
-    if (children && typeof children === 'string') {
-      content = children.toString().trim();
-    }
-
-    if (typeof content === 'string' && toUpperCase) {
-      content = content.toUpperCase();
-    }
-
-    if (typeof content === 'string' && toFormat) {
-      content = content.split('\n').map((item, key) => {
-        return (
-          <span key={key.toString()}>
-            {item}
-            <br />
-          </span>
-        );
-      });
-    }
-
-    return <TextSpan {...props}>{content}</TextSpan>;
+  if (children && typeof children === 'string') {
+    content = children.toString().trim();
   }
-}
+
+  if (typeof content === 'string' && toUpperCase) {
+    content = content.toUpperCase();
+  }
+
+  // if (typeof content === 'string' && toFormat) {
+  //   const newtext: any = content
+  //     .split('\n')
+  //     .map((item: any, key: number): any => {
+  //       return (
+  //         <span key={key.toString()}>
+  //           {item}
+  //           <br />
+  //         </span>
+  //       );
+  //     });
+  // }
+
+  return <TextSpan {...textPops} children={content} />;
+};
