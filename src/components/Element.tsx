@@ -123,8 +123,6 @@ export const applyStyle = (props: any) => {
     }
   });
 
-  console.log(newProps, props);
-
   return newProps;
 };
 
