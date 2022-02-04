@@ -18,8 +18,7 @@
     "responsive"
   ],
   "files": [
-    "dist",
-    "src"
+    "dist"
   ],
   "engines": {
     "node": ">=10"
@@ -113,6 +112,7 @@
     }
   ],
   "dependencies": {
+    "@emotion/unitless": "^0.7.5",
     "color-convert": "^2.0.1"
   }
 }

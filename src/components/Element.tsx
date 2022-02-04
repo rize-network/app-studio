@@ -3,292 +3,7 @@ import Color from 'color-convert';
 import styled from 'styled-components';
 import { useTheme } from '../providers/Theme';
 import { shadows } from '../utils/shadow';
-export const TransformStyleProps = [
-  'transform',
-  'transformMatrix',
-  'rotation',
-  'scaleX',
-  'scaleY',
-  'translateX',
-  'translateY',
-  // 'perspective',
-  // 'rotate',
-  // 'rotateX',
-  // 'rotateY',
-  // 'rotateZ',
-  // 'scale',
-  // 'skewX',
-  // 'skewY',
-  'testID',
-  'decomposedMatrix',
-];
-
-export const ImageStyleProps = [
-  'borderTopRightRadius',
-  'backfaceVisibility',
-  'borderBottomLeftRadius',
-  'borderBottomRightRadius',
-  'borderColor',
-  'borderRadius',
-  'borderTopLeftRadius',
-  'backgroundColor',
-  'borderWidth',
-  'opacity',
-  'overflow',
-  'overflowX',
-  'overflowY',
-  'resizeMode',
-  'tintColor',
-  'overlayColor',
-];
-
-export const LayoutStyleProps = [
-  'alignContent',
-  'alignItems',
-  'alignSelf',
-  'aspectRatio',
-  'borderBottomWidth',
-  'borderEndWidth',
-  'borderLeftWidth',
-  'borderRightWidth',
-  'borderStartWidth',
-  'borderTopWidth',
-  'borderWidth',
-  'bottom',
-  'direction',
-  'display',
-  'end',
-  'flex',
-  'flexBasis',
-  'flexDirection',
-  'flexGrow',
-  'flexShrink',
-  'flexWrap',
-  'height',
-  'justifyContent',
-  'left',
-  'margin',
-  'marginBottom',
-  'marginEnd',
-  'marginHorizontal',
-  'marginLeft',
-  'marginRight',
-  'marginStart',
-  'marginTop',
-  'marginVertical',
-  'maxHeight',
-  'maxWidth',
-  'minHeight',
-  'minWidth',
-  'overflow',
-  'overflowX',
-  'overflowY',
-  'padding',
-  'paddingBottom',
-  'paddingEnd',
-  'paddingHorizontal',
-  'paddingLeft',
-  'paddingRight',
-  'paddingStart',
-  'paddingTop',
-  'paddingVertical',
-  'position',
-  'right',
-  'start',
-  'top',
-  'width',
-  'zIndex',
-];
-
-export const ShadowStyleProps = [
-  'shadowColor',
-  'shadowOffset',
-  'shadowOpacity',
-  'shadowRadius',
-];
-export const TextStyleProps = [
-  'textShadowOffset',
-  'color',
-  'fontSize',
-  'fontStyle',
-  'fontWeight',
-  'lineHeight',
-  'textAlign',
-  'textDecorationLine',
-  'textShadowColor',
-  'fontFamily',
-  'whiteSpace',
-  'textShadowRadius',
-  'includeFontPadding',
-  'textAlignVertical',
-  'fontVariant',
-  'letterSpacing',
-  'textDecorationColor',
-  'textDecorationStyle',
-  'textTransform',
-  'writingDirection',
-];
-
-export const ViewStyleProps = [
-  'borderRightColor',
-  'backfaceVisibility',
-  'borderBottomColor',
-  'borderBottomEndRadius',
-  'borderBottomLeftRadius',
-  'borderBottomRightRadius',
-  'borderBottomStartRadius',
-  'borderBottomWidth',
-  'borderColor',
-  'borderEndColor',
-  'borderLeftColor',
-  'borderLeftWidth',
-  'borderRadius',
-  'backgroundColor',
-  'borderRightWidth',
-  'borderStartColor',
-  'borderStyle',
-  'borderTopColor',
-  'borderTopEndRadius',
-  'borderTopLeftRadius',
-  'borderTopRightRadius',
-  'borderTopStartRadius',
-  'borderTopWidth',
-  'borderWidth',
-  'border',
-  'opacity',
-  'elevation',
-  'size',
-];
-
-export const ScrollViewStyleProps = [
-  'alwaysBounceHorizontal',
-  'alwaysBounceVertical',
-  'automaticallyAdjustContentInsets',
-  'bounces',
-  'bouncesZoom',
-  'canCancelContentTouches',
-  'centerContent',
-  'contentLayoutStyle',
-  'contentInset',
-  'contentInsetAdjustmentBehavior',
-  'contentOffset',
-  'decelerationRate',
-  'directionalLockEnabled',
-  'disableIntervalMomentum',
-  'disableScrollViewPanResponder',
-  'endFillColor',
-  'fadingEdgeLength',
-  'horizontal',
-  'indicatorStyle',
-  'invertStickyHeaders',
-  'keyboardDismissMode',
-  'keyboardShouldPersistTaps',
-  'maintainVisibleContentPosition',
-  'maximumZoomScale',
-  'minimumZoomScale',
-  'nestedScrollEnabled',
-  'onContentSizeChange',
-  'onMomentumScrollBegin',
-  'onMomentumScrollEnd',
-  'onScroll',
-  'onScrollBeginDrag',
-  'onScrollEndDrag',
-  'onScrollToTop',
-  'overScrollMode',
-  'pagingEnabled',
-  'persistentScrollbar',
-  'pinchGestureEnabled',
-  'refreshControl',
-  'removeClippedSubviews',
-  'scrollBarThumbImage',
-  'scrollEnabled',
-  'scrollEventThrottle',
-  'scrollIndicatorInsets',
-  'scrollPerfTag',
-  'scrollToOverflowEnabled',
-  'scrollsToTop',
-  'DEPRECATED_sendUpdatedChildFrames',
-  'showsHorizontalScrollIndicator',
-  'showsVerticalScrollIndicator',
-  'snapToAlignment',
-  'snapToEnd',
-  'snapToInterval',
-  'snapToOffsets',
-  'snapToStart',
-  'stickyHeaderIndices',
-  'zoomScale',
-];
-
-export const BaseStyleProperty: any = {};
-LayoutStyleProps.concat(ShadowStyleProps, TransformStyleProps).map(
-  (property) => {
-    BaseStyleProperty[property] = true;
-  }
-);
-
-export const ViewStyleProperty: any = BaseStyleProperty;
-ViewStyleProps.map((property) => {
-  ViewStyleProperty[property] = true;
-});
-
-export const ScrollViewStyleProperty: any = ViewStyleProperty;
-ScrollViewStyleProps.map((property) => {
-  ScrollViewStyleProperty[property] = true;
-});
-
-export const ImageStyleProperty: any = ViewStyleProperty;
-ImageStyleProps.map((property) => {
-  ImageStyleProperty[property] = true;
-});
-
-export const TextStyleProperty: any = BaseStyleProperty;
-TextStyleProps.map((property) => {
-  TextStyleProperty[property] = true;
-});
-
-export const allStyleProps: string[] = LayoutStyleProps.concat(
-  ShadowStyleProps,
-  TransformStyleProps,
-  ViewStyleProps,
-  ScrollViewStyleProps,
-  TextStyleProps,
-  ImageStyleProps
-);
-
-const WidthWords = ['X', 'Width', 'Horizontal', 'Right', 'Left'];
-
-export const WidthStyleProperty = ['x', 'width', 'right', 'left'].concat(
-  allStyleProps.filter((property) => {
-    return WidthWords.some((item) => property.indexOf(item) >= 0);
-  })
-);
-export const WidthStyleProps: any = {};
-WidthStyleProperty.map((property) => {
-  WidthStyleProps[property] = true;
-});
-
-const HeightWords = ['Y', 'Height', 'Vertical', 'top', 'bottom'];
-
-export const HeightStyleProperty = ['y', 'height', 'top', 'bottom'].concat(
-  allStyleProps.filter((property) => {
-    return HeightWords.some((item) => property.indexOf(item) >= 0);
-  })
-);
-
-export const HeightStyleProps: any = {};
-HeightStyleProperty.map((property) => {
-  HeightStyleProps[property] = true;
-});
-
-export const SizeProps: any = {};
-HeightStyleProperty.concat(WidthStyleProperty).map((property) => {
-  SizeProps[property] = true;
-});
-
-export const StyleProps: any = {};
-allStyleProps.map((property) => {
-  StyleProps[property] = true;
-});
+import { isStyleProp } from '../utils/style';
 
 const NumberPropsStyle: any = {};
 const NumberProps = [
@@ -323,7 +38,7 @@ export const applyStyle = (props: any) => {
 
   const newProps: any = {};
 
-  if (props.onClick) {
+  if (props.onClick && newProps.cursor == undefined) {
     newProps.cursor = 'pointer';
   }
 
@@ -386,7 +101,7 @@ export const applyStyle = (props: any) => {
   }
 
   Object.keys(props).map((property) => {
-    if (StyleProps[property] !== undefined || property == 'on') {
+    if (isStyleProp(property) || property == 'on') {
       if (
         typeof props[property] === 'number' &&
         NumberPropsStyle[property] === undefined
@@ -407,6 +122,8 @@ export const applyStyle = (props: any) => {
       }
     }
   });
+
+  console.log(newProps, props);
 
   return newProps;
 };

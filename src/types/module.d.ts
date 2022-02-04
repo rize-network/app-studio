@@ -1,1 +1,1 @@
-declare module 'enquire-js';
+declare module '@emotion/unitless';
