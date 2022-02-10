@@ -8,11 +8,18 @@ export interface FormProps
   extends Omit<ViewStyleProps, 'children' | 'style' | 'pointerEvents'>,
     Omit<
       HTMLFormElement,
-      'children' | 'translate' | 'height' | 'width' | 'border' | 'draggable'
+      | 'children'
+      | 'target'
+      | 'translate'
+      | 'height'
+      | 'width'
+      | 'border'
+      | 'draggable'
     >,
     CSSProperties {
   children?: any;
   size?: number;
+  target?: any;
   on?: Record<string, CSSProperties>;
   paddingHorizontal?: number | string;
   marginHorizontal?: number | string;
@@ -25,7 +32,13 @@ export interface ButtonProps
   extends Omit<ViewStyleProps, 'children' | 'style' | 'pointerEvents'>,
     Omit<
       HTMLButtonElement,
-      'children' | 'translate' | 'height' | 'width' | 'border' | 'draggable'
+      | 'children'
+      | 'translate'
+      | 'type'
+      | 'height'
+      | 'width'
+      | 'border'
+      | 'draggable'
     >,
     CSSProperties {
   children?: any;
@@ -37,13 +50,20 @@ export interface ButtonProps
   marginVertical?: number | string;
   shadow?: boolean | number | Shadow;
   onClick?: any;
+  type?: string;
 }
 
 export interface InputProps
   extends Omit<ViewStyleProps, 'style' | 'pointerEvents' | 'onPress' | 'dir'>,
     Omit<
       HTMLInputElement,
-      'children' | 'translate' | 'height' | 'width' | 'border' | 'draggable'
+      | 'children'
+      | 'type'
+      | 'translate'
+      | 'height'
+      | 'width'
+      | 'border'
+      | 'draggable'
     >,
     Omit<CSSProperties, 'style' | 'dir'> {
   on?: Record<string, CSSProperties>;
@@ -52,6 +72,7 @@ export interface InputProps
   paddingVertical?: number | string;
   marginVertical?: number | string;
   shadow?: boolean | number | Shadow;
+  type?: string;
 }
 
 export const Form = (props: FormProps) => <FormElement {...props} />;
