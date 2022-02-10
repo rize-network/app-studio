@@ -120,6 +120,8 @@ export const applyStyle = (props: any) => {
       } else {
         newProps[property] = props[property];
       }
+    } else {
+      newProps[property] = props[property];
     }
   });
 
