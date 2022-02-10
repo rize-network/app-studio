@@ -80,11 +80,9 @@ function Example() {
 ```
 
 
-You can Use View is use <div> tag you can use  Span, Form, Input, Image components if you need another tag.
+You can Use View is use <div> tag you can use  Div, Span, Form, Input, Image components if you need another tag.
 
 ### Responsive
-
-
 
 ```jsx
 import React from 'react';
@@ -92,6 +90,8 @@ import { ResponsiveProvider } from 'app-studio';
 
 const Example = () => {
   const { screen, on } = useResponsive();
+  // "screen" provide you the screen size corresponding to you breakpoints
+  // "on" tell you is screen size is included corresponding to you devices
   const responsive = {
     xs: {
       backgroundColor: 'red',
@@ -171,7 +171,8 @@ const theme = {
   }
 	
 };
-
+//  color will be replaced by the value form the theme
+// all the colors props like backgroundColor will have the color from the theme
 function Example() {
 	return (
 		<ThemeProvider theme={theme}>
