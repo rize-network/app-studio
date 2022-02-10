@@ -1,6 +1,6 @@
 import React from 'react';
 import Color from 'color-convert';
-import styled, { StyledInterface } from 'styled-components';
+import styled from 'styled-components';
 import { useTheme } from '../providers/Theme';
 import { shadows } from '../utils/shadow';
 import { isStyleProp } from '../utils/style';
