@@ -1,5 +1,5 @@
 import React from 'react';
-import { ViewElement, SpanElement } from './Element';
+import { ViewElement } from './Element';
 import { ViewStyleProps } from '../types/style';
 import { CSSProperties } from 'styled-components';
 import { Shadow } from '../utils/shadow';
