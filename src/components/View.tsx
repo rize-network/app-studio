@@ -16,6 +16,7 @@ export interface ViewProps
   paddingVertical?: number | string;
   marginVertical?: number | string;
   shadow?: boolean | number | Shadow;
+  tag?: string;
 }
 
 export const View = (props: ViewProps) => <ViewElement {...props} />;
@@ -26,4 +27,4 @@ export const SafeArea = View;
 
 export const Scroll = (props: any) => <View overflow={'auto'} {...props} />;
 
-export const Span = (props: ViewProps) => <SpanElement {...props} />;
+export const Span = (props: ViewProps) => <SpanElement {...props} tag="span" />;

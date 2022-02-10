@@ -1,6 +1,6 @@
 import React from 'react';
 import Color from 'color-convert';
-import styled from 'styled-components';
+import styled, { StyledInterface } from 'styled-components';
 import { useTheme } from '../providers/Theme';
 import { shadows } from '../utils/shadow';
 import { isStyleProp } from '../utils/style';
@@ -177,84 +177,45 @@ export const StyledView = styled.div((props: any) => {
   return applyStyle(props);
 });
 
-export const StyledImage = styled.img((props: any) => {
-  return applyStyle(props);
-});
-
-export const StyledSpan = styled.span((props: any) => {
-  return applyStyle(props);
-});
-
-export const StyledInput = styled.input((props: any) => {
-  return applyStyle(props);
-});
-
-export const StyledButton = styled.button((props: any) => {
-  return applyStyle(props);
-});
-
-export const StyledForm = styled.form((props: any) => {
-  return applyStyle(props);
-});
+const elements: any = {
+  form: styled.form((props: any) => {
+    return applyStyle(props);
+  }),
+  button: styled.button((props: any) => {
+    return applyStyle(props);
+  }),
+  input: styled.input((props: any) => {
+    return applyStyle(props);
+  }),
+  span: styled.span((props: any) => {
+    return applyStyle(props);
+  }),
+  img: styled.img((props: any) => {
+    return applyStyle(props);
+  }),
+  div: styled.div((props: any) => {
+    return applyStyle(props);
+  }),
+  video: styled.video((props: any) => {
+    return applyStyle(props);
+  }),
+};
 
 export class ViewElement extends React.PureComponent<any> {
   render() {
-    let { onClick } = this.props;
-    if (this.props.onPress !== undefined) {
-      onClick = this.props.onPress;
-    }
+    const Element = elements[this.props.tag]
+      ? elements[this.props.tag]
+      : elements.div;
 
-    //console.log(this.props);
-    return <StyledView {...this.props} onClick={onClick} />;
-  }
-}
-
-export class ImageElement extends React.PureComponent<any> {
-  render() {
-    let { onClick } = this.props;
-    if (this.props.onPress !== undefined) {
-      onClick = this.props.onPress;
-    }
-    return <StyledImage {...this.props} onClick={onClick} />;
-  }
-}
-
-export class SpanElement extends React.PureComponent<any> {
-  render() {
-    let { onClick } = this.props;
-    if (this.props.onPress !== undefined) {
-      onClick = this.props.onPress;
-    }
-    return <StyledSpan {...this.props} onClick={onClick} />;
-  }
-}
-
-export class ButtonElement extends React.PureComponent<any> {
-  render() {
-    let { onClick } = this.props;
-    if (this.props.onPress !== undefined) {
-      onClick = this.props.onPress;
-    }
-    return <StyledButton {...this.props} onClick={onClick} />;
-  }
-}
-
-export class InputElement extends React.PureComponent<any> {
-  render() {
-    let { onClick } = this.props;
-    if (this.props.onPress !== undefined) {
-      onClick = this.props.onPress;
-    }
-    return <StyledInput {...this.props} onClick={onClick} />;
-  }
-}
-
-export class FormElement extends React.PureComponent<any> {
-  render() {
-    let { onClick } = this.props;
-    if (this.props.onPress !== undefined) {
-      onClick = this.props.onPress;
-    }
-    return <StyledForm {...this.props} onClick={onClick} />;
+    return (
+      <Element
+        {...this.props}
+        onClick={
+          this.props.onPress !== undefined
+            ? this.props.onPress
+            : this.props.onClick
+        }
+      />
+    );
   }
 }

@@ -1,5 +1,5 @@
 import React from 'react';
-import { FormElement, InputElement, ButtonElement } from './Element';
+import { ViewElement } from './Element';
 import { ViewStyleProps } from '../types/style';
 import { CSSProperties } from 'styled-components';
 import { Shadow } from '../utils/shadow';
@@ -73,10 +73,15 @@ export interface InputProps
   marginVertical?: number | string;
   shadow?: boolean | number | Shadow;
   type?: string;
+  tag?: string;
 }
 
-export const Form = (props: FormProps) => <FormElement {...props} />;
+export const Form = (props: FormProps) => <ViewElement {...props} tag="form" />;
 
-export const Input = (props: InputProps) => <InputElement {...props} />;
+export const Input = (props: InputProps) => (
+  <ViewElement {...props} tag="input" />
+);
 
-export const Button = (props: ButtonProps) => <ButtonElement {...props} />;
+export const Button = (props: ButtonProps) => (
+  <ViewElement {...props} tag="button" />
+);
