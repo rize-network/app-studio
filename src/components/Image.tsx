@@ -5,12 +5,12 @@ import { ImageStyleProps } from '../types/style';
 import { Shadow } from '../utils/shadow';
 
 export interface ImageProps
-  extends Omit<ImageStyleProps, 'style' | 'pointerEvents' | 'dir'>,
+  extends Omit<ImageStyleProps, 'children' | 'style' | 'pointerEvents' | 'dir'>,
     Omit<
       HTMLImageElement,
-      'children' | 'translate' | 'height' | 'width' | 'border' | 'draggable'
+      'translate' | 'height' | 'width' | 'border' | 'draggable'
     >,
-    Omit<CSSProperties, 'style' | 'dir'> {
+    CSSProperties {
   size?: number;
   on?: Record<string, CSSProperties>;
   onPress?: (...args: any) => void;

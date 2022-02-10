@@ -5,12 +5,12 @@ import { CSSProperties } from 'styled-components';
 import { Shadow } from '../utils/shadow';
 
 export interface FormProps
-  extends Omit<ViewStyleProps, 'style' | 'pointerEvents' | 'dir'>,
+  extends Omit<ViewStyleProps, 'children' | 'style' | 'pointerEvents' | 'dir'>,
     Omit<
       HTMLFormElement,
-      'children' | 'translate' | 'height' | 'width' | 'border' | 'draggable'
+      'translate' | 'height' | 'width' | 'border' | 'draggable'
     >,
-    Omit<CSSProperties, 'style' | 'dir'> {
+    CSSProperties {
   size?: number;
   on?: Record<string, CSSProperties>;
   paddingHorizontal?: number | string;

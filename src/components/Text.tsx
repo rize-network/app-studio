@@ -6,9 +6,9 @@ import { TextStyleProps } from '../types/style';
 import { Shadow } from '../utils/shadow';
 
 export interface TextProps
-  extends Omit<TextStyleProps, 'style' | 'pointerEvents' | 'dir'>,
-    Omit<HTMLDivElement, 'children' | 'translate'>,
-    Omit<CSSProperties, 'style' | 'dir'> {
+  extends Omit<TextStyleProps, 'children' | 'style' | 'pointerEvents' | 'dir'>,
+    Omit<HTMLDivElement, 'translate'>,
+    CSSProperties {
   on?: Record<string, CSSProperties>;
   onPress?: (...args: any) => void;
   paddingHorizontal?: number | string;
