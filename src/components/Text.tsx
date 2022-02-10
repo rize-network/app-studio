@@ -1,6 +1,5 @@
 import React from 'react';
 import { CSSProperties } from 'styled-components';
-import styled from 'styled-components';
 import { applyStyle, ViewElement } from './Element';
 import { TextStyleProps } from '../types/style';
 import { Shadow } from '../utils/shadow';
