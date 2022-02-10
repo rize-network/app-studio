@@ -5,8 +5,7 @@ import { CSSProperties } from 'styled-components';
 import { Shadow } from '../utils/shadow';
 
 export interface ViewProps
-  extends Omit<ViewStyleProps, 'children' | 'style' | 'pointerEvents' | 'dir'>,
-    Omit<HTMLDivElement, 'children' | 'translate'>,
+  extends Omit<ViewStyleProps, 'children' | 'style' | 'pointerEvents'>,
     CSSProperties {
   children?: any;
   size?: number;

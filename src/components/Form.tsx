@@ -5,11 +5,7 @@ import { CSSProperties } from 'styled-components';
 import { Shadow } from '../utils/shadow';
 
 export interface FormProps
-  extends Omit<ViewStyleProps, 'children' | 'style' | 'pointerEvents' | 'dir'>,
-    Omit<
-      HTMLFormElement,
-      'children' | 'translate' | 'height' | 'width' | 'border' | 'draggable'
-    >,
+  extends Omit<ViewStyleProps, 'children' | 'style' | 'pointerEvents'>,
     CSSProperties {
   children?: any;
   size?: number;

@@ -5,11 +5,7 @@ import { ImageStyleProps } from '../types/style';
 import { Shadow } from '../utils/shadow';
 
 export interface ImageProps
-  extends Omit<ImageStyleProps, 'children' | 'style' | 'pointerEvents' | 'dir'>,
-    Omit<
-      HTMLImageElement,
-      'children' | 'translate' | 'height' | 'width' | 'border' | 'draggable'
-    >,
+  extends Omit<ImageStyleProps, 'children' | 'style' | 'pointerEvents'>,
     CSSProperties {
   children?: any;
   size?: number;
