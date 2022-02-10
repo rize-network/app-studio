@@ -5,9 +5,10 @@ import { CSSProperties } from 'styled-components';
 import { Shadow } from '../utils/shadow';
 
 export interface ViewProps
-  extends Omit<ViewStyleProps, 'style' | 'pointerEvents' | 'dir'>,
+  extends Omit<ViewStyleProps, 'children' | 'style' | 'pointerEvents' | 'dir'>,
     Omit<HTMLDivElement, 'children' | 'translate'>,
     CSSProperties {
+  children?: any;
   size?: number;
   on?: Record<string, CSSProperties>;
   onPress?: (...args: any) => void;
