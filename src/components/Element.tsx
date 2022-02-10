@@ -117,6 +117,8 @@ export const applyStyle = (props: any) => {
         } else {
           newProps[property] = applyStyle(props[property]);
         }
+      } else {
+        newProps[property] = props[property];
       }
     }
   });
@@ -187,6 +189,10 @@ export const StyledInput = styled.input((props: any) => {
   return applyStyle(props);
 });
 
+export const StyledButton = styled.button((props: any) => {
+  return applyStyle(props);
+});
+
 export const StyledForm = styled.form((props: any) => {
   return applyStyle(props);
 });
@@ -220,6 +226,16 @@ export class SpanElement extends React.PureComponent<any> {
       onClick = this.props.onPress;
     }
     return <StyledSpan {...this.props} onClick={onClick} />;
+  }
+}
+
+export class ButtonElement extends React.PureComponent<any> {
+  render() {
+    let { onClick } = this.props;
+    if (this.props.onPress !== undefined) {
+      onClick = this.props.onPress;
+    }
+    return <StyledButton {...this.props} onClick={onClick} />;
   }
 }
 
