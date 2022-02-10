@@ -27,10 +27,6 @@ export const Text = (props: TextProps) => {
   const { toUpperCase = false, children, ...textPops } = props;
   let content: any = children;
 
-  if (children && typeof children === 'string') {
-    content = children.toString().trim();
-  }
-
   if (typeof content === 'string' && toUpperCase) {
     content = content.toUpperCase();
   }
