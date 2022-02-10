@@ -6,8 +6,9 @@ import { TextStyleProps } from '../types/style';
 import { Shadow } from '../utils/shadow';
 
 export interface TextProps
-  extends Omit<TextStyleProps, 'pointerEvents' | 'onPress'>,
-    CSSProperties {
+  extends Omit<TextStyleProps, 'style' | 'pointerEvents' | 'dir'>,
+    Omit<HTMLDivElement, 'children' | 'translate'>,
+    Omit<CSSProperties, 'style' | 'dir'> {
   on?: Record<string, CSSProperties>;
   onPress?: (...args: any) => void;
   paddingHorizontal?: number | string;
@@ -15,17 +16,12 @@ export interface TextProps
   paddingVertical?: number | string;
   marginVertical?: number | string;
   toUpperCase?: boolean;
-  key?: string;
   shadow?: boolean | number | Shadow;
 }
 
-export const TextSpan: React.FC<CSSProperties> = styled.div(
-  (props: CSSProperties) => {
-    props.display = 'inherit';
-    props.flexDirection = 'column';
-    return applyStyle(props);
-  }
-);
+export const TextSpan: React.FC<TextProps> = styled.span((props: TextProps) => {
+  return applyStyle(props);
+});
 
 export const Text = (props: TextProps) => {
   const { toUpperCase = false, children, ...textPops } = props;

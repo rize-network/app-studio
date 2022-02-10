@@ -181,6 +181,18 @@ export const StyledImage = styled.img((props: any) => {
   return applyStyle(props);
 });
 
+export const StyledSpan = styled.span((props: any) => {
+  return applyStyle(props);
+});
+
+export const StyledInput = styled.input((props: any) => {
+  return applyStyle(props);
+});
+
+export const StyledForm = styled.form((props: any) => {
+  return applyStyle(props);
+});
+
 export class ViewElement extends React.PureComponent<any> {
   render() {
     let { onClick } = this.props;
@@ -200,5 +212,35 @@ export class ImageElement extends React.PureComponent<any> {
       onClick = this.props.onPress;
     }
     return <StyledImage {...this.props} onClick={onClick} />;
+  }
+}
+
+export class SpanElement extends React.PureComponent<any> {
+  render() {
+    let { onClick } = this.props;
+    if (this.props.onPress !== undefined) {
+      onClick = this.props.onPress;
+    }
+    return <StyledSpan {...this.props} onClick={onClick} />;
+  }
+}
+
+export class InputElement extends React.PureComponent<any> {
+  render() {
+    let { onClick } = this.props;
+    if (this.props.onPress !== undefined) {
+      onClick = this.props.onPress;
+    }
+    return <StyledInput {...this.props} onClick={onClick} />;
+  }
+}
+
+export class FormElement extends React.PureComponent<any> {
+  render() {
+    let { onClick } = this.props;
+    if (this.props.onPress !== undefined) {
+      onClick = this.props.onPress;
+    }
+    return <StyledForm {...this.props} onClick={onClick} />;
   }
 }

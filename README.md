@@ -79,6 +79,9 @@ function Example() {
 }
 ```
 
+
+You can Use View is use <div> tag you can use  Span, Form, Input, Image components if you need another tag.
+
 ### Responsive
 
 

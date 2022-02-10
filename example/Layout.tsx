@@ -1,5 +1,5 @@
 import React from 'react';
-import { View } from './View';
+import { View } from '../src/components/View';
 
 export const Layout = (props: any) => <View {...props} />;
 

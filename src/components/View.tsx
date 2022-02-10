@@ -1,12 +1,13 @@
 import React from 'react';
-import { ViewElement } from './Element';
+import { ViewElement, SpanElement } from './Element';
 import { ViewStyleProps } from '../types/style';
 import { CSSProperties } from 'styled-components';
 import { Shadow } from '../utils/shadow';
 
 export interface ViewProps
-  extends Omit<ViewStyleProps, 'pointerEvents'>,
-    CSSProperties {
+  extends Omit<ViewStyleProps, 'style' | 'pointerEvents' | 'dir'>,
+    Omit<HTMLDivElement, 'children' | 'translate'>,
+    Omit<CSSProperties, 'style' | 'dir'> {
   size?: number;
   on?: Record<string, CSSProperties>;
   onPress?: (...args: any) => void;
@@ -14,12 +15,15 @@ export interface ViewProps
   marginHorizontal?: number | string;
   paddingVertical?: number | string;
   marginVertical?: number | string;
-  key?: string;
   shadow?: boolean | number | Shadow;
 }
 
 export const View = (props: ViewProps) => <ViewElement {...props} />;
 
+export const Div = View;
+
 export const SafeArea = View;
 
 export const Scroll = (props: any) => <View overflow={'auto'} {...props} />;
+
+export const Span = (props: ViewProps) => <SpanElement {...props} />;
