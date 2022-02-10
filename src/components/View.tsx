@@ -27,4 +27,4 @@ export const SafeArea = View;
 
 export const Scroll = (props: any) => <View overflow={'auto'} {...props} />;
 
-export const Span = (props: ViewProps) => <SpanElement {...props} tag="span" />;
+export const Span = (props: ViewProps) => <ViewElement {...props} tag="span" />;
