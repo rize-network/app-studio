@@ -6,8 +6,8 @@ import { TextStyleProps } from '../types/style';
 import { Shadow } from '../utils/shadow';
 
 export interface TextProps
-  extends Omit<TextStyleProps, 'children' | 'style' | 'pointerEvents' | 'dir'>,
-    Omit<HTMLDivElement, 'translate'>,
+  extends Omit<TextStyleProps, 'style' | 'pointerEvents' | 'dir'>,
+    Omit<HTMLDivElement, 'children' | 'translate'>,
     CSSProperties {
   on?: Record<string, CSSProperties>;
   onPress?: (...args: any) => void;

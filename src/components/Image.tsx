@@ -5,10 +5,10 @@ import { ImageStyleProps } from '../types/style';
 import { Shadow } from '../utils/shadow';
 
 export interface ImageProps
-  extends Omit<ImageStyleProps, 'children' | 'style' | 'pointerEvents' | 'dir'>,
+  extends Omit<ImageStyleProps, 'style' | 'pointerEvents' | 'dir'>,
     Omit<
       HTMLImageElement,
-      'translate' | 'height' | 'width' | 'border' | 'draggable'
+      'children' | 'translate' | 'height' | 'width' | 'border' | 'draggable'
     >,
     CSSProperties {
   size?: number;
