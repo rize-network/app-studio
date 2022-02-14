@@ -113,7 +113,7 @@ export const applyStyle = (props: any) => {
           }
         } else if (property === 'media') {
           for (const screenOrDevices in props[property]) {
-            console.log(screenOrDevices, mediaQueries[screenOrDevices]);
+            //  console.log(screenOrDevices, mediaQueries[screenOrDevices]);
             if (
               mediaQueries[screenOrDevices] !== undefined &&
               props[property][screenOrDevices] !== undefined
@@ -123,7 +123,7 @@ export const applyStyle = (props: any) => {
               );
             } else if (devices[screenOrDevices] !== undefined) {
               for (const screen in devices[screenOrDevices]) {
-                console.log(screen, devices[screenOrDevices], 'screen');
+                // console.log(screen, devices[screenOrDevices], 'screen');
 
                 for (const deviceScreen in devices[screenOrDevices]) {
                   if (
@@ -141,21 +141,6 @@ export const applyStyle = (props: any) => {
                     ] = applyStyle(props[property][screenOrDevices]);
                   }
                 }
-                // if (
-                //   mediaQueries[devices[screenOrDevices][screen]] !==
-                //     undefined &&
-                //   props[property][screen] !== undefined
-                // ) {
-                //   console.log(
-                //     screen,
-                //     mediaQueries[devices[screenOrDevices][screen]],
-                //     props[property][screen]
-                //   );
-
-                //   newProps[
-                //     '@media ' + mediaQueries[devices[screenOrDevices][screen]]
-                //   ] = applyStyle(props[property][screen]);
-                // }
               }
             }
           }
