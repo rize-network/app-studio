@@ -16,33 +16,23 @@ export default {
 } as ComponentMeta<typeof View>;
 
 export const Exemple: ComponentStory<typeof View> = () => {
-  const { screen, on } = useResponsive();
-  const responsive = {
-    xs: {
-      backgroundColor: 'red',
-    },
-    sm: {
-      backgroundColor: 'green',
-    },
-    md: {
-      backgroundColor: 'blue',
-    },
-    lg: {
-      backgroundColor: 'yellow',
-    },
-    xl: {
-      backgroundColor: 'red',
-    },
-  };
-
   return (
     <View
       size={100}
-      {...responsive[screen]}
       shadow={9}
       on={{ hover: { backgroundColor: 'red' } }}
-    >
-      {screen} - {on('mobile') ? 'Mobile' : 'Not Mobile'}
-    </View>
+      media={{
+        mobile: {
+          backgroundColor: 'green',
+        },
+
+        tablet: {
+          backgroundColor: 'yellow',
+        },
+        xl: {
+          backgroundColor: 'blue',
+        },
+      }}
+    />
   );
 };

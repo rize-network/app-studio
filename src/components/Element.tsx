@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { useTheme } from '../providers/Theme';
 import { shadows } from '../utils/shadow';
 import { isStyleProp } from '../utils/style';
+import { useResponsiveContext } from '..';
 
 const NumberPropsStyle: any = {};
 const NumberProps = [
@@ -34,7 +35,10 @@ export const setSize = (newSize: string | number, newProps: any) => {
 };
 
 export const applyStyle = (props: any) => {
+  //console.log({ applyStyle: props });
+
   const { getColor } = useTheme();
+  const { mediaQueries, devices } = useResponsiveContext();
 
   const newProps: any = {};
 
@@ -101,28 +105,77 @@ export const applyStyle = (props: any) => {
   }
 
   Object.keys(props).map((property) => {
-    if (isStyleProp(property) || property == 'on') {
-      if (
+    if (isStyleProp(property) || property == 'on' || property == 'media') {
+      if (typeof props[property] === 'object') {
+        if (property === 'on') {
+          for (const event in props[property]) {
+            newProps['&:' + event] = applyStyle(props[property][event]);
+          }
+        } else if (property === 'media') {
+          for (const screenOrDevices in props[property]) {
+            console.log(screenOrDevices, mediaQueries[screenOrDevices]);
+            if (
+              mediaQueries[screenOrDevices] !== undefined &&
+              props[property][screenOrDevices] !== undefined
+            ) {
+              newProps['@media ' + mediaQueries[screenOrDevices]] = applyStyle(
+                props[property][screenOrDevices]
+              );
+            } else if (devices[screenOrDevices] !== undefined) {
+              for (const screen in devices[screenOrDevices]) {
+                console.log(screen, devices[screenOrDevices], 'screen');
+
+                for (const deviceScreen in devices[screenOrDevices]) {
+                  if (
+                    mediaQueries[devices[screenOrDevices][deviceScreen]] !==
+                      undefined &&
+                    props[property][screenOrDevices] !== undefined
+                  ) {
+                    console.log(
+                      screenOrDevices,
+                      props[property][screenOrDevices]
+                    );
+                    newProps[
+                      '@media ' +
+                        mediaQueries[devices[screenOrDevices][deviceScreen]]
+                    ] = applyStyle(props[property][screenOrDevices]);
+                  }
+                }
+                // if (
+                //   mediaQueries[devices[screenOrDevices][screen]] !==
+                //     undefined &&
+                //   props[property][screen] !== undefined
+                // ) {
+                //   console.log(
+                //     screen,
+                //     mediaQueries[devices[screenOrDevices][screen]],
+                //     props[property][screen]
+                //   );
+
+                //   newProps[
+                //     '@media ' + mediaQueries[devices[screenOrDevices][screen]]
+                //   ] = applyStyle(props[property][screen]);
+                // }
+              }
+            }
+          }
+        } else {
+          newProps[property] = applyStyle(props[property]);
+        }
+      } else if (
         typeof props[property] === 'number' &&
         NumberPropsStyle[property] === undefined
       ) {
         newProps[property] = props[property] + 'px';
       } else if (property.toLowerCase().indexOf('color') !== -1) {
         newProps[property] = getColor(props[property]);
-      } else if (typeof props[property] === 'object') {
-        if (property === 'on') {
-          for (const event in props[property]) {
-            newProps['&:' + event] = applyStyle(props[property][event]);
-          }
-        } else {
-          newProps[property] = applyStyle(props[property]);
-        }
       } else {
         newProps[property] = props[property];
       }
     }
   });
 
+  // console.log({ newProps });
   return newProps;
 };
 
@@ -137,7 +190,7 @@ export const applyStyle = (props: any) => {
 // }
 
 // export const getResponsiveMediaQueries = (props: any) => {
-//   const { breakpointKeys, breakpoints } = useResponsive();
+//   const { breakpoints, devices } = useResponsiveContext();
 //   console.log('mediaQueries', props);
 
 //   const mediaQueries = breakpointKeys

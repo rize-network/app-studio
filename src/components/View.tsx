@@ -10,6 +10,7 @@ export interface ViewProps
   children?: any;
   size?: number;
   on?: Record<string, CSSProperties>;
+  media?: Record<string, CSSProperties>;
   onPress?: (...args: any) => void;
   paddingHorizontal?: number | string;
   marginHorizontal?: number | string;

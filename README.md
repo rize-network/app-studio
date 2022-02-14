@@ -141,6 +141,55 @@ const App = () => (<ResponsiveProvider
 
 ```
 
+
+### Media query
+
+```jsx
+import React from 'react';
+import { ResponsiveProvider } from 'app-studio';
+
+const Example = () => {
+  // "media" will apply  css to the devices or screen  configuration without rerendering the component
+
+  return (
+    <View size={100} 
+     media={{
+        mobile: {
+          backgroundColor: 'green',
+        },
+        tablet: {
+          backgroundColor: 'yellow',
+        },
+        xl: {
+          backgroundColor: 'blue',
+        },
+      }}  
+      />
+  );
+}
+
+const App = () => (<ResponsiveProvider 
+    breakpoints={{
+        xs: 0,
+        sm: 340,
+        md: 560,
+        lg: 1080,
+        xl: 1300,
+    }} 
+
+    devices={{  
+        mobile: ['xs', 'sm'],
+        tablet: ['md', 'lg'],
+        desktop: ['lg', 'xl']
+    }}
+    >
+    <Exemple />
+<ResponsiveProvider>);
+
+
+
+```
+
 ### Theming
 
 

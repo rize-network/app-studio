@@ -21,6 +21,7 @@ export interface FormProps
   size?: number;
   target?: any;
   on?: Record<string, CSSProperties>;
+  media?: Record<string, CSSProperties>;
   paddingHorizontal?: number | string;
   marginHorizontal?: number | string;
   paddingVertical?: number | string;

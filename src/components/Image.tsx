@@ -10,6 +10,7 @@ export interface ImageProps
   children?: any;
   size?: number;
   on?: Record<string, CSSProperties>;
+  media?: Record<string, CSSProperties>;
   onPress?: (...args: any) => void;
   src: string | any;
   shadow?: boolean | number | Shadow;

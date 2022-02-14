@@ -9,6 +9,7 @@ export interface TextProps
     CSSProperties {
   children?: any;
   on?: Record<string, CSSProperties>;
+  media?: Record<string, CSSProperties>;
   onPress?: (...args: any) => void;
   paddingHorizontal?: number | string;
   marginHorizontal?: number | string;

@@ -2,7 +2,6 @@ import { useState } from 'react';
 import {
   useResponsiveContext,
   ScreenOrientation,
-  ScreenSizeRange,
 } from '../providers/Responsive';
 
 import { useMount } from './useMount';
@@ -26,56 +25,16 @@ export const createQuery = (keyScreen: string, query: string, set: any) => {
 };
 
 export const useResponsive = () => {
-  const { breakpoints, devices } = useResponsiveContext();
+  const { breakpoints, devices, mediaQueries } = useResponsiveContext();
   const [screen, setScreen] = useState('xs');
   const [orientation, setOrientation] = useState(
     'landscape' as ScreenOrientation
   );
 
-  const keys = Object.keys(breakpoints);
-
   useMount(() => {
-    const breakpointValue = keys
-      .map((breakpoint) => {
-        const value: ScreenSizeRange = {
-          breakpoint: breakpoint as keyof typeof breakpoints,
-          min: breakpoints[breakpoint],
-          max: 0,
-        };
-
-        return value;
-      })
-      .sort((a, b) => a.min - b.min);
-
-    breakpointValue.reduce((a, b) => {
-      if (b) a.max = b.min;
-
-      return b;
-    });
-
-    breakpointValue.map((sizeScreen: ScreenSizeRange) => {
-      createQuery(
-        sizeScreen.breakpoint,
-        `only screen ${
-          sizeScreen.min && sizeScreen.min >= 0
-            ? 'and (min-width:' + sizeScreen.min + 'px)'
-            : ''
-        } ${
-          sizeScreen.max && sizeScreen.max >= 0
-            ? 'and (max-width:' + sizeScreen.max + 'px)'
-            : ''
-        }`,
-        setScreen
-      );
-
-      // if (
-      //   window.innerWidth >= sizeScreen.min &&
-      //   window.innerWidth <= sizeScreen.max
-      // ) {
-      //   setScreen(key as ScreenResponsiveConfig);
-      // }
-    });
-
+    for (const screenSize in mediaQueries) {
+      createQuery(screenSize, mediaQueries[screenSize], setScreen);
+    }
     createQuery(
       'landscape',
       'only screen and (orientation: landscape)',
@@ -92,11 +51,16 @@ export const useResponsive = () => {
     return devices[device].includes(screen);
   };
 
+  const is = (s: keyof typeof breakpoints) => {
+    return s == screen;
+  };
+
   return {
     breakpoints,
     devices,
     orientation,
     screen,
     on,
+    is,
   };
 };
