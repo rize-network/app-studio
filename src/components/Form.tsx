@@ -58,13 +58,7 @@ export interface InputProps
   extends Omit<ViewStyleProps, 'style' | 'pointerEvents' | 'onPress' | 'dir'>,
     Omit<
       HTMLInputElement,
-      | 'children'
-      | 'type'
-      | 'translate'
-      | 'height'
-      | 'width'
-      | 'border'
-      | 'draggable'
+      'children' | 'translate' | 'height' | 'width' | 'border' | 'draggable'
     >,
     Omit<CSSProperties, 'style' | 'dir'> {
   on?: Record<string, CSSProperties>;
@@ -73,7 +67,6 @@ export interface InputProps
   paddingVertical?: number | string;
   marginVertical?: number | string;
   shadow?: boolean | number | Shadow;
-  type?: string;
   tag?: string;
 }
 
