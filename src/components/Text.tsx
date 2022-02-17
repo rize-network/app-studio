@@ -1,3 +1,4 @@
+import React from 'react';
 import { CSSProperties } from 'styled-components';
 import { ViewElement } from './Element';
 import { TextStyleProps } from '../types/style';

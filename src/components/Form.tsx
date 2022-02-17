@@ -1,3 +1,4 @@
+import React from 'react';
 import { ViewElement } from './Element';
 import { ViewStyleProps } from '../types/style';
 import { CSSProperties } from 'styled-components';
