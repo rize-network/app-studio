@@ -569,7 +569,8 @@ export type ImageStyleProps = ViewStyleProps & {
   onLoadStart?: (e: any) => void;
   onProgress?: (e: any) => void;
   resizeMode?: ResizeMode;
-  source: Source;
+  //  source?: Source;
+  src?: Source;
   style?:
     | false
     | void

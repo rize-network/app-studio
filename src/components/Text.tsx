@@ -1,24 +1,15 @@
 import React from 'react';
 import { CSSProperties } from 'styled-components';
-import { ViewElement } from './Element';
+import { Element, ElementProps } from './Element';
 import { TextStyleProps } from '../types/style';
-import { Shadow } from '../utils/shadow';
 
 export interface TextProps
   extends Omit<TextStyleProps, 'children' | 'style' | 'pointerEvents'>,
-    CSSProperties {
-  children?: any;
-  on?: Record<string, CSSProperties>;
-  media?: Record<string, CSSProperties>;
-  onPress?: (...args: any) => void;
-  paddingHorizontal?: number | string;
-  marginHorizontal?: number | string;
-  paddingVertical?: number | string;
-  marginVertical?: number | string;
+    CSSProperties,
+    ElementProps {
   toUpperCase?: boolean;
-  shadow?: boolean | number | Shadow;
 }
 
 export const Text = (props: TextProps) => {
-  return <ViewElement {...props} />;
+  return <Element {...props} />;
 };

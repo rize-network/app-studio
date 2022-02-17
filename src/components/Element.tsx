@@ -1,11 +1,23 @@
 import React from 'react';
 import Color from 'color-convert';
-import styled from 'styled-components';
+import styled, { CSSProperties } from 'styled-components';
 
 import { useTheme } from '../providers/Theme';
-import { shadows } from '../utils/shadow';
+import { shadows, Shadow } from '../utils/shadow';
 import { isStyleProp } from '../utils/style';
 import { useResponsiveContext } from '..';
+
+export interface ElementProps {
+  children?: any;
+  size?: number;
+  on?: Record<string, CSSProperties>;
+  media?: Record<string, CSSProperties>;
+  paddingHorizontal?: number | string;
+  marginHorizontal?: number | string;
+  paddingVertical?: number | string;
+  marginVertical?: number | string;
+  shadow?: boolean | number | Shadow;
+}
 
 const NumberPropsStyle: any = {};
 const NumberProps = [
@@ -215,16 +227,15 @@ export const applyStyle = (props: any) => {
 
 const dynamicStyle = (props: any) => applyStyle(props);
 
-const Element = styled.div`
+const ElementComponent = styled.div`
   ${dynamicStyle};
 `;
 
-export class ViewElement extends React.PureComponent<any> {
+export class Element extends React.PureComponent<any> {
   render() {
     return (
-      <Element
+      <ElementComponent
         {...this.props}
-        as={this.props.tag ? this.props.tag : undefined}
         onClick={
           this.props.onPress !== undefined
             ? this.props.onPress

@@ -1,5 +1,5 @@
 import React from 'react';
-import { ViewElement } from './Element';
+import { Element, ElementProps } from './Element';
 import { ViewStyleProps } from '../types/style';
 import { CSSProperties } from 'styled-components';
 import { Shadow } from '../utils/shadow';
@@ -16,18 +16,8 @@ export interface FormProps
       | 'border'
       | 'draggable'
     >,
-    CSSProperties {
-  children?: any;
-  size?: number;
-  target?: any;
-  on?: Record<string, CSSProperties>;
-  media?: Record<string, CSSProperties>;
-  paddingHorizontal?: number | string;
-  marginHorizontal?: number | string;
-  paddingVertical?: number | string;
-  marginVertical?: number | string;
-  shadow?: boolean | number | Shadow;
-}
+    CSSProperties,
+    ElementProps {}
 
 export interface ButtonProps
   extends Omit<ViewStyleProps, 'children' | 'style' | 'pointerEvents'>,
@@ -51,7 +41,7 @@ export interface ButtonProps
   marginVertical?: number | string;
   shadow?: boolean | number | Shadow;
   onClick?: any;
-  type?: string;
+  media?: Record<string, CSSProperties>;
 }
 
 export interface InputProps
@@ -64,14 +54,13 @@ export interface InputProps
   paddingVertical?: number | string;
   marginVertical?: number | string;
   shadow?: boolean | number | Shadow;
+  media?: Record<string, CSSProperties>;
 }
 
-export const Form = (props: FormProps) => <ViewElement {...props} as="form" />;
+export const Form = (props: FormProps) => <Element {...props} as="form" />;
 
-export const Input = (props: InputProps) => (
-  <ViewElement {...props} as="input" />
-);
+export const Input = (props: InputProps) => <Element {...props} as="input" />;
 
 export const Button = (props: ButtonProps) => (
-  <ViewElement {...props} as="button" />
+  <Element {...props} as="button" />
 );
