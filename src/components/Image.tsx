@@ -1,4 +1,3 @@
-import React from 'react';
 import { CSSProperties } from 'styled-components';
 import { ViewElement } from './Element';
 import { ImageStyleProps } from '../types/style';
@@ -14,9 +13,6 @@ export interface ImageProps
   onPress?: (...args: any) => void;
   src: string | any;
   shadow?: boolean | number | Shadow;
-  tag?: string;
 }
 
-export const Image = (props: ImageProps) => (
-  <ViewElement {...props} tag="img" />
-);
+export const Image = (props: ImageProps) => <ViewElement {...props} as="img" />;

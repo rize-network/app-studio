@@ -1,4 +1,3 @@
-import React from 'react';
 import { ViewElement } from './Element';
 import { ViewStyleProps } from '../types/style';
 import { CSSProperties } from 'styled-components';
@@ -7,12 +6,12 @@ import { Shadow } from '../utils/shadow';
 export interface FormProps
   extends Omit<ViewStyleProps, 'children' | 'style' | 'pointerEvents'>,
     Omit<
-      HTMLFormElement,
-      | 'children'
-      | 'target'
-      | 'translate'
-      | 'height'
+      Partial<HTMLFormElement>,
       | 'width'
+      | 'height'
+      | 'children'
+      | 'translate'
+      | 'target'
       | 'border'
       | 'draggable'
     >,
@@ -32,12 +31,12 @@ export interface FormProps
 export interface ButtonProps
   extends Omit<ViewStyleProps, 'children' | 'style' | 'pointerEvents'>,
     Omit<
-      HTMLButtonElement,
+      Partial<HTMLButtonElement>,
+      | 'width'
+      | 'height'
       | 'children'
       | 'translate'
       | 'type'
-      | 'height'
-      | 'width'
       | 'border'
       | 'draggable'
     >,
@@ -56,26 +55,22 @@ export interface ButtonProps
 
 export interface InputProps
   extends Omit<ViewStyleProps, 'style' | 'pointerEvents' | 'onPress' | 'dir'>,
-    Omit<
-      HTMLInputElement,
-      'children' | 'translate' | 'height' | 'width' | 'border' | 'draggable'
-    >,
-    Omit<CSSProperties, 'style' | 'dir'> {
+    Omit<Partial<HTMLInputElement>, 'width' | 'height' | 'children'>,
+    Omit<CSSProperties, 'style' | 'dir' | 'translate'> {
   on?: Record<string, CSSProperties>;
   paddingHorizontal?: number | string;
   marginHorizontal?: number | string;
   paddingVertical?: number | string;
   marginVertical?: number | string;
   shadow?: boolean | number | Shadow;
-  tag?: string;
 }
 
-export const Form = (props: FormProps) => <ViewElement {...props} tag="form" />;
+export const Form = (props: FormProps) => <ViewElement {...props} as="form" />;
 
 export const Input = (props: InputProps) => (
-  <ViewElement {...props} tag="input" />
+  <ViewElement {...props} as="input" />
 );
 
 export const Button = (props: ButtonProps) => (
-  <ViewElement {...props} tag="button" />
+  <ViewElement {...props} as="button" />
 );

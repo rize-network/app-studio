@@ -1,6 +1,7 @@
 import React from 'react';
 import Color from 'color-convert';
 import styled from 'styled-components';
+
 import { useTheme } from '../providers/Theme';
 import { shadows } from '../utils/shadow';
 import { isStyleProp } from '../utils/style';
@@ -30,8 +31,8 @@ NumberProps.map((property: string) => {
   NumberPropsStyle[property] = true;
 });
 
-export const setSize = (newSize: string | number, newProps: any) => {
-  newProps.height = newProps.width = newSize;
+export const setSize = (newSize: string | number, styleProps: any) => {
+  styleProps.height = styleProps.width = newSize;
 };
 
 export const applyStyle = (props: any) => {
@@ -40,10 +41,11 @@ export const applyStyle = (props: any) => {
   const { getColor } = useTheme();
   const { mediaQueries, devices } = useResponsiveContext();
 
-  const newProps: any = {};
+  const styleProps: any = {};
+  //const otherProps: any = {};
 
-  if (props.onClick && newProps.cursor == undefined) {
-    newProps.cursor = 'pointer';
+  if (props.onClick && styleProps.cursor == undefined) {
+    styleProps.cursor = 'pointer';
   }
 
   const size =
@@ -56,27 +58,27 @@ export const applyStyle = (props: any) => {
       : null;
 
   if (size) {
-    setSize(size, newProps);
+    setSize(size, styleProps);
   }
 
   if (props.paddingHorizontal) {
-    newProps.paddingLeft = props.paddingHorizontal;
-    newProps.paddingRight = props.paddingHorizontal;
+    styleProps.paddingLeft = props.paddingHorizontal;
+    styleProps.paddingRight = props.paddingHorizontal;
   }
 
   if (props.marginHorizontal) {
-    newProps.marginLeft = props.marginHorizontal;
-    newProps.marginRight = props.marginHorizontal;
+    styleProps.marginLeft = props.marginHorizontal;
+    styleProps.marginRight = props.marginHorizontal;
   }
 
   if (props.paddingVertical) {
-    newProps.paddingTop = props.paddingVertical;
-    newProps.paddingBottom = props.paddingVertical;
+    styleProps.paddingTop = props.paddingVertical;
+    styleProps.paddingBottom = props.paddingVertical;
   }
 
   if (props.marginVertical) {
-    newProps.marginTop = props.marginVertical;
-    newProps.marginBottom = props.marginVertical;
+    styleProps.marginTop = props.marginVertical;
+    styleProps.marginBottom = props.marginVertical;
   }
 
   if (props.shadow) {
@@ -91,14 +93,14 @@ export const applyStyle = (props: any) => {
           .rgb(shadows[shawdowValue].shadowColor)
           .join(',');
 
-        newProps[
+        styleProps[
           'boxShadow'
         ] = `${shadows[shawdowValue].shadowOffset.height}px ${shadows[shawdowValue].shadowOffset.width}px ${shadows[shawdowValue].shadowRadius}px rgba(${shadowColor},${shadows[shawdowValue].shadowOpacity})`;
       }
     } else {
       const shadowColor = Color.hex.rgb(props.shadow.shadowColor).join(',');
 
-      newProps[
+      styleProps[
         'boxShadow'
       ] = `${props.shadow.shadowOffset.height}px ${props.shadow.shadowOffset.width}px ${props.shadow.shadowRadius}px rgba(${shadowColor},${props.shadow.shadowOpacity})`;
     }
@@ -109,7 +111,7 @@ export const applyStyle = (props: any) => {
       if (typeof props[property] === 'object') {
         if (property === 'on') {
           for (const event in props[property]) {
-            newProps['&:' + event] = applyStyle(props[property][event]);
+            styleProps['&:' + event] = applyStyle(props[property][event]);
           }
         } else if (property === 'media') {
           for (const screenOrDevices in props[property]) {
@@ -118,50 +120,50 @@ export const applyStyle = (props: any) => {
               mediaQueries[screenOrDevices] !== undefined &&
               props[property][screenOrDevices] !== undefined
             ) {
-              newProps['@media ' + mediaQueries[screenOrDevices]] = applyStyle(
-                props[property][screenOrDevices]
-              );
+              styleProps['@media ' + mediaQueries[screenOrDevices]] =
+                applyStyle(props[property][screenOrDevices]);
             } else if (devices[screenOrDevices] !== undefined) {
-              for (const screen in devices[screenOrDevices]) {
-                // console.log(screen, devices[screenOrDevices], 'screen');
-
-                for (const deviceScreen in devices[screenOrDevices]) {
-                  if (
-                    mediaQueries[devices[screenOrDevices][deviceScreen]] !==
-                      undefined &&
-                    props[property][screenOrDevices] !== undefined
-                  ) {
-                    console.log(
-                      screenOrDevices,
-                      props[property][screenOrDevices]
-                    );
-                    newProps[
-                      '@media ' +
-                        mediaQueries[devices[screenOrDevices][deviceScreen]]
-                    ] = applyStyle(props[property][screenOrDevices]);
-                  }
+              // console.log(screen, devices[screenOrDevices], 'screen');
+              for (const deviceScreen in devices[screenOrDevices]) {
+                if (
+                  mediaQueries[devices[screenOrDevices][deviceScreen]] !==
+                    undefined &&
+                  props[property][screenOrDevices] !== undefined
+                ) {
+                  // console.log(
+                  //   screenOrDevices,
+                  //   props[property][screenOrDevices]
+                  // );
+                  styleProps[
+                    '@media ' +
+                      mediaQueries[devices[screenOrDevices][deviceScreen]]
+                  ] = applyStyle(props[property][screenOrDevices]);
                 }
               }
             }
           }
         } else {
-          newProps[property] = applyStyle(props[property]);
+          styleProps[property] = applyStyle(props[property]);
         }
       } else if (
         typeof props[property] === 'number' &&
         NumberPropsStyle[property] === undefined
       ) {
-        newProps[property] = props[property] + 'px';
+        styleProps[property] = props[property] + 'px';
       } else if (property.toLowerCase().indexOf('color') !== -1) {
-        newProps[property] = getColor(props[property]);
+        styleProps[property] = getColor(props[property]);
       } else {
-        newProps[property] = props[property];
+        styleProps[property] = props[property];
       }
     }
+    // else {
+    //   otherProps[property] = props[property];
+    // }
   });
 
-  // console.log({ newProps });
-  return newProps;
+  // console.log({ styleProps });
+  //  return { styleProps, otherProps };
+  return styleProps;
 };
 
 // function convertToCSS(props: any) {
@@ -211,43 +213,18 @@ export const applyStyle = (props: any) => {
 //   return mediaQueries;
 // };
 
-export const StyledView = styled.div((props: any) => {
-  return applyStyle(props);
-});
+const dynamicStyle = (props: any) => applyStyle(props);
 
-const elements: any = {
-  form: styled.form((props: any) => {
-    return applyStyle(props);
-  }),
-  button: styled.button((props: any) => {
-    return applyStyle(props);
-  }),
-  input: styled.input((props: any) => {
-    return applyStyle(props);
-  }),
-  span: styled.span((props: any) => {
-    return applyStyle(props);
-  }),
-  img: styled.img((props: any) => {
-    return applyStyle(props);
-  }),
-  div: styled.div((props: any) => {
-    return applyStyle(props);
-  }),
-  video: styled.video((props: any) => {
-    return applyStyle(props);
-  }),
-};
+const Element = styled.div`
+  ${dynamicStyle};
+`;
 
 export class ViewElement extends React.PureComponent<any> {
   render() {
-    const Element = elements[this.props.tag]
-      ? elements[this.props.tag]
-      : elements.div;
-
     return (
       <Element
         {...this.props}
+        as={this.props.tag ? this.props.tag : undefined}
         onClick={
           this.props.onPress !== undefined
             ? this.props.onPress

@@ -1,4 +1,3 @@
-import React from 'react';
 import { CSSProperties } from 'styled-components';
 import { ViewElement } from './Element';
 import { TextStyleProps } from '../types/style';
@@ -17,7 +16,6 @@ export interface TextProps
   marginVertical?: number | string;
   toUpperCase?: boolean;
   shadow?: boolean | number | Shadow;
-  tag?: string;
 }
 
 export const Text = (props: TextProps) => {

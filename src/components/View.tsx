@@ -1,12 +1,14 @@
-import React from 'react';
 import { ViewElement } from './Element';
 import { ViewStyleProps } from '../types/style';
 import { CSSProperties } from 'styled-components';
 import { Shadow } from '../utils/shadow';
 
 export interface ViewProps
-  extends Omit<ViewStyleProps, 'children' | 'style' | 'pointerEvents'>,
-    CSSProperties {
+  extends Omit<
+      ViewStyleProps,
+      'children' | 'translate' | 'style' | 'pointerEvents'
+    >,
+    Omit<CSSProperties, 'translate'> {
   children?: any;
   size?: number;
   on?: Record<string, CSSProperties>;
@@ -17,7 +19,6 @@ export interface ViewProps
   paddingVertical?: number | string;
   marginVertical?: number | string;
   shadow?: boolean | number | Shadow;
-  tag?: string;
 }
 
 export const View = (props: ViewProps) => <ViewElement {...props} />;
@@ -28,4 +29,4 @@ export const SafeArea = View;
 
 export const Scroll = (props: any) => <View overflow={'auto'} {...props} />;
 
-export const Span = (props: ViewProps) => <ViewElement {...props} tag="span" />;
+export const Span = (props: ViewProps) => <ViewElement {...props} as="span" />;
