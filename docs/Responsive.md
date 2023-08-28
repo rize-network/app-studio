@@ -1,13 +1,82 @@
-## Media Prop for Responsive Design
+# Responsive Design with App-Studio
+
+Creating a responsive design is an essential part of modern web development. In App-Studio, two primary features help you achieve this: `useResponsive` hook and the `media` prop. This document provides an overview and examples for both approaches.
+
+## Table of Contents
+1. Media Prop for Responsive Design
+2. Using `useResponsive` Hook
+
+---
+
+## 1. Media Prop for Responsive Design
+
+The `media` prop is particularly useful for managing responsive design without causing your components to re-render. You can specify different styles for various devices or screen sizes.
+
+### Example
+
+Here's a quick example to demonstrate its usage:
 
 ```jsx
 import React from 'react';
-import { ResponsiveProvider } from 'app-studio';
+import { ResponsiveProvider, View } from 'app-studio';
+
+const Example = () => {
+  return (
+    <View size={100} 
+     media={{
+        mobile: {
+          backgroundColor: 'green',
+        },
+        tablet: {
+          backgroundColor: 'yellow',
+        },
+        xl: {
+          backgroundColor: 'blue',
+        },
+      }}  
+      />
+  );
+};
+
+const App = () => (
+  <ResponsiveProvider 
+    breakpoints={{
+        xs: 0,
+        sm: 340,
+        md: 560,
+        lg: 1080,
+        xl: 1300,
+    }}
+    devices={{  
+        mobile: ['xs', 'sm'],
+        tablet: ['md', 'lg'],
+        desktop: ['lg', 'xl']
+    }}
+  >
+    <Example />
+  </ResponsiveProvider>
+);
+```
+
+The `media` prop receives an object, where each key corresponds to a device type or screen size, and its value is another object describing the CSS to apply for that specific device.
+
+---
+
+## 2. Using `useResponsive` Hook
+
+The `useResponsive` hook provides you with screen size and device type information based on your defined breakpoints and devices.
+
+### Example
+
+Here's how you can use `useResponsive`:
+
+```jsx
+import React from 'react';
+import { ResponsiveProvider, View, useResponsive } from 'app-studio';
 
 const Example = () => {
   const { screen, on } = useResponsive();
-  // "screen" provide you the screen size corresponding to you breakpoints
-  // "on" tell you is screen size is included corresponding to you devices
+  
   const responsive = {
     xs: {
       backgroundColor: 'red',
@@ -28,83 +97,39 @@ const Example = () => {
 
   return (
     <View size={100} 
-    {...responsive[screen]}       
->
+      {...responsive[screen]}       
+    >
       {screen} -  mobile : {on('mobile') ? 'yes' : 'no'}
     </View>
   );
-}
+};
 
-const App = () => (<ResponsiveProvider 
+const App = () => (
+  <ResponsiveProvider 
     breakpoints={{
         xs: 0,
         sm: 340,
         md: 560,
         lg: 1080,
         xl: 1300,
-    }} 
-
+    }}
     devices={{  
         mobile: ['xs', 'sm'],
         tablet: ['md', 'lg'],
         desktop: ['lg', 'xl']
     }}
-    >
-    <Exemple />
-<ResponsiveProvider>);
-
-
-
+  >
+    <Example />
+  </ResponsiveProvider>
+);
 ```
 
+In this example, `useResponsive` provides `screen` and `on`:
+- `screen`: Gives you the current screen size based on your breakpoints.
+- `on`: A function that returns `true` or `false` depending on whether the current screen size is included in the given device type.
 
-The 'media' prop is used to manage responsive design in CSS. It takes an object as a value, where the keys are the names of the devices or screen sizes and the values are objects that define the styles to apply for the corresponding device or screen size. 
+These can then be used to dynamically apply styles to your components, as demonstrated with the `responsive` object.
 
-Here is an example:
+---
 
-
-```jsx
-import React from 'react';
-import { ResponsiveProvider } from 'app-studio';
-
-const Example = () => {
-  // "media" will apply  css to the devices or screen  configuration without rerendering the component
-
-  return (
-    <View size={100} 
-     media={{
-        mobile: {
-          backgroundColor: 'green',
-        },
-        tablet: {
-          backgroundColor: 'yellow',
-        },
-        xl: {
-          backgroundColor: 'blue',
-        },
-      }}  
-      />
-  );
-}
-
-const App = () => (<ResponsiveProvider 
-    breakpoints={{
-        xs: 0,
-        sm: 340,
-        md: 560,
-        lg: 1080,
-        xl: 1300,
-    }} 
-
-    devices={{  
-        mobile: ['xs', 'sm'],
-        tablet: ['md', 'lg'],
-        desktop: ['lg', 'xl']
-    }}
-    >
-    <Exemple />
-<ResponsiveProvider>);
-
-
-
-```
+By combining the `media` prop and `useResponsive`, you can create robust, efficient, and responsive designs with App-Studio.

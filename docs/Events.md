@@ -1,9 +1,30 @@
-## Event Management
+# Event Management 
 
+App-Studio provides an intuitive way to manage events in your CSS through the `on` prop. This feature is designed to offer a convenient way to style elements based on various interactive states, represented by CSS pseudo-classes like `hover`, `active`, and `focus`.
 
-The 'on' prop is used to manage events in CSS. It takes an object as a value, where the keys are the names of the CSS pseudo-classes and the values are objects that define the styles to apply when the event represented by the pseudo-class occurs. 
+## Table of Contents
 
-Here is an example:
+1. [Introduction to `on` Prop](#introduction-to-on-prop)
+2. [Usage Examples](#usage-examples)
+3. [Supported Events](#supported-events)
+
+---
+
+## 1. Introduction to `on` Prop
+
+The `on` prop takes an object as its value. The keys in this object correspond to the names of the CSS pseudo-classes, and the values are objects that define the styles to apply when the event occurs.
+
+```jsx
+on={{ [eventName]: { [styleProps]: [styleValue] } }}
+```
+
+Here `eventName` is the name of the CSS pseudo-class, `styleProps` are the CSS properties you wish to change, and `styleValue` are the values you want to apply.
+
+---
+
+## 2. Usage Examples
+
+### Example 1: Changing Background Color on Hover for `View`
 
 ```jsx
 <View 
@@ -15,14 +36,27 @@ Here is an example:
 </View>
 ```
 
-In this example, the background color of the View component will change to 'blue.100' when it is hovered over.
+In this example, the `View` component's background color will change to `blue.100` when the user hovers over it.
 
-Here's an example of how to use the `on` prop to change the background color of an `Element` when it's hovered over:
+### Example 2: Background Color Toggle for `Element`
 
-```tsx
+```jsx
 <Element backgroundColor="blue" on={{ hover: { backgroundColor: 'red' } }} />
 ```
 
-In this example, the background color of the `Element` is 'blue', but when the `Element` is hovered over, the background color changes to 'red'.
+Here, the `Element` component initially has a background color of `blue`. When hovered over, the background color toggles to `red`.
 
-The `on` prop is a powerful tool for managing events in CSS, giving you the ability to directly control the visual feedback of user interactions.
+---
+
+## 3. Supported Events
+
+The `on` prop currently supports a variety of CSS pseudo-classes, allowing you to fine-tune your UI based on user interaction. Here are some commonly used pseudo-classes:
+
+- `hover`: Triggered when the mouse is placed over the component.
+- `active`: Triggered when the component is actively being interacted with (e.g., a mouse click).
+- `focus`: Triggered when the component gains focus (e.g., through tab navigation).
+- `disabled`: Triggered when the component is disabled.
+
+---
+
+The `on` prop is a powerful and efficient way to manage events in your CSS. It offers a straightforward method for enhancing your components' interactivity, making for a more dynamic and engaging user experience.
