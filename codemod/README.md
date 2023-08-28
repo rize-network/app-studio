@@ -1,11 +1,11 @@
-# @reflexjs/codemod
+# @app-studio/codemod
 
 Provides Codemod transformations to help with code upgrade and migration.
 
 ## Usage
 
 ```sh
-npx @reflexjs/codemod <transform> <path
+npx @app-studio/codemod <transform> <path
 ```
 
 - `transform` - name of the transform
@@ -17,16 +17,16 @@ npx @reflexjs/codemod <transform> <path
 
 ### `to-reflexjs`
 
-This Codemod migrates your `@reflexjs/componens` code to `reflexjs` code.
+This Codemod migrates your `@app-studio/components` code to `app-studio` code.
 
 ```js
-npx @reflexjs/codemod to-reflexjs
+npx @reflexjs/codemod to-app-studio
 ```
 
 Example:
 
 ```jsx
-import { Div, H1, Button } from "@reflexjs/components"
+import { Div, H1, Button } from "@app-studio/components"
 
 export default function () {
   return (
