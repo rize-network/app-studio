@@ -100,36 +100,36 @@ export const ThemeProvider = ({
     try {
       // Si le nom commence par "theme.", nous recherchons dans les couleurs du thème
       if (name.startsWith('theme.')) {
-        const keys = name.split('.').slice(1)[0];
+        const keys = name.split('.');
         if (
           keys[1] !== undefined &&
-          typeof theme.components[keys[0]] == 'object' &&
-          theme.components[keys[0]][keys[1]] !== undefined
+          typeof theme.components[keys[1]] == 'object' &&
+          theme.components[keys[1]][keys[2]] !== undefined
         ) {
-          return getColor(theme.components[keys[0]][keys[1]]);
+          return getColor(theme.components[keys[1]][keys[2]]);
         }
 
-        if (theme.main[keys[0]] && theme.main[keys[0]] !== undefined) {
-          return getColor(theme.main[keys[0]]);
+        if (theme.main[keys[1]] && theme.main[keys[1]] !== undefined) {
+          return getColor(theme.main[keys[1]]);
         }
       }
       // Si le nom commence par "color.", nous recherchons dans la palette
       else if (name.startsWith('color.')) {
-        const keys = name.split('.').slice(1); // Retirer le préfixe "color."
+        const keys = name.split('.'); // Retirer le préfixe "color."
 
-        if (colors.palette && colors.palette[keys[0]][keys[1]] !== undefined) {
-          return colors.palette[keys[0]][keys[1]];
+        if (colors.palette && colors.palette[keys[1]][keys[2]] !== undefined) {
+          return colors.palette[keys[1]][keys[2]];
         }
 
         if (
           colors.palette &&
-          colors.palette[keys[0]][parseInt(keys[1])] !== undefined
+          colors.palette[keys[1]][parseInt(keys[2])] !== undefined
         ) {
-          return colors.palette[keys[0]][parseInt(keys[1])];
+          return colors.palette[keys[1]][parseInt(keys[2])];
         }
 
-        if (colors.main && colors.main[keys[0]] !== undefined) {
-          return colors.main[keys[0]];
+        if (colors.main && colors.main[keys[1]] !== undefined) {
+          return colors.main[keys[1]];
         }
       }
     } catch (e) {
