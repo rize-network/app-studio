@@ -20,7 +20,7 @@ Here is an example:
 
 In this example, the View component is styled with custom background color, padding, margin, width, and height.
 
-The 'shadow' prop is used to manage shadows in CSS. It takes a string as a value, which defines the shadow effect to apply to the component. 
+The 'shadow' prop is used to manage Shadows in CSS. It takes a string as a value, which defines the shadow effect to apply to the component. 
 
 Here is an example:
 

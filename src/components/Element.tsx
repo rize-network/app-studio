@@ -3,7 +3,7 @@ import Color from 'color-convert';
 import styled, { CSSProperties } from 'styled-components';
 
 import { useTheme } from '../providers/Theme';
-import { shadows, Shadow } from '../utils/shadow';
+import { Shadows, Shadow } from '../utils/shadow';
 import { isStyleProp } from '../utils/style';
 import { useResponsiveContext } from '..';
 
@@ -96,18 +96,18 @@ export const applyStyle = (props: any) => {
   if (props.shadow) {
     if (typeof props.shadow === 'number' || typeof props.shadow === 'boolean') {
       const shawdowValue: number =
-        typeof props.shadow === 'number' && shadows[props.shadow] !== undefined
+        typeof props.shadow === 'number' && Shadows[props.shadow] !== undefined
           ? props.shadow
           : 2;
 
-      if (shadows[shawdowValue]) {
+      if (Shadows[shawdowValue]) {
         const shadowColor = Color.hex
-          .rgb(shadows[shawdowValue].shadowColor)
+          .rgb(Shadows[shawdowValue].shadowColor)
           .join(',');
 
         styleProps[
           'boxShadow'
-        ] = `${shadows[shawdowValue].shadowOffset.height}px ${shadows[shawdowValue].shadowOffset.width}px ${shadows[shawdowValue].shadowRadius}px rgba(${shadowColor},${shadows[shawdowValue].shadowOpacity})`;
+        ] = `${Shadows[shawdowValue].shadowOffset.height}px ${Shadows[shawdowValue].shadowOffset.width}px ${Shadows[shawdowValue].shadowRadius}px rgba(${shadowColor},${Shadows[shawdowValue].shadowOpacity})`;
       }
     } else {
       const shadowColor = Color.hex.rgb(props.shadow.shadowColor).join(',');

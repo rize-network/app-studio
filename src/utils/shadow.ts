@@ -8,7 +8,7 @@ export type Shadow = {
   shadowRadius: number;
 };
 
-export const shadows: Record<number, Shadow> = {
+export const Shadows: Record<number, Shadow> = {
   0: {
     shadowColor: '#000',
     shadowOffset: {

@@ -311,7 +311,7 @@ export type LayoutStyles = {
 /**
  * Shadows
  */
-export type ShadowStyles = {
+export type Shadowstyles = {
   shadowColor?: ColorValue | null | undefined;
   shadowOffset?: {
     width?: DimensionValue;
@@ -355,7 +355,7 @@ export type ViewStyle = AnimationStyles &
   BorderStyles &
   InteractionStyles &
   LayoutStyles &
-  ShadowStyles &
+  Shadowstyles &
   TransformStyles & {
     backdropFilter?: string | null | undefined;
     backgroundAttachment?: string | null | undefined;
@@ -548,7 +548,7 @@ export type ImageStyle = AnimationStyles &
   BorderStyles &
   InteractionStyles &
   LayoutStyles &
-  ShadowStyles &
+  Shadowstyles &
   TransformStyles & {
     backgroundColor?: ColorValue;
     boxShadow?: string;
