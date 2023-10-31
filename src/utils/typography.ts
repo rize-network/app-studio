@@ -1,4 +1,4 @@
-export default {
+export const Typography = {
   letterSpacings: {
     tighter: -0.08,
     tight: -0.4,
