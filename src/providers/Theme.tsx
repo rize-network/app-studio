@@ -1,20 +1,20 @@
 import React, { ReactNode } from 'react';
 
 import { createContext, useContext } from 'react';
-import { palette as defaultPalette, palette } from '../utils/colors';
+import { palette as defaultPalette } from '../utils/colors';
 
 type ColorConfig = Record<string, string>;
 
 type VariantColorConfig = Record<string, Record<string, string>>;
 
 const defaultThemeMain: ColorConfig = {
-  primary: 'black',
-  secondary: 'blue',
-  success: 'green.500',
-  error: 'red.500',
-  warning: 'orange.500',
-  disabled: 'gray.500',
-  loading: 'dark.500',
+  primary: 'color.black',
+  secondary: 'color.blue',
+  success: 'color.green.500',
+  error: 'color.red.500',
+  warning: 'color.orange.500',
+  disabled: 'color.gray.500',
+  loading: 'color.dark.500',
 };
 
 const defaultColors: ColorConfig = {
