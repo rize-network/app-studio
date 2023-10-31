@@ -3,6 +3,7 @@ export * from './components/Image';
 export * from './components/Text';
 export * from './components/Form';
 export * from './components/Element';
+export * from './utils/typography';
 export * from './hooks/useMount';
 export * from './hooks/useResponsive';
 export * from './providers/Responsive';
