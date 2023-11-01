@@ -24,7 +24,11 @@
 [issues-helper-image]: https://img.shields.io/badge/using-issues--helper-orange?style=flat-square
 [issues-helper-url]: https://github.com/actions-cool/issues-helper
 
+** App-Studio **
 
+`app-studio` provides CSS design props for layout, spacing, sizing, shadows with the 'shadow' prop, event management through the `on` prop, and theming. Components include `Element` for fundamental design, `View` based on the `div`, `Text` for text styles, `Form` for form-related designs, and `Image` based on the `img` tag.
+
+Supported events: `hover`, `active`, `focus`, and `disabled`.
 
 
 ## ✨ Features
@@ -69,11 +73,11 @@ import { View } from 'app-studio';
 function Example() {
 	return (
 		<View 
-    backgroundColor="color.grey" 
-    padding={20}
-    on={{ hover: { backgroundColor: 'color.blue.100' } }}
-    >
-			Hello
+	    backgroundColor="color.grey" 
+	    padding={20}
+	    on={{ hover: { backgroundColor: 'color.blue.100' } }}
+ >
+		Hello
 		</View>
 	);
 }
@@ -82,83 +86,10 @@ function Example() {
 
 You can Use View is use <div> tag you can use  Div, Span, Form, Input, Image components if you need another tag.
 
-Here's a more concise version of your text:
 
----
-
-**App-Studio Design Integration Props**
-
-The `app-studio` library offers unique props for detailed design management in CSS, covering aspects like layout, spacing, and sizing. 
-
-**Example**:
-```jsx
-<View 
-  backgroundColor="theme.primary" 
-  padding={20}
-  margin={10}
-  width={200}
-  height={100}
->
-  Custom styled View component
-</View>
-```
-
-Use the 'shadow' prop for CSS shadows. 
-
-**Components in App-Studio**:
-
-- **Element**: Fundamental. Handles major styling aspects like responsiveness and shadow. 
-  ```jsx
-  <Element backgroundColor="color.blue" padding={10}>Base element</Element>
-  ```
-
-- **View**: A generic component based on the `div` tag with enhanced style properties.
-  ```jsx
-  <View backgroundColor="color.red" color="color.white" padding={20}>Example view</View>
-  ```
-
-- **Text**: `div` tag-based with text style properties.
-  ```jsx
-  <Text color="color.blue">Sample text</Text>
-  ```
-
-- **Form**: Based on the `form` tag and includes `Button` and `Input`.
-  ```jsx
-  <Form>
-    <Input placeholder="Name" />
-    <Button>Submit</Button>
-  </Form>
-  ```
-
-- **Image**: Extends the `img` tag and offers properties like `shadow`.
-  ```jsx
-  <Image src="url_to_image" alt="description" />
-  ```
-
-**Event Management with `on` Prop**:
-
-Manage CSS events using the `on` prop. It accepts an object for styling based on interactive states like `hover`.
-
-**Example**:
-```jsx
-<View 
-  backgroundColor="color.grey" 
-  padding={20}
-  on={{ hover: { backgroundColor: 'color.blue.100' } }}
->
-  Hover effect
-</View>
-```
-
-Supported events: `hover`, `active`, `focus`, and `disabled`.
-
-**Theming in App-Studio**:
-
-Ensure consistent design with the `ThemeProvider` component. Define your theme and colors, then wrap your root component with `ThemeProvider`.
-
-**Complete Example**:
+** Example**:
 ```javascript
-import { ThemeProvider, View, Text } from 'app-studio';
+import { ThemeProvider,ReponsiveProvider,  View, Span, Text } from 'app-studio';
 
 const theme = {
   main: { primary: '#fff7ed' },
@@ -172,28 +103,40 @@ const colors = {
 
 function Example() {
   return (
-    <ThemeProvider theme={theme} colors={colors}>
-      <View backgroundColor="color.blue">
-        <Text color="theme.primary">Hello</Text>
-      </View>
-    </ThemeProvider>
+    <ReponsiveProvider>
+	    <ThemeProvider theme={theme} colors={colors}>
+	      <Span
+		backgroundColor="color.blue"
+		padding={10}
+		media={{
+			mobile: {
+			  padding: 20
+			}
+		      }}
+		>
+	        Base element
+	      </Span>
+	      <View 
+	        backgroundColor="theme.primary" 
+	        margin={10}
+	        width={200}
+	        on={{ hover: { backgroundColor: 'color.blueGray.500' } }}
+	      >
+	        Hover to change color
+	      </View>
+		<Button backgroundColor="theme.button.background">Click here </Button>
+	      <Text color="theme.primary">Hello</Text>
+	    </ThemeProvider>
+    </ReponsiveProvider>
+
   );
 }
-```
-
----
-
-This condensed version captures the essence of the provided content and should make it easier for AI training without losing important details.
-### TypeScript
-
-`app-studio` is written in TypeScript with complete definitions.
 
 
 ## 🔗 Links
 - [Change Log](CHANGELOG.md)
 - [Versioning Release Note](https://github.com/rize-network/app-studio/wiki/)
 - [How to Apply for Being A Collaborator](https://github.com/rize-network/app-studio/wiki/Collaborators#how-to-apply-for-being-a-collaborator)
-
 
 
 ## 🤝 Contributing [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
@@ -208,21 +151,6 @@ If you are a collaborator, please follow our [Pull Request principle](https://gi
 
 
 
-## ❤️ Sponsors and Backers [![](https://opencollective.com/rize/tiers/sponsors/badge.svg?label=Sponsors&color=brightgreen)](https://opencollective.com/rize#support) [![](https://opencollective.com/rize/tiers/backers/badge.svg?label=Backers&color=brightgreen)](https://opencollective.com/rize#support)
-
-[![](https://opencollective.com/rize/tiers/sponsors.svg?avatarHeight=36)](https://opencollective.com/rize#support)
-
-[![](https://opencollective.com/rize/tiers/backers.svg?avatarHeight=36)](https://opencollective.com/rize#support)
-
-
-<!-- 
-## Fundamentals
-
-| Property    |  Type  |  Default  | Description           |
-| ----------- | :----: | :-------: | --------------------- |
-| title       | string | undefined | change the title      |
-| description | string | undefined | change the descrition | -->
-
 ## Roadmap 
 
 - Integrate React Native 
@@ -230,6 +158,14 @@ If you are a collaborator, please follow our [Pull Request principle](https://gi
 ## Author
 
 SteedMonteiro, steed@rize.network
+
+
+## ❤️ Sponsors and Backers [![](https://opencollective.com/rize/tiers/sponsors/badge.svg?label=Sponsors&color=brightgreen)](https://opencollective.com/rize#support) [![](https://opencollective.com/rize/tiers/backers/badge.svg?label=Backers&color=brightgreen)](https://opencollective.com/rize#support)
+
+[![](https://opencollective.com/rize/tiers/sponsors.svg?avatarHeight=36)](https://opencollective.com/rize#support)
+[![](https://opencollective.com/rize/tiers/backers.svg?avatarHeight=36)](https://opencollective.com/rize#support)
+
+
 
 ## License
 
