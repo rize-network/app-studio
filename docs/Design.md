@@ -8,7 +8,7 @@ Here is an example:
 
 ```jsx
 <View 
-  backgroundColor="grey" 
+  backgroundColor="theme.primary" 
   padding={20}
   margin={10}
   width={200}
@@ -26,7 +26,7 @@ Here is an example:
 
 ```jsx
 <View 
-  backgroundColor="grey" 
+  backgroundColor="theme.primary" 
   padding={20}
   shadow={6}
 >
