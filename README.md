@@ -131,7 +131,7 @@ function Example() {
 
   );
 }
-
+```
 
 ## 🔗 Links
 - [Change Log](CHANGELOG.md)
