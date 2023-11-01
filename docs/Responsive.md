@@ -25,13 +25,13 @@ const Example = () => {
     <View size={100} 
      media={{
         mobile: {
-          backgroundColor: 'green',
+          backgroundColor: 'color.green',
         },
         tablet: {
-          backgroundColor: 'yellow',
+          backgroundColor: 'color.yellow',
         },
         xl: {
-          backgroundColor: 'blue',
+          backgroundColor: 'color.blue',
         },
       }}  
       />
