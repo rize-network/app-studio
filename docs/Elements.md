@@ -7,7 +7,7 @@ The `Element` component is a fundamental component in the library. It is respons
 ## Usage
 
 ```jsx
-<Element backgroundColor="blue" padding={10}>This is an element</Element>
+<Element backgroundColor="color.blue" padding={10}>This is an element</Element>
 ```
 
 
@@ -27,7 +27,7 @@ The `View` component is a more generic one, it can be used to create any kind of
 ## Usage
 
 ```jsx
-<View backgroundColor="red" color="white" padding={20}>This is a view</View>
+<View backgroundColor="color.red" color="color.white" padding={20}>This is a view</View>
 ```
 
 
@@ -38,7 +38,7 @@ The `Text` component extends the basic `div` HTML tag with additional properties
 ## Usage
 
 ```jsx
-<Text color="blue">This is a text</Text>
+<Text color="color.blue">This is a text</Text>
 ```
 
 # Form
