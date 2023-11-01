@@ -25,7 +25,7 @@
 [issues-helper-url]: https://github.com/actions-cool/issues-helper
 
 
-`app-studio` provides CSS design props for layout, spacing, sizing, shadows with the 'shadow' prop, event management through the `on` prop, and theming. Components include `Element` for fundamental design, `View` based on the `div`, `Text` for text styles, `Form` for form-related designs, and `Image` based on the `img` tag.
+`App-studio` provides CSS design props for layout, spacing, sizing, shadows with the 'shadow' prop, event management through the `on` prop, and theming. Components include `Element` for fundamental design, `View` based on the `div`, `Text` for text styles, `Form` for form-related designs, and `Image` based on the `img` tag.
 
 Supported events: `hover`, `active`, `focus`, and `disabled`.
 
