@@ -192,9 +192,6 @@ This condensed version captures the essence of the provided content and should m
 ## 🔗 Links
 - [Change Log](CHANGELOG.md)
 - [Versioning Release Note](https://github.com/rize-network/app-studio/wiki/)
-- [FAQ](https://ant.design/docs/react/faq)
-- [CodeSandbox Template](https://u.ant.design/codesandbox-repro) for bug reports
-- [Customize Theme](https://ant.design/docs/react/customize-theme)
 - [How to Apply for Being A Collaborator](https://github.com/rize-network/app-studio/wiki/Collaborators#how-to-apply-for-being-a-collaborator)
 
 
