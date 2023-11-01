@@ -85,8 +85,8 @@ function Example() {
 
 You can Use View is use <div> tag you can use  Div, Span, Form, Input, Image components if you need another tag.
 
+##  Example
 
-** Example**:
 ```javascript
 import { ThemeProvider, ResponsiveProvider, View, Span, Text } from 'app-studio';
 
