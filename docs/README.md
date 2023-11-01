@@ -69,9 +69,9 @@ import { View } from 'app-studio';
 function Example() {
 	return (
 		<View 
-    backgroundColor="grey" 
+    backgroundColor="color.grey" 
     padding={20}
-    on={{ hover: { backgroundColor: 'blue.100' } }}
+    on={{ hover: { backgroundColor: 'color.blue.100' } }}
     >
 			Hello
 		</View>
