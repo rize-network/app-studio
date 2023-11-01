@@ -69,9 +69,9 @@ import { View } from 'app-studio';
 function Example() {
 	return (
 		<View 
-    backgroundColor="grey" 
+    backgroundColor="color.grey" 
     padding={20}
-    on={{ hover: { backgroundColor: 'blue.100' } }}
+    on={{ hover: { backgroundColor: 'color.blue.100' } }}
     >
 			Hello
 		</View>
@@ -82,6 +82,108 @@ function Example() {
 
 You can Use View is use <div> tag you can use  Div, Span, Form, Input, Image components if you need another tag.
 
+Here's a more concise version of your text:
+
+---
+
+**App-Studio Design Integration Props**
+
+The `app-studio` library offers unique props for detailed design management in CSS, covering aspects like layout, spacing, and sizing. 
+
+**Example**:
+```jsx
+<View 
+  backgroundColor="theme.primary" 
+  padding={20}
+  margin={10}
+  width={200}
+  height={100}
+>
+  Custom styled View component
+</View>
+```
+
+Use the 'shadow' prop for CSS shadows. 
+
+**Components in App-Studio**:
+
+- **Element**: Fundamental. Handles major styling aspects like responsiveness and shadow. 
+  ```jsx
+  <Element backgroundColor="color.blue" padding={10}>Base element</Element>
+  ```
+
+- **View**: A generic component based on the `div` tag with enhanced style properties.
+  ```jsx
+  <View backgroundColor="color.red" color="color.white" padding={20}>Example view</View>
+  ```
+
+- **Text**: `div` tag-based with text style properties.
+  ```jsx
+  <Text color="color.blue">Sample text</Text>
+  ```
+
+- **Form**: Based on the `form` tag and includes `Button` and `Input`.
+  ```jsx
+  <Form>
+    <Input placeholder="Name" />
+    <Button>Submit</Button>
+  </Form>
+  ```
+
+- **Image**: Extends the `img` tag and offers properties like `shadow`.
+  ```jsx
+  <Image src="url_to_image" alt="description" />
+  ```
+
+**Event Management with `on` Prop**:
+
+Manage CSS events using the `on` prop. It accepts an object for styling based on interactive states like `hover`.
+
+**Example**:
+```jsx
+<View 
+  backgroundColor="color.grey" 
+  padding={20}
+  on={{ hover: { backgroundColor: 'color.blue.100' } }}
+>
+  Hover effect
+</View>
+```
+
+Supported events: `hover`, `active`, `focus`, and `disabled`.
+
+**Theming in App-Studio**:
+
+Ensure consistent design with the `ThemeProvider` component. Define your theme and colors, then wrap your root component with `ThemeProvider`.
+
+**Complete Example**:
+```javascript
+import { ThemeProvider, View, Text } from 'app-studio';
+
+const theme = {
+  main: { primary: '#fff7ed' },
+  components: { button: { background: '#fff7ed' } }
+};
+
+const colors = {
+  main: { blue: '#94a3b8' },
+  palette: { blueGray: { 500: '#64748b' } }
+};
+
+function Example() {
+  return (
+    <ThemeProvider theme={theme} colors={colors}>
+      <View backgroundColor="color.blue">
+        <Text color="theme.primary">Hello</Text>
+      </View>
+    </ThemeProvider>
+  );
+}
+```
+
+---
+
+This condensed version captures the essence of the provided content and should make it easier for AI training without losing important details.
 ### TypeScript
 
 `app-studio` is written in TypeScript with complete definitions.
