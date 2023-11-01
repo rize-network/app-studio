@@ -10,24 +10,34 @@ Here's an example:
 
 ```javascript
 const theme = {
-  colors: {
-     orange: '#fff7ed', 
-     cyan: '#ecfeff',
-  },
-  palette: {
-    blueGray: {
-      50: '#f8fafc',
-      100: '#f1f5f9',
-      200: '#e2e8f0',
-      300: '#cbd5e1',
-      400: '#94a3b8',
-      500: '#64748b',
-      600: '#475569',
-      700: '#334155',
-      800: '#1e293b',
-      900: '#0f172a',
+    main:{
+       primary: '#fff7ed'
     },
-  }
+    components: {
+      button:{
+        background: '#fff7ed'
+      }
+    }
+};
+
+const colors = {
+    main:{
+       blue: '#94a3b8'
+    },
+    palette: {
+      blueGray: {
+        50: '#f8fafc',
+        100: '#f1f5f9',
+        200: '#e2e8f0',
+        300: '#cbd5e1',
+        400: '#94a3b8',
+        500: '#64748b',
+        600: '#475569',
+        700: '#334155',
+        800: '#1e293b',
+        900: '#0f172a'
+      }
+    }
 };
 ```
 
@@ -42,7 +52,7 @@ import { ThemeProvider, View } from 'app-studio';
 
 function App() {
   return (
-    <ThemeProvider theme={theme}>
+    <ThemeProvider theme={theme} colors={colors}>
       {/* The rest of your app */}
     </ThemeProvider>
   );
@@ -57,11 +67,15 @@ Here's an example of how you might set the background color for a `View` and tex
 
 ```javascript
 import { View, Text } from 'app-studio';
+import { Button } from '@app-studio/web';
 
 function Example() {
   return (
-    <View backgroundColor="cyan">
-      <Text color="blueGray.200">Hello</Text>
+    <View backgroundColor="color.blue">
+       <View backgroundColor="color.blueGray.500">
+        <Text color="theme.primary">Hello</Text>
+       </View>
+       <Button backgroundColor="theme.button.background">Hello</Text>
     </View>
   );
 }
@@ -78,31 +92,44 @@ import React from 'react';
 import { ThemeProvider, View, Text } from 'app-studio';
 
 const theme = {
-  colors: {
-    orange: '#fff7ed',
-    cyan: '#ecfeff',
-  },
-  palette: {
-    blueGray: {
-      50: '#f8fafc',
-      100: '#f1f5f9',
-      200: '#e2e8f0',
-      300: '#cbd5e1',
-      400: '#94a3b8',
-      500: '#64748b',
-      600: '#475569',
-      700: '#334155',
-      800: '#1e293b',
-      900: '#0f172a',
+    main:{
+       primary: '#fff7ed'
     },
-  }
+    components: {
+      button:{
+        background: '#fff7ed'
+      }
+    }
+};
+
+const colors = {
+    main:{
+       blue: '#94a3b8'
+    },
+    palette: {
+      blueGray: {
+        50: '#f8fafc',
+        100: '#f1f5f9',
+        200: '#e2e8f0',
+        300: '#cbd5e1',
+        400: '#94a3b8',
+        500: '#64748b',
+        600: '#475569',
+        700: '#334155',
+        800: '#1e293b',
+        900: '#0f172a'
+      }
+    }
 };
 
 function Example() {
   return (
-    <ThemeProvider theme={theme}>
-      <View backgroundColor="cyan">
-        <Text color="blueGray.200">Hello</Text>
+    <ThemeProvider theme={theme} colors={colors}>
+      <View backgroundColor="color.blue">
+         <View backgroundColor="color.blueGray.500">
+            <Text color="theme.primary">Hello</Text>
+         </View>
+         <Button backgroundColor="theme.button.background">Hello</Text>
       </View>
     </ThemeProvider>
   );
