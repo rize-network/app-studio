@@ -24,7 +24,6 @@
 [issues-helper-image]: https://img.shields.io/badge/using-issues--helper-orange?style=flat-square
 [issues-helper-url]: https://github.com/actions-cool/issues-helper
 
-** App-Studio **
 
 `app-studio` provides CSS design props for layout, spacing, sizing, shadows with the 'shadow' prop, event management through the `on` prop, and theming. Components include `Element` for fundamental design, `View` based on the `div`, `Text` for text styles, `Form` for form-related designs, and `Image` based on the `img` tag.
 
