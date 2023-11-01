@@ -89,7 +89,7 @@ You can Use View is use <div> tag you can use  Div, Span, Form, Input, Image com
 
 ** Example**:
 ```javascript
-import { ThemeProvider,ReponsiveProvider,  View, Span, Text } from 'app-studio';
+import { ThemeProvider, ResponsiveProvider, View, Span, Text } from 'app-studio';
 
 const theme = {
   main: { primary: '#fff7ed' },
@@ -103,7 +103,7 @@ const colors = {
 
 function Example() {
   return (
-    <ReponsiveProvider>
+    <ResponsiveProvider>
 	    <ThemeProvider theme={theme} colors={colors}>
 	      <Span
 		backgroundColor="color.blue"
@@ -127,7 +127,7 @@ function Example() {
 		<Button backgroundColor="theme.button.background">Click here </Button>
 	      <Text color="theme.primary">Hello</Text>
 	    </ThemeProvider>
-    </ReponsiveProvider>
+    </ResponsiveProvider>
 
   );
 }
