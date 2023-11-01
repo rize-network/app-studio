@@ -41,7 +41,7 @@ In this example, the `View` component's background color will change to `blue.10
 ### Example 2: Background Color Toggle for `Element`
 
 ```jsx
-<Element backgroundColor="blue" on={{ hover: { backgroundColor: 'red' } }} />
+<Element backgroundColor="blue" on={{ hover: { backgroundColor: 'color.red' } }} />
 ```
 
 Here, the `Element` component initially has a background color of `blue`. When hovered over, the background color toggles to `red`.
