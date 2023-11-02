@@ -27,17 +27,22 @@ export function transformHTMLToView(root, j, imports) {
     const mappedComponent = COMPONENT_MAPPING[tagName];
 
     if (mappedComponent) {
-      // Assurez-vous de toujours vérifier vos règles de mappage personnalisées
-      path.node.name.name = mappedComponent;
+      path.node.openingElement.name.name = mappedComponent;
+      if (path.node.closingElement)
+        path.node.closingElement.name.name = mappedComponent;
     } else {
-      // Si le nom du composant est un élément HTML standard, transformez-le en <View as="[nom de la balise]">
-      if (isHtmlElement(path.node.name.name)) {
+      console.log({ tagName });
+      if (tagName && isHtmlElement(tagName)) {
         const asAttribute = j.jsxAttribute(
           j.jsxIdentifier('as'),
-          j.stringLiteral(path.node.name.name)
+          j.stringLiteral(tagName)
         );
-        path.node.name.name = 'View';
-        path.node.attributes.push(asAttribute);
+        console.log({ name: path.node.openingElement.name.name });
+
+        path.node.openingElement.name.name = 'View';
+        if (path.node.closingElement)
+          path.node.closingElement.name.name = 'View';
+        path.node.openingElement.attributes.push(asAttribute);
       }
     }
   });
@@ -47,7 +52,7 @@ function isHtmlElement(elementName) {
   return elementName[0] === elementName[0].toLowerCase();
 }
 
-export function transformStyledComponentsToView(j, root, imports) {
+export function transformStyledComponentsToView(root, j, imports) {
   root
     .find(j.TaggedTemplateExpression)
     .filter((path) => {
@@ -194,4 +199,69 @@ export function addImportStatement(root, j, importName, fromModule) {
     );
     root.find(j.Program).get('body', 0).insertBefore(importStatement);
   }
+}
+
+export function mapCSSClassToProps(root, j, cssContent) {
+  // Use a simple regex to extract class names and their styles
+  const cssClassRegex = /\.([a-zA-Z0-9-_]+)\s*\{([\s\S]*?)\}/g;
+  let cssClassMatch;
+
+  const cssClassStyles = {};
+
+  while ((cssClassMatch = cssClassRegex.exec(cssContent)) !== null) {
+    const className = cssClassMatch[1];
+    const styles = cssClassMatch[2]
+      .split(';')
+      .filter(Boolean)
+      .reduce((acc, style) => {
+        const [key, value] = style.split(':').map((str) => str.trim());
+        if (key && value) {
+          acc[key] = value;
+        }
+        return acc;
+      }, {});
+
+    cssClassStyles[className] = styles;
+  }
+
+  // Iterate over JSXElements and check for className attributes
+  root.find(j.JSXElement).forEach((path) => {
+    const classNameAttribute = path.node.openingElement.attributes.find(
+      (attr) => attr.name && attr.name.name === 'className'
+    );
+
+    if (classNameAttribute) {
+      const classNameValue = classNameAttribute.value.value;
+      const mappedStyles = cssClassStyles[classNameValue];
+      if (mappedStyles) {
+        const newAttributes = Object.keys(mappedStyles).map((key) => {
+          const propName = key.replace(/-([a-z])/g, (g) => g[1].toUpperCase());
+          return j.jsxAttribute(
+            j.jsxIdentifier(propName),
+            j.stringLiteral(mappedStyles[key])
+          );
+        });
+
+        path.node.openingElement.attributes = [
+          ...path.node.openingElement.attributes.filter(
+            (attr) => attr.name.name !== 'className'
+          ),
+          ...newAttributes,
+        ];
+      }
+    }
+  });
+}
+
+export function getCSSImportPath(root, j) {
+  let cssPath = null;
+
+  root.find(j.ImportDeclaration).forEach((path) => {
+    const isCSSImport = /\.css$/.test(path.node.source.value);
+    if (isCSSImport) {
+      cssPath = path.node.source.value;
+    }
+  });
+
+  return cssPath;
 }

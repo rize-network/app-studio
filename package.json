@@ -1,5 +1,5 @@
 {
-  "version": "0.1.16",
+  "version": "0.1.17",
   "name": "app-studio",
   "description": "App Studio is a responsive and themeable framework to build cross platform applications",
   "repository": "git@github.com:rize-network/app-studio.git",
@@ -39,8 +39,6 @@
     "prepublishOnly": "npm run build",
     "size": "size-limit",
     "analyze": "size-limit --why",
-    "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook",
     "upgrade": "ncu -u"
   },
   "peerDependencies": {
@@ -59,11 +57,6 @@
     "@commitlint/cli": "^16.1.0",
     "@commitlint/config-conventional": "^16.0.0",
     "@size-limit/preset-small-lib": "^7.0.5",
-    "@storybook/addon-essentials": "^6.4.17",
-    "@storybook/addon-info": "^5.3.21",
-    "@storybook/addon-links": "^6.4.17",
-    "@storybook/addons": "^6.4.17",
-    "@storybook/react": "^6.4.17",
     "@types/color": "^3.0.3",
     "@types/react": "^17.0.38",
     "@types/react-dom": "^17.0.11",
@@ -72,6 +65,7 @@
     "@typescript-eslint/parser": "^5.10.1",
     "babel-loader": "^8.2.3",
     "chalk": "^5.0.0",
+    "cheerio": "^1.0.0-rc.12",
     "commitlint": "^16.1.0",
     "cross-env": "^7.0.3",
     "eslint": "^8.8.0",
@@ -85,6 +79,7 @@
     "husky": "^7.0.4",
     "jscodeshift": "^0.15.0",
     "lint-staged": "^12.3.2",
+    "postcss": "^8.4.31",
     "prettier": "^2.5.1",
     "react": "^17.0.2",
     "size-limit": "^7.0.5",

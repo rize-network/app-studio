@@ -132,6 +132,28 @@ function Example() {
 }
 ```
 
+
+## Convert HTML and CSS to App Studio**
+
+- Save the code from **Section 1** into a file named `converter.js`.
+- Run the script using the command:
+
+```bash
+node converter.js
+```
+
+## Transform JavaScript/TypeScript JSX
+
+- Save the code from **Section 2** into a folder named `codemod` and within that, a file named `to-app-studio.js`.
+- Use `jscodeshift` to run the transformation:
+
+```bash
+npx jscodeshift -t codemod/to-app-studio.js <path_to_your_js_or_tsx_files>
+```
+
+Replace `<path_to_your_js_or_tsx_files>` with the actual path to your JavaScript/TypeScript files.
+
+
 ## 🔗 Links
 - [Change Log](CHANGELOG.md)
 - [Versioning Release Note](https://github.com/rize-network/app-studio/wiki/)
