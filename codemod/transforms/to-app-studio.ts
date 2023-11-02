@@ -25,7 +25,9 @@ export const COMPONENT_MAPPING = {
   img: 'Image',
 };
 
+// eslint-disable-next-line prefer-const
 let IMPORT_APP = {};
+// eslint-disable-next-line prefer-const
 let IMPORT_COMPONENT = {};
 
 function isHtmlElement(elementName) {
@@ -183,59 +185,6 @@ export function addImportStatement(root, j, importNames = [], fromModule) {
   }
 }
 
-export function mapCSSClassToProps(root, j, cssContent) {
-  // Use a simple regex to extract class names and their styles
-  const cssClassRegex = /\.([a-zA-Z0-9-_]+)\s*\{([\s\S]*?)\}/g;
-  let cssClassMatch;
-
-  const cssClassStyles = {};
-
-  while ((cssClassMatch = cssClassRegex.exec(cssContent)) !== null) {
-    const className = cssClassMatch[1];
-    const styles = cssClassMatch[2]
-      .split(';')
-      .filter(Boolean)
-      .reduce((acc, style) => {
-        const [key, value] = style.split(':').map((str) => str.trim());
-        if (key && value) {
-          acc[key] = value;
-        }
-        return acc;
-      }, {});
-
-    cssClassStyles[className] = styles;
-  }
-
-  // Iterate over JSXElements and check for className attributes
-  root.find(j.JSXElement).forEach((path) => {
-    const classNameAttribute = path.node.openingElement.attributes.find(
-      (attr) => attr.name && attr.name.name === 'className'
-    );
-
-    if (classNameAttribute) {
-      const classNameValue = classNameAttribute.value.value;
-      const mappedStyles = cssClassStyles[classNameValue];
-      if (mappedStyles) {
-        const newAttributes = Object.keys(mappedStyles).map((key) => {
-          const propName = key.replace(/-([a-z])/g, (g) => g[1].toUpperCase());
-          return j.jsxAttribute(
-            j.jsxIdentifier(propName),
-            j.stringLiteral(mappedStyles[key])
-          );
-        });
-
-        // Remove the 'className' attribute and replace with new attributes
-        path.node.openingElement.attributes = [
-          ...path.node.openingElement.attributes.filter(
-            (attr) => attr.name.name !== 'className'
-          ),
-          ...newAttributes,
-        ];
-      }
-    }
-  });
-}
-
 export function removeCSSImport(root, j) {
   root.find(j.ImportDeclaration).forEach((path) => {
     if (/\.css$/.test(path.node.source.value)) {
@@ -290,17 +239,19 @@ function getTemplateLiteralValue(node) {
   return value;
 }
 
-function transformCode(root, j, cssClassStyles) {
+function transformCode(root, j, cssClassStyles, assetsDir, assetsUrl) {
   // eslint-disable-next-line prefer-const
   let MapComponent = {};
 
   function processPropValue(prop, value, className) {
-    const numericalMatch = value.match(/(\d+(\.\d+)?)(px|rem)?/);
+    const numericalMatch = value.match(/^\d+(\.\d+)?(px)?$/);
+
     if (numericalMatch) {
-      if (numericalMatch[1].indexOf('.') >= 0) {
-        return parseFloat(numericalMatch[1]);
+      const number = numericalMatch[0].replace('px', ''); // Remove 'px' if present
+      if (number.indexOf('.') >= 0) {
+        return parseFloat(number);
       } else {
-        return parseInt(numericalMatch[1]);
+        return parseInt(number, 10);
       }
     } else if (prop === 'boxShadow') {
       const matches = /(\d+)px (\d+)px (\d+)px rgba\(([\d,]+),([\d.]+)\)/.exec(
@@ -317,25 +268,30 @@ function transformCode(root, j, cssClassStyles) {
           },
         };
       }
-    } else {
-      if (value.indexOf('url(') >= 0) {
-        console.log({ value });
-        const regex = /url\("data:image\/([a-zA-Z]+);base64,([^"]+)"\)/;
-        const match = value.match(regex);
-        if (match) {
-          const imageType = match[1];
-          const data = match[2];
-          const filename = `${className}.${imageType}`;
+    } else if (value.indexOf('url(') >= 0) {
+      const parts = value.split('url("data:image/');
+      if (parts.length > 1) {
+        const [imageTypeAndEncoding, dataWithQuotes] = parts[1].split(',');
+        const imageType = imageTypeAndEncoding.split(';')[0].split('+')[0];
+        const data = dataWithQuotes.slice(0, -2); // Remove trailing '")'
 
-          // Decoding the base64 content and writing as binary
+        const filename = `${className}.${imageType}`;
+
+        // Decoding the base64 content and writing as binary
+        if (value.indexOf('base64') > 0) {
           const buffer = Buffer.from(data, 'base64');
-          fs.writeFileSync(filename, buffer);
-
-          return `url("${filename}")`;
+          fs.writeFileSync(path.join(assetsDir, filename), buffer);
+        } else {
+          fs.writeFileSync(
+            path.join(assetsDir, filename),
+            decodeURIComponent(data)
+          );
         }
-      } else {
-        return value;
+
+        return `url("${assetsUrl}/${filename}")`;
       }
+    } else {
+      return value;
     }
   }
 
@@ -368,12 +324,11 @@ function transformCode(root, j, cssClassStyles) {
       const props = cssClassStyles[className];
       if (props) {
         const processedProps = {};
-        console.log({ props, acc });
 
         for (const [key, value] of Object.entries(props)) {
           processedProps[key] = processPropValue(key, value, className);
         }
-        console.log({ processedProps });
+
         return { ...acc, ...processedProps };
       }
       return acc;
@@ -452,9 +407,12 @@ function transformCode(root, j, cssClassStyles) {
   });
 }
 
-export default function transform(file, api) {
+export default function transform(file, api, options) {
   const j = api.jscodeshift;
   const root = j(file.source);
+
+  const assetsDir = options.assetsDir || 'src/assets';
+  const assetsUrl = options.assetsUrl || '/assets';
 
   // eslint-disable-next-line prefer-const
   let imports = {};
@@ -492,8 +450,7 @@ export default function transform(file, api) {
     }
   });
 
-  console.log({ cssClassStyles });
-  transformCode(root, j, cssClassStyles);
+  transformCode(root, j, cssClassStyles, assetsDir, assetsUrl);
   addReactImportIfMissing(root, j);
 
   transformStyledComponentsToView(root, j, imports);
