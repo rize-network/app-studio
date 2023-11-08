@@ -16,7 +16,11 @@ export default {
 
 export const Input: ComponentStory<typeof $Input> = () => {
   return (
-    <$Input size={100} shadow={9} on={{ hover: { backgroundColor: 'red' } }} />
+    <$Input
+      width={100}
+      shadow={9}
+      on={{ hover: { backgroundColor: 'color.red' } }}
+    />
   );
 };
 
@@ -26,7 +30,7 @@ export const Form: ComponentStory<typeof $Form> = () => {
       size={100}
       shadow={9}
       target="https://google.com"
-      on={{ hover: { backgroundColor: 'red' } }}
+      on={{ hover: { backgroundColor: 'color.red' } }}
     />
   );
 };
@@ -36,7 +40,7 @@ export const Image: ComponentStory<typeof $Image> = () => {
     <$Image
       size={100}
       src="https://dummyimage.com/600x400/000/fff"
-      on={{ hover: { backgroundColor: 'red' } }}
+      on={{ hover: { backgroundColor: 'color.red' } }}
     />
   );
 };

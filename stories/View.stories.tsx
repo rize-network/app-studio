@@ -20,19 +20,20 @@ export const Exemple: ComponentStory<typeof View> = () => {
     <View
       size={100}
       shadow={9}
-      on={{ hover: { backgroundColor: 'red' } }}
+      backgroundColor="color.yellow"
+      on={{ hover: { backgroundColor: 'theme.primary' } }}
       media={{
         mobile: {
-          backgroundColor: 'green',
+          backgroundColor: 'color.green',
         },
-
         tablet: {
-          backgroundColor: 'yellow',
+          backgroundColor: 'color.blue',
         },
-        xl: {
-          backgroundColor: 'blue',
+        desktop: {
+          backgroundColor: 'color.red',
         },
       }}
+      only={['mobile']}
     />
   );
 };

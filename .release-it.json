@@ -1,0 +1,20 @@
+{
+  "git": {
+    "commitMessage": "chore: release v${version}",
+    "requireCommits": false,
+    "addUntrackedFiles": true,
+    "requireCleanWorkingDir": false,
+    "commit": true,
+    "tag": false,
+    "push": true
+   },
+    "github": {
+      "release": false,
+      "releaseName": "Release ${version}",
+      "releaseNotes": null,
+      "autoGenerate": false
+    },
+  "npm": {
+    "publish": true
+  }
+}

@@ -7,6 +7,7 @@ export const APP_MAPPING = {
   img: 'Image',
   div: 'View',
   span: 'Span',
+  input: 'Input',
 };
 
 export const COMPONENT_MAPPING = {
@@ -16,13 +17,11 @@ export const COMPONENT_MAPPING = {
   picture: 'Image',
   option: 'Option',
   map: 'Map',
-  input: 'Input',
   iframe: 'Iframe',
   form: 'Form',
   button: 'Button',
   audio: 'Audio',
   video: 'Video',
-  img: 'Image',
 };
 
 // eslint-disable-next-line prefer-const
@@ -221,6 +220,7 @@ function addReactImportIfMissing(root, j) {
 
 function getTemplateLiteralValue(node) {
   if (node.type !== 'TemplateLiteral') {
+    console.log({ node });
     throw new Error('Node is not a TemplateLiteral');
   }
 
@@ -260,13 +260,13 @@ function transformCode(root, j, cssClassStyles, assetsDir, assetsUrl) {
       if (matches) {
         const [, height, width, radius, shadowColor, opacity] = matches;
         return {
-          shadow: {
-            shadowOffset: { height: parseInt(height), width: parseInt(width) },
-            shadowRadius: parseInt(radius),
-            shadowColor: shadowColor.split(',').map(Number),
-            shadowOpacity: parseFloat(opacity),
-          },
+          shadowOffset: { height: parseInt(height), width: parseInt(width) },
+          shadowRadius: parseInt(radius),
+          shadowColor: shadowColor.split(',').map(Number),
+          shadowOpacity: parseFloat(opacity),
         };
+      } else {
+        return value;
       }
     } else if (value.indexOf('url(') >= 0) {
       const parts = value.split('url("data:image/');
@@ -289,12 +289,16 @@ function transformCode(root, j, cssClassStyles, assetsDir, assetsUrl) {
         }
 
         return `url("${assetsUrl}/${filename}")`;
+      } else {
+        return value;
       }
     } else {
       return value;
     }
   }
 
+  // eslint-disable-next-line prefer-const
+  let addComponent = {};
   root.find(j.JSXElement).forEach((path) => {
     const tagName = path.node.openingElement.name.name;
     // eslint-disable-next-line prefer-const
@@ -313,10 +317,25 @@ function transformCode(root, j, cssClassStyles, assetsDir, assetsUrl) {
         attribute.type === 'JSXAttribute' &&
         attribute.name.name === 'className'
       ) {
-        const classNameString = getTemplateLiteralValue(
-          attribute.value.expression
-        );
-        classNames = classNameString.split(' '); // Assuming class names are separated by spaces
+        let classNameString = '';
+
+        if (attribute.value.type === 'StringLiteral') {
+          classNameString = attribute.value.value;
+        } else if (attribute.value.type === 'JSXExpressionContainer') {
+          const expression = attribute.value.expression;
+
+          if (expression.type === 'TemplateLiteral') {
+            classNameString = getTemplateLiteralValue(expression);
+          } else if (expression.type === 'StringLiteral') {
+            classNameString = expression.value;
+          }
+          // For more complex expressions, you might need additional handling
+          // or decide to skip them.
+        }
+
+        if (classNameString) {
+          classNames = classNameString.split(' '); // Assuming class names are separated by spaces
+        }
       }
     }
 
@@ -337,9 +356,11 @@ function transformCode(root, j, cssClassStyles, assetsDir, assetsUrl) {
     const combinedComponentName = classNames
       .map((className) =>
         className
-          .match(/\w+/g)
-          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-          .join('')
+          ? className
+              .match(/\w+/g)
+              .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+              .join('')
+          : ''
       )
       .join('');
 
@@ -347,7 +368,7 @@ function transformCode(root, j, cssClassStyles, assetsDir, assetsUrl) {
 
     path.node.openingElement.attributes =
       path.node.openingElement.attributes.filter(
-        (attribute) => attribute.name.name !== 'className'
+        (attribute) => attribute.name?.name !== 'className'
       );
 
     if (combinedComponentName) {
@@ -374,8 +395,11 @@ function transformCode(root, j, cssClassStyles, assetsDir, assetsUrl) {
         );
       } else if (typeof value === 'string') {
         valueLiteral = j.literal(value);
-      } else {
+      } else if (typeof value === 'number') {
         valueLiteral = j.numericLiteral(value);
+      } else {
+        console.log({ value, key }, typeof value);
+        valueLiteral = value;
       }
 
       return j.jsxAttribute(
@@ -384,26 +408,31 @@ function transformCode(root, j, cssClassStyles, assetsDir, assetsUrl) {
       );
     });
 
-    const newComponent = j.variableDeclaration('const', [
-      j.variableDeclarator(
-        j.identifier(combinedComponentName),
-        j.arrowFunctionExpression(
-          [j.identifier('props')],
-          j.jsxElement(
-            j.jsxOpeningElement(
-              j.jsxIdentifier(MapComponent[combinedComponentName] || 'View'),
-              [...props, j.jsxSpreadAttribute(j.identifier('props'))],
-              true
-            ),
-            null
+    if (combinedComponentName) {
+      const newComponent = j.variableDeclaration('const', [
+        j.variableDeclarator(
+          j.identifier(combinedComponentName),
+          j.arrowFunctionExpression(
+            [j.identifier('props')],
+            j.jsxElement(
+              j.jsxOpeningElement(
+                j.jsxIdentifier(MapComponent[combinedComponentName] || 'View'),
+                [...props, j.jsxSpreadAttribute(j.identifier('props'))],
+                true
+              ),
+              null
+            )
           )
-        )
-      ),
-    ]);
+        ),
+      ]);
 
-    root.find(j.Program).forEach((path) => {
-      path.node.body.push(newComponent);
-    });
+      if (newComponent && addComponent[combinedComponentName] == undefined) {
+        root.find(j.Program).forEach((path) => {
+          path.node.body.push(newComponent);
+        });
+        addComponent[combinedComponentName] = true;
+      }
+    }
   });
 }
 
@@ -411,76 +440,80 @@ export default function transform(file, api, options) {
   const j = api.jscodeshift;
   const root = j(file.source);
 
-  const assetsDir = options.assetsDir || 'src/assets';
-  const assetsUrl = options.assetsUrl || '/assets';
+  try {
+    const assetsDir = options.assetsDir || 'public/assets';
+    const assetsUrl = options.assetsUrl || './assets';
 
-  // eslint-disable-next-line prefer-const
-  let imports = {};
+    // eslint-disable-next-line prefer-const
+    let imports = {};
 
-  const cssImportPath = getCSSImportPath(root, j);
-  let cssContent = '';
+    const cssImportPath = getCSSImportPath(root, j);
+    let cssContent = '';
 
-  if (cssImportPath) {
-    const cssFilePath = path.resolve(path.dirname(file.path), cssImportPath);
-    try {
-      cssContent = fs.readFileSync(cssFilePath, 'utf8');
-    } catch (err) {
-      console.error('Failed to read CSS file:', err);
+    if (cssImportPath) {
+      const cssFilePath = path.resolve(path.dirname(file.path), cssImportPath);
+      try {
+        cssContent = fs.readFileSync(cssFilePath, 'utf8');
+      } catch (err) {
+        console.error('Failed to read CSS file:', err);
+      }
     }
+
+    const cssClassStyles = {};
+
+    // Parse CSS content using postcss
+    const rootCss = postcss.parse(cssContent);
+
+    rootCss.walkRules((rule) => {
+      if (rule.selector.startsWith('.')) {
+        const className = rule.selector.slice(1);
+        const styles = {};
+
+        rule.walkDecls((decl) => {
+          const key = decl.prop;
+          const value = decl.value;
+          const propName = key.replace(/-([a-z])/g, (g) => g[1].toUpperCase());
+          styles[propName] = value;
+        });
+
+        cssClassStyles[className] = styles;
+      }
+    });
+
+    transformCode(root, j, cssClassStyles, assetsDir, assetsUrl);
+    addReactImportIfMissing(root, j);
+
+    transformStyledComponentsToView(root, j, imports);
+    transformStyleToProps(root, j, imports);
+
+    removeCSSImport(root, j);
+
+    const componentImport = Object.keys(IMPORT_COMPONENT);
+
+    const appImport = Object.keys(IMPORT_APP);
+
+    for (const componentName in imports) {
+      if (
+        APP_MAPPING[componentName] !== undefined &&
+        !appImport.includes(componentName)
+      ) {
+        appImport.push(componentName);
+      } else if (
+        COMPONENT_MAPPING[componentName] !== undefined &&
+        !componentImport.includes(componentName)
+      ) {
+        componentImport.push(componentName);
+      }
+    }
+
+    if (componentImport.length > 0)
+      addImportStatement(root, j, componentImport, '@app-studio/web');
+
+    if (appImport.length > 0)
+      addImportStatement(root, j, appImport, 'app-studio');
+
+    return root.toSource();
+  } catch (e) {
+    console.error('error on ' + file.path, e);
   }
-
-  const cssClassStyles = {};
-
-  // Parse CSS content using postcss
-  const rootCss = postcss.parse(cssContent);
-
-  rootCss.walkRules((rule) => {
-    if (rule.selector.startsWith('.')) {
-      const className = rule.selector.slice(1);
-      const styles = {};
-
-      rule.walkDecls((decl) => {
-        const key = decl.prop;
-        const value = decl.value;
-        const propName = key.replace(/-([a-z])/g, (g) => g[1].toUpperCase());
-        styles[propName] = value;
-      });
-
-      cssClassStyles[className] = styles;
-    }
-  });
-
-  transformCode(root, j, cssClassStyles, assetsDir, assetsUrl);
-  addReactImportIfMissing(root, j);
-
-  transformStyledComponentsToView(root, j, imports);
-  transformStyleToProps(root, j, imports);
-
-  removeCSSImport(root, j);
-
-  const componentImport = Object.keys(IMPORT_COMPONENT);
-
-  const appImport = Object.keys(IMPORT_APP);
-
-  for (const componentName in imports) {
-    if (
-      APP_MAPPING[componentName] !== undefined &&
-      !appImport.includes(componentName)
-    ) {
-      appImport.push(componentName);
-    } else if (
-      COMPONENT_MAPPING[componentName] !== undefined &&
-      !componentImport.includes(componentName)
-    ) {
-      componentImport.push(componentName);
-    }
-  }
-
-  if (componentImport.length > 0)
-    addImportStatement(root, j, componentImport, '@app-studio/web');
-
-  if (appImport.length > 0)
-    addImportStatement(root, j, appImport, 'app-studio');
-
-  return root.toSource();
 }

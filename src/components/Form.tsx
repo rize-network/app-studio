@@ -45,17 +45,10 @@ export interface ButtonProps
 }
 
 export interface InputProps
-  extends Omit<ViewStyleProps, 'style' | 'pointerEvents' | 'onPress' | 'dir'>,
+  extends ElementProps,
+    Omit<ViewStyleProps, 'style' | 'pointerEvents' | 'onPress' | 'dir'>,
     Omit<Partial<HTMLInputElement>, 'width' | 'height' | 'children'>,
-    Omit<CSSProperties, 'style' | 'dir' | 'translate'> {
-  on?: Record<string, CSSProperties>;
-  paddingHorizontal?: number | string;
-  marginHorizontal?: number | string;
-  paddingVertical?: number | string;
-  marginVertical?: number | string;
-  shadow?: boolean | number | Shadow;
-  media?: Record<string, CSSProperties>;
-}
+    Omit<CSSProperties, 'style' | 'dir' | 'translate'> {}
 
 export const Form = (props: FormProps) => <Element {...props} as="form" />;
 

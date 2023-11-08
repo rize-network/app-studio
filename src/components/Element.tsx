@@ -17,6 +17,7 @@ export interface ElementProps {
   paddingVertical?: number | string;
   marginVertical?: number | string;
   shadow?: boolean | number | Shadow;
+  only?: string[];
 }
 
 const NumberPropsStyle: any = {};
@@ -118,6 +119,28 @@ export const applyStyle = (props: any) => {
     }
   }
 
+  if (props.only) {
+    const { only, ...newProps } = props;
+    // eslint-disable-next-line prefer-const
+    let onlyProps: any = {
+      media: {},
+    };
+
+    only.map((o: string) => {
+      if (onlyProps.media[o] == undefined) {
+        onlyProps.media[o] = {};
+      }
+    });
+
+    const styleKeys = Object.keys(newProps).filter((key) => isStyleProp(key));
+    styleKeys.map((key: string) => {
+      only.map((o: string) => {
+        props.media[o][key] = newProps[key];
+      });
+      delete props[key];
+    });
+  }
+
   Object.keys(props).map((property) => {
     if (isStyleProp(property) || property == 'on' || property == 'media') {
       if (typeof props[property] === 'object') {
@@ -168,13 +191,8 @@ export const applyStyle = (props: any) => {
         styleProps[property] = props[property];
       }
     }
-    // else {
-    //   otherProps[property] = props[property];
-    // }
   });
 
-  // console.log({ styleProps });
-  //  return { styleProps, otherProps };
   return styleProps;
 };
 

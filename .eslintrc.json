@@ -1,6 +1,13 @@
 {
     "parser": "@typescript-eslint/parser",
-    "extends": ["plugin:@typescript-eslint/recommended", "plugin:prettier/recommended", "prettier"],
+    "extends": [
+        "plugin:@typescript-eslint/recommended",
+        "plugin:prettier/recommended",
+        "prettier",
+        "plugin:storybook/recommended",
+        "plugin:storybook/recommended",
+        "plugin:storybook/recommended"
+    ],
     "env": {
         "es6": true,
         "node": true,
@@ -16,7 +23,9 @@
         "@typescript-eslint/ban-ts-comment": 0,
         "@typescript-eslint/explicit-function-return-type": 0,
         "@typescript-eslint/explicit-module-boundary-types": 0,
-        "@typescript-eslint/ban-types":0,
-        "prettier/prettier": ["error"]
+        "@typescript-eslint/ban-types": 0,
+        "prettier/prettier": [
+            "error"
+        ]
     }
 }

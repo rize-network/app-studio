@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import React from 'react';
 
 import { createContext, useContext } from 'react';
 import { palette as defaultPalette } from '../utils/colors';
@@ -7,7 +7,7 @@ type ColorConfig = Record<string, string>;
 
 type VariantColorConfig = Record<string, Record<string, string>>;
 
-const defaultThemeMain: ColorConfig = {
+export const defaultThemeMain: ColorConfig = {
   primary: 'color.black',
   secondary: 'color.blue',
   success: 'color.green.500',
@@ -17,7 +17,7 @@ const defaultThemeMain: ColorConfig = {
   loading: 'color.dark.500',
 };
 
-const defaultColors: ColorConfig = {
+export const defaultColors: ColorConfig = {
   white: '#FFFFFF',
   black: '#000000',
   red: '#FF0000',
@@ -92,7 +92,7 @@ export const ThemeProvider = ({
     main?: ColorConfig;
     palette?: VariantColorConfig;
   };
-  children?: ReactNode;
+  children: any;
 }): React.ReactElement => {
   const getColor = (name: string): string => {
     if (name === 'transparent') return name;
@@ -107,10 +107,10 @@ export const ThemeProvider = ({
           theme.components[keys[1]][keys[2]] !== undefined
         ) {
           return getColor(theme.components[keys[1]][keys[2]]);
-        }
-
-        if (theme.main[keys[1]] && theme.main[keys[1]] !== undefined) {
+        } else if (theme.main[keys[1]] && theme.main[keys[1]] !== undefined) {
           return getColor(theme.main[keys[1]]);
+        } else {
+          console.log('Color ' + name + ' not found');
         }
       }
       // Si le nom commence par "color.", nous recherchons dans la palette
@@ -119,22 +119,18 @@ export const ThemeProvider = ({
 
         if (colors.palette && colors.palette[keys[1]][keys[2]] !== undefined) {
           return colors.palette[keys[1]][keys[2]];
-        }
-
-        if (
+        } else if (
           colors.palette &&
           colors.palette[keys[1]][parseInt(keys[2])] !== undefined
         ) {
           return colors.palette[keys[1]][parseInt(keys[2])];
-        }
-
-        if (colors.main && colors.main[keys[1]] !== undefined) {
+        } else if (colors.main && colors.main[keys[1]] !== undefined) {
           return colors.main[keys[1]];
+        } else {
+          console.log('Color ' + name + ' not found');
         }
       }
-    } catch (e) {
-      console.log('Color ' + name + ' not found');
-    }
+    } catch (e) {}
 
     return name;
   };
