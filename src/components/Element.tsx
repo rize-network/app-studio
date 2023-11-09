@@ -263,13 +263,7 @@ export const getProps = (props: any) => {
 const excludedKeys = new Set(['on', 'shadow', 'only', 'media']);
 
 const ElementComponent = styled.div.withConfig({
-  shouldForwardProp: (prop) => {
-    console.log({
-      prop,
-      result: !excludedKeys.has(prop) && !isStyleProp(prop),
-    });
-    return !excludedKeys.has(prop) && !isStyleProp(prop);
-  },
+  shouldForwardProp: (prop) => !excludedKeys.has(prop) && !isStyleProp(prop),
 })`
   // Apply styles dynamically using applyStyle function
   // This will not add the styles as a prop to the DOM.
