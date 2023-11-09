@@ -54,7 +54,7 @@
       "pre-commit": "npm run lint:fix"
     }
   },
-  "author": "Steedmonteiro <steed@rize.network>",
+  "author": "Steed Monteiro <steed@rize.network>",
   "module": "dist/app-studio.esm.js",
   "devDependencies": {
     "@babel/core": "^7.23.2",
