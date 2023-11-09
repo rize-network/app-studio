@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import Color from 'color-convert';
 import styled, { CSSProperties } from 'styled-components';
 
@@ -48,13 +48,17 @@ export const setSize = (newSize: string | number, styleProps: any) => {
   styleProps.height = styleProps.width = newSize;
 };
 
-export const applyStyle = (props: any) => {
+export const applyStyle = (oldProps: any) => {
   //console.log({ applyStyle: props });
-
+  // eslint-disable-next-line prefer-const
+  let { ...props } = oldProps;
   const { getColor } = useTheme();
   const { mediaQueries, devices } = useResponsiveContext();
 
-  const styleProps: any = {};
+  // eslint-disable-next-line prefer-const
+  let styleProps: any = {
+    native: {},
+  };
   //const otherProps: any = {};
 
   if (props.onClick && styleProps.cursor == undefined) {
@@ -117,6 +121,7 @@ export const applyStyle = (props: any) => {
         'boxShadow'
       ] = `${props.shadow.shadowOffset.height}px ${props.shadow.shadowOffset.width}px ${props.shadow.shadowRadius}px rgba(${shadowColor},${props.shadow.shadowOpacity})`;
     }
+    delete props['shadow'];
   }
 
   if (props.only) {
@@ -142,53 +147,57 @@ export const applyStyle = (props: any) => {
   }
 
   Object.keys(props).map((property) => {
-    if (isStyleProp(property) || property == 'on' || property == 'media') {
-      if (typeof props[property] === 'object') {
-        if (property === 'on') {
-          for (const event in props[property]) {
-            styleProps['&:' + event] = applyStyle(props[property][event]);
-          }
-        } else if (property === 'media') {
-          for (const screenOrDevices in props[property]) {
-            //  console.log(screenOrDevices, mediaQueries[screenOrDevices]);
-            if (
-              mediaQueries[screenOrDevices] !== undefined &&
-              props[property][screenOrDevices] !== undefined
-            ) {
-              styleProps['@media ' + mediaQueries[screenOrDevices]] =
-                applyStyle(props[property][screenOrDevices]);
-            } else if (devices[screenOrDevices] !== undefined) {
-              // console.log(screen, devices[screenOrDevices], 'screen');
-              for (const deviceScreen in devices[screenOrDevices]) {
-                if (
-                  mediaQueries[devices[screenOrDevices][deviceScreen]] !==
-                    undefined &&
-                  props[property][screenOrDevices] !== undefined
-                ) {
-                  // console.log(
-                  //   screenOrDevices,
-                  //   props[property][screenOrDevices]
-                  // );
-                  styleProps[
-                    '@media ' +
-                      mediaQueries[devices[screenOrDevices][deviceScreen]]
-                  ] = applyStyle(props[property][screenOrDevices]);
+    if (property !== 'shadow' && property !== 'size') {
+      if (isStyleProp(property) || property == 'on' || property == 'media') {
+        if (typeof props[property] === 'object') {
+          if (property === 'on') {
+            for (const event in props[property]) {
+              styleProps['&:' + event] = applyStyle(props[property][event]);
+            }
+          } else if (property === 'media') {
+            for (const screenOrDevices in props[property]) {
+              //  console.log(screenOrDevices, mediaQueries[screenOrDevices]);
+              if (
+                mediaQueries[screenOrDevices] !== undefined &&
+                props[property][screenOrDevices] !== undefined
+              ) {
+                styleProps['@media ' + mediaQueries[screenOrDevices]] =
+                  applyStyle(props[property][screenOrDevices]);
+              } else if (devices[screenOrDevices] !== undefined) {
+                // console.log(screen, devices[screenOrDevices], 'screen');
+                for (const deviceScreen in devices[screenOrDevices]) {
+                  if (
+                    mediaQueries[devices[screenOrDevices][deviceScreen]] !==
+                      undefined &&
+                    props[property][screenOrDevices] !== undefined
+                  ) {
+                    // console.log(
+                    //   screenOrDevices,
+                    //   props[property][screenOrDevices]
+                    // );
+                    styleProps[
+                      '@media ' +
+                        mediaQueries[devices[screenOrDevices][deviceScreen]]
+                    ] = applyStyle(props[property][screenOrDevices]);
+                  }
                 }
               }
             }
+          } else {
+            styleProps[property] = applyStyle(props[property]);
           }
+        } else if (
+          typeof props[property] === 'number' &&
+          NumberPropsStyle[property] === undefined
+        ) {
+          styleProps[property] = props[property] + 'px';
+        } else if (property.toLowerCase().indexOf('color') !== -1) {
+          styleProps[property] = getColor(props[property]);
         } else {
-          styleProps[property] = applyStyle(props[property]);
+          styleProps[property] = props[property];
         }
-      } else if (
-        typeof props[property] === 'number' &&
-        NumberPropsStyle[property] === undefined
-      ) {
-        styleProps[property] = props[property] + 'px';
-      } else if (property.toLowerCase().indexOf('color') !== -1) {
-        styleProps[property] = getColor(props[property]);
       } else {
-        styleProps[property] = props[property];
+        styleProps['native'][property] = props[property];
       }
     }
   });
@@ -243,23 +252,23 @@ export const applyStyle = (props: any) => {
 //   return mediaQueries;
 // };
 
-const dynamicStyle = (props: any) => applyStyle(props);
-
-const ElementComponent = styled.div`
-  ${dynamicStyle};
+const getElementComponent = (cssData: any) => styled.div`
+  ${cssData}
 `;
 
-export class Element extends React.PureComponent<any> {
-  render() {
-    return (
-      <ElementComponent
-        {...this.props}
-        onClick={
-          this.props.onPress !== undefined
-            ? this.props.onPress
-            : this.props.onClick
-        }
-      />
-    );
-  }
-}
+export const Element = (props: any) => {
+  // Utilisez useMemo pour mémoriser le résultat de `applyStyle`
+  const { native = {}, ...cssData } = useMemo(() => applyStyle(props), [props]);
+
+  // Mémoriser le composant stylisé pour éviter de le recréer inutilement
+  const ElementComponent = useMemo(
+    () => getElementComponent(cssData),
+    [cssData]
+  );
+
+  // Gérer le clic en un seul endroit pour éviter la duplication et l'incohérence
+  const handleClick =
+    props.onPress !== undefined ? props.onPress : props.onClick;
+
+  return <ElementComponent {...native} onClick={handleClick} />;
+};
