@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import Color from 'color-convert';
 import styled, { CSSProperties } from 'styled-components';
 
@@ -48,17 +48,15 @@ export const setSize = (newSize: string | number, styleProps: any) => {
   styleProps.height = styleProps.width = newSize;
 };
 
-export const applyStyle = (oldProps: any) => {
+export const applyStyle = (props: any) => {
   //console.log({ applyStyle: props });
   // eslint-disable-next-line prefer-const
-  let { ...props } = oldProps;
+
   const { getColor } = useTheme();
   const { mediaQueries, devices } = useResponsiveContext();
 
   // eslint-disable-next-line prefer-const
-  let styleProps: any = {
-    native: {},
-  };
+  let styleProps: any = {};
   //const otherProps: any = {};
 
   if (props.onClick && styleProps.cursor == undefined) {
@@ -144,6 +142,7 @@ export const applyStyle = (oldProps: any) => {
       });
       delete props[key];
     });
+    delete props['only'];
   }
 
   Object.keys(props).map((property) => {
@@ -196,8 +195,6 @@ export const applyStyle = (oldProps: any) => {
         } else {
           styleProps[property] = props[property];
         }
-      } else {
-        styleProps['native'][property] = props[property];
       }
     }
   });
@@ -251,24 +248,51 @@ export const applyStyle = (oldProps: any) => {
 
 //   return mediaQueries;
 // };
+export const getProps = (props: any) => {
+  return Object.keys(props).reduce(
+    (acc, key) => {
+      if (!excludedKeys.has(key) && !isStyleProp(key)) {
+        acc[key] = props[key];
+      }
+      return acc;
+    },
+    {} as { [key: string]: any }
+  );
+};
 
-const getElementComponent = (cssData: any) => styled.div`
-  ${cssData}
+const excludedKeys = new Set(['on', 'shadow', 'only', 'media']);
+
+const ElementComponent = styled.div.withConfig({
+  shouldForwardProp: (prop) => {
+    console.log({
+      prop,
+      result: !excludedKeys.has(prop) && !isStyleProp(prop),
+    });
+    return !excludedKeys.has(prop) && !isStyleProp(prop);
+  },
+})`
+  // Apply styles dynamically using applyStyle function
+  // This will not add the styles as a prop to the DOM.
+  ${(props: any) => {
+    // We assume that applyStyle returns an object where the styles are under a 'style' key.
+    // This will extract the styles from the result of applyStyle and apply them here.
+    return applyStyle(props);
+  }}
 `;
 
-export const Element = (props: any) => {
-  // Utilisez useMemo pour mémoriser le résultat de `applyStyle`
-  const { native = {}, ...cssData } = useMemo(() => applyStyle(props), [props]);
+export class Element extends React.PureComponent<any> {
+  handleClick = () => {
+    const { onPress, onClick } = this.props;
+    if (onPress) {
+      onPress();
+    } else if (onClick) {
+      onClick();
+    }
+  };
 
-  // Mémoriser le composant stylisé pour éviter de le recréer inutilement
-  const ElementComponent = useMemo(
-    () => getElementComponent(cssData),
-    [cssData]
-  );
+  render() {
+    // Since applyStyle is not used here, only non-style props and the click handler are included.
 
-  // Gérer le clic en un seul endroit pour éviter la duplication et l'incohérence
-  const handleClick =
-    props.onPress !== undefined ? props.onPress : props.onClick;
-
-  return <ElementComponent {...native} onClick={handleClick} />;
-};
+    return <ElementComponent {...this.props} onClick={this.handleClick} />;
+  }
+}
