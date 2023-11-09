@@ -5,7 +5,7 @@ import styled, { CSSProperties } from 'styled-components';
 import { useTheme } from '../providers/Theme';
 import { Shadows, Shadow } from '../utils/shadow';
 import { isStyleProp } from '../utils/style';
-import { useResponsiveContext } from '..';
+import { useResponsiveContext } from '../providers/Responsive';
 
 export interface ElementProps {
   children?: any;
