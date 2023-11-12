@@ -18,4 +18,6 @@ export interface ImageProps
     CSSProperties,
     ElementProps {}
 
-export const Image = (props: ImageProps) => <Element {...props} as="img" />;
+export const Image = React.memo((props: ImageProps) => (
+  <Element {...props} as="img" />
+));

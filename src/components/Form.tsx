@@ -2,10 +2,14 @@ import React from 'react';
 import { Element, ElementProps } from './Element';
 import { ViewStyleProps } from '../types/style';
 import { CSSProperties } from 'styled-components';
-import { Shadow } from '../utils/shadow';
 
+// Common props pour éviter la répétition
+interface CommonProps
+  extends Omit<ViewStyleProps, 'children' | 'style' | 'pointerEvents'> {}
+
+// Props pour le composant Form
 export interface FormProps
-  extends Omit<ViewStyleProps, 'children' | 'style' | 'pointerEvents'>,
+  extends CommonProps,
     Omit<
       Partial<HTMLFormElement>,
       | 'width'
@@ -19,8 +23,9 @@ export interface FormProps
     CSSProperties,
     ElementProps {}
 
+// Props pour le composant Button
 export interface ButtonProps
-  extends Omit<ViewStyleProps, 'children' | 'style' | 'pointerEvents'>,
+  extends CommonProps,
     Omit<
       Partial<HTMLButtonElement>,
       | 'width'
@@ -31,29 +36,30 @@ export interface ButtonProps
       | 'border'
       | 'draggable'
     >,
-    CSSProperties {
-  children?: any;
-  size?: number;
-  on?: Record<string, CSSProperties>;
-  paddingHorizontal?: number | string;
-  marginHorizontal?: number | string;
-  paddingVertical?: number | string;
-  marginVertical?: number | string;
-  shadow?: boolean | number | Shadow;
-  onClick?: any;
-  media?: Record<string, CSSProperties>;
+    CSSProperties,
+    ElementProps {
+  children?: React.ReactNode;
+  // ... autres props ...
+  onClick?: (..._args: any) => void;
+  // ... autres props ...
 }
 
+// Props pour le composant Input
 export interface InputProps
   extends ElementProps,
-    Omit<ViewStyleProps, 'style' | 'pointerEvents' | 'onPress' | 'dir'>,
+    CommonProps,
     Omit<Partial<HTMLInputElement>, 'width' | 'height' | 'children'>,
     Omit<CSSProperties, 'style' | 'dir' | 'translate'> {}
 
-export const Form = (props: FormProps) => <Element {...props} as="form" />;
+// Utilisation de React.memo pour une meilleure performance
+export const Form = React.memo((props: FormProps) => (
+  <Element {...props} as="form" />
+));
 
-export const Input = (props: InputProps) => <Element {...props} as="input" />;
+export const Input = React.memo((props: InputProps) => (
+  <Element {...props} as="input" />
+));
 
-export const Button = (props: ButtonProps) => (
+export const Button = React.memo((props: ButtonProps) => (
   <Element {...props} as="button" />
-);
+));

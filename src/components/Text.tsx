@@ -10,6 +10,6 @@ export interface TextProps
   toUpperCase?: boolean;
 }
 
-export const Text = (props: TextProps) => {
+export const Text = React.memo((props: TextProps) => {
   return <Element {...props} />;
-};
+});

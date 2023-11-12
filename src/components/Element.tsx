@@ -1,26 +1,28 @@
-import React from 'react';
-import Color from 'color-convert';
-import styled, { CSSProperties } from 'styled-components';
+import React from 'react'; // Importe React pour créer des composants
+import Color from 'color-convert'; // Utilisé pour convertir les couleurs
+import styled, { CSSProperties } from 'styled-components'; // Pour créer des composants stylisés
 
-import { useTheme } from '../providers/Theme';
-import { Shadows, Shadow } from '../utils/shadow';
-import { isStyleProp } from '../utils/style';
-import { useResponsiveContext } from '../providers/Responsive';
+import { useTheme } from '../providers/Theme'; // Hook personnalisé pour utiliser le thème
+import { Shadows, Shadow } from '../utils/shadow'; // Importe des utilitaires pour les ombres
+import { isStyleProp } from '../utils/style'; // Fonction pour vérifier si une prop est un style
+import { useResponsiveContext } from '../providers/Responsive'; // Hook pour le contexte responsive
 
+// Définit les props pour le composant Element
 export interface ElementProps {
-  children?: any;
-  size?: number;
-  on?: Record<string, CSSProperties>;
-  media?: Record<string, CSSProperties>;
-  paddingHorizontal?: number | string;
-  marginHorizontal?: number | string;
-  paddingVertical?: number | string;
-  marginVertical?: number | string;
-  shadow?: boolean | number | Shadow;
-  only?: string[];
+  children?: React.ReactNode; // Les enfants du composant
+  size?: number; // Taille de l'élément
+  on?: Record<string, CSSProperties>; // Styles pour les événements
+  media?: Record<string, CSSProperties>; // Styles pour les médias
+  paddingHorizontal?: number | string; // Padding horizontal
+  marginHorizontal?: number | string; // Margin horizontal
+  paddingVertical?: number | string; // Padding vertical
+  marginVertical?: number | string; // Margin vertical
+  shadow?: boolean | number | Shadow; // Propriété d'ombre
+  only?: string[]; // Propriété pour spécifier des médias spécifiques
+  css?: CSSProperties; // Styles CSS personnalisés
 }
 
-const NumberPropsStyle: any = {};
+// Liste des propriétés numériques
 const NumberProps = [
   'numberOfLines',
   'fontWeight',
@@ -40,29 +42,34 @@ const NumberProps = [
   'now',
 ];
 
-NumberProps.map((property: string) => {
+// Stocke si une propriété est numérique
+const NumberPropsStyle: { [key: string]: boolean } = {};
+NumberProps.forEach((property) => {
   NumberPropsStyle[property] = true;
 });
 
-export const setSize = (newSize: string | number, styleProps: any) => {
-  styleProps.height = styleProps.width = newSize;
+// Fonction pour définir la taille de l'élément
+export const setSize = (
+  newSize: string | number,
+  styleProps: Record<string, any>
+) => {
+  styleProps.height = styleProps.width = newSize; // Définit la hauteur et la largeur
 };
 
-export const applyStyle = (props: any) => {
-  //console.log({ applyStyle: props });
-  // eslint-disable-next-line prefer-const
-
-  const { getColor } = useTheme();
-  const { mediaQueries, devices } = useResponsiveContext();
+// Fonction pour appliquer les styles à un composant
+export const applyStyle = (props: Record<string, any>): CSSProperties & any => {
+  const { getColor } = useTheme(); // Utilise le hook pour obtenir les couleurs du thème
+  const { mediaQueries, devices } = useResponsiveContext(); // Utilise le contexte responsive
 
   // eslint-disable-next-line prefer-const
-  let styleProps: any = {};
-  //const otherProps: any = {};
+  let styleProps: Record<string, any> = {}; // Stocke les styles
 
+  // Applique un curseur pointeur si un gestionnaire de clic est présent
   if (props.onClick && styleProps.cursor == undefined) {
     styleProps.cursor = 'pointer';
   }
 
+  // Gère la taille de l'élément
   const size =
     props.height !== undefined &&
     props.width !== undefined &&
@@ -73,9 +80,10 @@ export const applyStyle = (props: any) => {
       : null;
 
   if (size) {
-    setSize(size, styleProps);
+    setSize(size, styleProps); // Applique la taille
   }
 
+  // Gère le padding et la marge
   if (props.paddingHorizontal) {
     styleProps.paddingLeft = props.paddingHorizontal;
     styleProps.paddingRight = props.paddingHorizontal;
@@ -96,21 +104,22 @@ export const applyStyle = (props: any) => {
     styleProps.marginBottom = props.marginVertical;
   }
 
+  // Applique les ombres si spécifié
   if (props.shadow) {
     if (typeof props.shadow === 'number' || typeof props.shadow === 'boolean') {
-      const shawdowValue: number =
+      const shadowValue: number =
         typeof props.shadow === 'number' && Shadows[props.shadow] !== undefined
           ? props.shadow
           : 2;
 
-      if (Shadows[shawdowValue]) {
+      if (Shadows[shadowValue]) {
         const shadowColor = Color.hex
-          .rgb(Shadows[shawdowValue].shadowColor)
+          .rgb(Shadows[shadowValue].shadowColor)
           .join(',');
 
         styleProps[
           'boxShadow'
-        ] = `${Shadows[shawdowValue].shadowOffset.height}px ${Shadows[shawdowValue].shadowOffset.width}px ${Shadows[shawdowValue].shadowRadius}px rgba(${shadowColor},${Shadows[shawdowValue].shadowOpacity})`;
+        ] = `${Shadows[shadowValue].shadowOffset.height}px ${Shadows[shadowValue].shadowOffset.width}px ${Shadows[shadowValue].shadowRadius}px rgba(${shadowColor},${Shadows[shadowValue].shadowOpacity})`;
       }
     } else {
       const shadowColor = Color.hex.rgb(props.shadow.shadowColor).join(',');
@@ -122,6 +131,7 @@ export const applyStyle = (props: any) => {
     delete props['shadow'];
   }
 
+  // Gère les styles pour des médias spécifiques
   if (props.only) {
     const { only, ...newProps } = props;
     // eslint-disable-next-line prefer-const
@@ -145,6 +155,14 @@ export const applyStyle = (props: any) => {
     delete props['only'];
   }
 
+  // Gère les styles CSS personnalisés
+  if (props.css) {
+    const { css } = props;
+    props = { ...css, props };
+    delete props['css'];
+  }
+
+  // Applique les styles
   Object.keys(props).map((property) => {
     if (property !== 'shadow' && property !== 'size') {
       if (isStyleProp(property) || property == 'on' || property == 'media') {
@@ -155,7 +173,6 @@ export const applyStyle = (props: any) => {
             }
           } else if (property === 'media') {
             for (const screenOrDevices in props[property]) {
-              //  console.log(screenOrDevices, mediaQueries[screenOrDevices]);
               if (
                 mediaQueries[screenOrDevices] !== undefined &&
                 props[property][screenOrDevices] !== undefined
@@ -163,17 +180,12 @@ export const applyStyle = (props: any) => {
                 styleProps['@media ' + mediaQueries[screenOrDevices]] =
                   applyStyle(props[property][screenOrDevices]);
               } else if (devices[screenOrDevices] !== undefined) {
-                // console.log(screen, devices[screenOrDevices], 'screen');
                 for (const deviceScreen in devices[screenOrDevices]) {
                   if (
                     mediaQueries[devices[screenOrDevices][deviceScreen]] !==
                       undefined &&
                     props[property][screenOrDevices] !== undefined
                   ) {
-                    // console.log(
-                    //   screenOrDevices,
-                    //   props[property][screenOrDevices]
-                    // );
                     styleProps[
                       '@media ' +
                         mediaQueries[devices[screenOrDevices][deviceScreen]]
@@ -202,53 +214,8 @@ export const applyStyle = (props: any) => {
   return styleProps;
 };
 
-// function convertToCSS(props: any) {
-//   return Object.entries(props).reduce((str, [key, val]) => {
-//     const casedKey = key.replace(
-//       /[A-Z]/g,
-//       (match) => `-${match.toLowerCase()}`
-//     );
-//     return `${str}${casedKey}:${typeof val === 'number' ? val + 'px' : val};\n`;
-//   }, '');
-// }
-
-// export const getResponsiveMediaQueries = (props: any) => {
-//   const { breakpoints, devices } = useResponsiveContext();
-//   console.log('mediaQueries', props);
-
-//   const mediaQueries = breakpointKeys
-//     .map((size) => {
-//       return props && props[size] !== undefined
-//         ? `
-//     @media ${
-//       breakpoints[size].min
-//         ? ' (min-width:' +
-//           (breakpoints[size].min > 0 ? breakpoints[size].min : 0) +
-//           'px)'
-//         : ''
-//     } ${
-//             breakpoints[size].min &&
-//             breakpoints[size].max &&
-//             breakpoints[size].max >= 0 &&
-//             breakpoints[size].max < Infinity
-//               ? ' and '
-//               : ''
-//           } ${
-//             breakpoints[size].max &&
-//             breakpoints[size].max >= 0 &&
-//             breakpoints[size].max < Infinity
-//               ? ' (max-width:' + breakpoints[size].max + 'px)'
-//               : ''
-//           } {
-//      ${convertToCSS(props[size])}
-//     }`
-//         : '';
-//     })
-//     .join('\n');
-
-//   return mediaQueries;
-// };
-export const getProps = (props: any) => {
+// Fonction pour filtrer les props qui ne sont pas des styles
+export const getProps = (props: Record<string, any>) => {
   return Object.keys(props).reduce(
     (acc, key) => {
       if (!excludedKeys.has(key) && !isStyleProp(key)) {
@@ -260,22 +227,31 @@ export const getProps = (props: any) => {
   );
 };
 
-const excludedKeys = new Set(['on', 'shadow', 'only', 'media']);
+// Clés à exclure lors de la création du composant stylisé
+const excludedKeys = new Set([
+  'on',
+  'shadow',
+  'only',
+  'media',
+  'css',
+  'paddingHorizontal',
+  'paddingVertical',
+  'marginHorizontal',
+  'marginVertical',
+]);
 
+// Crée un composant div stylisé, en excluant certaines props
 const ElementComponent = styled.div.withConfig({
   shouldForwardProp: (prop) => !excludedKeys.has(prop) && !isStyleProp(prop),
 })`
-  // Apply styles dynamically using applyStyle function
-  // This will not add the styles as a prop to the DOM.
-  ${(props: any) => {
-    // We assume that applyStyle returns an object where the styles are under a 'style' key.
-    // This will extract the styles from the result of applyStyle and apply them here.
-    return applyStyle(props);
-  }}
+  // Applique les styles dynamiques en utilisant la fonction applyStyle
+  ${(props: any) => applyStyle(props)}
 `;
 
-export class Element extends React.PureComponent<any> {
+// Classe Element étendant React.PureComponent pour optimiser les performances
+export class Element extends React.PureComponent<ElementProps & any> {
   handleClick = () => {
+    // Gère le clic, déclenchant onPress ou onClick
     const { onPress, onClick } = this.props;
     if (onPress) {
       onPress();
@@ -285,8 +261,7 @@ export class Element extends React.PureComponent<any> {
   };
 
   render() {
-    // Since applyStyle is not used here, only non-style props and the click handler are included.
-
+    // Rendu du composant avec les props
     return <ElementComponent {...this.props} onClick={this.handleClick} />;
   }
 }
