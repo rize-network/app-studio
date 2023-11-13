@@ -250,18 +250,13 @@ const ElementComponent = styled.div.withConfig({
 
 // Classe Element étendant React.PureComponent pour optimiser les performances
 export class Element extends React.PureComponent<ElementProps & any> {
-  handleClick = () => {
-    // Gère le clic, déclenchant onPress ou onClick
-    const { onPress, onClick } = this.props;
-    if (onPress) {
-      onPress();
-    } else if (onClick) {
-      onClick();
-    }
-  };
-
   render() {
+    // eslint-disable-next-line prefer-const
+    let { onPress, ...props }: any = this.props;
+    if (onPress) {
+      props.onClick = onPress;
+    }
     // Rendu du composant avec les props
-    return <ElementComponent {...this.props} onClick={this.handleClick} />;
+    return <ElementComponent {...props} />;
   }
 }
