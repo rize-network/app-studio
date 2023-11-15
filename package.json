@@ -1,5 +1,5 @@
 {
-  "version": "0.1.30",
+  "version": "0.1.31",
   "name": "app-studio",
   "description": "App Studio is a responsive and themeable framework to build cross platform applications",
   "repository": "git@github.com:rize-network/app-studio.git",
@@ -125,6 +125,7 @@
     }
   ],
   "dependencies": {
+    "@emotion/is-prop-valid": "^1.2.1",
     "@emotion/unitless": "^0.8.1",
     "color-convert": "^2.0.1"
   }

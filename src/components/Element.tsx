@@ -1,7 +1,7 @@
 import React from 'react'; // Importe React pour créer des composants
 import Color from 'color-convert'; // Utilisé pour convertir les couleurs
 import styled, { CSSProperties } from 'styled-components'; // Pour créer des composants stylisés
-
+import isPropValid from '@emotion/is-prop-valid';
 import { useTheme } from '../providers/Theme'; // Hook personnalisé pour utiliser le thème
 import { Shadows, Shadow } from '../utils/shadow'; // Importe des utilitaires pour les ombres
 import { isStyleProp } from '../utils/style'; // Fonction pour vérifier si une prop est un style
@@ -242,7 +242,7 @@ const excludedKeys = new Set([
 
 // Crée un composant div stylisé, en excluant certaines props
 const ElementComponent = styled.div.withConfig({
-  shouldForwardProp: (prop) => !excludedKeys.has(prop) && !isStyleProp(prop),
+  shouldForwardProp: (prop) => isPropValid(prop),
 })`
   // Applique les styles dynamiques en utilisant la fonction applyStyle
   ${(props: any) => applyStyle(props)}
