@@ -162,8 +162,12 @@ export const applyStyle = (props: Record<string, any>): CSSProperties & any => {
     delete props['css'];
   }
 
+  console.log({ props });
+
   // Applique les styles
   Object.keys(props).map((property) => {
+    console.log({ property });
+
     if (property !== 'shadow' && property !== 'size') {
       if (isStyleProp(property) || property == 'on' || property == 'media') {
         if (typeof props[property] === 'object') {
@@ -208,8 +212,11 @@ export const applyStyle = (props: Record<string, any>): CSSProperties & any => {
           styleProps[property] = props[property];
         }
       }
+      console.log(styleProps[property]);
     }
   });
+
+  console.log({ styleProps });
 
   return styleProps;
 };
@@ -245,7 +252,11 @@ const ElementComponent = styled.div.withConfig({
   shouldForwardProp: (prop) => isPropValid(prop),
 })`
   // Applique les styles dynamiques en utilisant la fonction applyStyle
-  ${(props: any) => applyStyle(props)}
+  ${(props: any) => {
+    const css = applyStyle(props);
+    console.log({ css, props });
+    return css;
+  }}
 `;
 
 // Classe Element étendant React.PureComponent pour optimiser les performances
