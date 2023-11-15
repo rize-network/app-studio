@@ -16,5 +16,24 @@ export default {
 } as ComponentMeta<typeof View>;
 
 export const Exemple: ComponentStory<typeof View> = () => {
-  return <View size={100} shadow={9} backgroundColor="color.yellow" />;
+  return (
+    <View
+      size={100}
+      shadow={9}
+      backgroundColor="color.yellow"
+      on={{ hover: { backgroundColor: 'theme.primary' } }}
+      media={{
+        mobile: {
+          backgroundColor: 'color.green',
+        },
+        tablet: {
+          backgroundColor: 'color.blue',
+        },
+        desktop: {
+          backgroundColor: 'color.red',
+        },
+      }}
+      only={['mobile']}
+    />
+  );
 };
