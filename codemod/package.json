@@ -1,15 +1,16 @@
 {
   "name": "@app-studio/codemod",
   "description": "Migration helpers for app-studio",
-  "version": "0.1.2",
+  "version": "0.1.5",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
   },
   "scripts": {
     "build": "tsc",
-    "test": "vitest",
-    "coverage": "vitest run --coverage",
+    "pretest": "tsc",
+    "test": "jest",
+    "coverage": "jest run --coverage",
     "dev": "npx nodemon --watch src/**/*.tsx --exec yarn build"
   },
   "files": [
@@ -34,7 +35,8 @@
     "inquirer": "^7.3.3",
     "is-git-clean": "^1.1.0",
     "jscodeshift": "^0.11.0",
-    "meow": "^8.0.0"
+    "meow": "^8.0.0",
+    "postcss": "^8.4.35"
   },
   "devDependencies": {
     "@babel/core": "^7.22.5",
@@ -45,10 +47,10 @@
     "@types/babel__traverse": "^7.20.1",
     "@types/lodash": "^4.14.195",
     "@types/node": "^20.3.1",
+    "@types/react": "^18.2.15",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
     "@vitest/coverage-v8": "^1.0.0",
-    "@types/react": "^18.2.15",
     "babel-plugin-styled-components": "^2.1.4",
     "eslint": "^8.43.0",
     "prettier": "^3.0.0",

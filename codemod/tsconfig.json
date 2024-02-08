@@ -7,6 +7,6 @@
     "sourceMap": true,
     "skipLibCheck": true
   },
-  "include": ["**/*.ts"],
+  "include": ["**/*.ts", "transforms/tests.js"],
   "exclude": ["node_modules"]
 }

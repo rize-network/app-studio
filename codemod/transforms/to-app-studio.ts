@@ -24,22 +24,49 @@ export const COMPONENT_MAPPING = {
   video: 'Video',
 };
 
-// eslint-disable-next-line prefer-const
-let IMPORT_APP = {};
-// eslint-disable-next-line prefer-const
-let IMPORT_COMPONENT = {};
-
 function isHtmlElement(elementName) {
   return elementName[0] === elementName[0].toLowerCase();
 }
 
-export function transformStyledComponentsToView(root, j, imports) {
+export function transformHTMLToView(root, j, imports = {}) {
+  root.find(j.JSXElement).forEach((path) => {
+    const tagName = path.node.openingElement.name.name;
+
+    if (COMPONENT_MAPPING[tagName]) {
+      path.node.openingElement.name.name = COMPONENT_MAPPING[tagName];
+      if (path.node.closingElement)
+        path.node.closingElement.name.name = COMPONENT_MAPPING[tagName];
+
+      imports[COMPONENT_MAPPING[tagName]] = true;
+    } else if (APP_MAPPING[tagName]) {
+      path.node.openingElement.name.name = APP_MAPPING[tagName];
+      if (path.node.closingElement)
+        path.node.closingElement.name.name = APP_MAPPING[tagName];
+
+      imports[APP_MAPPING[tagName]] = true;
+    } else {
+      if (tagName && isHtmlElement(tagName)) {
+        path.node.openingElement.name.name = 'View';
+        if (path.node.closingElement)
+          path.node.closingElement.name.name = 'View';
+        if (tagName !== 'div') {
+          const asAttribute = j.jsxAttribute(
+            j.jsxIdentifier('as'),
+            j.stringLiteral(tagName)
+          );
+          path.node.openingElement.attributes.push(asAttribute);
+        }
+        imports['View'] = true;
+      }
+    }
+  });
+}
+
+export function transformStyledComponentsToView(root, j, imports = {}) {
   root
     .find(j.TaggedTemplateExpression)
     .filter((path) => {
-      return (
-        path.node.tag.type === 'Identifier' && path.node.tag.name === 'styled'
-      );
+      return path.node.tag.object.name === 'styled';
     })
     .forEach((path) => {
       const quasis = path.node.quasi.quasis;
@@ -85,109 +112,188 @@ export function transformStyledComponentsToView(root, j, imports) {
         }
 
         // Extrait les styles root
-        const rootRegex = /([^@{}]+)\{([\s\S]*?)\}/g;
-        while ((match = rootRegex.exec(cssString)) !== null) {
-          const stylesString = match[2].trim();
-          const styles = stylesString
-            .split(';')
-            .filter(Boolean)
-            .reduce((acc, style) => {
-              const [key, value] = style.split(':').map((str) => str.trim());
-              if (key && value) {
-                acc[key] = value;
-              }
-              return acc;
-            }, {});
-          rootStyles = { ...rootStyles, ...styles };
-        }
+
+        const stylesString = cssString.trim();
+        const styles = stylesString
+          .split(';')
+          .filter(Boolean)
+          .reduce((acc, style) => {
+            const [key, value] = style.split(':').map((str) => str.trim());
+            if (key && value) {
+              acc[key] = value;
+            }
+            return acc;
+          }, {});
+        rootStyles = { ...rootStyles, ...styles };
       });
 
       let attributes = [j.jsxSpreadAttribute(j.identifier('props'))];
 
+      // Ajout des media queries comme props
       if (Object.keys(mediaQueries).length > 0) {
-        const mediaProp = j.jsxAttribute(
-          j.jsxIdentifier('media')
-          // ... (le même code pour créer la prop 'media') ...
+        const mediaPropValue = j.jsxExpressionContainer(
+          j.objectExpression(
+            Object.entries(mediaQueries).map(([key, styles]) =>
+              j.property(
+                'init',
+                j.identifier(key),
+                j.objectExpression(
+                  Object.entries(styles).map(([styleKey, styleValue]) =>
+                    j.property(
+                      'init',
+                      j.identifier(styleKey),
+                      j.stringLiteral(styleValue)
+                    )
+                  )
+                )
+              )
+            )
+          )
         );
-        attributes.push(mediaProp);
+
+        attributes.push(
+          j.jsxAttribute(j.jsxIdentifier('media'), mediaPropValue)
+        );
       }
 
       if (Object.keys(rootStyles).length > 0) {
         const rootStyleProps = Object.keys(rootStyles).map((key) =>
-          j.jsxAttribute(j.jsxIdentifier(key), j.literal(rootStyles[key]))
+          j.jsxAttribute(
+            j.jsxIdentifier(
+              key.replace(/-([a-z])/g, (g) => g[1].toUpperCase())
+            ),
+            j.literal(rootStyles[key])
+          )
         );
-        attributes = [...attributes, ...rootStyleProps];
+        attributes = [...rootStyleProps, ...attributes];
       }
 
-      path.node.init = j.arrowFunctionExpression(
+      const replacement = j.arrowFunctionExpression(
         [j.identifier('props')],
         j.jsxElement(
-          j.jsxOpeningElement(j.jsxIdentifier('View'), attributes),
-          j.jsxClosingElement(j.jsxIdentifier('View')),
+          j.jsxOpeningElement(j.jsxIdentifier('View'), [...attributes], true),
+          null,
           []
         )
       );
       imports['View'] = true;
+
+      j(path).replaceWith(replacement);
     });
 }
-
-export function transformStyleToProps(root, j, imports) {
+export function transformStyleToProps(root, j, imports = {}) {
   root.find(j.JSXAttribute, { name: { name: 'style' } }).forEach((path) => {
     const attrValue = path.node.value;
-    // eslint-disable-next-line prefer-const
-    let newAttributes = [];
+    const openingElement = path.parentPath.node;
 
-    if (attrValue.type === 'Literal') {
+    // Conserver tous les attributs à l'exception de 'style'
+    const nonStyleAttributes = openingElement.attributes.filter(
+      (attr) =>
+        attr.type == 'JSXSpreadAttribute' ||
+        (attr.name && attr.name.name !== 'style')
+    );
+
+    // Traitement de l'attribut 'style'
+    if (attrValue.type === 'Literal' && typeof attrValue.value === 'string') {
+      // Transformer la chaîne de style en props JSX
       const inlineStyles = attrValue.value.split(';').filter(Boolean);
-      inlineStyles.forEach((inlineStyle) => {
+      const styleAttributes = inlineStyles.map((inlineStyle) => {
         const [key, value] = inlineStyle.split(':').map((s) => s.trim());
-        const propName = key.replace(/-([a-z])/g, (g) => g[1].toUpperCase());
-        newAttributes.push(
-          j.jsxAttribute(j.jsxIdentifier(propName), j.stringLiteral(value))
+        const propName = key.replace(/-([a-z])/g, (_, char) =>
+          char.toUpperCase()
+        );
+        return j.jsxAttribute(
+          j.jsxIdentifier(propName),
+          j.stringLiteral(value)
         );
       });
+
+      // Ajout des nouveaux attributs de style aux attributs existants (en excluant 'style')
+      openingElement.attributes = [...styleAttributes, ...nonStyleAttributes];
     } else if (
       attrValue.type === 'JSXExpressionContainer' &&
       attrValue.expression.type === 'ObjectExpression'
     ) {
-      attrValue.expression.properties.forEach((prop) => {
-        const propName = prop.key.name;
-        const propValue = prop.value;
-        newAttributes.push(
-          j.jsxAttribute(j.jsxIdentifier(propName), propValue)
+      // Transformer l'objet de style JSX en props JSX
+      const styleAttributes = attrValue.expression.properties.map((prop) => {
+        const propName =
+          prop.key.name ||
+          (prop.key.type === 'Identifier' ? prop.key.name : prop.key.value); // Support pour les clés littérales et identifiants
+        return j.jsxAttribute(
+          j.jsxIdentifier(propName),
+          j.jsxExpressionContainer(prop.value)
         );
       });
-    }
 
-    const openingElement = path.parentPath.node;
-    openingElement.attributes = openingElement.attributes.filter(
-      (attr) => attr.name.name !== 'style'
-    );
-    openingElement.attributes.push(...newAttributes);
-    imports['View'] = true;
+      // Ajout des nouveaux attributs de style aux attributs existants (en excluant 'style')
+      openingElement.attributes = [...nonStyleAttributes, ...styleAttributes];
+      imports['View'] = true;
+    }
   });
 }
 
 // Fonction pour ajouter une déclaration d'importation si elle n'est pas déjà présente
-export function addImportStatement(root, j, importNames = [], fromModule) {
+export function addImportStatement(root, j, importName, fromModule) {
   const existingImport = root.find(j.ImportDeclaration, {
     source: { value: fromModule },
   });
   if (existingImport.size() === 0) {
     const importStatement = j.importDeclaration(
-      importNames.map((importName) =>
-        j.importSpecifier(j.identifier(importName))
-      ),
+      [j.importSpecifier(j.identifier(importName))],
       j.literal(fromModule)
     );
     root.find(j.Program).get('body', 0).insertBefore(importStatement);
   }
 }
 
-export function removeCSSImport(root, j) {
-  root.find(j.ImportDeclaration).forEach((path) => {
-    if (/\.css$/.test(path.node.source.value)) {
-      j(path).remove();
+export function mapCSSClassToProps(root, j, cssContent) {
+  // Use a simple regex to extract class names and their styles
+  const cssClassRegex = /\.([a-zA-Z0-9-_]+)\s*\{([\s\S]*?)\}/g;
+  let cssClassMatch;
+
+  const cssClassStyles = {};
+
+  while ((cssClassMatch = cssClassRegex.exec(cssContent)) !== null) {
+    const className = cssClassMatch[1];
+    const styles = cssClassMatch[2]
+      .split(';')
+      .filter(Boolean)
+      .reduce((acc, style) => {
+        const [key, value] = style.split(':').map((str) => str.trim());
+        if (key && value) {
+          acc[key] = value;
+        }
+        return acc;
+      }, {});
+
+    cssClassStyles[className] = styles;
+  }
+
+  // Iterate over JSXElements and check for className attributes
+  root.find(j.JSXElement).forEach((path) => {
+    const classNameAttribute = path.node.openingElement.attributes.find(
+      (attr) => attr.name && attr.name.name === 'className'
+    );
+
+    if (classNameAttribute) {
+      const classNameValue = classNameAttribute.value.value;
+      const mappedStyles = cssClassStyles[classNameValue];
+      if (mappedStyles) {
+        const newAttributes = Object.keys(mappedStyles).map((key) => {
+          const propName = key.replace(/-([a-z])/g, (g) => g[1].toUpperCase());
+          return j.jsxAttribute(
+            j.jsxIdentifier(propName),
+            j.stringLiteral(mappedStyles[key])
+          );
+        });
+
+        path.node.openingElement.attributes = [
+          ...path.node.openingElement.attributes.filter(
+            (attr) => attr.name.name !== 'className'
+          ),
+          ...newAttributes,
+        ];
+      }
     }
   });
 }
@@ -203,6 +309,19 @@ export function getCSSImportPath(root, j) {
   });
 
   return cssPath;
+}
+
+// eslint-disable-next-line prefer-const
+let IMPORT_APP = {};
+// eslint-disable-next-line prefer-const
+let IMPORT_COMPONENT = {};
+
+export function removeCSSImport(root, j) {
+  root.find(j.ImportDeclaration).forEach((path) => {
+    if (/\.css$/.test(path.node.source.value)) {
+      j(path).remove();
+    }
+  });
 }
 
 function addReactImportIfMissing(root, j) {
@@ -239,7 +358,14 @@ function getTemplateLiteralValue(node) {
   return value;
 }
 
-function transformCode(root, j, cssClassStyles, assetsDir, assetsUrl) {
+export function transformCode(
+  root,
+  j,
+  imports = {},
+  cssClassStyles = {},
+  assetsDir = 'public/assets',
+  assetsUrl = './assets'
+) {
   // eslint-disable-next-line prefer-const
   let MapComponent = {};
 
@@ -366,23 +492,38 @@ function transformCode(root, j, cssClassStyles, assetsDir, assetsUrl) {
 
     MapComponent[combinedComponentName] = mappedComponent || 'View';
 
-    path.node.openingElement.attributes =
-      path.node.openingElement.attributes.filter(
-        (attribute) => attribute.name?.name !== 'className'
-      );
+    // path.node.openingElement.attributes =
+    //   path.node.openingElement.attributes.filter(
+    //     (attribute) => attribute.name?.name !== 'className'
+    //   );
 
     if (combinedComponentName) {
       path.node.openingElement.name.name = combinedComponentName;
       if (path.node.closingElement)
         path.node.closingElement.name.name = combinedComponentName;
+    } else if (COMPONENT_MAPPING[tagName]) {
+      path.node.openingElement.name.name = COMPONENT_MAPPING[tagName];
+      if (path.node.closingElement)
+        path.node.closingElement.name.name = COMPONENT_MAPPING[tagName];
+
+      imports[COMPONENT_MAPPING[tagName]] = true;
+    } else if (APP_MAPPING[tagName]) {
+      path.node.openingElement.name.name = APP_MAPPING[tagName];
+      if (path.node.closingElement)
+        path.node.closingElement.name.name = APP_MAPPING[tagName];
+
+      imports[APP_MAPPING[tagName]] = true;
     } else if (tagName && isHtmlElement(tagName)) {
-      const asAttribute = j.jsxAttribute(
-        j.jsxIdentifier('as'),
-        j.stringLiteral(tagName)
-      );
       path.node.openingElement.name.name = 'View';
       if (path.node.closingElement) path.node.closingElement.name.name = 'View';
-      path.node.openingElement.attributes.push(asAttribute);
+      if (tagName !== 'div') {
+        const asAttribute = j.jsxAttribute(
+          j.jsxIdentifier('as'),
+          j.stringLiteral(tagName)
+        );
+        path.node.openingElement.attributes.push(asAttribute);
+      }
+      imports['View'] = true;
     }
 
     const props = Object.entries(combinedProps).map(([key, value]) => {
@@ -480,12 +621,12 @@ export default function transform(file, api, options) {
       }
     });
 
-    transformCode(root, j, cssClassStyles, assetsDir, assetsUrl);
-    addReactImportIfMissing(root, j);
-
+    transformCode(root, j, imports, cssClassStyles, assetsDir, assetsUrl);
     transformStyledComponentsToView(root, j, imports);
     transformStyleToProps(root, j, imports);
+    transformHTMLToView(root, j, imports);
 
+    addReactImportIfMissing(root, j);
     removeCSSImport(root, j);
 
     const componentImport = Object.keys(IMPORT_COMPONENT);
