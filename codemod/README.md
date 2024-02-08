@@ -5,7 +5,7 @@ Provides Codemod transformations to help with code upgrade and migration.
 ## Usage
 
 ```sh
-npx @app-studio/codemod <transform> <path
+npx @app-studio/codemod <transform> <path>
 ```
 
 - `transform` - name of the transform
@@ -15,38 +15,41 @@ npx @app-studio/codemod <transform> <path
 
 ## Codemods
 
-### `to-reflexjs`
+### `to-app-studio`
 
-This Codemod migrates your `@app-studio/components` code to `app-studio` code.
+This Codemod migrates your components code to `app-studio` code.
 
 ```js
-npx @reflexjs/codemod to-app-studio
+npx @app-studio/codemod to-app-studio
 ```
 
 Example:
 
-```jsx
-import { Div, H1, Button } from "@app-studio/components"
 
+```jsx
 export default function () {
   return (
-    <Div d="flex">
-      <H1>This is a heading</H1>
-      <Button variant="primary lg">Button</Button>
-    </Div>
+    <div style={{display:"flex"}}>
+      <h1 >This is a heading</h1>
+      <button>Button</button>
+    </div>
   )
 }
 ```
 
+
 Will be transformed to:
 
-```jsx
+
+```tsx
+import { Div, H1, Button } from "@app-studio/web"
+
 export default function () {
   return (
-    <div display="flex">
-      <h1 variant="heading.h1">This is a heading</h1>
-      <button variant="button.primary.lg">Button</button>
-    </div>
+    <Div display="flex">
+      <H1>This is a heading</H1>
+      <Button>Button</Button>
+    </Div>
   )
 }
 ```

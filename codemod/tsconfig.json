@@ -1,11 +1,11 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
+    "jsx": "react",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "target": "ES2020",
     "sourceMap": true,
-    "esModuleInterop": true,
-    "target": "es2015",
-    "downlevelIteration": true,
-    "preserveWatchOutput": true
+    "skipLibCheck": true
   },
   "include": ["**/*.ts"],
   "exclude": ["node_modules"]
