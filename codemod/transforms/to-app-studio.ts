@@ -232,20 +232,6 @@ export function transformStyleToProps(root, j, imports = {}) {
   });
 }
 
-// Fonction pour ajouter une déclaration d'importation si elle n'est pas déjà présente
-export function addImportStatement(root, j, importName, fromModule) {
-  const existingImport = root.find(j.ImportDeclaration, {
-    source: { value: fromModule },
-  });
-  if (existingImport.size() === 0) {
-    const importStatement = j.importDeclaration(
-      [j.importSpecifier(j.identifier(importName))],
-      j.literal(fromModule)
-    );
-    root.find(j.Program).get('body', 0).insertBefore(importStatement);
-  }
-}
-
 export function mapCSSClassToProps(root, j, cssContent) {
   // Use a simple regex to extract class names and their styles
   const cssClassRegex = /\.([a-zA-Z0-9-_]+)\s*\{([\s\S]*?)\}/g;
@@ -324,16 +310,43 @@ export function removeCSSImport(root, j) {
   });
 }
 
-function addReactImportIfMissing(root, j) {
-  const hasReactImport = root
-    .find(j.ImportDeclaration, {
-      source: { value: 'react' },
-    })
-    .size();
+export function addReactImportIfMissing(root, j) {
+  try {
+    const hasReactImport = root
+      .find(j.ImportDeclaration, {
+        source: { value: 'react' },
+      })
+      .size();
+    if (!hasReactImport) {
+      const importStatement = j.importDeclaration(
+        ['React'],
+        j.literal('react')
+      );
+      root.find(j.Program).get('body', 0).insertBefore(importStatement);
+    }
+  } catch (e) {
+    console.error(e);
+  }
+}
 
-  if (!hasReactImport) {
-    const importStatement = j.importDeclaration([], j.literal('react'));
-    root.find(j.Program).get('body', 0).insertBefore(importStatement);
+// Fonction pour ajouter une déclaration d'importation si elle n'est pas déjà présente
+export function addImportStatement(root, j, importNames, fromModule) {
+  try {
+    const existingImport = root.find(j.ImportDeclaration, {
+      source: { value: fromModule },
+    });
+    if (existingImport.size() === 0) {
+      const importSpecifiers = importNames.map((name) =>
+        j.importSpecifier(j.identifier(name))
+      );
+      const importStatement = j.importDeclaration(
+        importSpecifiers,
+        j.literal(fromModule)
+      );
+      root.find(j.Program).get('body').value.splice(1, 0, importStatement);
+    }
+  } catch (e) {
+    console.error(e);
   }
 }
 
@@ -345,14 +358,18 @@ function getTemplateLiteralValue(node) {
 
   let value = '';
 
-  // Loop through each quasi and expression, and append them to the value string
-  for (let i = 0; i < node.quasis.length; i++) {
-    value += node.quasis[i].value.raw; // Get the raw value of the quasi
+  try {
+    // Loop through each quasi and expression, and append them to the value string
+    for (let i = 0; i < node.quasis.length; i++) {
+      value += node.quasis[i].value.raw; // Get the raw value of the quasi
 
-    // If there's an expression after this quasi, append its value too
-    if (i < node.expressions.length) {
-      value += node.expressions[i].name; // Assuming the expression is an Identifier for simplicity
+      // If there's an expression after this quasi, append its value too
+      if (i < node.expressions.length) {
+        value += node.expressions[i].name; // Assuming the expression is an Identifier for simplicity
+      }
     }
+  } catch (e) {
+    console.error(e);
   }
 
   return value;

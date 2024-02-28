@@ -1,7 +1,7 @@
 {
   "name": "@app-studio/codemod",
   "description": "Migration helpers for app-studio",
-  "version": "0.1.5",
+  "version": "0.1.16",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -9,6 +9,7 @@
   "scripts": {
     "build": "tsc",
     "pretest": "tsc",
+    "prepublish": "tsc",
     "test": "jest",
     "coverage": "jest run --coverage",
     "dev": "npx nodemon --watch src/**/*.tsx --exec yarn build"
