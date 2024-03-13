@@ -139,7 +139,7 @@ function Example() {
 - Use `jscodeshift` to run the transformation:
 
 ```bash
-npx jscodeshift -t codemod/to-app-studio.ts <path_to_your_js_or_tsx_files> --assetsDir=src/assets --assetsUrl=/assets
+npx @app-studio/codemod to-app-studio <path_to_your_js_or_tsx_files> --assetsDir=src/assets --assetsUrl=/assets
 ```
 
 Replace `<path_to_your_js_or_tsx_files>` with the actual path to your JavaScript/TypeScript files.
