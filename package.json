@@ -45,10 +45,6 @@
     "build-storybook": "storybook build",
     "release": "release-it"
   },
-  "peerDependencies": {
-    "react": ">= 17",
-    "styled-components": ">= 6"
-  },
   "husky": {
     "hooks": {
       "pre-commit": "npm run lint:fix"
@@ -56,6 +52,30 @@
   },
   "author": "Steed Monteiro <steed@rize.network>",
   "module": "dist/app-studio.esm.js",
+  "lint-staged": {
+    "./src/**/*.{md,json}": [
+      "prettier --write"
+    ],
+    "./src/**/*.{tsx,ts,js}": [
+      "eslint --cache --fix",
+      "prettier --write"
+    ]
+  },
+  "size-limit": [
+    {
+      "path": "dist/app-studio.cjs.production.min.js",
+      "limit": "10 KB"
+    },
+    {
+      "path": "dist/app-studio.esm.js",
+      "limit": "10 KB"
+    }
+  ],
+  "dependencies": {
+    "@emotion/is-prop-valid": "^1.2.1",
+    "@emotion/unitless": "^0.8.1",
+    "color-convert": "^2.0.1"
+  },
   "devDependencies": {
     "@babel/core": "^7.23.2",
     "@commitlint/cli": "^18.2.0",
@@ -105,28 +125,8 @@
     "tslib": "^2.6.2",
     "typescript": "^5.2.2"
   },
-  "lint-staged": {
-    "./src/**/*.{md,json}": [
-      "prettier --write"
-    ],
-    "./src/**/*.{tsx,ts,js}": [
-      "eslint --cache --fix",
-      "prettier --write"
-    ]
-  },
-  "size-limit": [
-    {
-      "path": "dist/app-studio.cjs.production.min.js",
-      "limit": "10 KB"
-    },
-    {
-      "path": "dist/app-studio.esm.js",
-      "limit": "10 KB"
-    }
-  ],
-  "dependencies": {
-    "@emotion/is-prop-valid": "^1.2.1",
-    "@emotion/unitless": "^0.8.1",
-    "color-convert": "^2.0.1"
+  "peerDependencies": {
+    "react": ">= 17",
+    "styled-components": ">= 6"
   }
 }

@@ -1,7 +1,6 @@
 import React from 'react'; // Importe React pour créer des composants
 import Color from 'color-convert'; // Utilisé pour convertir les couleurs
 import styled, { CSSProperties } from 'styled-components'; // Pour créer des composants stylisés
-import isPropValid from '@emotion/is-prop-valid';
 import { useTheme } from '../providers/Theme'; // Hook personnalisé pour utiliser le thème
 import { Shadows, Shadow } from '../utils/shadow'; // Importe des utilitaires pour les ombres
 import { isStyleProp } from '../utils/style'; // Fonction pour vérifier si une prop est un style
@@ -242,21 +241,48 @@ const excludedKeys = new Set([
 
 // Crée un composant div stylisé, en excluant certaines props
 const ElementComponent = styled.div.withConfig({
-  shouldForwardProp: (prop) => isPropValid(prop),
+  shouldForwardProp: (key) => !newStyledProps.includes(key),
 })`
   // Applique les styles dynamiques en utilisant la fonction applyStyle
-  ${(props: any) => applyStyle(props)}
+  ${(props: any) => props.css}
 `;
 
-// Classe Element étendant React.PureComponent pour optimiser les performances
-export class Element extends React.PureComponent<ElementProps & any> {
-  render() {
-    // eslint-disable-next-line prefer-const
-    let { onPress, ...props }: any = this.props;
-    if (onPress) {
-      props.onClick = onPress;
+const newStyledProps = [
+  'shadow',
+  'size',
+  'on',
+  'media',
+  'paddingHorizontal',
+  'paddingVertical',
+  'marginHorizontal',
+  'marginVertical',
+  'css',
+];
+
+const useStyledProps = (props: any) => {
+  const styledProps = applyStyle(props);
+  // Filtrer les props pour exclure celles qui sont utilisées pour le style
+  const newProps = Object.keys(props).reduce((acc: any, key) => {
+    if (styledProps[key] === undefined && !newStyledProps.includes(key)) {
+      acc[key] = props[key];
     }
-    // Rendu du composant avec les props
-    return <ElementComponent {...props} />;
+    return acc;
+  }, {});
+
+  return { newProps, styledProps };
+};
+
+export const Element: React.FC<ElementProps & any> = (props) => {
+  // eslint-disable-next-line prefer-const
+  let { onPress, ...rest } = props;
+
+  // eslint-disable-next-line prefer-const
+  let { newProps, styledProps } = useStyledProps(rest);
+
+  if (onPress) {
+    newProps.onClick = onPress;
   }
-}
+
+  // Rendu du composant avec les props
+  return <ElementComponent {...rest} css={styledProps} />;
+};
