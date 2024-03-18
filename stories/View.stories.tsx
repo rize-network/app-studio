@@ -34,6 +34,7 @@ export const Exemple: ComponentStory<typeof View> = () => {
           backgroundColor: 'color.red',
         },
       }}
+      //     only={['mobile']}
     />
   );
 };
