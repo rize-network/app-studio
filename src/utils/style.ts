@@ -533,12 +533,7 @@ export const StyleProps = new Set([
   'decomposedMatrix',
 ]);
 
-const nonStyleAttributes = new Set([
-  'length',
-  'parentRule',
-  'src',
-  // ... add any other known non-style properties here
-]);
+const nonStyleAttributes = new Set(['length', 'parentRule', 'src']);
 
 export const isStyleProp = (property: string): boolean => {
   return StyleProps.has(property) || nonStyleAttributes.has(property);

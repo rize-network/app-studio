@@ -164,6 +164,7 @@ export const applyStyle = (props: Record<string, any>): CSSProperties & any => {
   // Applique les styles
   Object.keys(props).map((property) => {
     if (property !== 'shadow' && property !== 'size') {
+      console.log('property', property);
       if (isStyleProp(property) || property == 'on' || property == 'media') {
         if (typeof props[property] === 'object') {
           if (property === 'on') {
@@ -213,19 +214,6 @@ export const applyStyle = (props: Record<string, any>): CSSProperties & any => {
   return styleProps;
 };
 
-// Fonction pour filtrer les props qui ne sont pas des styles
-export const getProps = (props: Record<string, any>) => {
-  return Object.keys(props).reduce(
-    (acc, key) => {
-      if (!excludedKeys.has(key) && !isStyleProp(key)) {
-        acc[key] = props[key];
-      }
-      return acc;
-    },
-    {} as { [key: string]: any }
-  );
-};
-
 // Clés à exclure lors de la création du composant stylisé
 const excludedKeys = new Set([
   'on',
@@ -241,29 +229,19 @@ const excludedKeys = new Set([
 
 // Crée un composant div stylisé, en excluant certaines props
 const ElementComponent = styled.div.withConfig({
-  shouldForwardProp: (key) => !newStyledProps.includes(key),
+  shouldForwardProp: (key) => {
+    return !excludedKeys.has(key) && !isStyleProp(key);
+  },
 })`
   // Applique les styles dynamiques en utilisant la fonction applyStyle
   ${(props: any) => props.css}
 `;
 
-const newStyledProps = [
-  'shadow',
-  'size',
-  'on',
-  'media',
-  'paddingHorizontal',
-  'paddingVertical',
-  'marginHorizontal',
-  'marginVertical',
-  'css',
-];
-
 const useStyledProps = (props: any) => {
   const styledProps = applyStyle(props);
   // Filtrer les props pour exclure celles qui sont utilisées pour le style
   const newProps = Object.keys(props).reduce((acc: any, key) => {
-    if (styledProps[key] === undefined && !newStyledProps.includes(key)) {
+    if (styledProps[key] === undefined && !excludedKeys.has(key)) {
       acc[key] = props[key];
     }
     return acc;

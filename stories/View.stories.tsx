@@ -20,6 +20,7 @@ export const Exemple: ComponentStory<typeof View> = () => {
     <View
       size={100}
       shadow={9}
+      display="flex"
       backgroundColor="color.yellow"
       on={{ hover: { backgroundColor: 'theme.primary' } }}
       media={{
@@ -33,7 +34,6 @@ export const Exemple: ComponentStory<typeof View> = () => {
           backgroundColor: 'color.red',
         },
       }}
-      only={['mobile']}
     />
   );
 };
