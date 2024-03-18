@@ -164,7 +164,6 @@ export const applyStyle = (props: Record<string, any>): CSSProperties & any => {
   // Applique les styles
   Object.keys(props).map((property) => {
     if (property !== 'shadow' && property !== 'size') {
-      console.log('property', property);
       if (isStyleProp(property) || property == 'on' || property == 'media') {
         if (typeof props[property] === 'object') {
           if (property === 'on') {
