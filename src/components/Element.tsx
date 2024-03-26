@@ -226,10 +226,14 @@ const excludedKeys = new Set([
   'marginVertical',
 ]);
 
+const includeKeys = new Set(['src', 'alt', 'style']);
+
 // Crée un composant div stylisé, en excluant certaines props
 const ElementComponent = styled.div.withConfig({
   shouldForwardProp: (key) => {
-    return !excludedKeys.has(key) && !isStyleProp(key);
+    return (
+      (!excludedKeys.has(key) && !isStyleProp(key)) || includeKeys.has(key)
+    );
   },
 })`
   // Applique les styles dynamiques en utilisant la fonction applyStyle
