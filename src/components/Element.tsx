@@ -244,7 +244,7 @@ const useStyledProps = (props: any) => {
   const styledProps = applyStyle(props);
   // Filtrer les props pour exclure celles qui sont utilisées pour le style
   const newProps = Object.keys(props).reduce((acc: any, key) => {
-    if (styledProps[key] === undefined && !excludedKeys.has(key)) {
+    if ((!excludedKeys.has(key) && !isStyleProp(key)) || includeKeys.has(key)) {
       acc[key] = props[key];
     }
     return acc;
