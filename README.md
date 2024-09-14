@@ -1,4 +1,3 @@
-
 # App Studio
 
 [![npm version](https://img.shields.io/npm/v/app-studio.svg?style=for-the-badge)](https://www.npmjs.com/package/app-studio)
@@ -25,10 +24,10 @@
 [issues-helper-url]: https://github.com/actions-cool/issues-helper
 
 
+
 `App-studio` provides CSS design props for layout, spacing, sizing, shadows with the 'shadow' prop, event management through the `on` prop, and theming. Components include `Element` for fundamental design, `View` based on the `div`, `Text` for text styles, `Form` for form-related designs, and `Image` based on the `img` tag.
 
 Supported events: `hover`, `active`, `focus`, and `disabled`.
-
 
 ## ✨ Features
 
@@ -40,55 +39,55 @@ Supported events: `hover`, `active`, `focus`, and `disabled`.
 ## 📦 Install
 
 ```bash
-npm install app-studio  styled-components --save
+npm install app-studio styled-components --save
 ```
 
 ## 🔨 Usage
 
-The `<View>` component supports all of the default [CSSProperties](https://developer.mozilla.org/fr/docs/Web/CSS/CSS_Properties_Reference) as props. The styles transformed and handled by [Styled Components](https://styled-components.com/).
+The `<View>` component supports all of the default [CSSProperties](https://developer.mozilla.org/fr/docs/Web/CSS/CSS_Properties_Reference) as props. The styles are transformed and handled by [Styled Components](https://styled-components.com/).
 
-
-1. Add Responsive and Theme Provider  to your application root :
+1. Add Responsive and Theme Provider to your application root:
 
 ```jsx
 import React from 'react';
 import { ResponsiveProvider, ThemeProvider } from 'app-studio';
 
 const Root = () => {
-    return (<ResponsiveProvider>
-                <ThemeProvider>
-                    <App />
-                </ThemeProvider>
-            </ResponsiveProvider>);
+    return (
+        <ResponsiveProvider>
+            <ThemeProvider>
+                <App />
+            </ThemeProvider>
+        </ResponsiveProvider>
+    );
 };
-
 ```
 
+2. Use components in your application:
 
 ```jsx
 import React from 'react';
 import { View } from 'app-studio';
 
 function Example() {
-	return (
-		<View 
-	    backgroundColor="color.grey" 
-	    padding={20}
-	    on={{ hover: { backgroundColor: 'color.blue.100' } }}
- >
-		Hello
-		</View>
-	);
+    return (
+        <View 
+            backgroundColor="color.grey" 
+            padding={20}
+            on={{ hover: { backgroundColor: 'color.blue.100' } }}
+        >
+            Hello
+        </View>
+    );
 }
 ```
 
+You can use View for a `<div>` tag. You can also use Div, Span, Form, Input, and Image components if you need another tag.
 
-You can Use View is use <div> tag you can use  Div, Span, Form, Input, Image components if you need another tag.
+## Advanced Example
 
-##  Advanced Example
-
-```javascript
-import { ThemeProvider, ResponsiveProvider, View, Span, Text } from 'app-studio';
+```jsx
+import { ThemeProvider, ResponsiveProvider, View, Span, Text, Button } from 'app-studio';
 
 const theme = {
   main: { primary: '#fff7ed' },
@@ -103,53 +102,56 @@ const colors = {
 function Example() {
   return (
     <ResponsiveProvider>
-	    <ThemeProvider theme={theme} colors={colors}>
-	      <Span
-		backgroundColor="color.blue"
-		padding={10}
-		media={{
-			mobile: {
-			  padding: 20
-			}
-		      }}
-		>
-	        Base element
-	      </Span>
-	      <View 
-	        backgroundColor="theme.primary" 
-	        margin={10}
-	        width={200}
-	        on={{ hover: { backgroundColor: 'color.blueGray.500' } }}
-	      >
-	        Hover to change color
-	      </View>
-		<Button backgroundColor="theme.button.background">Click here </Button>
-	      <Text color="theme.primary">Hello</Text>
-	    </ThemeProvider>
+        <ThemeProvider theme={theme} colors={colors}>
+          <Span
+            backgroundColor="color.blue"
+            padding={10}
+            media={{
+                mobile: {
+                  padding: 20
+                }
+            }}
+          >
+            Base element
+          </Span>
+          <View 
+            backgroundColor="theme.primary" 
+            margin={10}
+            width={200}
+            on={{ hover: { backgroundColor: 'color.blueGray.500' } }}
+          >
+            Hover to change color
+          </View>
+          <Button backgroundColor="theme.button.background">Click here</Button>
+          <Text color="theme.primary">Hello</Text>
+        </ThemeProvider>
     </ResponsiveProvider>
-
   );
 }
 ```
 
-
 ## Transform JavaScript/TypeScript JSX
 
-- Save the code from **Section 2** into a folder named `codemod` and within that, a file named `to-app-studio.js`.
-- Use `jscodeshift` to run the transformation:
+To transform your existing JavaScript/TypeScript JSX code to use App-Studio:
+
+1. Install the codemod tool:
 
 ```bash
-npx @app-studio/codemod to-app-studio <path_to_your_js_or_tsx_files> --assetsDir=src/assets --assetsUrl=/assets
+npm install -g @app-studio/codemod
+```
+
+2. Run the transformation:
+
+```bash
+app-studio-codemod to-app-studio <path_to_your_js_or_tsx_files> --assetsDir=src/assets --assetsUrl=/assets
 ```
 
 Replace `<path_to_your_js_or_tsx_files>` with the actual path to your JavaScript/TypeScript files.
-
 
 ## 🔗 Links
 - [Change Log](CHANGELOG.md)
 - [Versioning Release Note](https://github.com/rize-network/app-studio/wiki/)
 - [How to Apply for Being A Collaborator](https://github.com/rize-network/app-studio/wiki/Collaborators#how-to-apply-for-being-a-collaborator)
-
 
 ## 🤝 Contributing [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
@@ -161,8 +163,6 @@ If you are a collaborator, please follow our [Pull Request principle](https://gi
 
 [![Let's fund issues in this repository](https://issuehunt.io/static/embed/issuehunt-button-v1.svg)](https://issuehunt.io/o/rize-network)
 
-
-
 ## Roadmap 
 
 - Integrate React Native 
@@ -171,13 +171,10 @@ If you are a collaborator, please follow our [Pull Request principle](https://gi
 
 SteedMonteiro, steed@rize.network
 
-
 ## ❤️ Sponsors and Backers [![](https://opencollective.com/rize/tiers/sponsors/badge.svg?label=Sponsors&color=brightgreen)](https://opencollective.com/rize#support) [![](https://opencollective.com/rize/tiers/backers/badge.svg?label=Backers&color=brightgreen)](https://opencollective.com/rize#support)
 
 [![](https://opencollective.com/rize/tiers/sponsors.svg?avatarHeight=36)](https://opencollective.com/rize#support)
 [![](https://opencollective.com/rize/tiers/backers.svg?avatarHeight=36)](https://opencollective.com/rize#support)
-
-
 
 ## License
 
