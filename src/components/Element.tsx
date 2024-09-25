@@ -175,7 +175,7 @@ const generateCssRules = (
 };
 
 // Function to apply styles to a component
-const applyStyle = (
+const computeStyleProps = (
   props: Record<string, any>,
   getColor: (color: string) => string,
   mediaQueries: any,
@@ -272,7 +272,6 @@ const applyStyle = (
     styleProps.animationPlayState = animation.playState || 'running';
   }
 
-  // Traitement des propriétés de style
   Object.keys(props).forEach((property) => {
     if (
       property !== 'style' &&
@@ -281,14 +280,146 @@ const applyStyle = (
       const value = props[property];
 
       if (typeof value === 'object' && value !== null) {
-        // Pour les propriétés comme 'on', 'media'
+        // For other nested styles, exclude 'on' and 'media'
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { on, media, ...nestedProps } = value;
+        const nestedResult = applyStyle(
+          nestedProps,
+          getColor,
+          mediaQueries,
+          devices
+        );
+        styleProps[property] = nestedResult.styleProps;
+        keyframesList.push(...(nestedResult.keyframes || []));
+      } else {
+        // Simple style property
+        styleProps[property] = value;
+      }
+    }
+  });
+
+  return { styleProps, keyframes: keyframesList };
+};
+
+// Function to apply styles to a component
+const applyStyle = (
+  props: Record<string, any>,
+  getColor: (color: string) => string,
+  mediaQueries: any,
+  devices: any,
+  depth: number = 0, // Add a depth parameter
+  maxDepth: number = 10 // Set a maximum depth
+): {
+  styleProps: Record<string, any>;
+  keyframes?: string[];
+} => {
+  if (depth > maxDepth) {
+    console.error('Maximum recursion depth reached in applyStyle');
+    return { styleProps: {}, keyframes: [] };
+  }
+
+  const styleProps: Record<string, any> = {};
+  const keyframesList: string[] = [];
+
+  // Gestion de la taille de l'élément
+  const size =
+    props.height !== undefined &&
+    props.width !== undefined &&
+    props.height === props.width
+      ? props.height
+      : props.size
+      ? props.size
+      : null;
+
+  if (size) {
+    styleProps.height = styleProps.width = size;
+  }
+
+  // Gestion du padding et de la marge
+  if (props.paddingHorizontal) {
+    styleProps.paddingLeft = props.paddingHorizontal;
+    styleProps.paddingRight = props.paddingHorizontal;
+  }
+
+  if (props.marginHorizontal) {
+    styleProps.marginLeft = props.marginHorizontal;
+    styleProps.marginRight = props.marginHorizontal;
+  }
+
+  if (props.paddingVertical) {
+    styleProps.paddingTop = props.paddingVertical;
+    styleProps.paddingBottom = props.paddingVertical;
+  }
+
+  if (props.marginVertical) {
+    styleProps.marginTop = props.marginVertical;
+    styleProps.marginBottom = props.marginVertical;
+  }
+
+  // Application des ombres si spécifié
+  if (props.shadow) {
+    if (typeof props.shadow === 'number' || typeof props.shadow === 'boolean') {
+      const shadowValue: number =
+        typeof props.shadow === 'number' && Shadows[props.shadow] !== undefined
+          ? props.shadow
+          : 2;
+
+      if (Shadows[shadowValue]) {
+        const shadowColor =
+          Color.hex.rgb(Shadows[shadowValue].shadowColor) || [];
+
+        styleProps['boxShadow'] = `${
+          Shadows[shadowValue].shadowOffset.height
+        }px ${Shadows[shadowValue].shadowOffset.width}px ${
+          Shadows[shadowValue].shadowRadius
+        }px rgba(${shadowColor.join(',')},${
+          Shadows[shadowValue].shadowOpacity
+        })`;
+      }
+    } else {
+      const shadowColor = Color.hex.rgb(props.shadow.shadowColor) || [];
+
+      styleProps['boxShadow'] = `${props.shadow.shadowOffset.height}px ${
+        props.shadow.shadowOffset.width
+      }px ${props.shadow.shadowRadius}px rgba(${shadowColor.join(',')},${
+        props.shadow.shadowOpacity
+      })`;
+    }
+  }
+
+  // Gestion des animations
+  if (props.animate) {
+    const animation = props.animate;
+    const { keyframesName, keyframes } = generateKeyframes(animation);
+
+    if (keyframes) {
+      keyframesList.push(keyframes);
+    }
+
+    styleProps.animationName = keyframesName;
+    styleProps.animationDuration = animation.duration || '1s';
+    styleProps.animationTimingFunction = animation.timingFunction || 'ease';
+    styleProps.animationDelay = animation.delay || '0s';
+    styleProps.animationIterationCount = `${animation.iterationCount || '1'}`;
+    styleProps.animationDirection = animation.direction || 'normal';
+    styleProps.animationFillMode = animation.fillMode || 'both';
+    styleProps.animationPlayState = animation.playState || 'running';
+  }
+
+  Object.keys(props).forEach((property) => {
+    if (
+      property !== 'style' &&
+      (isStyleProp(property) || extraKeys.has(property))
+    ) {
+      const value = props[property];
+
+      if (typeof value === 'object' && value !== null) {
         if (property === 'on') {
-          // Pseudo-sélecteurs
           for (const event in value) {
             if (!styleProps[`&:${event}`]) {
               styleProps[`&:${event}`] = {};
             }
-            const nestedResult = applyStyle(
+            const nestedResult = computeStyleProps(
               value[event],
               getColor,
               mediaQueries,
@@ -298,7 +429,6 @@ const applyStyle = (
             keyframesList.push(...(nestedResult.keyframes || []));
           }
         } else if (property === 'media') {
-          // Media queries
           for (const screenOrDevices in value) {
             const mediaValue = value[screenOrDevices];
             if (mediaQueries[screenOrDevices]) {
@@ -306,7 +436,7 @@ const applyStyle = (
               if (!styleProps[mediaQuery]) {
                 styleProps[mediaQuery] = {};
               }
-              const nestedResult = applyStyle(
+              const nestedResult = computeStyleProps(
                 mediaValue,
                 getColor,
                 mediaQueries,
@@ -322,7 +452,7 @@ const applyStyle = (
                   if (!styleProps[mediaQuery]) {
                     styleProps[mediaQuery] = {};
                   }
-                  const nestedResult = applyStyle(
+                  const nestedResult = computeStyleProps(
                     mediaValue,
                     getColor,
                     mediaQueries,
@@ -338,9 +468,11 @@ const applyStyle = (
             }
           }
         } else {
-          // Styles imbriqués
-          const nestedResult = applyStyle(
-            value,
+          // For other nested styles, exclude 'on' and 'media'
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { on, media, ...nestedProps } = value;
+          const nestedResult = computeStyleProps(
+            nestedProps,
             getColor,
             mediaQueries,
             devices
@@ -349,7 +481,7 @@ const applyStyle = (
           keyframesList.push(...(nestedResult.keyframes || []));
         }
       } else {
-        // Propriété de style simple
+        // Simple style property
         styleProps[property] = value;
       }
     }
