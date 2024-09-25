@@ -86,7 +86,6 @@ let classNameCounter = 0;
 
 const generateClassName = (styleProps: Record<string, any>): string => {
   // Extract only relevant, primitive style properties
-  console.log({ styleProps });
   // Generate a unique hash based on relevantProps
   const hash = hashObject(styleProps);
 
