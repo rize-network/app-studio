@@ -53,18 +53,48 @@ const styleSheet = (() => {
   return null;
 })();
 
+/**
+ * Fonction de hachage simple et rapide basée sur l'algorithme djb2.
+ * @param {string} str - La chaîne de caractères à hacher.
+ * @returns {number} - Le hachage sous forme d'entier non signé 32 bits.
+ */
+const hashString = (str: any): number => {
+  let hash = 5381;
+  for (let i = 0; i < str.length; i++) {
+    // hash * 33 + c
+    hash = (hash << 5) + hash + str.charCodeAt(i);
+    // Pour éviter les dépassements, on utilise l'opérateur >>> 0
+    hash = hash >>> 0;
+  }
+  return hash;
+};
+
+/**
+ * Fonction pour hacher un objet en utilisant JSON.stringify et hashString.
+ * @param {Object} obj - L'objet à hacher.
+ * @returns {number} - Le hachage de l'objet.
+ */
+const hashObject = (obj: any): string => {
+  const str = JSON.stringify(obj);
+  return hashString(str).toString();
+};
+
 const classCache = new Map<string, string>();
 const cssRulesCache = new Map<string, string[]>();
 
 let classNameCounter = 0;
 
 const generateClassName = (styleProps: Record<string, any>): string => {
-  const serialized = JSON.stringify(styleProps);
-  if (classCache.has(serialized)) {
-    return classCache.get(serialized)!;
+  // Extract only relevant, primitive style properties
+  console.log({ styleProps });
+  // Generate a unique hash based on relevantProps
+  const hash = hashObject(styleProps);
+
+  if (classCache.has(hash)) {
+    return classCache.get(hash)!;
   } else {
     const className = 'clz-' + classNameCounter++;
-    classCache.set(serialized, className);
+    classCache.set(hash, className);
     return className;
   }
 };
