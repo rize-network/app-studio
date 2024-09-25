@@ -176,10 +176,7 @@ const generateCssRules = (
 
 // Function to apply styles to a component
 const computeStyleProps = (
-  props: Record<string, any>,
-  getColor: (color: string) => string,
-  mediaQueries: any,
-  devices: any
+  props: Record<string, any>
 ): {
   styleProps: Record<string, any>;
   keyframes?: string[];
@@ -277,24 +274,8 @@ const computeStyleProps = (
       property !== 'style' &&
       (isStyleProp(property) || extraKeys.has(property))
     ) {
-      const value = props[property];
-
-      if (typeof value === 'object' && value !== null) {
-        // For other nested styles, exclude 'on' and 'media'
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { on, media, ...nestedProps } = value;
-        const nestedResult = computeStyleProps(
-          nestedProps,
-          getColor,
-          mediaQueries,
-          devices
-        );
-        styleProps[property] = nestedResult.styleProps;
-        keyframesList.push(...(nestedResult.keyframes || []));
-      } else {
-        // Simple style property
-        styleProps[property] = value;
-      }
+      // Simple style property
+      styleProps[property] = props[property];
     }
   });
 
@@ -304,7 +285,6 @@ const computeStyleProps = (
 // Function to apply styles to a component
 const applyStyle = (
   props: Record<string, any>,
-  getColor: (color: string) => string,
   mediaQueries: any,
   devices: any,
   depth: number = 0, // Add a depth parameter
@@ -419,12 +399,7 @@ const applyStyle = (
             if (!styleProps[`&:${event}`]) {
               styleProps[`&:${event}`] = {};
             }
-            const nestedResult = computeStyleProps(
-              value[event],
-              getColor,
-              mediaQueries,
-              devices
-            );
+            const nestedResult = computeStyleProps(value[event]);
             Object.assign(styleProps[`&:${event}`], nestedResult.styleProps);
             keyframesList.push(...(nestedResult.keyframes || []));
           }
@@ -436,12 +411,7 @@ const applyStyle = (
               if (!styleProps[mediaQuery]) {
                 styleProps[mediaQuery] = {};
               }
-              const nestedResult = computeStyleProps(
-                mediaValue,
-                getColor,
-                mediaQueries,
-                devices
-              );
+              const nestedResult = computeStyleProps(mediaValue);
               Object.assign(styleProps[mediaQuery], nestedResult.styleProps);
               keyframesList.push(...(nestedResult.keyframes || []));
             } else if (devices[screenOrDevices]) {
@@ -452,12 +422,7 @@ const applyStyle = (
                   if (!styleProps[mediaQuery]) {
                     styleProps[mediaQuery] = {};
                   }
-                  const nestedResult = computeStyleProps(
-                    mediaValue,
-                    getColor,
-                    mediaQueries,
-                    devices
-                  );
+                  const nestedResult = computeStyleProps(mediaValue);
                   Object.assign(
                     styleProps[mediaQuery],
                     nestedResult.styleProps
@@ -471,12 +436,7 @@ const applyStyle = (
           // For other nested styles, exclude 'on' and 'media'
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { on, media, ...nestedProps } = value;
-          const nestedResult = computeStyleProps(
-            nestedProps,
-            getColor,
-            mediaQueries,
-            devices
-          );
+          const nestedResult = computeStyleProps(nestedProps);
           styleProps[property] = nestedResult.styleProps;
           keyframesList.push(...(nestedResult.keyframes || []));
         }
@@ -487,8 +447,6 @@ const applyStyle = (
     }
   });
 
-  console.log({ styleProps });
-
   return { styleProps, keyframes: keyframesList };
 };
 
@@ -498,12 +456,7 @@ const getStyledProps = (
   mediaQueries: any,
   devices: any
 ): { newProps: any; className: string; cssRules: string[] } => {
-  const { styleProps, keyframes } = applyStyle(
-    props,
-    getColor,
-    mediaQueries,
-    devices
-  );
+  const { styleProps, keyframes } = applyStyle(props, mediaQueries, devices);
 
   const className = generateClassName(styleProps);
 
