@@ -16,7 +16,7 @@ export interface ViewProps
       ViewStyleProps,
       'children' | 'translate' | 'style' | 'pointerEvents'
     >,
-    Omit<CSSProperties, 'translate'>,
+    Omit<CSSProperties, 'translate' | 'animation'>,
     ElementProps {
   onPress?: (..._args: any) => void;
 }

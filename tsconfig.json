@@ -2,7 +2,9 @@
   // see https://www.typescriptlang.org/tsconfig to better understand tsconfigs
   "include": ["src", "types"],
   "compilerOptions": {
-    "module": "esnext",
+    "module": "esnext",    
+    "target": "es5", // Ajoutez ceci pour cibler ES5, compatible avec UMD
+
     "lib": ["dom", "esnext"],
     "importHelpers": true,
     // output .d.ts declaration files for consumers

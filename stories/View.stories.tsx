@@ -19,7 +19,8 @@ export const Exemple: ComponentStory<typeof View> = () => {
   return (
     <View
       size={100}
-      shadow={9}
+      shadow={4}
+      paddingHorizontal={20}
       display="flex"
       backgroundColor="color.yellow"
       on={{ hover: { backgroundColor: 'theme.primary' } }}
@@ -34,6 +35,15 @@ export const Exemple: ComponentStory<typeof View> = () => {
           backgroundColor: 'color.red',
         },
       }}
+      animate={{
+        from: { opacity: 0 },
+        enter: { opacity: 1 },
+        leave: { opacity: 0 },
+        duration: '2s',
+        timingFunction: 'ease-in-out',
+      }}
+      // style={{ backgroundColor: 'yellow' }} // Dynamic inline style
+      onPress={() => alert('ok')}
       //     only={['mobile']}
     />
   );

@@ -13,9 +13,11 @@ export interface ImageProps
       | 'translate'
       | 'target'
       | 'border'
+      | 'animate'
       | 'draggable'
+      | 'style'
     >,
-    CSSProperties,
+    Omit<CSSProperties, 'animation'>,
     ElementProps {}
 
 export const Image = React.memo((props: ImageProps) => (

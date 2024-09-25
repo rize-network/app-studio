@@ -34,9 +34,11 @@ export interface ButtonProps
       | 'translate'
       | 'type'
       | 'border'
+      | 'animate'
+      | 'style'
       | 'draggable'
     >,
-    CSSProperties,
+    Omit<CSSProperties, 'animation'>,
     ElementProps {
   children?: React.ReactNode;
   // ... autres props ...
@@ -48,7 +50,10 @@ export interface ButtonProps
 export interface InputProps
   extends ElementProps,
     CommonProps,
-    Omit<Partial<HTMLInputElement>, 'width' | 'height' | 'children'>,
+    Omit<
+      Partial<HTMLInputElement>,
+      'width' | 'height' | 'animate' | 'style' | 'children'
+    >,
     Omit<CSSProperties, 'style' | 'dir' | 'translate'> {}
 
 // Utilisation de React.memo pour une meilleure performance

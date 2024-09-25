@@ -1,74 +1,180 @@
-import React from 'react'; // Importe React pour créer des composants
-import Color from 'color-convert'; // Utilisé pour convertir les couleurs
-import styled, { CSSProperties } from 'styled-components'; // Pour créer des composants stylisés
-import { useTheme } from '../providers/Theme'; // Hook personnalisé pour utiliser le thème
-import { Shadows, Shadow } from '../utils/shadow'; // Importe des utilitaires pour les ombres
-import { isStyleProp } from '../utils/style'; // Fonction pour vérifier si une prop est un style
-import { useResponsiveContext } from '../providers/Responsive'; // Hook pour le contexte responsive
+// Element.tsx
+import React, { CSSProperties, useEffect, useMemo } from 'react';
+import { useTheme } from '../providers/Theme';
+import { useResponsiveContext } from '../providers/Responsive';
+import Color from 'color-convert'; // Used for color conversion
 
-// Définit les props pour le composant Element
+import {
+  isStyleProp,
+  processStyleProperty,
+  styleObjectToCss,
+} from '../utils/style';
+import { generateKeyframes } from '../utils/animation';
+import {
+  excludedKeys,
+  includeKeys,
+  AnimationProps,
+  extraKeys,
+} from '../utils/constants';
+import { Shadows, Shadow } from '../utils/shadow'; // Utilities for shadows
+
+// Define ElementProps interface
 export interface ElementProps {
-  children?: React.ReactNode; // Les enfants du composant
-  size?: number; // Taille de l'élément
-  on?: Record<string, CSSProperties>; // Styles pour les événements
-  media?: Record<string, CSSProperties>; // Styles pour les médias
-  paddingHorizontal?: number | string; // Padding horizontal
-  marginHorizontal?: number | string; // Margin horizontal
-  paddingVertical?: number | string; // Padding vertical
-  marginVertical?: number | string; // Margin vertical
-  shadow?: boolean | number | Shadow; // Propriété d'ombre
-  only?: string[]; // Propriété pour spécifier des médias spécifiques
-  css?: CSSProperties; // Styles CSS personnalisés
+  children?: React.ReactNode;
+  size?: number;
+  on?: Record<string, CSSProperties>;
+  media?: Record<string, CSSProperties>;
+  paddingHorizontal?: number | string;
+  marginHorizontal?: number | string;
+  paddingVertical?: number | string;
+  marginVertical?: number | string;
+  shadow?: boolean | number | Shadow;
+  only?: string[];
+  css?: CSSProperties;
+  style?: CSSProperties;
+  animate?: AnimationProps;
+  onPress?: () => void;
+  [key: string]: any;
 }
 
-// Liste des propriétés numériques
-const NumberProps = [
-  'numberOfLines',
-  'fontWeight',
-  'timeStamp',
-  'flex',
-  'flexGrow',
-  'flexShrink',
-  'order',
-  'zIndex',
-  'aspectRatio',
-  'shadowOpacity',
-  'shadowRadius',
-  'scale',
-  'opacity',
-  'min',
-  'max',
-  'now',
-];
+// Global style sheet management
+const styleSheet = (() => {
+  if (typeof document !== 'undefined') {
+    let styleTag = document.getElementById(
+      'dynamic-styles'
+    ) as HTMLStyleElement;
+    if (!styleTag) {
+      styleTag = document.createElement('style');
+      styleTag.id = 'dynamic-styles';
+      document.head.appendChild(styleTag);
+    }
+    return styleTag.sheet as CSSStyleSheet;
+  }
+  return null;
+})();
 
-// Stocke si une propriété est numérique
-const NumberPropsStyle: { [key: string]: boolean } = {};
-NumberProps.forEach((property) => {
-  NumberPropsStyle[property] = true;
-});
+// Cache for generated class names and their CSS rules
+const classCache = new Map<string, string>();
+const cssRulesCache = new Map<string, string[]>();
 
-// Fonction pour définir la taille de l'élément
-export const setSize = (
-  newSize: string | number,
-  styleProps: Record<string, any>
-) => {
-  styleProps.height = styleProps.width = newSize; // Définit la hauteur et la largeur
+let classNameCounter = 0;
+
+// Function to generate unique class name from style props
+const generateClassName = (styleProps: Record<string, any>): string => {
+  const serialized = JSON.stringify(styleProps);
+  if (classCache.has(serialized)) {
+    return classCache.get(serialized)!;
+  } else {
+    const className = 'element-' + classNameCounter++;
+    classCache.set(serialized, className);
+    return className;
+  }
 };
 
-// Fonction pour appliquer les styles à un composant
-export const applyStyle = (props: Record<string, any>): CSSProperties & any => {
-  const { getColor } = useTheme(); // Utilise le hook pour obtenir les couleurs du thème
-  const { mediaQueries, devices } = useResponsiveContext(); // Utilise le contexte responsive
+// Function to inject CSS rules into the style sheet
+const useDynamicStyles = (cssRules: string[]): void => {
+  useEffect(() => {
+    if (!styleSheet) return;
+    cssRules.forEach((rule) => {
+      try {
+        if (
+          [...styleSheet.cssRules].some((cssRule) => cssRule.cssText === rule)
+        ) {
+          // Rule already exists
+          return;
+        }
+        styleSheet.insertRule(rule, styleSheet.cssRules.length);
+      } catch (error) {
+        console.error('Error inserting CSS rule:', rule, error);
+      }
+    });
+  }, [cssRules]);
+};
 
-  // eslint-disable-next-line prefer-const
-  let styleProps: Record<string, any> = {}; // Stocke les styles
+// Function to recursively generate CSS rules from classStyles
+const generateCssRules = (
+  selector: string,
+  styles: Record<string, any>,
+  getColor: (color: string) => string
+): string[] => {
+  const rules: string[] = [];
+  const mainStyles: Record<string, any> = {};
+  const nestedMediaQueries: Record<string, Record<string, any>> = {};
 
-  // Applique un curseur pointeur si un gestionnaire de clic est présent
-  if (props.onClick && styleProps.cursor == undefined) {
-    styleProps.cursor = 'pointer';
+  Object.keys(styles).forEach((key) => {
+    const value = styles[key];
+    if (key.startsWith('@media ')) {
+      const mediaQuery = key;
+      if (!nestedMediaQueries[mediaQuery]) {
+        nestedMediaQueries[mediaQuery] = {};
+      }
+      Object.assign(nestedMediaQueries[mediaQuery], value);
+    } else if (key.startsWith('&:')) {
+      const pseudoSelector = key.slice(1);
+      const nestedStyles = styles[key];
+      const nestedRules = generateCssRules(
+        `${selector}${pseudoSelector}`,
+        nestedStyles,
+        getColor
+      );
+      rules.push(...nestedRules);
+    } else {
+      mainStyles[key] = value;
+    }
+  });
+
+  if (
+    Object.keys(mainStyles).length > 0 ||
+    Object.keys(nestedMediaQueries).length > 0
+  ) {
+    const processedStyles: Record<string, any> = {};
+    for (const property in mainStyles) {
+      processedStyles[property] = processStyleProperty(
+        property,
+        mainStyles[property],
+        getColor
+      );
+    }
+
+    let cssRule = `${selector} { ${styleObjectToCss(processedStyles)} `;
+
+    for (const mediaQuery in nestedMediaQueries) {
+      const mediaStyles = nestedMediaQueries[mediaQuery];
+      const processedMediaStyles: Record<string, any> = {};
+      for (const property in mediaStyles) {
+        processedMediaStyles[property] = processStyleProperty(
+          property,
+          mediaStyles[property],
+          getColor
+        );
+      }
+      cssRule += ` ${mediaQuery} { ${styleObjectToCss(
+        processedMediaStyles
+      )} } `;
+    }
+
+    cssRule += ` }`;
+    rules.push(cssRule);
   }
 
-  // Gère la taille de l'élément
+  return rules;
+};
+
+// Function to apply styles to a component
+const applyStyle = (
+  props: Record<string, any>
+): {
+  styleProps: Record<string, any>;
+  getColor: (color: string) => string;
+  keyframes?: string[];
+} => {
+  const { getColor } = useTheme();
+  const { mediaQueries, devices } = useResponsiveContext();
+
+  const styleProps: Record<string, any> = {};
+  const keyframesList: string[] = [];
+
+  // Handle element size
   const size =
     props.height !== undefined &&
     props.width !== undefined &&
@@ -79,10 +185,10 @@ export const applyStyle = (props: Record<string, any>): CSSProperties & any => {
       : null;
 
   if (size) {
-    setSize(size, styleProps); // Applique la taille
+    styleProps.height = styleProps.width = size;
   }
 
-  // Gère le padding et la marge
+  // Handle padding and margin
   if (props.paddingHorizontal) {
     styleProps.paddingLeft = props.paddingHorizontal;
     styleProps.paddingRight = props.paddingHorizontal;
@@ -103,7 +209,7 @@ export const applyStyle = (props: Record<string, any>): CSSProperties & any => {
     styleProps.marginBottom = props.marginVertical;
   }
 
-  // Applique les ombres si spécifié
+  // Apply shadows if specified
   if (props.shadow) {
     if (typeof props.shadow === 'number' || typeof props.shadow === 'boolean') {
       const shadowValue: number =
@@ -127,143 +233,148 @@ export const applyStyle = (props: Record<string, any>): CSSProperties & any => {
         'boxShadow'
       ] = `${props.shadow.shadowOffset.height}px ${props.shadow.shadowOffset.width}px ${props.shadow.shadowRadius}px rgba(${shadowColor},${props.shadow.shadowOpacity})`;
     }
-    delete props['shadow'];
   }
 
-  // Gère les styles pour des médias spécifiques
-  if (props.only) {
-    const { only, ...newProps } = props;
-    // eslint-disable-next-line prefer-const
-    let onlyProps: any = {
-      media: {},
-    };
+  // Gestion des animations
+  if (props.animate) {
+    const animation = props.animate;
+    const { keyframesName, keyframes } = generateKeyframes(animation);
 
-    only.map((o: string) => {
-      if (onlyProps.media[o] == undefined) {
-        onlyProps.media[o] = {};
-      }
-    });
+    if (keyframes) {
+      keyframesList.push(keyframes);
+    }
 
-    const styleKeys = Object.keys(newProps).filter((key) => isStyleProp(key));
-    styleKeys.map((key: string) => {
-      only.map((o: string) => {
-        props.media[o][key] = newProps[key];
-      });
-      delete props[key];
-    });
-    delete props['only'];
+    styleProps.animationName = keyframesName;
+    styleProps.animationDuration = animation.duration || '1s';
+    styleProps.animationTimingFunction = animation.timingFunction || 'ease';
+    styleProps.animationDelay = animation.delay || '0s';
+    styleProps.animationIterationCount = animation.iterationCount || '1';
+    styleProps.animationDirection = animation.direction || 'normal';
+    styleProps.animationFillMode = animation.fillMode || 'both';
+    styleProps.animationPlayState = animation.playState || 'running';
   }
 
-  // Gère les styles CSS personnalisés
-  if (props.css) {
-    const { css } = props;
-    props = { ...css, props };
-    delete props['css'];
-  }
+  // Process the styling props
+  Object.keys(props).forEach((property) => {
+    if (
+      property !== 'style' &&
+      (isStyleProp(property) || extraKeys.has(property))
+    ) {
+      const value = props[property];
 
-  // Applique les styles
-  Object.keys(props).map((property) => {
-    if (property !== 'shadow' && property !== 'size') {
-      if (isStyleProp(property) || property == 'on' || property == 'media') {
-        if (typeof props[property] === 'object') {
-          if (property === 'on') {
-            for (const event in props[property]) {
-              styleProps['&:' + event] = applyStyle(props[property][event]);
+      if (typeof value === 'object' && value !== null) {
+        // For properties like 'on', 'media'
+        if (property === 'on') {
+          // Pseudo-selectors
+          for (const event in value) {
+            if (!styleProps[`&:${event}`]) {
+              styleProps[`&:${event}`] = {};
             }
-          } else if (property === 'media') {
-            for (const screenOrDevices in props[property]) {
-              if (
-                mediaQueries[screenOrDevices] !== undefined &&
-                props[property][screenOrDevices] !== undefined
-              ) {
-                styleProps['@media ' + mediaQueries[screenOrDevices]] =
-                  applyStyle(props[property][screenOrDevices]);
-              } else if (devices[screenOrDevices] !== undefined) {
-                for (const deviceScreen in devices[screenOrDevices]) {
-                  if (
-                    mediaQueries[devices[screenOrDevices][deviceScreen]] !==
-                      undefined &&
-                    props[property][screenOrDevices] !== undefined
-                  ) {
-                    styleProps[
-                      '@media ' +
-                        mediaQueries[devices[screenOrDevices][deviceScreen]]
-                    ] = applyStyle(props[property][screenOrDevices]);
-                  }
-                }
-              }
-            }
-          } else {
-            styleProps[property] = applyStyle(props[property]);
+            const nestedStyles = applyStyle(value[event]).styleProps;
+            Object.assign(styleProps[`&:${event}`], nestedStyles);
           }
-        } else if (
-          typeof props[property] === 'number' &&
-          NumberPropsStyle[property] === undefined
-        ) {
-          styleProps[property] = props[property] + 'px';
-        } else if (property.toLowerCase().indexOf('color') !== -1) {
-          styleProps[property] = getColor(props[property]);
+        } else if (property === 'media') {
+          // Media queries
+
+          for (const screenOrDevices in value) {
+            const mediaValue = value[screenOrDevices];
+            if (mediaQueries[screenOrDevices]) {
+              const mediaQuery = '@media ' + mediaQueries[screenOrDevices];
+              if (!styleProps[mediaQuery]) {
+                styleProps[mediaQuery] = {};
+              }
+              const nestedStyles = applyStyle(mediaValue).styleProps;
+              Object.assign(styleProps[mediaQuery], nestedStyles);
+              console.log({ mediaQuery, style: styleProps[mediaQuery] });
+            } else if (devices[screenOrDevices]) {
+              const deviceScreens = devices[screenOrDevices];
+              deviceScreens.forEach((screen: string) => {
+                if (mediaQueries[screen]) {
+                  const mediaQuery = '@media ' + mediaQueries[screen];
+                  if (!styleProps[mediaQuery]) {
+                    styleProps[mediaQuery] = {};
+                  }
+                  const nestedStyles = applyStyle(mediaValue).styleProps;
+                  Object.assign(styleProps[mediaQuery], nestedStyles);
+                }
+              });
+            }
+          }
         } else {
-          styleProps[property] = props[property];
+          // Nested styles
+          styleProps[property] = applyStyle(value).styleProps;
         }
+      } else {
+        // Simple style property
+        styleProps[property] = value;
       }
     }
   });
 
-  return styleProps;
+  console.log({ styleProps, keyframes: keyframesList });
+  return { styleProps, getColor, keyframes: keyframesList };
 };
 
-// Clés à exclure lors de la création du composant stylisé
-const excludedKeys = new Set([
-  'on',
-  'shadow',
-  'only',
-  'media',
-  'css',
-  'paddingHorizontal',
-  'paddingVertical',
-  'marginHorizontal',
-  'marginVertical',
-]);
+// Function to filter and separate props
+const useStyledProps = (
+  props: any
+): { newProps: any; className: string; cssRules: string[] } => {
+  const { styleProps, getColor, keyframes } = applyStyle(props);
 
-const includeKeys = new Set(['src', 'alt', 'style']);
+  const className = generateClassName(styleProps);
 
-// Crée un composant div stylisé, en excluant certaines props
-const ElementComponent = styled.div.withConfig({
-  shouldForwardProp: (key) => {
-    return (
-      (!excludedKeys.has(key) && !isStyleProp(key)) || includeKeys.has(key)
-    );
-  },
-})`
-  // Applique les styles dynamiques en utilisant la fonction applyStyle
-  ${(props: any) => props.css}
-`;
+  let cssRules: string[] = [];
 
-const useStyledProps = (props: any) => {
-  const styledProps = applyStyle(props);
-  // Filtrer les props pour exclure celles qui sont utilisées pour le style
-  const newProps = Object.keys(props).reduce((acc: any, key) => {
+  if (cssRulesCache.has(className)) {
+    cssRules = cssRulesCache.get(className)!;
+  } else {
+    cssRules = generateCssRules(`.${className}`, styleProps, getColor);
+
+    // Ajouter les keyframes aux règles CSS
+    if (keyframes && keyframes.length > 0) {
+      cssRules = keyframes.concat(cssRules);
+    }
+
+    cssRulesCache.set(className, cssRules);
+  }
+
+  // Extract the style prop for inline styles
+  const { style, ...restProps } = props;
+
+  // Filter props to exclude those used for styling
+  const newProps = Object.keys(restProps).reduce((acc: any, key) => {
     if ((!excludedKeys.has(key) && !isStyleProp(key)) || includeKeys.has(key)) {
-      acc[key] = props[key];
+      acc[key] = restProps[key];
     }
     return acc;
   }, {});
 
-  return { newProps, styledProps };
+  if (className) {
+    newProps.className = className;
+  }
+
+  if (style) {
+    newProps.style = style;
+  }
+
+  return { newProps, className, cssRules };
 };
 
-export const Element: React.FC<ElementProps & any> = (props) => {
-  // eslint-disable-next-line prefer-const
-  let { onPress, ...rest } = props;
+export const Element: React.FC<ElementProps> = (props) => {
+  const { onPress, ...rest } = props;
 
-  // eslint-disable-next-line prefer-const
-  let { newProps, styledProps } = useStyledProps(rest);
+  const { newProps, cssRules } = useMemo(() => useStyledProps(rest), [rest]);
 
   if (onPress) {
     newProps.onClick = onPress;
   }
 
-  // Rendu du composant avec les props
-  return <ElementComponent {...rest} css={styledProps} />;
+  useDynamicStyles(cssRules);
+
+  // Use the 'as' prop if provided
+  const Component = newProps.as || 'div';
+  delete newProps.as; // Remove 'as' from props to avoid React warnings
+
+  // Render the component with the props
+  return <Component {...newProps}>{props.children}</Component>;
 };

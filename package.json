@@ -6,6 +6,8 @@
   "license": "MIT",
   "bugs": "https://github.com/rize-network/app-studio/issues",
   "main": "dist/index.js",
+  "module": "dist/app-studio.esm.js",
+  "unpkg": "dist/app-studio.umd.production.min.js",
   "typings": "dist/index.d.ts",
   "keywords": [
     "react",
@@ -25,8 +27,8 @@
     "node": ">=10"
   },
   "scripts": {
-    "start": "tsdx watch",
-    "build": "tsdx build",
+    "start": "tsdx watch --format cjs,esm,umd --name AppStudio",
+    "build": "tsdx build --format cjs,esm,umd --name AppStudio",
     "test": "tsdx test --passWithNoTests",
     "lint": "npm run eslint && npm run prettier",
     "lint:fix": "npm run eslint:fix && npm run prettier:fix",
@@ -51,7 +53,6 @@
     }
   },
   "author": "Steed Monteiro <steed@rize.network>",
-  "module": "dist/app-studio.esm.js",
   "lint-staged": {
     "./src/**/*.{md,json}": [
       "prettier --write"
@@ -68,6 +69,10 @@
     },
     {
       "path": "dist/app-studio.esm.js",
+      "limit": "10 KB"
+    },
+    {
+      "path": "dist/app-studio.umd.production.min.js",
       "limit": "10 KB"
     }
   ],
@@ -126,7 +131,8 @@
     "typescript": "^5.2.2"
   },
   "peerDependencies": {
-    "react": ">= 17",
-    "styled-components": ">= 6"
+    "react": ">=17",
+    "react-dom": ">=17",
+    "styled-components": ">=6"
   }
 }

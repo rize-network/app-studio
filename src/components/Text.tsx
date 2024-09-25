@@ -4,8 +4,11 @@ import { Element, ElementProps } from './Element';
 import { TextStyleProps } from '../types/style';
 
 export interface TextProps
-  extends Omit<TextStyleProps, 'children' | 'style' | 'pointerEvents'>,
-    CSSProperties,
+  extends Omit<
+      TextStyleProps,
+      'children' | 'style' | 'onPress' | 'pointerEvents'
+    >,
+    Omit<CSSProperties, 'animation'>,
     ElementProps {
   toUpperCase?: boolean;
 }
