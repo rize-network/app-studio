@@ -1,11 +1,56 @@
 import React, { useState } from 'react';
 import { ComponentStory, ComponentMeta } from '@storybook/react';
-import { View, Button } from '../src/index';
+import { View, Button, Animation } from '../src/index';
 
 export default {
-  title: 'View/Animation',
+  title: 'Animation/Selectable',
   component: View,
+  argTypes: {
+    animationName: {
+      control: {
+        type: 'select',
+      },
+      options: Object.keys(Animation),
+    },
+    duration: {
+      control: 'text',
+      defaultValue: '1s',
+    },
+    timingFunction: {
+      control: 'text',
+      defaultValue: 'ease',
+    },
+    iterationCount: {
+      control: 'text',
+      defaultValue: '1',
+    },
+  },
 } as ComponentMeta<typeof View>;
+
+const Template: ComponentStory<typeof View> = (args) => {
+  const { animationName, duration, timingFunction, iterationCount, ...rest } =
+    args;
+
+  // Récupérer la fonction d'animation correspondante
+  const animationFunc = Animation[animationName as string];
+
+  // Construire l'objet d'animation en passant les paramètres
+  const animate = animationFunc
+    ? animationFunc(duration, timingFunction, iterationCount)
+    : undefined;
+
+  return animate ? (
+    <View size={100} backgroundColor="color.blue" animate={animate} {...rest} />
+  ) : null;
+};
+
+export const SelectableAnimation = Template.bind({});
+SelectableAnimation.args = {
+  animationName: 'fadeIn',
+  duration: '1s',
+  timingFunction: 'ease',
+  iterationCount: '1',
+};
 
 export const TranslationAnimation: ComponentStory<typeof View> = () => (
   <View

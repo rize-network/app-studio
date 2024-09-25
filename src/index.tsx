@@ -3,6 +3,7 @@ export * from './components/Image';
 export * from './components/Text';
 export * from './components/Form';
 export * from './components/Element';
+export * as Animation from './components/Animation';
 export * from './utils/typography';
 export * from './utils/shadow';
 export * from './utils/env';
