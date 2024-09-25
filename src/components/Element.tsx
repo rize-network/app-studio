@@ -2,7 +2,7 @@
 import React, { CSSProperties, useEffect, useMemo } from 'react';
 import { useTheme } from '../providers/Theme';
 import { useResponsiveContext } from '../providers/Responsive';
-import Color from 'color-convert'; // Used for color conversion
+import Color from 'color-convert';
 
 import {
   isStyleProp,
@@ -16,28 +16,28 @@ import {
   AnimationProps,
   extraKeys,
 } from '../utils/constants';
-import { Shadows, Shadow } from '../utils/shadow'; // Utilities for shadows
+import { Shadows, Shadow } from '../utils/shadow';
 
-// Define ElementProps interface
-export interface ElementProps {
+export interface ElementProps extends CssProps {
+  on?: Record<string, CssProps>;
+  media?: Record<string, CssProps>;
+  only?: string[];
+  css?: CSSProperties;
+}
+
+export interface CssProps {
   children?: React.ReactNode;
   size?: number;
-  on?: Record<string, CSSProperties>;
-  media?: Record<string, CSSProperties>;
   paddingHorizontal?: number | string;
   marginHorizontal?: number | string;
   paddingVertical?: number | string;
   marginVertical?: number | string;
   shadow?: boolean | number | Shadow;
-  only?: string[];
-  css?: CSSProperties;
   style?: CSSProperties;
   animate?: AnimationProps;
   onPress?: () => void;
   [key: string]: any;
 }
-
-// Global style sheet management
 const styleSheet = (() => {
   if (typeof document !== 'undefined') {
     let styleTag = document.getElementById(
@@ -53,13 +53,11 @@ const styleSheet = (() => {
   return null;
 })();
 
-// Cache for generated class names and their CSS rules
 const classCache = new Map<string, string>();
 const cssRulesCache = new Map<string, string[]>();
 
 let classNameCounter = 0;
 
-// Function to generate unique class name from style props
 const generateClassName = (styleProps: Record<string, any>): string => {
   const serialized = JSON.stringify(styleProps);
   if (classCache.has(serialized)) {
@@ -71,16 +69,16 @@ const generateClassName = (styleProps: Record<string, any>): string => {
   }
 };
 
-// Function to inject CSS rules into the style sheet
 const useDynamicStyles = (cssRules: string[]): void => {
   useEffect(() => {
     if (!styleSheet) return;
     cssRules.forEach((rule) => {
       try {
         if (
-          [...styleSheet.cssRules].some((cssRule) => cssRule.cssText === rule)
+          Array.from(styleSheet.cssRules).some(
+            (cssRule) => cssRule.cssText === rule
+          )
         ) {
-          // Rule already exists
           return;
         }
         styleSheet.insertRule(rule, styleSheet.cssRules.length);
@@ -91,7 +89,6 @@ const useDynamicStyles = (cssRules: string[]): void => {
   }, [cssRules]);
 };
 
-// Function to recursively generate CSS rules from classStyles
 const generateCssRules = (
   selector: string,
   styles: Record<string, any>,
@@ -162,19 +159,18 @@ const generateCssRules = (
 
 // Function to apply styles to a component
 const applyStyle = (
-  props: Record<string, any>
+  props: Record<string, any>,
+  getColor: (color: string) => string,
+  mediaQueries: any,
+  devices: any
 ): {
   styleProps: Record<string, any>;
-  getColor: (color: string) => string;
   keyframes?: string[];
 } => {
-  const { getColor } = useTheme();
-  const { mediaQueries, devices } = useResponsiveContext();
-
   const styleProps: Record<string, any> = {};
   const keyframesList: string[] = [];
 
-  // Handle element size
+  // Gestion de la taille de l'élément
   const size =
     props.height !== undefined &&
     props.width !== undefined &&
@@ -188,7 +184,7 @@ const applyStyle = (
     styleProps.height = styleProps.width = size;
   }
 
-  // Handle padding and margin
+  // Gestion du padding et de la marge
   if (props.paddingHorizontal) {
     styleProps.paddingLeft = props.paddingHorizontal;
     styleProps.paddingRight = props.paddingHorizontal;
@@ -209,7 +205,7 @@ const applyStyle = (
     styleProps.marginBottom = props.marginVertical;
   }
 
-  // Apply shadows if specified
+  // Application des ombres si spécifié
   if (props.shadow) {
     if (typeof props.shadow === 'number' || typeof props.shadow === 'boolean') {
       const shadowValue: number =
@@ -248,13 +244,13 @@ const applyStyle = (
     styleProps.animationDuration = animation.duration || '1s';
     styleProps.animationTimingFunction = animation.timingFunction || 'ease';
     styleProps.animationDelay = animation.delay || '0s';
-    styleProps.animationIterationCount = animation.iterationCount || '1';
+    styleProps.animationIterationCount = `${animation.iterationCount || '1'}`;
     styleProps.animationDirection = animation.direction || 'normal';
     styleProps.animationFillMode = animation.fillMode || 'both';
     styleProps.animationPlayState = animation.playState || 'running';
   }
 
-  // Process the styling props
+  // Traitement des propriétés de style
   Object.keys(props).forEach((property) => {
     if (
       property !== 'style' &&
@@ -263,19 +259,24 @@ const applyStyle = (
       const value = props[property];
 
       if (typeof value === 'object' && value !== null) {
-        // For properties like 'on', 'media'
+        // Pour les propriétés comme 'on', 'media'
         if (property === 'on') {
-          // Pseudo-selectors
+          // Pseudo-sélecteurs
           for (const event in value) {
             if (!styleProps[`&:${event}`]) {
               styleProps[`&:${event}`] = {};
             }
-            const nestedStyles = applyStyle(value[event]).styleProps;
-            Object.assign(styleProps[`&:${event}`], nestedStyles);
+            const nestedResult = applyStyle(
+              value[event],
+              getColor,
+              mediaQueries,
+              devices
+            );
+            Object.assign(styleProps[`&:${event}`], nestedResult.styleProps);
+            keyframesList.push(...(nestedResult.keyframes || []));
           }
         } else if (property === 'media') {
           // Media queries
-
           for (const screenOrDevices in value) {
             const mediaValue = value[screenOrDevices];
             if (mediaQueries[screenOrDevices]) {
@@ -283,9 +284,14 @@ const applyStyle = (
               if (!styleProps[mediaQuery]) {
                 styleProps[mediaQuery] = {};
               }
-              const nestedStyles = applyStyle(mediaValue).styleProps;
-              Object.assign(styleProps[mediaQuery], nestedStyles);
-              console.log({ mediaQuery, style: styleProps[mediaQuery] });
+              const nestedResult = applyStyle(
+                mediaValue,
+                getColor,
+                mediaQueries,
+                devices
+              );
+              Object.assign(styleProps[mediaQuery], nestedResult.styleProps);
+              keyframesList.push(...(nestedResult.keyframes || []));
             } else if (devices[screenOrDevices]) {
               const deviceScreens = devices[screenOrDevices];
               deviceScreens.forEach((screen: string) => {
@@ -294,32 +300,54 @@ const applyStyle = (
                   if (!styleProps[mediaQuery]) {
                     styleProps[mediaQuery] = {};
                   }
-                  const nestedStyles = applyStyle(mediaValue).styleProps;
-                  Object.assign(styleProps[mediaQuery], nestedStyles);
+                  const nestedResult = applyStyle(
+                    mediaValue,
+                    getColor,
+                    mediaQueries,
+                    devices
+                  );
+                  Object.assign(
+                    styleProps[mediaQuery],
+                    nestedResult.styleProps
+                  );
+                  keyframesList.push(...(nestedResult.keyframes || []));
                 }
               });
             }
           }
         } else {
-          // Nested styles
-          styleProps[property] = applyStyle(value).styleProps;
+          // Styles imbriqués
+          const nestedResult = applyStyle(
+            value,
+            getColor,
+            mediaQueries,
+            devices
+          );
+          styleProps[property] = nestedResult.styleProps;
+          keyframesList.push(...(nestedResult.keyframes || []));
         }
       } else {
-        // Simple style property
+        // Propriété de style simple
         styleProps[property] = value;
       }
     }
   });
 
-  console.log({ styleProps, keyframes: keyframesList });
-  return { styleProps, getColor, keyframes: keyframesList };
+  return { styleProps, keyframes: keyframesList };
 };
 
-// Function to filter and separate props
-const useStyledProps = (
-  props: any
+const getStyledProps = (
+  props: any,
+  getColor: (color: string) => string,
+  mediaQueries: any,
+  devices: any
 ): { newProps: any; className: string; cssRules: string[] } => {
-  const { styleProps, getColor, keyframes } = applyStyle(props);
+  const { styleProps, keyframes } = applyStyle(
+    props,
+    getColor,
+    mediaQueries,
+    devices
+  );
 
   const className = generateClassName(styleProps);
 
@@ -330,7 +358,6 @@ const useStyledProps = (
   } else {
     cssRules = generateCssRules(`.${className}`, styleProps, getColor);
 
-    // Ajouter les keyframes aux règles CSS
     if (keyframes && keyframes.length > 0) {
       cssRules = keyframes.concat(cssRules);
     }
@@ -338,10 +365,8 @@ const useStyledProps = (
     cssRulesCache.set(className, cssRules);
   }
 
-  // Extract the style prop for inline styles
   const { style, ...restProps } = props;
 
-  // Filter props to exclude those used for styling
   const newProps = Object.keys(restProps).reduce((acc: any, key) => {
     if ((!excludedKeys.has(key) && !isStyleProp(key)) || includeKeys.has(key)) {
       acc[key] = restProps[key];
@@ -363,7 +388,13 @@ const useStyledProps = (
 export const Element: React.FC<ElementProps> = (props) => {
   const { onPress, ...rest } = props;
 
-  const { newProps, cssRules } = useMemo(() => useStyledProps(rest), [rest]);
+  const { getColor } = useTheme();
+  const { mediaQueries, devices } = useResponsiveContext();
+
+  const { newProps, cssRules } = useMemo(
+    () => getStyledProps(rest, getColor, mediaQueries, devices),
+    [rest, getColor, mediaQueries, devices]
+  );
 
   if (onPress) {
     newProps.onClick = onPress;
@@ -371,10 +402,8 @@ export const Element: React.FC<ElementProps> = (props) => {
 
   useDynamicStyles(cssRules);
 
-  // Use the 'as' prop if provided
   const Component = newProps.as || 'div';
-  delete newProps.as; // Remove 'as' from props to avoid React warnings
+  delete newProps.as;
 
-  // Render the component with the props
   return <Component {...newProps}>{props.children}</Component>;
 };

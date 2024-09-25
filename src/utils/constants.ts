@@ -57,7 +57,7 @@ export interface AnimationProps {
   duration?: string;
   timingFunction?: string;
   delay?: string;
-  iterationCount?: string;
+  iterationCount?: string | number;
   direction?: string;
   fillMode?: string;
   playState?: string;
