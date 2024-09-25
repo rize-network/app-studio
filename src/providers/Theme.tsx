@@ -142,7 +142,6 @@ export const ThemeProvider = ({
    * @param name - Le nom de la couleur à récupérer.
    * @returns La valeur de couleur résolue ou le nom original si non trouvé.
    */
-  console.log({ mergedTheme });
 
   const getColor = (name: string): string => {
     if (name === 'transparent') return name;

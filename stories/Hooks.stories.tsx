@@ -3,15 +3,13 @@ import { Meta, Story } from '@storybook/react';
 import { useTheme, useResponsive } from '../src';
 
 const Theme = () => {
-  const theme = useTheme();
+  const theme: any = useTheme();
 
-  console.log({ theme });
   return <>{Object.keys(theme.colors).join(', ')}</>;
 };
 
 const Responsive = () => {
   const responsive = useResponsive();
-  console.log({ responsive });
 
   return <>{responsive.screen}</>;
 };
