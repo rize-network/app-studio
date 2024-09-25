@@ -55,7 +55,7 @@ App-Studio is a powerful React-based library designed to simplify the process of
 To install App-Studio, run the following command:
 
 ```bash
-npm install app-studio styled-components --save
+npm install app-studio  --save
 ```
 
 ## 3. Core Components

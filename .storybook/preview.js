@@ -19,4 +19,3 @@ const Container = ({ children }) => {
 export default {
   decorators: [(storyFn) => <Container>{storyFn()}</Container>],
 };
-

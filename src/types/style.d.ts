@@ -7,7 +7,7 @@
  *
  * @flow
  */
-import { CSSProperties } from 'styled-components';
+import { CSSProperties } from 'react';
 
 export type ColorValue = null | string;
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Element, ElementProps } from './Element';
 import { ViewStyleProps } from '../types/style';
-import { CSSProperties } from 'styled-components';
+import { CSSProperties } from 'react';
 
 interface ScrollProps extends ViewProps {
   // Définir des props spécifiques pour Scroll si nécessaire

@@ -1,5 +1,5 @@
 {
-  "version": "0.1.44",
+  "version": "0.2.1",
   "name": "app-studio",
   "description": "App Studio is a responsive and themeable framework to build cross platform applications",
   "repository": "git@github.com:rize-network/app-studio.git",
@@ -124,7 +124,6 @@
     "release-it": "^16.2.1",
     "size-limit": "^10.0.2",
     "storybook": "^7.5.3",
-    "styled-components": "^6.1.1",
     "stylis": "^4.3.0",
     "tsdx": "^0.14.1",
     "tslib": "^2.6.2",
@@ -132,7 +131,6 @@
   },
   "peerDependencies": {
     "react": ">=17",
-    "react-dom": ">=17",
-    "styled-components": ">=6"
+    "react-dom": ">=17"
   }
 }

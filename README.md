@@ -39,12 +39,12 @@ Supported events: `hover`, `active`, `focus`, and `disabled`.
 ## 📦 Install
 
 ```bash
-npm install app-studio styled-components --save
+npm install app-studio --save
 ```
 
 ## 🔨 Usage
 
-The `<View>` component supports all of the default [CSSProperties](https://developer.mozilla.org/fr/docs/Web/CSS/CSS_Properties_Reference) as props. The styles are transformed and handled by [Styled Components](https://styled-components.com/).
+The `<View>` component supports all of the default [CSSProperties](https://developer.mozilla.org/fr/docs/Web/CSS/CSS_Properties_Reference) as props. The styles are transformed.
 
 1. Add Responsive and Theme Provider to your application root:
 

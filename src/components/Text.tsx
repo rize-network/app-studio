@@ -1,5 +1,5 @@
 import React from 'react';
-import { CSSProperties } from 'styled-components';
+import { CSSProperties } from 'react';
 import { Element, ElementProps } from './Element';
 import { TextStyleProps } from '../types/style';
 

@@ -63,7 +63,7 @@ const generateClassName = (styleProps: Record<string, any>): string => {
   if (classCache.has(serialized)) {
     return classCache.get(serialized)!;
   } else {
-    const className = 'element-' + classNameCounter++;
+    const className = 'clz-' + classNameCounter++;
     classCache.set(serialized, className);
     return className;
   }
@@ -88,11 +88,11 @@ const useDynamicStyles = (cssRules: string[]): void => {
     });
   }, [cssRules]);
 };
-
 const generateCssRules = (
   selector: string,
   styles: Record<string, any>,
-  getColor: (color: string) => string
+  getColor: (color: string) => string,
+  mediaQueries?: Record<string, any>
 ): string[] => {
   const rules: string[] = [];
   const mainStyles: Record<string, any> = {};
@@ -113,12 +113,24 @@ const generateCssRules = (
         `${selector}${pseudoSelector}`,
         nestedStyles,
         getColor
+        // Ne pas passer mediaQueries ici
       );
       rules.push(...nestedRules);
     } else {
       mainStyles[key] = value;
     }
   });
+
+  // Gestion des media queries
+  // eslint-disable-next-line prefer-const
+  let mediaBreakpoints: Record<string, string> = {};
+
+  if (mediaQueries) {
+    for (const query in mediaQueries) {
+      const queries = mediaQueries[query].trim();
+      mediaBreakpoints['@media ' + queries] = query;
+    }
+  }
 
   if (
     Object.keys(mainStyles).length > 0 ||
@@ -133,9 +145,11 @@ const generateCssRules = (
       );
     }
 
-    let cssRule = `${selector} { ${styleObjectToCss(processedStyles)} `;
+    const cssRule = `${selector} { ${styleObjectToCss(processedStyles)} }`;
+    rules.push(cssRule);
 
-    for (const mediaQuery in nestedMediaQueries) {
+    for (let mediaQuery in nestedMediaQueries) {
+      mediaQuery = mediaQuery.trim();
       const mediaStyles = nestedMediaQueries[mediaQuery];
       const processedMediaStyles: Record<string, any> = {};
       for (const property in mediaStyles) {
@@ -145,13 +159,16 @@ const generateCssRules = (
           getColor
         );
       }
-      cssRule += ` ${mediaQuery} { ${styleObjectToCss(
-        processedMediaStyles
-      )} } `;
-    }
+      const cssProperties = styleObjectToCss(processedMediaStyles);
+      const mediaRule = `${mediaQuery} { ${selector} { ${cssProperties} } }`;
+      rules.push(mediaRule);
 
-    cssRule += ` }`;
-    rules.push(cssRule);
+      if (mediaBreakpoints[mediaQuery]) {
+        const breakpoint = mediaBreakpoints[mediaQuery];
+        const bpRule = `.${breakpoint} ${selector} { ${cssProperties} }`;
+        rules.push(bpRule);
+      }
+    }
   }
 
   return rules;
@@ -214,20 +231,25 @@ const applyStyle = (
           : 2;
 
       if (Shadows[shadowValue]) {
-        const shadowColor = Color.hex
-          .rgb(Shadows[shadowValue].shadowColor)
-          .join(',');
+        const shadowColor =
+          Color.hex.rgb(Shadows[shadowValue].shadowColor) || [];
 
-        styleProps[
-          'boxShadow'
-        ] = `${Shadows[shadowValue].shadowOffset.height}px ${Shadows[shadowValue].shadowOffset.width}px ${Shadows[shadowValue].shadowRadius}px rgba(${shadowColor},${Shadows[shadowValue].shadowOpacity})`;
+        styleProps['boxShadow'] = `${
+          Shadows[shadowValue].shadowOffset.height
+        }px ${Shadows[shadowValue].shadowOffset.width}px ${
+          Shadows[shadowValue].shadowRadius
+        }px rgba(${shadowColor.join(',')},${
+          Shadows[shadowValue].shadowOpacity
+        })`;
       }
     } else {
-      const shadowColor = Color.hex.rgb(props.shadow.shadowColor).join(',');
+      const shadowColor = Color.hex.rgb(props.shadow.shadowColor) || [];
 
-      styleProps[
-        'boxShadow'
-      ] = `${props.shadow.shadowOffset.height}px ${props.shadow.shadowOffset.width}px ${props.shadow.shadowRadius}px rgba(${shadowColor},${props.shadow.shadowOpacity})`;
+      styleProps['boxShadow'] = `${props.shadow.shadowOffset.height}px ${
+        props.shadow.shadowOffset.width
+      }px ${props.shadow.shadowRadius}px rgba(${shadowColor.join(',')},${
+        props.shadow.shadowOpacity
+      })`;
     }
   }
 
@@ -356,7 +378,12 @@ const getStyledProps = (
   if (cssRulesCache.has(className)) {
     cssRules = cssRulesCache.get(className)!;
   } else {
-    cssRules = generateCssRules(`.${className}`, styleProps, getColor);
+    cssRules = generateCssRules(
+      `.${className}`,
+      styleProps,
+      getColor,
+      mediaQueries
+    );
 
     if (keyframes && keyframes.length > 0) {
       cssRules = keyframes.concat(cssRules);
