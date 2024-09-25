@@ -283,7 +283,7 @@ const computeStyleProps = (
         // For other nested styles, exclude 'on' and 'media'
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { on, media, ...nestedProps } = value;
-        const nestedResult = applyStyle(
+        const nestedResult = computeStyleProps(
           nestedProps,
           getColor,
           mediaQueries,
@@ -486,6 +486,8 @@ const applyStyle = (
       }
     }
   });
+
+  console.log({ styleProps });
 
   return { styleProps, keyframes: keyframesList };
 };
