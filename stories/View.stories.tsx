@@ -26,12 +26,12 @@ export const Exemple: ComponentStory<typeof View> = () => {
       on={{ hover: { backgroundColor: 'theme.primary' } }}
       media={{
         mobile: {
-          backgroundColor: 'color.green',
-        },
-        tablet: {
           backgroundColor: 'color.blue',
         },
         md: {
+          backgroundColor: 'color.green',
+        },
+        desktop: {
           backgroundColor: 'color.red',
         },
       }}
@@ -39,7 +39,7 @@ export const Exemple: ComponentStory<typeof View> = () => {
         from: { opacity: 0 },
         enter: { opacity: 1 },
         leave: { opacity: 0 },
-        duration: '2s',
+        duration: '1s',
         timingFunction: 'ease-in-out',
       }}
       // style={{ backgroundColor: 'yellow' }} // Dynamic inline style
