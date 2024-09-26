@@ -1,13 +1,49 @@
 // utils/utilityClassManager.ts
 import murmur from 'murmurhash-js';
+import { StyleProps } from './style';
 
 type StyleContext = 'base' | 'pseudo' | 'media';
+
+function generatePropertyShorthand(
+  styledProps: string[]
+): Record<string, string> {
+  const propertyShorthand: Record<string, string> = {};
+  const usedAbbreviations = new Set<string>();
+
+  function generateAbbreviation(prop: string): string {
+    const first = prop[0].toLowerCase();
+    const last = prop[prop.length - 1].toLowerCase();
+    const upperCase = prop.slice(1, -1).replace(/[a-z]/g, '').toLowerCase();
+    let abbr = first + upperCase + last;
+
+    if (abbr.length < 2) {
+      abbr = prop.slice(0, 2);
+    }
+
+    let i = 0;
+    let uniqueAbbr = abbr;
+    while (usedAbbreviations.has(uniqueAbbr)) {
+      i++;
+      uniqueAbbr = abbr + prop.slice(-i, prop.length);
+    }
+
+    usedAbbreviations.add(uniqueAbbr);
+    return uniqueAbbr;
+  }
+
+  for (const prop of styledProps) {
+    propertyShorthand[prop] = generateAbbreviation(prop);
+  }
+
+  return propertyShorthand;
+}
+
+const propertyShorthand = generatePropertyShorthand(StyleProps);
 
 class UtilityClassManager {
   private styleSheet: CSSStyleSheet | null = null;
   private classCache: Map<string, string> = new Map();
   private maxCacheSize: number;
-  private classNameCounter: number = 0;
 
   constructor(maxCacheSize: number = 10000) {
     this.maxCacheSize = maxCacheSize;
@@ -65,8 +101,24 @@ class UtilityClassManager {
     }
 
     // Générer un nom de classe unique
-    const hash = this.hashString(key);
-    const className = `utl-${hash}`;
+    let shorthand = propertyShorthand[property];
+    if (!shorthand) {
+      // Si aucune abréviation n'est définie, générer une classe générique
+      shorthand = property.replace(/([A-Z])/g, '-$1').toLowerCase();
+    }
+
+    // Normaliser la valeur pour le nom de classe (par exemple, supprimer les unités)
+    let normalizedValue = processedValue;
+    if (typeof processedValue === 'number') {
+      normalizedValue = processedValue.toString();
+    } else if (typeof processedValue === 'string') {
+      normalizedValue = processedValue.replace(
+        /px|%|#|\.|\,|\-|\(|\)|em|rem|vh|vw|deg/g,
+        ''
+      );
+    }
+
+    const className = `${shorthand}-${normalizedValue}`;
 
     // Convertir camelCase en kebab-case
     const cssProperty = property.replace(/([A-Z])/g, '-$1').toLowerCase();

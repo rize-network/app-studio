@@ -3,7 +3,7 @@ import { NumberProps } from './constants';
 // Excluded keys imported from constants.ts
 // import { excludedKeys } from './constants';
 
-export const StyleProps = new Set([
+export const StyleProps = [
   'alignContent',
   'alignItems',
   'alignSelf',
@@ -550,7 +550,9 @@ export const StyleProps = new Set([
   'objectPosition',
   'placeItems',
   'placeSelf',
-]);
+];
+
+export const StyledProps = new Set(StyleProps);
 
 const nonStyleAttributes = new Set(['length', 'parentRule', 'src']);
 
@@ -581,7 +583,7 @@ export const toKebabCase = (str: string): string =>
 // };
 
 export const isStyleProp = (property: string): boolean => {
-  return StyleProps.has(property) || nonStyleAttributes.has(property);
+  return StyledProps.has(property) || nonStyleAttributes.has(property);
 };
 
 // Function to process and normalize style properties
