@@ -31,7 +31,7 @@ export const Exemple: ComponentStory<typeof View> = () => {
         tablet: {
           backgroundColor: 'color.blue',
         },
-        desktop: {
+        md: {
           backgroundColor: 'color.red',
         },
       }}
