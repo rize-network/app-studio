@@ -11,9 +11,7 @@ export const parameters = {
 const Container = ({ children }) => {
   return (
     <ResponsiveProvider>
-      <ThemeProvider>
-        <div className="md">{children}</div>
-      </ThemeProvider>
+      <ThemeProvider>{children}</ThemeProvider>
     </ResponsiveProvider>
   );
 };

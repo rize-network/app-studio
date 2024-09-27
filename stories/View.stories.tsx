@@ -4,7 +4,7 @@ import React from 'react';
 
 import { ComponentStory, ComponentMeta } from '@storybook/react';
 
-import { View, useResponsive } from '../src/index';
+import { View } from '../src/index';
 
 export default {
   /* 👇 The title prop is optional.

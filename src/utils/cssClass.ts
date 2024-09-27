@@ -6,33 +6,12 @@ import { AnimationProps } from './constants';
 import Color from 'color-convert';
 import { generateKeyframes } from './animation';
 import { isStyleProp, StyleProps } from './style';
+import { CssProps } from '../components/Element';
 
 // utils/UtilityClassManager.ts
 type StyleContext = 'base' | 'pseudo' | 'media';
 
-export interface ElementProps extends CssProps {
-  on?: Record<string, CssProps>;
-  media?: Record<string, CssProps>;
-  only?: string[];
-  css?: CSSProperties;
-}
-
-export interface CssProps {
-  children?: React.ReactNode;
-  size?: number;
-  paddingHorizontal?: number | string;
-  marginHorizontal?: number | string;
-  paddingVertical?: number | string;
-  marginVertical?: number | string;
-  shadow?: boolean | number | Shadow;
-  style?: CSSProperties;
-  animate?: AnimationProps;
-  onPress?: () => void;
-  as?: keyof JSX.IntrinsicElements;
-  [key: string]: any;
-}
-
-export class UtilityClassManager {
+class UtilityClassManager {
   private styleSheet: CSSStyleSheet | null = null;
   private classCache: Map<string, string> = new Map();
   private maxCacheSize: number;
@@ -96,7 +75,7 @@ export class UtilityClassManager {
    * @param property La propriété CSS (ex: 'padding', 'color').
    * @param value La valeur de la propriété (ex: '10px', '#fff').
    * @param context Le contexte de la classe ('base', 'pseudo', 'media').
-   * @param modifier Le modificateur pour les pseudo-classes ou media queries (ex: 'hover', 'mobile').
+   * @param modifier Le modificateur pour les pseudo-classes ou media queries (ex: 'hover', 'sm').
    * @param getColor Fonction pour convertir les couleurs si nécessaire.
    * @param mediaQueries Un tableau de media queries associées (utilisé uniquement pour le contexte 'media').
    * @returns Un tableau de noms de classes générés.
@@ -198,15 +177,24 @@ export class UtilityClassManager {
         case 'pseudo':
           // Appliquer la pseudo-classe directement à la classe principale
           cssRules.push(
-            `.${escapedClassName}:hover { ${cssProperty}: ${valueForCss}; }`
+            `.${escapedClassName} { ${cssProperty}: ${valueForCss}; }`
           );
           break;
         case 'media':
-          mediaQueries.forEach((mq) => {
+          // Les media queries sont gérées séparément
+
+          mediaQueries.forEach((mq, index) => {
             cssRules.push(
               `@media ${mq} { .${escapedClassName} { ${cssProperty}: ${valueForCss}; } }`
             );
+
+            if ((window as any).isResponsive === true) {
+              cssRules.push(
+                `.${modifier} { .${escapedClassName} { ${cssProperty}: ${valueForCss}; } }`
+              );
+            }
           });
+
           break;
         default:
           cssRules.push(
@@ -214,6 +202,7 @@ export class UtilityClassManager {
           );
       }
 
+      console.log({ mediaQueries, cssRules, modifier });
       // Injecter les règles CSS
       cssRules.forEach((rule) => this.injectRule(rule));
 

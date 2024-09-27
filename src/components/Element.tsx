@@ -1,13 +1,36 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable prefer-const */
 // Element.tsx
-import React, { useMemo } from 'react';
+import React, { CSSProperties, useMemo } from 'react';
 import { useTheme } from '../providers/Theme';
 import { useResponsiveContext } from '../providers/Responsive';
 
 import { isStyleProp } from '../utils/style';
-import { excludedKeys, includeKeys } from '../utils/constants';
-import { ElementProps, extractUtilityClasses } from '../utils/cssClass';
+import { AnimationProps, excludedKeys, includeKeys } from '../utils/constants';
+import { extractUtilityClasses } from '../utils/cssClass';
+import { Shadow } from '../utils/shadow';
+
+export interface ElementProps extends CssProps {
+  on?: Record<string, CssProps>;
+  media?: Record<string, CssProps>;
+  only?: string[];
+  css?: CSSProperties;
+}
+
+export interface CssProps {
+  children?: React.ReactNode;
+  size?: number;
+  paddingHorizontal?: number | string;
+  marginHorizontal?: number | string;
+  paddingVertical?: number | string;
+  marginVertical?: number | string;
+  shadow?: boolean | number | Shadow;
+  style?: CSSProperties;
+  animate?: AnimationProps;
+  onPress?: () => void;
+  as?: keyof JSX.IntrinsicElements;
+  [key: string]: any;
+}
 
 export const Element: React.FC<ElementProps> = React.memo((props) => {
   const { onPress, ...rest } = props;
