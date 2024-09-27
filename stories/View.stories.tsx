@@ -21,7 +21,6 @@ export const Exemple: ComponentStory<typeof View> = () => {
       <View
         size={100}
         shadow={4}
-        paddingHorizontal={20}
         display="flex"
         backgroundColor="color.yellow"
       />
