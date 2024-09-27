@@ -282,6 +282,7 @@ export const numericCssProperties = new Set<string>([
   'height',
   'left',
   'letterSpacing',
+  'lineHeight',
   'margin',
   'marginBottom',
   'marginLeft',

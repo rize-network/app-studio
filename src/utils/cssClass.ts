@@ -142,7 +142,6 @@ class UtilityClassManager {
 
     // Ajouter des unités si nécessaire
     if (typeof valueForCss === 'number') {
-   
       if (numericCssProperties.has(cssProperty)) {
         valueForCss = `${valueForCss}px`;
       }
