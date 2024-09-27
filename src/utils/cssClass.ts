@@ -140,12 +140,18 @@ class UtilityClassManager {
     const cssProperty = property.replace(/([A-Z])/g, '-$1').toLowerCase();
     let valueForCss = processedValue;
 
+    console.log({ valueForCss, cssProperty });
     // Ajouter des unités si nécessaire
     if (typeof valueForCss === 'number') {
       if (numericCssProperties.has(cssProperty)) {
         valueForCss = `${valueForCss}px`;
       }
     }
+    console.log({
+      valueForCss,
+      cssProperty,
+      tst: numericCssProperties.has(cssProperty),
+    });
 
     // Construire les règles CSS pour chaque classe générée
     classNames.forEach((className) => {
