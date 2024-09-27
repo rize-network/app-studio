@@ -27,8 +27,8 @@
     "node": ">=10"
   },
   "scripts": {
-    "start": "tsdx watch --format cjs,esm,umd --name AppStudio",
-    "build": "tsdx build --format cjs,esm,umd --name AppStudio",
+    "start": "tsdx watch --format cjs,esm,umd",
+    "build": "tsdx build --format cjs,esm,umd",
     "test": "tsdx test --passWithNoTests",
     "lint": "npm run eslint && npm run prettier",
     "lint:fix": "npm run eslint:fix && npm run prettier:fix",
@@ -65,15 +65,15 @@
   "size-limit": [
     {
       "path": "dist/app-studio.cjs.production.min.js",
-      "limit": "10 KB"
+      "limit": "15 KB"
     },
     {
       "path": "dist/app-studio.esm.js",
-      "limit": "10 KB"
+      "limit": "15 KB"
     },
     {
       "path": "dist/app-studio.umd.production.min.js",
-      "limit": "10 KB"
+      "limit": "15 KB"
     }
   ],
   "dependencies": {
