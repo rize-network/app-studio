@@ -37,6 +37,7 @@ export const Element: React.FC<ElementProps> = React.memo((props) => {
   const { getColor } = useTheme();
   const { mediaQueries, devices } = useResponsiveContext();
 
+  console.log({ rest });
   // Extraire les classes utilitaires
   const utilityClasses = useMemo(
     () => extractUtilityClasses(rest, getColor, mediaQueries, devices),

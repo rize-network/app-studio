@@ -108,6 +108,7 @@ class UtilityClassManager {
       shorthand = property.replace(/([A-Z])/g, '-$1').toLowerCase();
     }
 
+    // console.log({ shorthand, property, processedValue });
     // Normaliser la valeur pour le nom de classe
     let normalizedValue = processedValue
       .toString()
@@ -400,6 +401,7 @@ export const extractUtilityClasses = (
     context: 'base' | 'pseudo' | 'media' = 'base',
     modifier: string = ''
   ) => {
+    console.log({ styles });
     Object.keys(styles).forEach((property) => {
       const value = styles[property];
       let mediaQueriesForClass: string[] = [];
@@ -415,16 +417,21 @@ export const extractUtilityClasses = (
         }
       }
 
-      const classNames = utilityClassManager.getClassNames(
-        property,
-        value,
-        context,
-        modifier,
-        getColor,
-        mediaQueriesForClass
-      );
+      if (value !== undefined) {
+        const classNames = utilityClassManager.getClassNames(
+          property,
+          value,
+          context,
+          modifier,
+          getColor,
+          mediaQueriesForClass
+        );
 
-      classes.push(...classNames);
+        classes.push(...classNames);
+      } else {
+        console.error({ styles, value, property });
+        debugger;
+      }
     });
   };
 
@@ -478,14 +485,20 @@ export const extractUtilityClasses = (
         }
       } else {
         // Générer une classe utilitaire pour cette propriété et valeur
-        const classNames = utilityClassManager.getClassNames(
-          property,
-          value,
-          'base',
-          '',
-          getColor
-        );
-        classes.push(...classNames);
+        if (value !== undefined) {
+          const classNames = utilityClassManager.getClassNames(
+            property,
+            value,
+            'base',
+            '',
+            getColor
+          );
+
+          classes.push(...classNames);
+        } else {
+          console.error({ value, property });
+          debugger;
+        }
       }
     }
   });
