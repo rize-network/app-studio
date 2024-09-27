@@ -417,7 +417,7 @@ export const extractUtilityClasses = (
         }
       }
 
-      if (value !== undefined) {
+      if (value !== undefined && value !== '') {
         const classNames = utilityClassManager.getClassNames(
           property,
           value,
@@ -430,7 +430,6 @@ export const extractUtilityClasses = (
         classes.push(...classNames);
       } else {
         console.error({ styles, value, property });
-        debugger;
       }
     });
   };
@@ -485,7 +484,7 @@ export const extractUtilityClasses = (
         }
       } else {
         // Générer une classe utilitaire pour cette propriété et valeur
-        if (value !== undefined) {
+        if (value !== undefined && value !== '') {
           const classNames = utilityClassManager.getClassNames(
             property,
             value,
@@ -497,7 +496,6 @@ export const extractUtilityClasses = (
           classes.push(...classNames);
         } else {
           console.error({ value, property });
-          debugger;
         }
       }
     }
