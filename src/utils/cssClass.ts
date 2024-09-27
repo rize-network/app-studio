@@ -5,6 +5,7 @@ import Color from 'color-convert';
 import { generateKeyframes } from './animation';
 import { isStyleProp, StyleProps } from './style';
 import { CssProps } from '../components/Element';
+import { numericCssProperties } from './cssProperties';
 
 // utils/UtilityClassManager.ts
 type StyleContext = 'base' | 'pseudo' | 'media';
@@ -141,23 +142,8 @@ class UtilityClassManager {
 
     // Ajouter des unités si nécessaire
     if (typeof valueForCss === 'number') {
-      const propertiesWithUnits = [
-        'width',
-        'height',
-        'padding',
-        'margin',
-        'padding-left',
-        'padding-right',
-        'padding-top',
-        'padding-bottom',
-        'margin-left',
-        'margin-right',
-        'margin-top',
-        'margin-bottom',
-        'transform',
-        'transition',
-      ];
-      if (propertiesWithUnits.includes(cssProperty)) {
+   
+      if (numericCssProperties.has(cssProperty)) {
         valueForCss = `${valueForCss}px`;
       }
     }
