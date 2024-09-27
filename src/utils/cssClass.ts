@@ -94,33 +94,18 @@ class UtilityClassManager {
       processedValue = getColor(value);
     }
 
-    // Handle percentage and viewport unit values
-    if (typeof processedValue === 'string') {
-      if (
-        processedValue.endsWith('%') ||
-        processedValue.endsWith('vh') ||
-        processedValue.endsWith('vw')
-      ) {
-        // Keep the value as-is for percentage and viewport units
-      } else if (!isNaN(parseFloat(processedValue))) {
-        // If it's a numeric string without units, add 'px'
-        processedValue = `${parseFloat(processedValue)}px`;
-      }
-    } else if (typeof processedValue === 'number') {
+    // Handle compound values (like padding and margin)
+    if (typeof processedValue === 'number') {
       // Add 'px' to numeric values for properties that typically use length units
       if (numericCssProperties.has(property)) {
         processedValue = `${processedValue}px`;
       }
     }
 
-    // Si la propriété est une couleur, la convertir en valeur hexadécimale ou RGB
-    if (property.toLowerCase().includes('color')) {
-      processedValue = getColor(value);
-    }
-
-    let key = `${property}:${processedValue}`;
+    let formatedValue = processedValue.toString().split(' ').join('-');
+    let key = `${property}:${formatedValue}`;
     if (modifier) {
-      key = `${property}:${processedValue}|${modifier}`;
+      key = `${property}:${formatedValue}|${modifier}`;
     }
 
     if (this.classCache.has(key)) {
@@ -134,14 +119,16 @@ class UtilityClassManager {
 
     // console.log({ shorthand, property, processedValue });
     // Normaliser la valeur pour le nom de classe
-    let normalizedValue = processedValue
+    let normalizedValue = formatedValue
       .toString()
       .replace(/\./g, 'p') // Replace dots with 'p'
       .replace(/\s+/g, '-') // Replace spaces with '-'
       .replace(/[^a-zA-Z0-9\-]/g, '') // Remove other special characters
       .replace(/%/g, 'pct') // Replace % with 'pct'
       .replace(/vw/g, 'vw') // Keep 'vw' as is
-      .replace(/vh/g, 'vh'); // Keep 'vh' as is
+      .replace(/vh/g, 'vh') // Keep 'vh' as is
+      .replace(/em/g, 'em') // Keep 'em' as is
+      .replace(/rem/g, 'rem'); // Keep 'rem' as is
 
     let baseClassName = `${shorthand}-${normalizedValue}`;
 
