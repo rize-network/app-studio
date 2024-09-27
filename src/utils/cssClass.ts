@@ -1,8 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable prefer-const */
-import { CSSProperties } from 'react';
-import { Shadow, Shadows } from './shadow';
-import { AnimationProps } from './constants';
+import { Shadows } from './shadow';
 import Color from 'color-convert';
 import { generateKeyframes } from './animation';
 import { isStyleProp, StyleProps } from './style';
@@ -128,7 +126,7 @@ class UtilityClassManager {
       classNames.push(pseudoClassName);
     } else if (context === 'media' && modifier) {
       // Media query : générer une classe pour chaque media query associée
-      mediaQueries.forEach((mq) => {
+      mediaQueries.forEach(() => {
         const mediaClassName = `${modifier}:${baseClassName}`;
         classNames.push(mediaClassName);
       });
@@ -183,7 +181,7 @@ class UtilityClassManager {
         case 'media':
           // Les media queries sont gérées séparément
 
-          mediaQueries.forEach((mq, index) => {
+          mediaQueries.forEach((mq) => {
             cssRules.push(
               `@media ${mq} { .${escapedClassName} { ${cssProperty}: ${valueForCss}; } }`
             );

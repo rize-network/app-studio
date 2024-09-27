@@ -10,6 +10,8 @@ const defaultBreakpointsConfig: ResponsiveConfig = {
   xl: 1300,
 };
 
+export type ScreenOrientation = 'landscape' | 'portrait';
+
 // Inclure la fonction corrigée getMediaQueries ici
 const getMediaQueries = (b: ResponsiveConfig) => {
   const sortedBreakpoints = Object.keys(b)
