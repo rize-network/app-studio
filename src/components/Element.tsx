@@ -19,7 +19,7 @@ export interface ElementProps extends CssProps {
 
 export interface CssProps {
   children?: React.ReactNode;
-  size?: number;
+  size?: number | string;
   paddingHorizontal?: number | string;
   marginHorizontal?: number | string;
   paddingVertical?: number | string;
@@ -37,7 +37,6 @@ export const Element: React.FC<ElementProps> = React.memo((props) => {
   const { getColor } = useTheme();
   const { mediaQueries, devices } = useResponsiveContext();
 
-  console.log({ rest });
   // Extraire les classes utilitaires
   const utilityClasses = useMemo(
     () => extractUtilityClasses(rest, getColor, mediaQueries, devices),

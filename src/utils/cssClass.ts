@@ -89,6 +89,30 @@ class UtilityClassManager {
   ): string[] {
     let processedValue = value;
 
+    // If the property is a color, convert it to a hexadecimal or RGB value
+    if (property.toLowerCase().includes('color')) {
+      processedValue = getColor(value);
+    }
+
+    // Handle percentage and viewport unit values
+    if (typeof processedValue === 'string') {
+      if (
+        processedValue.endsWith('%') ||
+        processedValue.endsWith('vh') ||
+        processedValue.endsWith('vw')
+      ) {
+        // Keep the value as-is for percentage and viewport units
+      } else if (!isNaN(parseFloat(processedValue))) {
+        // If it's a numeric string without units, add 'px'
+        processedValue = `${parseFloat(processedValue)}px`;
+      }
+    } else if (typeof processedValue === 'number') {
+      // Add 'px' to numeric values for properties that typically use length units
+      if (numericCssProperties.has(property)) {
+        processedValue = `${processedValue}px`;
+      }
+    }
+
     // Si la propriété est une couleur, la convertir en valeur hexadécimale ou RGB
     if (property.toLowerCase().includes('color')) {
       processedValue = getColor(value);
@@ -102,7 +126,6 @@ class UtilityClassManager {
     if (this.classCache.has(key)) {
       return [this.classCache.get(key)!];
     }
-
     // Générer un nom de classe unique avec le modificateur
     let shorthand = this.propertyShorthand[property];
     if (!shorthand) {
@@ -113,9 +136,12 @@ class UtilityClassManager {
     // Normaliser la valeur pour le nom de classe
     let normalizedValue = processedValue
       .toString()
-      .replace(/\./g, 'p') // Remplacer les points par 'p'
-      .replace(/\s+/g, '-') // Remplacer les espaces par '-'
-      .replace(/[^a-zA-Z0-9\-]/g, ''); // Supprimer les autres caractères spéciaux
+      .replace(/\./g, 'p') // Replace dots with 'p'
+      .replace(/\s+/g, '-') // Replace spaces with '-'
+      .replace(/[^a-zA-Z0-9\-]/g, '') // Remove other special characters
+      .replace(/%/g, 'pct') // Replace % with 'pct'
+      .replace(/vw/g, 'vw') // Keep 'vw' as is
+      .replace(/vh/g, 'vh'); // Keep 'vh' as is
 
     let baseClassName = `${shorthand}-${normalizedValue}`;
 
@@ -140,18 +166,12 @@ class UtilityClassManager {
     const cssProperty = property.replace(/([A-Z])/g, '-$1').toLowerCase();
     let valueForCss = processedValue;
 
-    console.log({ valueForCss, cssProperty });
     // Ajouter des unités si nécessaire
     if (typeof valueForCss === 'number') {
       if (numericCssProperties.has(cssProperty)) {
         valueForCss = `${valueForCss}px`;
       }
     }
-    console.log({
-      valueForCss,
-      cssProperty,
-      tst: numericCssProperties.has(cssProperty),
-    });
 
     // Construire les règles CSS pour chaque classe générée
     classNames.forEach((className) => {
@@ -192,7 +212,6 @@ class UtilityClassManager {
           );
       }
 
-      console.log({ mediaQueries, cssRules, modifier });
       // Injecter les règles CSS
       cssRules.forEach((rule) => this.injectRule(rule));
 
@@ -392,7 +411,6 @@ export const extractUtilityClasses = (
     context: 'base' | 'pseudo' | 'media' = 'base',
     modifier: string = ''
   ) => {
-    console.log({ styles });
     Object.keys(styles).forEach((property) => {
       const value = styles[property];
       let mediaQueriesForClass: string[] = [];

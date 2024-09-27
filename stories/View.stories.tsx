@@ -17,21 +17,21 @@ export default {
 
 export const Exemple: ComponentStory<typeof View> = () => {
   return (
-    <View display="flex" flexWrap="wrap" width={100}>
+    <View display="flex" flexWrap="wrap" width={100} height={200}>
       <View
-        size={100}
+        size={'10vh'}
         shadow={4}
         display="flex"
-        backgroundColor="color.yellow"
+        backgroundColor="color.blue"
       />
       <View
-        size={100}
+        size={'70%'}
         shadow={4}
         paddingHorizontal={20}
         on={{ hover: { backgroundColor: 'theme.primary' } }}
         media={{
           mobile: {
-            backgroundColor: 'color.blue',
+            backgroundColor: 'color.orange',
           },
           md: {
             backgroundColor: 'color.green',
