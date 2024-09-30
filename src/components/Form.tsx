@@ -52,7 +52,7 @@ export interface InputProps
     CommonProps,
     Omit<
       Partial<HTMLInputElement>,
-      'width' | 'height' | 'animate' | 'style' | 'children'
+      'children' | 'style' | 'width' | 'height' | 'animate' | 'size'
     >,
     Omit<CSSProperties, 'style' | 'dir' | 'translate'> {}
 

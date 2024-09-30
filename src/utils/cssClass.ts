@@ -425,7 +425,8 @@ export const extractUtilityClasses = (
 
         classes.push(...classNames);
       } else {
-        console.error({ styles, value, property });
+        if ((window as any).isDebug === true)
+          console.error({ styles, value, property });
       }
     });
   };
@@ -491,7 +492,8 @@ export const extractUtilityClasses = (
 
           classes.push(...classNames);
         } else {
-          console.error({ value, property });
+          if ((window as any).isDebug === true)
+            console.error({ value, property });
         }
       }
     }
