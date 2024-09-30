@@ -32,7 +32,7 @@ export interface CssProps {
   [key: string]: any;
 }
 
-export const Element: React.FC<ElementProps> = React.memo((props) => {
+export const Element: React.FC<ElementProps> = React.memo(({ ...props }) => {
   // Applique un curseur pointeur si un gestionnaire de clic est présent
   if ((props.onClick || props.onPress) && props.cursor == undefined) {
     props.cursor = 'pointer';

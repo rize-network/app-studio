@@ -56,12 +56,7 @@ export const TranslationAnimation: ComponentStory<typeof View> = () => (
   <View
     size={100}
     backgroundColor="color.blue"
-    animate={{
-      from: { transform: 'translateX(-100%)' },
-      enter: { transform: 'translateX(0%)' },
-      duration: '1s',
-      timingFunction: 'ease-out',
-    }}
+    animate={Animation.bounce('1s', 'ease', 'infinite')}
   />
 );
 
