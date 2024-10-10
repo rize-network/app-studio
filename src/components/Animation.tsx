@@ -541,3 +541,16 @@ export const backOutUp = (duration = '1s', timingFunction = 'ease-in') => ({
   duration,
   timingFunction,
 });
+
+export const shimmer = (
+  duration = '2s',
+  timingFunction = 'linear',
+  iterationCount = 'infinite'
+) => ({
+  from: { transform: 'translateX(-100%)' },
+  '50%': { transform: 'translateX(100%)' },
+  enter: { transform: 'translateX(100%)' },
+  duration,
+  timingFunction,
+  iterationCount,
+});

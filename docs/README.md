@@ -2,42 +2,49 @@
 
 ## Table of Contents
 - [App-Studio Documentation](#app-studio-documentation)
-	- [Table of Contents](#table-of-contents)
-	- [1. Introduction](#1-introduction)
-		- [Features](#features)
-	- [2. Installation](#2-installation)
-	- [3. Core Components](#3-core-components)
-		- [Element](#element)
-			- [Usage](#usage)
-			- [Key Properties](#key-properties)
-		- [View](#view)
-			- [Usage](#usage-1)
-		- [Text](#text)
-			- [Usage](#usage-2)
-		- [Form](#form)
-			- [Usage](#usage-3)
-		- [Image](#image)
-			- [Usage](#usage-4)
-	- [4. Responsive Design](#4-responsive-design)
-		- [Media Prop](#media-prop)
-			- [Example](#example)
-		- [useResponsive Hook](#useresponsive-hook)
-			- [Example](#example-1)
-	- [5. Event Management](#5-event-management)
-			- [Example](#example-2)
-	- [6. Theming](#6-theming)
-			- [Setting up the Theme](#setting-up-the-theme)
-			- [Using ThemeProvider](#using-themeprovider)
-			- [Applying Theme in Components](#applying-theme-in-components)
-	- [7. Custom Hooks](#7-custom-hooks)
-		- [useMount](#usemount)
-			- [Usage](#usage-5)
-	- [8. Design Props](#8-design-props)
-		- [Example](#example-3)
-		- [Shadow Prop](#shadow-prop)
-	- [9. Advanced Usage](#9-advanced-usage)
-	- [10. Contributing](#10-contributing)
-	- [11. License](#11-license)
+  - [Table of Contents](#table-of-contents)
+  - [1. Introduction](#1-introduction)
+    - [Features](#features)
+  - [2. Installation](#2-installation)
+  - [3. Core Components](#3-core-components)
+    - [Element](#element)
+      - [Usage](#usage)
+      - [Key Properties](#key-properties)
+    - [View](#view)
+      - [Usage](#usage-1)
+    - [Text](#text)
+      - [Usage](#usage-2)
+    - [Form](#form)
+      - [Usage](#usage-3)
+    - [Image](#image)
+      - [Usage](#usage-4)
+  - [4. Responsive Design](#4-responsive-design)
+    - [Media Prop](#media-prop)
+      - [Example](#example)
+    - [useResponsive Hook](#useresponsive-hook)
+      - [Example](#example-1)
+  - [5. Event Management](#5-event-management)
+      - [Example](#example-2)
+  - [6. Theming](#6-theming)
+      - [Setting up the Theme](#setting-up-the-theme)
+      - [Using ThemeProvider](#using-themeprovider)
+      - [Applying Theme in Components](#applying-theme-in-components)
+  - [7. Custom Hooks](#7-custom-hooks)
+    - [useMount](#usemount)
+      - [Usage](#usage-5)
+  - [8. Design Props](#8-design-props)
+    - [Example](#example-3)
+    - [Shadow Prop](#shadow-prop)
+  - [9. Animations](#9-animations)
+    - [Basic Usage](#basic-usage)
+    - [Available Animations](#available-animations)
+    - [Customizing Animations](#customizing-animations)
+    - [Creating Custom Animations](#creating-custom-animations)
+    - [Combining Animations](#combining-animations)
+    - [Animation Events](#animation-events)
+  - [10. Advanced Usage](#10-advanced-usage)
+  - [10. Contributing](#10-contributing)
+  - [11. License](#11-license)
 
 ## 1. Introduction
 
@@ -292,12 +299,132 @@ The `shadow` prop is used to manage shadows in CSS. It takes a number or a strin
 </View>
 ```
 
-## 9. Advanced Usage
+## 9. Animations
 
-Here's an advanced example showcasing various features of App-Studio:
+App-Studio provides a powerful and flexible animation system that allows you to easily add dynamic effects to your components. The animation system is based on CSS animations and can be applied using the `animate` prop.
+
+### Basic Usage
+
+To apply an animation to a component, use the `animate` prop with an animation object:
 
 ```jsx
-import { ThemeProvider, ResponsiveProvider, View, Span, Text, Button } from 'app-studio';
+import { View, Animation } from 'app-studio';
+
+function Example() {
+  return (
+    <View
+      animate={Animation.fadeIn()}
+      backgroundColor="theme.primary"
+      padding={20}
+    >
+      This view will fade in
+    </View>
+  );
+}
+```
+
+### Available Animations
+
+App-Studio comes with a set of pre-defined animations that you can use out of the box:
+
+- `fadeIn` / `fadeOut`
+- `slideInLeft` / `slideInRight` / `slideInUp` / `slideInDown`
+- `zoomIn` / `zoomOut`
+- `bounce`
+- `rotate`
+- `pulse`
+- `flash`
+- `shake`
+- `swing`
+- `rubberBand`
+- `wobble`
+- `flip`
+- `heartBeat`
+- `rollIn` / `rollOut`
+- `lightSpeedIn` / `lightSpeedOut`
+- `hinge`
+- `jackInTheBox`
+
+Each animation function accepts parameters to customize the duration, timing function, and other properties.
+
+### Customizing Animations
+
+You can customize animations by passing parameters to the animation functions:
+
+```jsx
+<View
+  animate={Animation.fadeIn('2s', 'ease-in-out')}
+  backgroundColor="theme.primary"
+  padding={20}
+>
+  This view will fade in slowly
+</View>
+```
+
+### Creating Custom Animations
+
+You can also create custom animations by defining your own keyframes:
+
+```jsx
+const customAnimation = {
+  from: { opacity: 0, transform: 'translateY(-50px)' },
+  to: { opacity: 1, transform: 'translateY(0)' },
+  duration: '1s',
+  timingFunction: 'ease-out'
+};
+
+<View
+  animate={customAnimation}
+  backgroundColor="theme.primary"
+  padding={20}
+>
+  This view will have a custom animation
+</View>
+```
+
+### Combining Animations
+
+You can combine multiple animations by using the `Animation.compose` function:
+
+```jsx
+const combinedAnimation = Animation.compose(
+  Animation.fadeIn(),
+  Animation.slideInUp()
+);
+
+<View
+  animate={combinedAnimation}
+  backgroundColor="theme.primary"
+  padding={20}
+>
+  This view will fade in and slide up simultaneously
+</View>
+```
+
+### Animation Events
+
+You can also listen to animation events using the `onAnimationStart`, `onAnimationEnd`, and `onAnimationIteration` props:
+
+```jsx
+<View
+  animate={Animation.bounce()}
+  onAnimationStart={() => console.log('Animation started')}
+  onAnimationEnd={() => console.log('Animation ended')}
+  backgroundColor="theme.primary"
+  padding={20}
+>
+  This view will bounce
+</View>
+```
+
+By leveraging these animation capabilities, you can create rich, interactive user interfaces with App-Studio.
+
+## 10. Advanced Usage
+
+Here's an advanced example showcasing various features of App-Studio, including animations:
+
+```jsx
+import { ThemeProvider, ResponsiveProvider, View, Span, Text, Button, Animation } from 'app-studio';
 
 const theme = {
   main: { primary: '#fff7ed' },
@@ -311,34 +438,46 @@ const colors = {
 
 function Example() {
   return (
-	<ResponsiveProvider>
-	  <ThemeProvider theme={theme} colors={colors}>
-		<Span
-		  backgroundColor="color.blue"
-		  padding={10}
-		  media={{
-			mobile: {
-			  padding: 20
-			}
-		  }}
-		>
-		  Base element
-		</Span>
-		<View 
-		  backgroundColor="theme.primary" 
-		  margin={10}
-		  width={200}
-		  on={{ hover: { backgroundColor: 'color.blueGray.500' } }}
-		>
-		  Hover to change color
-		</View>
-		<Button backgroundColor="theme.button.background">Click here</Button>
-		<Text color="theme.primary">Hello</Text>
-	  </ThemeProvider>
-	</ResponsiveProvider>
+    <ResponsiveProvider>
+      <ThemeProvider theme={theme} colors={colors}>
+        <Span
+          animate={Animation.fadeIn('1s', 'ease-out')}
+          backgroundColor="color.blue"
+          padding={10}
+          media={{
+            mobile: {
+              padding: 20
+            }
+          }}
+        >
+          Base element
+        </Span>
+        <View 
+          animate={Animation.slideInRight()}
+          backgroundColor="theme.primary" 
+          margin={10}
+          width={200}
+          on={{ hover: { backgroundColor: 'color.blueGray.500' } }}
+        >
+          Hover to change color
+        </View>
+        <Button 
+          animate={Animation.pulse('infinite')}
+          backgroundColor="theme.button.background"
+        >
+          Click here
+        </Button>
+        <Text 
+          animate={Animation.typewriter('Hello', 100)}
+          color="theme.primary"
+        />
+      </ThemeProvider>
+    </ResponsiveProvider>
   );
 }
 ```
+
+This example demonstrates how to combine animations with other App-Studio features like theming, responsive design, and event handling.
 
 ## 10. Contributing
 
