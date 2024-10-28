@@ -10,8 +10,11 @@ const Theme = () => {
 
 const Responsive = () => {
   const responsive = useResponsive();
-
-  return <>{responsive.screen}</>;
+  return (
+    <>
+      {responsive.screen}, {responsive.on('mobile')}, {responsive.is('mobile')}
+    </>
+  );
 };
 
 const meta: Meta = {
