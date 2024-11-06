@@ -477,7 +477,6 @@ function Example() {
 }
 ```
 
-This example demonstrates how to combine animations with other App-Studio features like theming, responsive design, and event handling.
 
 ## 10. Contributing
 

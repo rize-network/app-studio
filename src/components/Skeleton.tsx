@@ -9,9 +9,9 @@ export const Skeleton = React.memo(
     iterationCount = 'infinite',
     ...props
   }: ViewProps) => (
-    <View backgroundColor="color.black.300" {...props}>
+    <View backgroundColor="color.black.300" {...props} overflow="hidden">
       <View
-        position="absolute"
+        position="relative"
         inset={0}
         width={'100%'}
         height={'100%'}

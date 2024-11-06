@@ -4,7 +4,7 @@ import React from 'react';
 
 import { ComponentStory, ComponentMeta } from '@storybook/react';
 
-import { Skeleton } from '../src/index';
+import { Skeleton, View } from '../src/index';
 
 export default {
   /* 👇 The title prop is optional.
@@ -16,5 +16,10 @@ export default {
 } as ComponentMeta<typeof Skeleton>;
 
 export const Exemple: ComponentStory<typeof Skeleton> = () => {
-  return <Skeleton size={100} />;
+  return (
+    <View>
+      <View size={100} backgroundColor="red"></View>
+      <Skeleton size={100} />
+    </View>
+  );
 };
