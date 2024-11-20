@@ -611,13 +611,13 @@ export const typewriter = ({
 }) => ({
   from: { width: '0px' },
   to: { width: `${width}px` },
-  timingFunction: `steps(${steps}, end)`,
+  timingFunction: `steps(${steps})`,
   duration,
   iterationCount,
 });
 
 export const blinkCursor = ({
-  duration = '0.1s',
+  duration = '0.75s',
   timingFunction = 'step-end',
   iterationCount = 'infinite',
   color = 'black',
