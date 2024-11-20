@@ -61,4 +61,5 @@ export interface AnimationProps {
   direction?: string;
   fillMode?: string;
   playState?: string;
+  [key: string]: any;
 }

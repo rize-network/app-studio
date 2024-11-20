@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ComponentStory, ComponentMeta } from '@storybook/react';
-import { View, Button, Animation } from '../src/index';
+import { View, Button, Animation, Typewriter } from '../src/index';
 
 export default {
   title: 'Animation/Selectable',
@@ -52,7 +52,7 @@ SelectableAnimation.args = {
   iterationCount: '1',
 };
 
-const animationSequence: AnimationSequence = [
+const animationSequence: any = [
   {
     from: { opacity: 0, transform: 'translateY(-10px)' },
     to: { opacity: 1, transform: 'translateY(0)' },
@@ -95,7 +95,11 @@ export const TranslationAnimation: ComponentStory<typeof View> = () => (
   <View
     size={100}
     backgroundColor="color.blue"
-    animate={Animation.bounce('1s', 'ease', 'infinite')}
+    animate={Animation.bounce({
+      duration: '1s',
+      timingFunction: 'ease',
+      iterationCount: 'infinite',
+    })}
   />
 );
 
@@ -105,9 +109,17 @@ export const RotationOnHover: ComponentStory<typeof View> = () => (
       size={100}
       backgroundColor="color.green"
       on={{
-        hover: { animate: Animation.rotate('1s', 'ease') },
+        hover: {
+          animate: Animation.rotate({ duration: '1s', timingFunction: 'ease' }),
+        },
       }}
     />
+  </View>
+);
+
+export const TypeWriterView: ComponentStory<typeof View> = () => (
+  <View>
+    <Typewriter text="Bienvenue sur notre site web !" />
   </View>
 );
 

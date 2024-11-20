@@ -1,61 +1,64 @@
 // animations.ts
 
-export const fadeIn = (duration = '1s', timingFunction = 'ease') => ({
+export const fadeIn = ({ duration = '1s', timingFunction = 'ease' }) => ({
   from: { opacity: 0 },
   to: { opacity: 1 },
   duration,
   timingFunction,
 });
 
-export const fadeOut = (duration = '1s', timingFunction = 'ease') => ({
+export const fadeOut = ({ duration = '1s', timingFunction = 'ease' }) => ({
   from: { opacity: 1 },
   to: { opacity: 0 },
   duration,
   timingFunction,
 });
 
-export const slideInLeft = (
+export const slideInLeft = ({
   duration = '0.5s',
-  timingFunction = 'ease-out'
-) => ({
+  timingFunction = 'ease-out',
+}) => ({
   from: { transform: 'translateX(-100%)' },
   to: { transform: 'translateX(0)' },
   duration,
   timingFunction,
 });
 
-export const slideInRight = (
+export const slideInRight = ({
   duration = '0.5s',
-  timingFunction = 'ease-out'
-) => ({
+  timingFunction = 'ease-out',
+}) => ({
   from: { transform: 'translateX(100%)' },
   to: { transform: 'translateX(0)' },
   duration,
   timingFunction,
 });
 
-export const slideInDown = (
+export const slideInDown = ({
   duration = '0.5s',
-  timingFunction = 'ease-out'
-) => ({
+  timingFunction = 'ease-out',
+}) => ({
   from: { transform: 'translateY(-100%)' },
   to: { transform: 'translateY(0)' },
   duration,
   timingFunction,
 });
 
-export const slideInUp = (duration = '0.5s', timingFunction = 'ease-out') => ({
+export const slideInUp = ({
+  duration = '0.5s',
+  timingFunction = 'ease-out',
+}) => ({
   from: { transform: 'translateY(100%)' },
   to: { transform: 'translateY(0)' },
   duration,
   timingFunction,
 });
 
-export const bounce = (
+export const bounce = ({
   duration = '2s',
   timingFunction = 'ease',
-  iterationCount = 'infinite'
-) => ({
+  iterationCount = 'infinite',
+}) => ({
   from: { transform: 'translateY(0)' },
   '20%': { transform: 'translateY(-30px)' },
   '40%': { transform: 'translateY(0)' },
@@ -67,11 +70,11 @@ export const bounce = (
   iterationCount,
 });
 
-export const rotate = (
+export const rotate = ({
   duration = '1s',
   timingFunction = 'linear',
-  iterationCount = 'infinite'
-) => ({
+  iterationCount = 'infinite',
+}) => ({
   from: { transform: 'rotate(0deg)' },
   to: { transform: 'rotate(360deg)' },
   duration,
@@ -79,11 +82,11 @@ export const rotate = (
   iterationCount,
 });
 
-export const pulse = (
+export const pulse = ({
   duration = '1s',
   timingFunction = 'ease-in-out',
-  iterationCount = 'infinite'
-) => ({
+  iterationCount = 'infinite',
+}) => ({
   from: { transform: 'scale(1)' },
   '50%': { transform: 'scale(1.05)' },
   to: { transform: 'scale(1)' },
@@ -92,21 +95,24 @@ export const pulse = (
   iterationCount,
 });
 
-export const zoomIn = (duration = '0.5s', timingFunction = 'ease-out') => ({
+export const zoomIn = ({ duration = '0.5s', timingFunction = 'ease-out' }) => ({
   from: { transform: 'scale(0)' },
   to: { transform: 'scale(1)' },
   duration,
   timingFunction,
 });
 
-export const zoomOut = (duration = '0.5s', timingFunction = 'ease-out') => ({
+export const zoomOut = ({
+  duration = '0.5s',
+  timingFunction = 'ease-out',
+}) => ({
   from: { transform: 'scale(1)' },
   to: { transform: 'scale(0)' },
   duration,
   timingFunction,
 });
 
-export const flash = (duration = '1s', iterationCount = 'infinite') => ({
+export const flash = ({ duration = '1s', iterationCount = 'infinite' }) => ({
   from: { opacity: 1 },
   '50%': { opacity: 0 },
   to: { opacity: 1 },
@@ -114,7 +120,7 @@ export const flash = (duration = '1s', iterationCount = 'infinite') => ({
   iterationCount,
 });
 
-export const shake = (duration = '0.5s', iterationCount = 'infinite') => ({
+export const shake = ({ duration = '0.5s', iterationCount = 'infinite' }) => ({
   from: { transform: 'translateX(0)' },
   '10%': { transform: 'translateX(-10px)' },
   '20%': { transform: 'translateX(10px)' },
@@ -130,7 +136,7 @@ export const shake = (duration = '0.5s', iterationCount = 'infinite') => ({
   iterationCount,
 });
 
-export const swing = (duration = '1s', iterationCount = 'infinite') => ({
+export const swing = ({ duration = '1s', iterationCount = 'infinite' }) => ({
   from: { transform: 'rotate(0deg)' },
   '20%': { transform: 'rotate(15deg)' },
   '40%': { transform: 'rotate(-10deg)' },
@@ -141,10 +147,10 @@ export const swing = (duration = '1s', iterationCount = 'infinite') => ({
   iterationCount,
 });
 
-export const rubberBand = (
+export const rubberBand = ({
   duration = '1s',
-  timingFunction = 'ease-in-out'
-) => ({
+  timingFunction = 'ease-in-out',
+}) => ({
   from: { transform: 'scale3d(1, 1, 1)' },
   '30%': { transform: 'scale3d(1.25, 0.75, 1)' },
   '40%': { transform: 'scale3d(0.75, 1.25, 1)' },
@@ -156,7 +162,7 @@ export const rubberBand = (
   timingFunction,
 });
 
-export const wobble = (duration = '1s') => ({
+export const wobble = ({ duration = '1s' }) => ({
   from: { transform: 'translateX(0%)' },
   '15%': { transform: 'translateX(-25%) rotate(-5deg)' },
   '30%': { transform: 'translateX(20%) rotate(3deg)' },
@@ -167,7 +173,7 @@ export const wobble = (duration = '1s') => ({
   duration,
 });
 
-export const flip = (duration = '1s') => ({
+export const flip = ({ duration = '1s' }) => ({
   from: {
     transform: 'perspective(400px) rotateY(0deg)',
   },
@@ -180,7 +186,10 @@ export const flip = (duration = '1s') => ({
   duration,
 });
 
-export const heartBeat = (duration = '1.3s', iterationCount = 'infinite') => ({
+export const heartBeat = ({
+  duration = '1.3s',
+  iterationCount = 'infinite',
+}) => ({
   from: { transform: 'scale(1)' },
   '14%': { transform: 'scale(1.3)' },
   '28%': { transform: 'scale(1)' },
@@ -191,7 +200,7 @@ export const heartBeat = (duration = '1.3s', iterationCount = 'infinite') => ({
   iterationCount,
 });
 
-export const rollIn = (duration = '1s') => ({
+export const rollIn = ({ duration = '1s' }) => ({
   from: {
     opacity: 0,
     transform: 'translateX(-100%) rotate(-120deg)',
@@ -203,7 +212,7 @@ export const rollIn = (duration = '1s') => ({
   duration,
 });
 
-export const rollOut = (duration = '1s') => ({
+export const rollOut = ({ duration = '1s' }) => ({
   from: {
     opacity: 1,
     transform: 'translateX(0px) rotate(0deg)',
@@ -215,7 +224,10 @@ export const rollOut = (duration = '1s') => ({
   duration,
 });
 
-export const lightSpeedIn = (duration = '1s', timingFunction = 'ease-out') => ({
+export const lightSpeedIn = ({
+  duration = '1s',
+  timingFunction = 'ease-out',
+}) => ({
   from: {
     transform: 'translateX(100%) skewX(-30deg)',
     opacity: 0,
@@ -235,7 +247,10 @@ export const lightSpeedIn = (duration = '1s', timingFunction = 'ease-out') => ({
   timingFunction,
 });
 
-export const lightSpeedOut = (duration = '1s', timingFunction = 'ease-in') => ({
+export const lightSpeedOut = ({
+  duration = '1s',
+  timingFunction = 'ease-in',
+}) => ({
   from: {
     opacity: 1,
   },
@@ -251,7 +266,7 @@ export const lightSpeedOut = (duration = '1s', timingFunction = 'ease-in') => ({
   timingFunction,
 });
 
-export const hinge = (duration = '2s', timingFunction = 'ease-in-out') => ({
+export const hinge = ({ duration = '2s', timingFunction = 'ease-in-out' }) => ({
   from: {
     transform: 'rotate(0deg)',
     transformOrigin: 'top left',
@@ -281,7 +296,7 @@ export const hinge = (duration = '2s', timingFunction = 'ease-in-out') => ({
   timingFunction,
 });
 
-export const jackInTheBox = (duration = '1s', timingFunction = 'ease') => ({
+export const jackInTheBox = ({ duration = '1s', timingFunction = 'ease' }) => ({
   from: {
     opacity: 0,
     transform: 'scale(0.1) rotate(30deg)',
@@ -301,7 +316,7 @@ export const jackInTheBox = (duration = '1s', timingFunction = 'ease') => ({
   timingFunction,
 });
 
-export const flipInX = (duration = '1s', timingFunction = 'ease-in') => ({
+export const flipInX = ({ duration = '1s', timingFunction = 'ease-in' }) => ({
   from: {
     transform: 'perspective(400px) rotateX(90deg)',
     opacity: 0,
@@ -317,7 +332,7 @@ export const flipInX = (duration = '1s', timingFunction = 'ease-in') => ({
   timingFunction,
 });
 
-export const flipInY = (duration = '1s', timingFunction = 'ease-in') => ({
+export const flipInY = ({ duration = '1s', timingFunction = 'ease-in' }) => ({
   from: {
     transform: 'perspective(400px) rotateY(90deg)',
     opacity: 0,
@@ -333,7 +348,10 @@ export const flipInY = (duration = '1s', timingFunction = 'ease-in') => ({
   timingFunction,
 });
 
-export const headShake = (duration = '1s', iterationCount = 'infinite') => ({
+export const headShake = ({
+  duration = '1s',
+  iterationCount = 'infinite',
+}) => ({
   from: {
     transform: 'translateX(0)',
   },
@@ -356,7 +374,7 @@ export const headShake = (duration = '1s', iterationCount = 'infinite') => ({
   iterationCount,
 });
 
-export const tada = (duration = '1s', iterationCount = 'infinite') => ({
+export const tada = ({ duration = '1s', iterationCount = 'infinite' }) => ({
   from: { transform: 'scale3d(1, 1, 1)', opacity: 1 },
   '10%, 20%': {
     transform: 'scale3d(0.9, 0.9, 0.9) rotate(-3deg)',
@@ -372,7 +390,7 @@ export const tada = (duration = '1s', iterationCount = 'infinite') => ({
   iterationCount,
 });
 
-export const jello = (duration = '1s', iterationCount = 'infinite') => ({
+export const jello = ({ duration = '1s', iterationCount = 'infinite' }) => ({
   from: { transform: 'none' },
   '11.1%': { transform: 'skewX(-12.5deg) skewY(-12.5deg)' },
   '22.2%': { transform: 'skewX(6.25deg) skewY(6.25deg)' },
@@ -387,7 +405,10 @@ export const jello = (duration = '1s', iterationCount = 'infinite') => ({
   iterationCount,
 });
 
-export const fadeInDown = (duration = '1s', timingFunction = 'ease-out') => ({
+export const fadeInDown = ({
+  duration = '1s',
+  timingFunction = 'ease-out',
+}) => ({
   from: {
     opacity: 0,
     transform: 'translateY(-100%)',
@@ -400,7 +421,7 @@ export const fadeInDown = (duration = '1s', timingFunction = 'ease-out') => ({
   timingFunction,
 });
 
-export const fadeInUp = (duration = '1s', timingFunction = 'ease-out') => ({
+export const fadeInUp = ({ duration = '1s', timingFunction = 'ease-out' }) => ({
   from: {
     opacity: 0,
     transform: 'translateY(100%)',
@@ -413,7 +434,10 @@ export const fadeInUp = (duration = '1s', timingFunction = 'ease-out') => ({
   timingFunction,
 });
 
-export const bounceIn = (duration = '0.75s', timingFunction = 'ease-in') => ({
+export const bounceIn = ({
+  duration = '0.75s',
+  timingFunction = 'ease-in',
+}) => ({
   from: {
     opacity: 0,
     transform: 'scale(0.3)',
@@ -432,7 +456,10 @@ export const bounceIn = (duration = '0.75s', timingFunction = 'ease-in') => ({
   timingFunction,
 });
 
-export const bounceOut = (duration = '0.75s', timingFunction = 'ease-out') => ({
+export const bounceOut = ({
+  duration = '0.75s',
+  timingFunction = 'ease-out',
+}) => ({
   from: {
     transform: 'scale(1)',
   },
@@ -451,10 +478,10 @@ export const bounceOut = (duration = '0.75s', timingFunction = 'ease-out') => ({
   timingFunction,
 });
 
-export const slideOutLeft = (
+export const slideOutLeft = ({
   duration = '0.5s',
-  timingFunction = 'ease-in'
-) => ({
+  timingFunction = 'ease-in',
+}) => ({
   from: {
     transform: 'translateX(0)',
   },
@@ -465,10 +492,10 @@ export const slideOutLeft = (
   timingFunction,
 });
 
-export const slideOutRight = (
+export const slideOutRight = ({
   duration = '0.5s',
-  timingFunction = 'ease-in'
-) => ({
+  timingFunction = 'ease-in',
+}) => ({
   from: {
     transform: 'translateX(0)',
   },
@@ -479,7 +506,10 @@ export const slideOutRight = (
   timingFunction,
 });
 
-export const zoomInDown = (duration = '1s', timingFunction = 'ease-out') => ({
+export const zoomInDown = ({
+  duration = '1s',
+  timingFunction = 'ease-out',
+}) => ({
   from: {
     opacity: 0,
     transform: 'scale(0.1) translateY(-1000px)',
@@ -495,7 +525,7 @@ export const zoomInDown = (duration = '1s', timingFunction = 'ease-out') => ({
   timingFunction,
 });
 
-export const zoomOutUp = (duration = '1s', timingFunction = 'ease-in') => ({
+export const zoomOutUp = ({ duration = '1s', timingFunction = 'ease-in' }) => ({
   from: {
     opacity: 1,
     transform: 'scale(1) translateY(0)',
@@ -512,7 +542,10 @@ export const zoomOutUp = (duration = '1s', timingFunction = 'ease-in') => ({
   timingFunction,
 });
 
-export const backInDown = (duration = '1s', timingFunction = 'ease-in') => ({
+export const backInDown = ({
+  duration = '1s',
+  timingFunction = 'ease-in',
+}) => ({
   from: {
     opacity: 0.7,
     transform: 'translateY(-2000px) scaleY(2.5) scaleX(0.2)',
@@ -525,7 +558,7 @@ export const backInDown = (duration = '1s', timingFunction = 'ease-in') => ({
   timingFunction,
 });
 
-export const backOutUp = (duration = '1s', timingFunction = 'ease-in') => ({
+export const backOutUp = ({ duration = '1s', timingFunction = 'ease-in' }) => ({
   from: {
     opacity: 1,
     transform: 'translateY(0)',
@@ -542,14 +575,58 @@ export const backOutUp = (duration = '1s', timingFunction = 'ease-in') => ({
   timingFunction,
 });
 
-export const shimmer = (
+export const shimmer = ({
   duration = '2s',
   timingFunction = 'linear',
-  iterationCount = 'infinite'
-) => ({
+  iterationCount = 'infinite',
+}) => ({
   from: { transform: 'translateX(-100%)' },
   '50%': { transform: 'translateX(100%)' },
   to: { transform: 'translateX(100%)' },
+  duration,
+  timingFunction,
+  iterationCount,
+});
+
+export const progress = ({
+  duration = '2s',
+  timingFunction = 'linear',
+  direction = 'forwards',
+  prop = 'width',
+  from = '0%',
+  to = '100%',
+}) => ({
+  from: { [prop]: from },
+  to: { [prop]: to },
+  duration,
+  timingFunction,
+  direction,
+});
+
+export const typewriter = ({
+  duration = '10s',
+  step = 10,
+  iterationCount = '1',
+  width = 0,
+}) => ({
+  from: { width: '0px' },
+  to: { width: `${width}px` },
+  timingFunction: `steps(${step}, end)`,
+  duration,
+  iterationCount,
+});
+
+export const blinkCursor = ({
+  duration = '0.1s',
+  timingFunction = 'step-end',
+  iterationCount = 'infinite',
+  color = 'black',
+}) => ({
+  from: { color: color },
+  to: { color: color },
+  '0%': { color: color },
+  '50%': { color: 'transparent' },
+  '100%': { color: color },
   duration,
   timingFunction,
   iterationCount,

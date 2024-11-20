@@ -64,7 +64,7 @@ class UtilityClassManager {
   private addToCache(key: string, className: string) {
     if (this.classCache.size >= this.maxCacheSize) {
       const firstKey = this.classCache.keys().next().value;
-      this.classCache.delete(firstKey);
+      if (firstKey) this.classCache.delete(firstKey);
     }
     this.classCache.set(key, className);
   }

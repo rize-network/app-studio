@@ -14,5 +14,5 @@ export interface TextProps
 }
 
 export const Text = React.memo((props: TextProps) => {
-  return <Element {...props} />;
+  return <Element as="span" {...props} />;
 });

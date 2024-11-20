@@ -353,7 +353,7 @@ You can customize animations by passing parameters to the animation functions:
 
 ```jsx
 <View
-  animate={Animation.fadeIn('2s', 'ease-in-out')}
+  animate={Animation.fadeIn({duration:'2s', timingFunction:'ease-in-out'})}
   backgroundColor="theme.primary"
   padding={20}
 >
@@ -441,7 +441,7 @@ function Example() {
     <ResponsiveProvider>
       <ThemeProvider theme={theme} colors={colors}>
         <Span
-          animate={Animation.fadeIn('1s', 'ease-out')}
+          animate={Animation.fadeIn({duration: '1s',timingFunction:'ease-out'})}
           backgroundColor="color.blue"
           padding={10}
           media={{
@@ -462,7 +462,7 @@ function Example() {
           Hover to change color
         </View>
         <Button 
-          animate={Animation.pulse('infinite')}
+          animate={Animation.pulse({timingFunction:'infinite'})}
           backgroundColor="theme.button.background"
         >
           Click here

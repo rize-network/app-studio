@@ -87,8 +87,8 @@ To utilize the animations defined in Animation, follow these steps:
 2. **Apply the Animation to a Component:**
 
    ```jsx
-   <Element animate={fadeIn('1s', 'ease-in')} />
-   <Element animate={shake('0.5s', 'infinite')} />
+   <Element animate={fadeIn({ duration: '1s', 'ease-in')} />
+   <Element animate={shake('0.5s', iterationCount: 'infinite'})} />
    ```
 
    - **Parameters:**
@@ -366,7 +366,7 @@ Creates a bouncing effect by moving the element vertically up and down.
 **Usage Example:**
 
 ```jsx
-<Element animate={bounce('1.5s', 'ease-in-out', 'infinite')} />
+<Element animate={bounce('1.5s', 'ease-in-out', iterationCount: 'infinite'})} />
 ```
 
 ---
@@ -461,7 +461,7 @@ Rotates the element 360 degrees continuously.
 **Usage Example:**
 
 ```jsx
-<Element animate={rotate('2s', 'linear', 'infinite')} />
+<Element animate={rotate('2s', 'linear', iterationCount: 'infinite'})} />
 ```
 
 ---
@@ -782,7 +782,7 @@ Shakes the element horizontally, useful for indicating errors or drawing attenti
 **Usage Example:**
 
 ```jsx
-<Element animate={shake('0.7s', 'infinite')} />
+<Element animate={shake('0.7s', iterationCount: 'infinite'})} />
 ```
 
 ---
@@ -914,7 +914,7 @@ Simulates a heartbeat by scaling the element up and down rhythmically.
 **Usage Example:**
 
 ```jsx
-<Element animate={heartBeat('1.5s', 'infinite')} />
+<Element animate={heartBeat('1.5s', iterationCount: 'infinite'})} />
 ```
 
 ---
@@ -1187,7 +1187,7 @@ Shakes the element horizontally with slight rotations, mimicking a head-shaking 
 **Usage Example:**
 
 ```jsx
-<Element animate={headShake('1s', 'infinite')} />
+<Element animate={headShake({ duration: '1s', iterationCount: 'infinite'})} />
 ```
 
 ---
@@ -1225,7 +1225,7 @@ Applies a playful scaling and rotation effect to emphasize an element, often use
 **Usage Example:**
 
 ```jsx
-<Element animate={tada('1.2s', 'infinite')} />
+<Element animate={tada('1.2s', iterationCount: 'infinite'})} />
 ```
 
 ---
@@ -1262,7 +1262,7 @@ Creates a wobbly and squishy effect, making the element appear as if it's made o
 **Usage Example:**
 
 ```jsx
-<Element animate={jello('1s', 'infinite')} />
+<Element animate={jello({ duration: '1s', iterationCount: 'infinite'})} />
 ```
 
 ---
@@ -1567,7 +1567,7 @@ In addition to the predefined animations, you can create custom animations by de
    Apply the custom animation to a component using the `animate` prop.
 
    ```jsx
-   <Element animate={customFadeSlide('2s', 'linear', 'infinite')} />
+   <Element animate={customFadeSlide('2s', 'linear', iterationCount: 'infinite'})} />
    ```
 
 ---

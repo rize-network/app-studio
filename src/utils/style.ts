@@ -79,6 +79,7 @@ const cssExtraProps = [
   'textIndent',
   'top',
   'width',
+  'animation',
   // 'backgroundRepeatX',
   // 'backgroundRepeatY',
   // 'maxZoom',

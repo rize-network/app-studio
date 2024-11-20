@@ -15,7 +15,7 @@ export const Skeleton = React.memo(
         inset={0}
         width={'100%'}
         height={'100%'}
-        animate={shimmer(duration, timingFunction, iterationCount)}
+        animate={shimmer({ duration, timingFunction, iterationCount })}
         background="linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent)"
       />
     </View>
