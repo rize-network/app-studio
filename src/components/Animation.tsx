@@ -2,14 +2,14 @@
 
 export const fadeIn = (duration = '1s', timingFunction = 'ease') => ({
   from: { opacity: 0 },
-  enter: { opacity: 1 },
+  to: { opacity: 1 },
   duration,
   timingFunction,
 });
 
 export const fadeOut = (duration = '1s', timingFunction = 'ease') => ({
   from: { opacity: 1 },
-  enter: { opacity: 0 },
+  to: { opacity: 0 },
   duration,
   timingFunction,
 });
@@ -19,7 +19,7 @@ export const slideInLeft = (
   timingFunction = 'ease-out'
 ) => ({
   from: { transform: 'translateX(-100%)' },
-  enter: { transform: 'translateX(0)' },
+  to: { transform: 'translateX(0)' },
   duration,
   timingFunction,
 });
@@ -29,7 +29,7 @@ export const slideInRight = (
   timingFunction = 'ease-out'
 ) => ({
   from: { transform: 'translateX(100%)' },
-  enter: { transform: 'translateX(0)' },
+  to: { transform: 'translateX(0)' },
   duration,
   timingFunction,
 });
@@ -39,14 +39,14 @@ export const slideInDown = (
   timingFunction = 'ease-out'
 ) => ({
   from: { transform: 'translateY(-100%)' },
-  enter: { transform: 'translateY(0)' },
+  to: { transform: 'translateY(0)' },
   duration,
   timingFunction,
 });
 
 export const slideInUp = (duration = '0.5s', timingFunction = 'ease-out') => ({
   from: { transform: 'translateY(100%)' },
-  enter: { transform: 'translateY(0)' },
+  to: { transform: 'translateY(0)' },
   duration,
   timingFunction,
 });
@@ -61,7 +61,7 @@ export const bounce = (
   '40%': { transform: 'translateY(0)' },
   '60%': { transform: 'translateY(-15px)' },
   '80%': { transform: 'translateY(0)' },
-  enter: { transform: 'translateY(0)' },
+  to: { transform: 'translateY(0)' },
   duration,
   timingFunction,
   iterationCount,
@@ -73,7 +73,7 @@ export const rotate = (
   iterationCount = 'infinite'
 ) => ({
   from: { transform: 'rotate(0deg)' },
-  enter: { transform: 'rotate(360deg)' },
+  to: { transform: 'rotate(360deg)' },
   duration,
   timingFunction,
   iterationCount,
@@ -86,7 +86,7 @@ export const pulse = (
 ) => ({
   from: { transform: 'scale(1)' },
   '50%': { transform: 'scale(1.05)' },
-  enter: { transform: 'scale(1)' },
+  to: { transform: 'scale(1)' },
   duration,
   timingFunction,
   iterationCount,
@@ -94,14 +94,14 @@ export const pulse = (
 
 export const zoomIn = (duration = '0.5s', timingFunction = 'ease-out') => ({
   from: { transform: 'scale(0)' },
-  enter: { transform: 'scale(1)' },
+  to: { transform: 'scale(1)' },
   duration,
   timingFunction,
 });
 
 export const zoomOut = (duration = '0.5s', timingFunction = 'ease-out') => ({
   from: { transform: 'scale(1)' },
-  enter: { transform: 'scale(0)' },
+  to: { transform: 'scale(0)' },
   duration,
   timingFunction,
 });
@@ -109,7 +109,7 @@ export const zoomOut = (duration = '0.5s', timingFunction = 'ease-out') => ({
 export const flash = (duration = '1s', iterationCount = 'infinite') => ({
   from: { opacity: 1 },
   '50%': { opacity: 0 },
-  enter: { opacity: 1 },
+  to: { opacity: 1 },
   duration,
   iterationCount,
 });
@@ -125,7 +125,7 @@ export const shake = (duration = '0.5s', iterationCount = 'infinite') => ({
   '70%': { transform: 'translateX(-10px)' },
   '80%': { transform: 'translateX(10px)' },
   '90%': { transform: 'translateX(-10px)' },
-  enter: { transform: 'translateX(0)' },
+  to: { transform: 'translateX(0)' },
   duration,
   iterationCount,
 });
@@ -136,7 +136,7 @@ export const swing = (duration = '1s', iterationCount = 'infinite') => ({
   '40%': { transform: 'rotate(-10deg)' },
   '60%': { transform: 'rotate(5deg)' },
   '80%': { transform: 'rotate(-5deg)' },
-  enter: { transform: 'rotate(0deg)' },
+  to: { transform: 'rotate(0deg)' },
   duration,
   iterationCount,
 });
@@ -151,7 +151,7 @@ export const rubberBand = (
   '50%': { transform: 'scale3d(1.15, 0.85, 1)' },
   '65%': { transform: 'scale3d(0.95, 1.05, 1)' },
   '75%': { transform: 'scale3d(1.05, 0.95, 1)' },
-  enter: { transform: 'scale3d(1, 1, 1)' },
+  to: { transform: 'scale3d(1, 1, 1)' },
   duration,
   timingFunction,
 });
@@ -163,7 +163,7 @@ export const wobble = (duration = '1s') => ({
   '45%': { transform: 'translateX(-15%) rotate(-3deg)' },
   '60%': { transform: 'translateX(10%) rotate(2deg)' },
   '75%': { transform: 'translateX(-5%) rotate(-1deg)' },
-  enter: { transform: 'translateX(0%)' },
+  to: { transform: 'translateX(0%)' },
   duration,
 });
 
@@ -174,7 +174,7 @@ export const flip = (duration = '1s') => ({
   '40%': {
     transform: 'perspective(400px) rotateY(-180deg)',
   },
-  enter: {
+  to: {
     transform: 'perspective(400px) rotateY(-360deg)',
   },
   duration,
@@ -186,7 +186,7 @@ export const heartBeat = (duration = '1.3s', iterationCount = 'infinite') => ({
   '28%': { transform: 'scale(1)' },
   '42%': { transform: 'scale(1.3)' },
   '70%': { transform: 'scale(1)' },
-  enter: { transform: 'scale(1)' },
+  to: { transform: 'scale(1)' },
   duration,
   iterationCount,
 });
@@ -196,7 +196,7 @@ export const rollIn = (duration = '1s') => ({
     opacity: 0,
     transform: 'translateX(-100%) rotate(-120deg)',
   },
-  enter: {
+  to: {
     opacity: 1,
     transform: 'translateX(0px) rotate(0deg)',
   },
@@ -208,7 +208,7 @@ export const rollOut = (duration = '1s') => ({
     opacity: 1,
     transform: 'translateX(0px) rotate(0deg)',
   },
-  enter: {
+  to: {
     opacity: 0,
     transform: 'translateX(100%) rotate(120deg)',
   },
@@ -227,7 +227,7 @@ export const lightSpeedIn = (duration = '1s', timingFunction = 'ease-out') => ({
   '80%': {
     transform: 'skewX(-5deg)',
   },
-  enter: {
+  to: {
     transform: 'translateX(0)',
     opacity: 1,
   },
@@ -243,7 +243,7 @@ export const lightSpeedOut = (duration = '1s', timingFunction = 'ease-in') => ({
     opacity: 1,
     transform: 'translateX(-20%) skewX(20deg)',
   },
-  enter: {
+  to: {
     opacity: 0,
     transform: 'translateX(-100%) skewX(30deg)',
   },
@@ -273,7 +273,7 @@ export const hinge = (duration = '2s', timingFunction = 'ease-in-out') => ({
     transform: 'rotate(60deg)',
     opacity: 1,
   },
-  enter: {
+  to: {
     transform: 'translateY(700px)',
     opacity: 0,
   },
@@ -293,7 +293,7 @@ export const jackInTheBox = (duration = '1s', timingFunction = 'ease') => ({
   '70%': {
     transform: 'rotate(3deg)',
   },
-  enter: {
+  to: {
     opacity: 1,
     transform: 'scale(1) rotate(0deg)',
   },
@@ -310,7 +310,7 @@ export const flipInX = (duration = '1s', timingFunction = 'ease-in') => ({
     transform: 'perspective(400px) rotateX(-10deg)',
     opacity: 1,
   },
-  enter: {
+  to: {
     transform: 'perspective(400px) rotateX(0deg)',
   },
   duration,
@@ -326,7 +326,7 @@ export const flipInY = (duration = '1s', timingFunction = 'ease-in') => ({
     transform: 'perspective(400px) rotateY(-10deg)',
     opacity: 1,
   },
-  enter: {
+  to: {
     transform: 'perspective(400px) rotateY(0deg)',
   },
   duration,
@@ -367,7 +367,7 @@ export const tada = (duration = '1s', iterationCount = 'infinite') => ({
   '40%, 60%, 80%': {
     transform: 'scale3d(1.1, 1.1, 1.1) rotate(-3deg)',
   },
-  enter: { transform: 'scale3d(1, 1, 1)', opacity: 1 },
+  to: { transform: 'scale3d(1, 1, 1)', opacity: 1 },
   duration,
   iterationCount,
 });
@@ -382,7 +382,7 @@ export const jello = (duration = '1s', iterationCount = 'infinite') => ({
   '66.6%': { transform: 'skewX(0.390625deg) skewY(0.390625deg)' },
   '77.7%': { transform: 'skewX(-0.1953125deg) skewY(-0.1953125deg)' },
   '88.8%': { transform: 'skewX(0.09765625deg) skewY(0.09765625deg)' },
-  enter: { transform: 'none' },
+  to: { transform: 'none' },
   duration,
   iterationCount,
 });
@@ -392,7 +392,7 @@ export const fadeInDown = (duration = '1s', timingFunction = 'ease-out') => ({
     opacity: 0,
     transform: 'translateY(-100%)',
   },
-  enter: {
+  to: {
     opacity: 1,
     transform: 'translateY(0)',
   },
@@ -405,7 +405,7 @@ export const fadeInUp = (duration = '1s', timingFunction = 'ease-out') => ({
     opacity: 0,
     transform: 'translateY(100%)',
   },
-  enter: {
+  to: {
     opacity: 1,
     transform: 'translateY(0)',
   },
@@ -425,7 +425,7 @@ export const bounceIn = (duration = '0.75s', timingFunction = 'ease-in') => ({
   '70%': {
     transform: 'scale(0.9)',
   },
-  enter: {
+  to: {
     transform: 'scale(1)',
   },
   duration,
@@ -443,7 +443,7 @@ export const bounceOut = (duration = '0.75s', timingFunction = 'ease-out') => ({
     opacity: 1,
     transform: 'scale(1.1)',
   },
-  enter: {
+  to: {
     opacity: 0,
     transform: 'scale(0.3)',
   },
@@ -458,7 +458,7 @@ export const slideOutLeft = (
   from: {
     transform: 'translateX(0)',
   },
-  enter: {
+  to: {
     transform: 'translateX(-100%)',
   },
   duration,
@@ -472,7 +472,7 @@ export const slideOutRight = (
   from: {
     transform: 'translateX(0)',
   },
-  enter: {
+  to: {
     transform: 'translateX(100%)',
   },
   duration,
@@ -488,7 +488,7 @@ export const zoomInDown = (duration = '1s', timingFunction = 'ease-out') => ({
     opacity: 1,
     transform: 'scale(0.475) translateY(60px)',
   },
-  enter: {
+  to: {
     transform: 'scale(1) translateY(0)',
   },
   duration,
@@ -504,7 +504,7 @@ export const zoomOutUp = (duration = '1s', timingFunction = 'ease-in') => ({
     opacity: 1,
     transform: 'scale(0.475) translateY(-60px)',
   },
-  enter: {
+  to: {
     opacity: 0,
     transform: 'scale(0.1) translateY(-1000px)',
   },
@@ -517,7 +517,7 @@ export const backInDown = (duration = '1s', timingFunction = 'ease-in') => ({
     opacity: 0.7,
     transform: 'translateY(-2000px) scaleY(2.5) scaleX(0.2)',
   },
-  enter: {
+  to: {
     opacity: 1,
     transform: 'translateY(0) scaleY(1) scaleX(1)',
   },
@@ -534,7 +534,7 @@ export const backOutUp = (duration = '1s', timingFunction = 'ease-in') => ({
     opacity: 0.7,
     transform: 'translateY(-20px)',
   },
-  enter: {
+  to: {
     opacity: 0,
     transform: 'translateY(-2000px)',
   },
@@ -549,7 +549,7 @@ export const shimmer = (
 ) => ({
   from: { transform: 'translateX(-100%)' },
   '50%': { transform: 'translateX(100%)' },
-  enter: { transform: 'translateX(100%)' },
+  to: { transform: 'translateX(100%)' },
   duration,
   timingFunction,
   iterationCount,

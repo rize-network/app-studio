@@ -52,7 +52,7 @@ export const includeKeys = new Set<string>(['src', 'alt', 'style', 'as']);
 // Type definitions for animation props
 export interface AnimationProps {
   from: CSSProperties;
-  enter: CSSProperties;
+  to: CSSProperties;
   leave?: CSSProperties;
   duration?: string;
   timingFunction?: string;

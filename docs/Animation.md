@@ -115,7 +115,7 @@ Gradually changes the opacity of an element from invisible to fully visible, cre
 ```javascript
 {
   from: { opacity: 0 },
-  enter: { opacity: 1 },
+  to: { opacity: 1 },
   duration,
   timingFunction,
 }
@@ -144,7 +144,7 @@ Gradually changes the opacity of an element from fully visible to invisible, cre
 ```javascript
 {
   from: { opacity: 1 },
-  enter: { opacity: 0 },
+  to: { opacity: 0 },
   duration,
   timingFunction,
 }
@@ -175,7 +175,7 @@ Slides the element in from the left side of the viewport to its original positio
 ```javascript
 {
   from: { transform: 'translateX(-100%)' },
-  enter: { transform: 'translateX(0)' },
+  to: { transform: 'translateX(0)' },
   duration,
   timingFunction,
 }
@@ -204,7 +204,7 @@ Slides the element in from the right side of the viewport to its original positi
 ```javascript
 {
   from: { transform: 'translateX(100%)' },
-  enter: { transform: 'translateX(0)' },
+  to: { transform: 'translateX(0)' },
   duration,
   timingFunction,
 }
@@ -233,7 +233,7 @@ Slides the element in from the top of the viewport to its original position.
 ```javascript
 {
   from: { transform: 'translateY(-100%)' },
-  enter: { transform: 'translateY(0)' },
+  to: { transform: 'translateY(0)' },
   duration,
   timingFunction,
 }
@@ -262,7 +262,7 @@ Slides the element in from the bottom of the viewport to its original position.
 ```javascript
 {
   from: { transform: 'translateY(100%)' },
-  enter: { transform: 'translateY(0)' },
+  to: { transform: 'translateY(0)' },
   duration,
   timingFunction,
 }
@@ -291,7 +291,7 @@ Slides the element out to the left side of the viewport from its current positio
 ```javascript
 {
   from: { transform: 'translateX(0)' },
-  enter: { transform: 'translateX(-100%)' },
+  to: { transform: 'translateX(-100%)' },
   duration,
   timingFunction,
 }
@@ -320,7 +320,7 @@ Slides the element out to the right side of the viewport from its current positi
 ```javascript
 {
   from: { transform: 'translateX(0)' },
-  enter: { transform: 'translateX(100%)' },
+  to: { transform: 'translateX(100%)' },
   duration,
   timingFunction,
 }
@@ -356,7 +356,7 @@ Creates a bouncing effect by moving the element vertically up and down.
   '40%': { transform: 'translateY(0)' },
   '60%': { transform: 'translateY(-15px)' },
   '80%': { transform: 'translateY(0)' },
-  enter: { transform: 'translateY(0)' },
+  to: { transform: 'translateY(0)' },
   duration,
   timingFunction,
   iterationCount,
@@ -388,7 +388,7 @@ Animates the element by scaling it from a smaller size to its original size with
   from: { opacity: 0, transform: 'scale(0.3)' },
   '50%': { opacity: 1, transform: 'scale(1.05)' },
   '70%': { transform: 'scale(0.9)' },
-  enter: { transform: 'scale(1)' },
+  to: { transform: 'scale(1)' },
   duration,
   timingFunction,
 }
@@ -419,7 +419,7 @@ Animates the element by scaling it down with a bounce effect before it disappear
   from: { transform: 'scale(1)' },
   '20%': { transform: 'scale(0.9)' },
   '50%, 55%': { opacity: 1, transform: 'scale(1.1)' },
-  enter: { opacity: 0, transform: 'scale(0.3)' },
+  to: { opacity: 0, transform: 'scale(0.3)' },
   duration,
   timingFunction,
 }
@@ -451,7 +451,7 @@ Rotates the element 360 degrees continuously.
 ```javascript
 {
   from: { transform: 'rotate(0deg)' },
-  enter: { transform: 'rotate(360deg)' },
+  to: { transform: 'rotate(360deg)' },
   duration,
   timingFunction,
   iterationCount,
@@ -486,7 +486,7 @@ Performs a 360-degree flip animation along the Y-axis.
   '40%': {
     transform: 'perspective(400px) rotateY(-180deg)',
   },
-  enter: {
+  to: {
     transform: 'perspective(400px) rotateY(-360deg)',
   },
   duration,
@@ -524,7 +524,7 @@ Flips the element in along the X-axis from 90 degrees to 0 degrees.
     transform: 'perspective(400px) rotateX(-10deg)',
     opacity: 1,
   },
-  enter: {
+  to: {
     transform: 'perspective(400px) rotateX(0deg)',
   },
   duration,
@@ -562,7 +562,7 @@ Flips the element in along the Y-axis from 90 degrees to 0 degrees.
     transform: 'perspective(400px) rotateY(-10deg)',
     opacity: 1,
   },
-  enter: {
+  to: {
     transform: 'perspective(400px) rotateY(0deg)',
   },
   duration,
@@ -597,7 +597,7 @@ Creates a pulsing effect by scaling the element up and down.
 {
   from: { transform: 'scale(1)' },
   '50%': { transform: 'scale(1.05)' },
-  enter: { transform: 'scale(1)' },
+  to: { transform: 'scale(1)' },
   duration,
   timingFunction,
   iterationCount,
@@ -627,7 +627,7 @@ Scales the element from 0 to its original size, creating a zoom-in effect.
 ```javascript
 {
   from: { transform: 'scale(0)' },
-  enter: { transform: 'scale(1)' },
+  to: { transform: 'scale(1)' },
   duration,
   timingFunction,
 }
@@ -656,7 +656,7 @@ Scales the element from its original size to 0, creating a zoom-out effect.
 ```javascript
 {
   from: { transform: 'scale(1)' },
-  enter: { transform: 'scale(0)' },
+  to: { transform: 'scale(0)' },
   duration,
   timingFunction,
 }
@@ -692,7 +692,7 @@ Combines a zoom-in and slide-down effect, making the element appear from above w
     opacity: 1,
     transform: 'scale(0.475) translateY(60px)',
   },
-  enter: {
+  to: {
     transform: 'scale(1) translateY(0)',
   },
   duration,
@@ -730,7 +730,7 @@ Combines a zoom-out and slide-up effect, making the element disappear upwards wi
     opacity: 1,
     transform: 'scale(0.475) translateY(-60px)',
   },
-  enter: {
+  to: {
     opacity: 0,
     transform: 'scale(0.1) translateY(-1000px)',
   },
@@ -773,7 +773,7 @@ Shakes the element horizontally, useful for indicating errors or drawing attenti
   '70%': { transform: 'translateX(-10px)' },
   '80%': { transform: 'translateX(10px)' },
   '90%': { transform: 'translateX(-10px)' },
-  enter: { transform: 'translateX(0)' },
+  to: { transform: 'translateX(0)' },
   duration,
   iterationCount,
 }
@@ -806,7 +806,7 @@ Swings the element back and forth, simulating a pendulum-like motion.
   '40%': { transform: 'rotate(-10deg)' },
   '60%': { transform: 'rotate(5deg)' },
   '80%': { transform: 'rotate(-5deg)' },
-  enter: { transform: 'rotate(0deg)' },
+  to: { transform: 'rotate(0deg)' },
   duration,
   iterationCount,
 }
@@ -840,7 +840,7 @@ Stretches and compresses the element along the X and Y axes, creating a rubber-l
   '50%': { transform: 'scale3d(1.15, 0.85, 1)' },
   '65%': { transform: 'scale3d(0.95, 1.05, 1)' },
   '75%': { transform: 'scale3d(1.05, 0.95, 1)' },
-  enter: { transform: 'scale3d(1, 1, 1)' },
+  to: { transform: 'scale3d(1, 1, 1)' },
   duration,
   timingFunction,
 }
@@ -873,7 +873,7 @@ Wobbles the element side to side and rotates slightly, giving a playful effect.
   '45%': { transform: 'translateX(-15%) rotate(-3deg)' },
   '60%': { transform: 'translateX(10%) rotate(2deg)' },
   '75%': { transform: 'translateX(-5%) rotate(-1deg)' },
-  enter: { transform: 'translateX(0%)' },
+  to: { transform: 'translateX(0%)' },
   duration,
 }
 ```
@@ -905,7 +905,7 @@ Simulates a heartbeat by scaling the element up and down rhythmically.
   '28%': { transform: 'scale(1)' },
   '42%': { transform: 'scale(1.3)' },
   '70%': { transform: 'scale(1)' },
-  enter: { transform: 'scale(1)' },
+  to: { transform: 'scale(1)' },
   duration,
   iterationCount,
 }
@@ -936,7 +936,7 @@ Rolls the element into view from the left with rotation.
     opacity: 0,
     transform: 'translateX(-100%) rotate(-120deg)',
   },
-  enter: {
+  to: {
     opacity: 1,
     transform: 'translateX(0px) rotate(0deg)',
   },
@@ -969,7 +969,7 @@ Rolls the element out of view to the right with rotation.
     opacity: 1,
     transform: 'translateX(0px) rotate(0deg)',
   },
-  enter: {
+  to: {
     opacity: 0,
     transform: 'translateX(100%) rotate(120deg)',
   },
@@ -1010,7 +1010,7 @@ Animates the element with a fast sliding and skewing effect from the right, givi
   '80%': {
     transform: 'skewX(-5deg)',
   },
-  enter: {
+  to: {
     transform: 'translateX(0)',
     opacity: 1,
   },
@@ -1048,7 +1048,7 @@ Animates the element with a fast sliding and skewing effect to the left, giving 
     opacity: 1,
     transform: 'translateX(-20%) skewX(20deg)',
   },
-  enter: {
+  to: {
     opacity: 0,
     transform: 'translateX(-100%) skewX(30deg)',
   },
@@ -1100,7 +1100,7 @@ Simulates the element being attached to a hinge and swinging before falling off 
     transform: 'rotate(60deg)',
     opacity: 1,
   },
-  enter: {
+  to: {
     transform: 'translateY(700px)',
     opacity: 0,
   },
@@ -1142,7 +1142,7 @@ Simulates an element popping out of a box with scaling and rotation effects.
   '70%': {
     transform: 'rotate(3deg)',
   },
-  enter: {
+  to: {
     opacity: 1,
     transform: 'scale(1) rotate(0deg)',
   },
@@ -1216,7 +1216,7 @@ Applies a playful scaling and rotation effect to emphasize an element, often use
   '40%, 60%, 80%': {
     transform: 'scale3d(1.1, 1.1, 1.1) rotate(-3deg)',
   },
-  enter: { transform: 'scale3d(1, 1, 1)', opacity: 1 },
+  to: { transform: 'scale3d(1, 1, 1)', opacity: 1 },
   duration,
   iterationCount,
 }
@@ -1253,7 +1253,7 @@ Creates a wobbly and squishy effect, making the element appear as if it's made o
   '66.6%': { transform: 'skewX(0.390625deg) skewY(0.390625deg)' },
   '77.7%': { transform: 'skewX(-0.1953125deg) skewY(-0.1953125deg)' },
   '88.8%': { transform: 'skewX(0.09765625deg) skewY(0.09765625deg)' },
-  enter: { transform: 'none' },
+  to: { transform: 'none' },
   duration,
   iterationCount,
 }
@@ -1286,7 +1286,7 @@ Simulates the rhythm of a heartbeat by scaling the element up and down in a rhyt
   '28%': { transform: 'scale(1)' },
   '42%': { transform: 'scale(1.3)' },
   '70%': { transform: 'scale(1)' },
-  enter: { transform: 'scale(1)' },
+  to: { transform: 'scale(1)' },
   duration,
   iterationCount,
 }
@@ -1321,7 +1321,7 @@ Swings the element back and forth with rotation, creating a playful motion.
   '40%': { transform: 'rotate(-10deg)' },
   '60%': { transform: 'rotate(5deg)' },
   '80%': { transform: 'rotate(-5deg)' },
-  enter: { transform: 'rotate(0deg)' },
+  to: { transform: 'rotate(0deg)' },
   duration,
   iterationCount,
 }
@@ -1355,7 +1355,7 @@ Applies a stretching and compressing effect to the element, mimicking the elasti
   '50%': { transform: 'scale3d(1.15, 0.85, 1)' },
   '65%': { transform: 'scale3d(0.95, 1.05, 1)' },
   '75%': { transform: 'scale3d(1.05, 0.95, 1)' },
-  enter: { transform: 'scale3d(1, 1, 1)' },
+  to: { transform: 'scale3d(1, 1, 1)' },
   duration,
   timingFunction,
 }
@@ -1388,7 +1388,7 @@ Creates a wobbly effect by translating and rotating the element in a rhythmic pa
   '45%': { transform: 'translateX(-15%) rotate(-3deg)' },
   '60%': { transform: 'translateX(10%) rotate(2deg)' },
   '75%': { transform: 'translateX(-5%) rotate(-1deg)' },
-  enter: { transform: 'translateX(0%)' },
+  to: { transform: 'translateX(0%)' },
   duration,
 }
 ```
@@ -1479,7 +1479,7 @@ Animates the element with a zoom and slide-down effect from the top, creating a 
     opacity: 0.7,
     transform: 'translateY(-2000px) scaleY(2.5) scaleX(0.2)',
   },
-  enter: {
+  to: {
     opacity: 1,
     transform: 'translateY(0) scaleY(1) scaleX(1)',
   },
@@ -1518,7 +1518,7 @@ Animates the element with a zoom and slide-up effect, making it disappear upward
     opacity: 0.7,
     transform: 'translateY(-20px)',
   },
-  enter: {
+  to: {
     opacity: 0,
     transform: 'translateY(-2000px)',
   },
@@ -1555,7 +1555,7 @@ In addition to the predefined animations, you can create custom animations by de
    ) => ({
      from: { opacity: 0, transform: 'translateY(-20px)' },
      '50%': { opacity: 1, transform: 'translateY(0)' },
-     enter: { opacity: 0, transform: 'translateY(20px)' },
+     to: { opacity: 0, transform: 'translateY(20px)' },
      duration,
      timingFunction,
      iterationCount,

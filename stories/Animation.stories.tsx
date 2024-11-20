@@ -52,6 +52,45 @@ SelectableAnimation.args = {
   iterationCount: '1',
 };
 
+const animationSequence: AnimationSequence = [
+  {
+    from: { opacity: 0, transform: 'translateY(-10px)' },
+    to: { opacity: 1, transform: 'translateY(0)' },
+    duration: '0.5s',
+    timingFunction: 'ease-in',
+  },
+  {
+    from: { transform: 'scale(1)' },
+    to: { transform: 'scale(1.2)' },
+    duration: '0.5s',
+  },
+  {
+    from: { transform: 'rotate(0deg)' },
+    to: { transform: 'rotate(360deg)' },
+    duration: '1s',
+    timingFunction: 'ease-out',
+  },
+];
+
+export const SequencesAnimation: ComponentStory<typeof View> = () => (
+  <View>
+    <View animate={animationSequence}>Mon élément animé</View>;
+    <View
+      on={{
+        hover: {
+          animate: {
+            from: { transform: 'scale(1)' },
+            to: { transform: 'scale(1.1)' },
+            duration: '0.2s',
+          }, // Animation au survol
+        },
+      }}
+    >
+      Cliquez moi !
+    </View>
+  </View>
+);
+
 export const TranslationAnimation: ComponentStory<typeof View> = () => (
   <View
     size={100}
@@ -61,16 +100,15 @@ export const TranslationAnimation: ComponentStory<typeof View> = () => (
 );
 
 export const RotationOnHover: ComponentStory<typeof View> = () => (
-  <View
-    size={100}
-    backgroundColor="color.green"
-    on={{
-      hover: {
-        transform: 'rotate(360deg)',
-        transition: 'transform 0.5s',
-      },
-    }}
-  />
+  <View>
+    <View
+      size={100}
+      backgroundColor="color.green"
+      on={{
+        hover: { animate: Animation.rotate('1s', 'ease') },
+      }}
+    />
+  </View>
 );
 
 export const ScalingAnimation: ComponentStory<typeof View> = () => {
@@ -87,7 +125,7 @@ export const ScalingAnimation: ComponentStory<typeof View> = () => {
           backgroundColor="color.red"
           animate={{
             from: { transform: 'scale(0)' },
-            enter: { transform: 'scale(1)' },
+            to: { transform: 'scale(1)' },
             leave: { transform: 'scale(0.5)' },
             duration: '0.5s',
             timingFunction: 'ease-in-out',
@@ -103,7 +141,7 @@ export const ColorChangeAnimation: ComponentStory<typeof View> = () => (
     size={100}
     animate={{
       from: { backgroundColor: 'yellow' },
-      enter: { backgroundColor: 'purple' },
+      to: { backgroundColor: 'purple' },
       duration: '3s',
       timingFunction: 'linear',
     }}
@@ -116,7 +154,7 @@ export const InfiniteRotation: ComponentStory<typeof View> = () => (
     backgroundColor="color.orange"
     animate={{
       from: { transform: 'rotate(0deg)' },
-      enter: { transform: 'rotate(360deg)' },
+      to: { transform: 'rotate(360deg)' },
       duration: '2s',
       timingFunction: 'linear',
       iterationCount: 'infinite',
@@ -130,7 +168,7 @@ export const ResponsiveAnimation: ComponentStory<typeof View> = () => (
     backgroundColor="color.pink"
     animate={{
       from: { opacity: 0 },
-      enter: { opacity: 1 },
+      to: { opacity: 1 },
       duration: '1s',
       timingFunction: 'ease-in',
     }}
@@ -138,7 +176,7 @@ export const ResponsiveAnimation: ComponentStory<typeof View> = () => (
       mobile: {
         animate: {
           from: { transform: 'translateY(100%)' },
-          enter: { transform: 'translateY(0%)' },
+          to: { transform: 'translateY(0%)' },
           duration: '0.5s',
           timingFunction: 'ease-out',
         },
@@ -146,7 +184,7 @@ export const ResponsiveAnimation: ComponentStory<typeof View> = () => (
       desktop: {
         animate: {
           from: { transform: 'translateX(-100%)' },
-          enter: { transform: 'translateX(0%)' },
+          to: { transform: 'translateX(0%)' },
           duration: '1s',
           timingFunction: 'ease-out',
         },
@@ -161,7 +199,7 @@ export const BlinkAnimation: ComponentStory<typeof View> = () => (
     backgroundColor="color.black"
     animate={{
       from: { opacity: 0 },
-      enter: { opacity: 1 },
+      to: { opacity: 1 },
       duration: '0.5s',
       timingFunction: 'ease-in-out',
       delay: '1s',
@@ -180,7 +218,7 @@ export const ComplexAnimation: ComponentStory<typeof View> = () => (
         opacity: 0,
         transform: 'scale(0.5) rotate(0deg)',
       },
-      enter: {
+      to: {
         opacity: 1,
         transform: 'scale(1) rotate(360deg)',
       },
@@ -196,7 +234,7 @@ export const CustomTiming: ComponentStory<typeof View> = () => (
     backgroundColor="color.black"
     animate={{
       from: { transform: 'translateY(0)' },
-      enter: { transform: 'translateY(-100px)' },
+      to: { transform: 'translateY(-100px)' },
       duration: '1s',
       timingFunction: 'cubic-bezier(0.68, -0.55, 0.27, 1.55)',
     }}
@@ -215,14 +253,14 @@ export const ClickAnimation: ComponentStory<typeof View> = () => {
         animate
           ? {
               from: { transform: 'scale(1)' },
-              enter: { transform: 'scale(1.5)' },
+              to: { transform: 'scale(1.5)' },
               duration: '0.3s',
               timingFunction: 'ease-in-out',
               fillMode: 'forwards',
             }
           : {
               from: { transform: 'scale(1.5)' },
-              enter: { transform: 'scale(1)' },
+              to: { transform: 'scale(1)' },
               duration: '0.3s',
               timingFunction: 'ease-in-out',
               fillMode: 'forwards',

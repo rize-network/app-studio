@@ -43,7 +43,7 @@ export const Exemple: ComponentStory<typeof View> = () => {
         }}
         animate={{
           from: { opacity: 0 },
-          enter: { opacity: 1 },
+          to: { opacity: 1 },
           leave: { opacity: 0 },
           duration: '1s',
           timingFunction: 'ease-in-out',

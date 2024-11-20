@@ -102,15 +102,16 @@ class UtilityClassManager {
       }
     }
 
-    let formatedValue = processedValue.toString().split(' ').join('-');
-    let key = `${property}:${formatedValue}`;
-    if (modifier) {
-      key = `${property}:${formatedValue}|${modifier}`;
+    let formattedValue = processedValue.toString().split(' ').join('-');
+    let key = `${property}:${formattedValue}`;
+    if (modifier && context !== 'base') {
+      key = `${property}:${formattedValue}|${context}:${modifier}`;
     }
 
     if (this.classCache.has(key)) {
       return [this.classCache.get(key)!];
     }
+
     // Générer un nom de classe unique avec le modificateur
     let shorthand = this.propertyShorthand[property];
     if (!shorthand) {
@@ -119,7 +120,7 @@ class UtilityClassManager {
 
     // console.log({ shorthand, property, processedValue });
     // Normaliser la valeur pour le nom de classe
-    let normalizedValue = formatedValue
+    let normalizedValue = formattedValue
       .toString()
       .replace(/\./g, 'p') // Replace dots with 'p'
       .replace(/\s+/g, '-') // Replace spaces with '-'
@@ -133,7 +134,7 @@ class UtilityClassManager {
     let baseClassName = `${shorthand}-${normalizedValue}`;
 
     // Préfixer les noms de classe pour les pseudo-classes et media queries
-    let classNames: string[] = [];
+    let classNames: string[] = [baseClassName]; // Utiliser le nom de classe de base
 
     if (context === 'pseudo' && modifier) {
       // Pseudo-class : ajouter '-modifier' suffix
@@ -172,9 +173,9 @@ class UtilityClassManager {
           );
           break;
         case 'pseudo':
-          // Appliquer la pseudo-classe directement à la classe principale
+          // Appliquer le pseudo-sélecteur au sélecteur de classe
           cssRules.push(
-            `.${escapedClassName} { ${cssProperty}: ${valueForCss}; }`
+            `.${escapedClassName}:${modifier} { ${cssProperty}: ${valueForCss}; }`
           );
           break;
         case 'media':
@@ -271,7 +272,7 @@ function generatePropertyShorthand(
 }
 
 const propertyShorthand = generatePropertyShorthand(StyleProps);
-const utilityClassManager = new UtilityClassManager(propertyShorthand);
+export const utilityClassManager = new UtilityClassManager(propertyShorthand);
 
 export const extractUtilityClasses = (
   props: CssProps,
@@ -364,27 +365,49 @@ export const extractUtilityClasses = (
 
   // Gestion des animations
   if (props.animate) {
-    const animation = props.animate;
-    const { keyframesName, keyframes } = generateKeyframes(animation);
+    const animations = Array.isArray(props.animate)
+      ? props.animate
+      : [props.animate];
+    const animationNames: string[] = [];
+    const animationDurations: string[] = [];
+    const animationTimingFunctions: string[] = [];
+    const animationDelays: string[] = [];
+    const animationIterationCounts: string[] = [];
+    const animationDirections: string[] = [];
+    const animationFillModes: string[] = [];
+    const animationPlayStates: string[] = [];
 
-    if (keyframes && typeof document !== 'undefined') {
-      utilityClassManager.injectRule(keyframes);
-    }
+    animations.forEach((animation) => {
+      const { keyframesName, keyframes } = generateKeyframes(animation);
 
-    computedStyles.animationName = keyframesName;
-    if (animation.duration)
-      computedStyles.animationDuration = animation.duration;
-    if (animation.timingFunction)
-      computedStyles.animationTimingFunction = animation.timingFunction;
-    if (animation.delay) computedStyles.animationDelay = animation.delay;
-    if (animation.iterationCount !== undefined)
-      computedStyles.animationIterationCount = `${animation.iterationCount}`;
-    if (animation.direction)
-      computedStyles.animationDirection = animation.direction;
-    if (animation.fillMode)
-      computedStyles.animationFillMode = animation.fillMode;
-    if (animation.playState)
-      computedStyles.animationPlayState = animation.playState;
+      if (keyframes && typeof document !== 'undefined') {
+        utilityClassManager.injectRule(keyframes);
+      }
+
+      animationNames.push(keyframesName);
+      animationDurations.push(animation.duration || '0s');
+      animationTimingFunctions.push(animation.timingFunction || 'ease');
+      animationDelays.push(animation.delay || '0s');
+      animationIterationCounts.push(
+        animation.iterationCount !== undefined
+          ? `${animation.iterationCount}`
+          : '1'
+      );
+      animationDirections.push(animation.direction || 'normal');
+      animationFillModes.push(animation.fillMode || 'none');
+      animationPlayStates.push(animation.playState || 'running');
+    });
+
+    computedStyles.animationName = animationNames.join(', ');
+    computedStyles.animationDuration = animationDurations.join(', ');
+    computedStyles.animationTimingFunction =
+      animationTimingFunctions.join(', ');
+    computedStyles.animationDelay = animationDelays.join(', ');
+    computedStyles.animationIterationCount =
+      animationIterationCounts.join(', ');
+    computedStyles.animationDirection = animationDirections.join(', ');
+    computedStyles.animationFillMode = animationFillModes.join(', ');
+    computedStyles.animationPlayState = animationPlayStates.join(', ');
   }
 
   /**
@@ -448,27 +471,66 @@ export const extractUtilityClasses = (
           Object.keys(value).forEach((event) => {
             const eventStyles = value[event];
             // Séparer les propriétés de transition et les autres propriétés
-            const transitionStyles: Record<string, any> = {};
-            const nonTransitionStyles: Record<string, any> = {};
+            // Extraire 'animate' des styles d'événement
+            const { animate, ...otherEventStyles } = eventStyles;
 
-            Object.keys(eventStyles).forEach((prop) => {
-              if (prop === 'transition') {
-                transitionStyles[prop] = eventStyles[prop];
-              } else {
-                nonTransitionStyles[prop] = eventStyles[prop];
-              }
-            });
+            // Gestion des animations dans les événements
+            if (animate) {
+              const animations = Array.isArray(animate) ? animate : [animate];
+              const animationNames: string[] = [];
+              const animationDurations: string[] = [];
+              const animationTimingFunctions: string[] = [];
+              const animationDelays: string[] = [];
+              const animationIterationCounts: string[] = [];
+              const animationDirections: string[] = [];
+              const animationFillModes: string[] = [];
+              const animationPlayStates: string[] = [];
 
-            // Appliquer les transitions aux styles de base
-            if (Object.keys(transitionStyles).length > 0) {
-              generateUtilityClasses(transitionStyles, 'base');
+              animations.forEach((animation) => {
+                const { keyframesName, keyframes } =
+                  generateKeyframes(animation);
+
+                if (keyframes && typeof document !== 'undefined') {
+                  utilityClassManager.injectRule(keyframes);
+                }
+
+                animationNames.push(keyframesName);
+                animationDurations.push(animation.duration || '0s');
+                animationTimingFunctions.push(
+                  animation.timingFunction || 'ease'
+                );
+                animationDelays.push(animation.delay || '0s');
+                animationIterationCounts.push(
+                  animation.iterationCount !== undefined
+                    ? `${animation.iterationCount}`
+                    : '1'
+                );
+                animationDirections.push(animation.direction || 'normal');
+                animationFillModes.push(animation.fillMode || 'none');
+                animationPlayStates.push(animation.playState || 'running');
+              });
+
+              // Créer un objet avec les propriétés d'animation
+              const animationStyles = {
+                animationName: animationNames.join(', '),
+                animationDuration: animationDurations.join(', '),
+                animationTimingFunction: animationTimingFunctions.join(', '),
+                animationDelay: animationDelays.join(', '),
+                animationIterationCount: animationIterationCounts.join(', '),
+                animationDirection: animationDirections.join(', '),
+                animationFillMode: animationFillModes.join(', '),
+                animationPlayState: animationPlayStates.join(', '),
+              };
+
+              // Fusionner les styles d'animation avec les autres styles de l'événement
+              Object.assign(otherEventStyles, animationStyles);
             }
 
             // Générer les classes pour les pseudo-classes
-            if (Object.keys(nonTransitionStyles).length > 0) {
+            if (Object.keys(otherEventStyles).length > 0) {
               const pseudo = mapEventToPseudo(event);
               if (pseudo) {
-                generateUtilityClasses(nonTransitionStyles, 'pseudo', pseudo);
+                generateUtilityClasses(otherEventStyles, 'pseudo', pseudo);
               }
             }
           });
