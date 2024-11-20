@@ -26,7 +26,7 @@ export interface CssProps {
   marginVertical?: number | string;
   shadow?: boolean | number | Shadow;
   style?: CSSProperties;
-  animate?: AnimationProps;
+  animate?: AnimationProps[] | AnimationProps;
   onPress?: () => void;
   as?: keyof JSX.IntrinsicElements;
   [key: string]: any;
