@@ -1,5 +1,11 @@
 // constants.ts
 import { CSSProperties } from 'react';
+import {
+  AnimationDirection,
+  AnimationFillMode,
+  AnimationIterationCount,
+  AnimationKeyframes,
+} from '../types/style';
 
 // List of numeric properties that don't need 'px' suffix
 export const NumberProps = new Set<string>([
@@ -55,11 +61,19 @@ export interface AnimationProps {
   to: CSSProperties;
   leave?: CSSProperties;
   duration?: string;
-  timingFunction?: string;
+  timingFunction?:
+    | string
+    | 'linear'
+    | 'ease'
+    | 'ease-in'
+    | 'ease-out'
+    | 'ease-in-out';
   delay?: string;
-  iterationCount?: string | number;
-  direction?: string;
-  fillMode?: string;
-  playState?: string;
+  property?: string;
+  iterationCount?: AnimationIterationCount;
+  direction?: AnimationDirection;
+  fillMode?: AnimationFillMode;
+  playState?: AnimationPlayState;
+  keyframes?: AnimationKeyframes;
   [key: string]: any;
 }

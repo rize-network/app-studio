@@ -53,15 +53,15 @@ type NumberOrString = number | string;
 /**
  * Animations and transitions
  */
-type AnimationDirection =
+export type AnimationDirection =
   | 'alternate'
   | 'alternate-reverse'
   | 'normal'
   | 'reverse';
-type AnimationFillMode = 'none' | 'forwards' | 'backwards' | 'both';
-type AnimationIterationCount = number | 'infinite';
-type AnimationKeyframes = string | Object;
-type AnimationPlayState = 'paused' | 'running';
+export type AnimationFillMode = 'none' | 'forwards' | 'backwards' | 'both';
+export type AnimationIterationCount = number | string | 'infinite';
+export type AnimationKeyframes = string | Object;
+export type AnimationPlayState = 'paused' | 'running';
 
 export type AnimationStyles = {
   animationDelay?: (string | string[]) | null | undefined;

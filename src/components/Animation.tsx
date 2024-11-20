@@ -606,7 +606,7 @@ export const progress = ({
 export const typewriter = ({
   duration = '10s',
   steps = 10,
-  iterationCount = '1',
+  iterationCount = 1,
   width = 0,
 }) => ({
   from: { width: '0px' },
