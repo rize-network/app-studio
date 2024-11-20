@@ -605,13 +605,13 @@ export const progress = ({
 
 export const typewriter = ({
   duration = '10s',
-  step = 10,
+  steps = 10,
   iterationCount = '1',
   width = 0,
 }) => ({
   from: { width: '0px' },
   to: { width: `${width}px` },
-  timingFunction: `steps(${step}, end)`,
+  timingFunction: `steps(${steps}, end)`,
   duration,
   iterationCount,
 });
