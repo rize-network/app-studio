@@ -33,7 +33,7 @@ export interface CssProps {
 }
 
 export const Element = memo(
-  forwardRef<HTMLElement, ElementProps>((props, ref) => {
+  forwardRef<HTMLElement, ElementProps>(({ ...props }, ref) => {
     // Applique un curseur pointeur si un gestionnaire de clic est présent
     if ((props.onClick || props.onPress) && props.cursor == undefined) {
       props.cursor = 'pointer';
