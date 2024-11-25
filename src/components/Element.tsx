@@ -51,7 +51,7 @@ export const Element = memo(
 
     // Gérer les événements
     const newProps: any = {
-      ref, // Ajouter la ref aux props
+      ref: props.ref ? props.ref : ref, // Ajouter la ref aux props
     };
 
     if (onPress) {
