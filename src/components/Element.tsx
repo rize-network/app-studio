@@ -1,9 +1,7 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable prefer-const */
-// Element.tsx
-import React, { CSSProperties, useMemo, forwardRef, memo } from 'react';
+import React, { CSSProperties, useMemo, forwardRef } from 'react';
 import { useTheme } from '../providers/Theme';
 import { useResponsiveContext } from '../providers/Responsive';
+
 import { isStyleProp } from '../utils/style';
 import { AnimationProps, excludedKeys, includeKeys } from '../utils/constants';
 import { extractUtilityClasses } from '../utils/cssClass';
@@ -14,7 +12,6 @@ export interface ElementProps extends CssProps {
   media?: Record<string, CssProps>;
   only?: string[];
   css?: CSSProperties;
-  ref?: React.Ref<any>;
 }
 
 export interface CssProps {
@@ -32,38 +29,30 @@ export interface CssProps {
   [key: string]: any;
 }
 
-export const Element = memo(
-  forwardRef<HTMLElement, ElementProps>(({ ...props }, ref) => {
-    // Applique un curseur pointeur si un gestionnaire de clic est présent
+export const Element = React.memo(
+  forwardRef<HTMLElement, ElementProps>(({ as = 'div', ...props }, ref) => {
     if ((props.onClick || props.onPress) && props.cursor == undefined) {
       props.cursor = 'pointer';
     }
 
-    let { onPress, ...rest } = props;
+    const { onPress, ...rest } = props;
     const { getColor } = useTheme();
     const { mediaQueries, devices } = useResponsiveContext();
 
-    // Extraire les classes utilitaires
     const utilityClasses = useMemo(
       () => extractUtilityClasses(rest, getColor, mediaQueries, devices),
       [rest, getColor, mediaQueries, devices]
     );
 
-    // Gérer les événements
-    const newProps: any = {
-      ref: props.ref ? props.ref : ref, // Ajouter la ref aux props
-    };
-
+    const newProps: any = { ref };
     if (onPress) {
       newProps.onClick = onPress;
     }
 
-    // Ajouter les classes utilitaires
     if (utilityClasses.length > 0) {
       newProps.className = utilityClasses.join(' ');
     }
 
-    // Ajouter le reste des props qui ne sont pas des styles
     const { style, children, ...otherProps } = rest;
     Object.keys(otherProps).forEach((key) => {
       if (
@@ -74,18 +63,11 @@ export const Element = memo(
       }
     });
 
-    // Ajouter les styles inline s'il y en a
     if (style) {
       newProps.style = style;
     }
 
-    // Définir le composant HTML
-    const Component = newProps.as || 'div';
-    delete newProps.as;
-
+    const Component = as;
     return <Component {...newProps}>{children}</Component>;
   })
 );
-
-// Ajouter un displayName pour faciliter le debugging
-Element.displayName = 'Element';
