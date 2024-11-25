@@ -41,9 +41,7 @@ export interface ButtonProps
     Omit<CSSProperties, 'animation'>,
     ElementProps {
   children?: React.ReactNode;
-  // ... autres props ...
   onClick?: (..._args: any) => void;
-  // ... autres props ...
 }
 
 // Props pour le composant Input
@@ -56,15 +54,23 @@ export interface InputProps
     >,
     Omit<CSSProperties, 'style' | 'dir' | 'translate'> {}
 
-// Utilisation de React.memo pour une meilleure performance
-export const Form = React.memo((props: FormProps) => (
-  <Element {...props} as="form" />
-));
+// Composant Form
+export const Form = React.memo(
+  React.forwardRef<HTMLFormElement, FormProps>((props, ref) => (
+    <Element {...props} ref={ref} as="form" />
+  ))
+);
 
-export const Input = React.memo((props: InputProps) => (
-  <Element {...props} as="input" />
-));
+// Composant Input
+export const Input = React.memo(
+  React.forwardRef<HTMLInputElement, InputProps>((props, ref) => (
+    <Element {...props} ref={ref} as="input" />
+  ))
+);
 
-export const Button = React.memo((props: ButtonProps) => (
-  <Element {...props} as="button" />
-));
+// Composant Button
+export const Button = React.memo(
+  React.forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => (
+    <Element {...props} ref={ref} as="button" />
+  ))
+);

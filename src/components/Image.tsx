@@ -20,6 +20,8 @@ export interface ImageProps
     Omit<CSSProperties, 'animation'>,
     ElementProps {}
 
-export const Image = React.memo((props: ImageProps) => (
-  <Element {...props} as="img" />
-));
+export const Image = React.memo(
+  React.forwardRef<HTMLImageElement, ImageProps>((props, ref) => (
+    <Element {...props} as="img" ref={ref} />
+  ))
+);
