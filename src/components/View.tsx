@@ -13,56 +13,56 @@ export interface ViewProps
   onPress?: (..._args: any) => void;
 }
 
-export const View = React.memo(
-  React.forwardRef<
-    HTMLElement,
-    React.ComponentPropsWithRef<typeof Element> & ViewProps
-  >((props, ref) => <Element {...props} ref={ref} />)
-) as unknown as React.ForwardRefExoticComponent<
+export const View = React.forwardRef<
+  HTMLElement,
+  React.ComponentPropsWithRef<typeof Element> & ViewProps
+>((props, ref) => (
+  <Element {...props} ref={ref} />
+)) as unknown as React.ForwardRefExoticComponent<
   React.ComponentPropsWithRef<typeof Element> &
     ViewProps &
     React.RefAttributes<HTMLElement>
 >;
 
-export const Scroll = React.memo(
-  React.forwardRef<
-    HTMLElement,
-    React.ComponentPropsWithRef<typeof Element> & ViewProps
-  >((props, ref) => <Element {...props} ref={ref} />)
-) as unknown as React.ForwardRefExoticComponent<
+export const Scroll = React.forwardRef<
+  HTMLElement,
+  React.ComponentPropsWithRef<typeof Element> & ViewProps
+>((props, ref) => (
+  <Element {...props} ref={ref} />
+)) as unknown as React.ForwardRefExoticComponent<
   React.ComponentPropsWithRef<typeof Element> &
     ViewProps &
     React.RefAttributes<HTMLElement>
 >;
 
-export const SafeArea = React.memo(
-  React.forwardRef<
-    HTMLElement,
-    React.ComponentPropsWithRef<typeof Element> & ViewProps
-  >((props, ref) => <Element overflow="auto" {...props} ref={ref} />)
-) as unknown as React.ForwardRefExoticComponent<
+export const SafeArea = React.forwardRef<
+  HTMLElement,
+  React.ComponentPropsWithRef<typeof Element> & ViewProps
+>((props, ref) => (
+  <Element overflow="auto" {...props} ref={ref} />
+)) as unknown as React.ForwardRefExoticComponent<
   React.ComponentPropsWithRef<typeof Element> &
     ViewProps &
     React.RefAttributes<HTMLElement>
 >;
 
-export const Div = React.memo(
-  React.forwardRef<
-    HTMLElement,
-    React.ComponentPropsWithRef<typeof Element> & ViewProps
-  >((props, ref) => <Element {...props} ref={ref} />)
-) as unknown as React.ForwardRefExoticComponent<
+export const Div = React.forwardRef<
+  HTMLElement,
+  React.ComponentPropsWithRef<typeof Element> & ViewProps
+>((props, ref) => (
+  <Element {...props} ref={ref} />
+)) as unknown as React.ForwardRefExoticComponent<
   React.ComponentPropsWithRef<typeof Element> &
     ViewProps &
     React.RefAttributes<HTMLElement>
 >;
 
-export const Span = React.memo(
-  React.forwardRef<
-    HTMLElement,
-    React.ComponentPropsWithRef<typeof Element> & ViewProps
-  >((props, ref) => <Element as="span" {...props} ref={ref} />)
-) as unknown as React.ForwardRefExoticComponent<
+export const Span = React.forwardRef<
+  HTMLElement,
+  React.ComponentPropsWithRef<typeof Element> & ViewProps
+>((props, ref) => (
+  <Element as="span" {...props} ref={ref} />
+)) as unknown as React.ForwardRefExoticComponent<
   React.ComponentPropsWithRef<typeof Element> &
     ViewProps &
     React.RefAttributes<HTMLElement>
