@@ -395,7 +395,7 @@ export const extractUtilityClasses = (
 
     let cumulativeTime = 0; // Temps cumulé en millisecondes
 
-    animations.forEach((animation, index) => {
+    animations.forEach((animation) => {
       const { keyframesName, keyframes } = generateKeyframes(animation);
 
       if (keyframes && typeof document !== 'undefined') {
