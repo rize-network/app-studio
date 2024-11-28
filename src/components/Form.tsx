@@ -55,22 +55,16 @@ export interface InputProps
     Omit<CSSProperties, 'style' | 'dir' | 'translate'> {}
 
 // Composant Form
-export const Form = React.memo(
-  React.forwardRef<HTMLFormElement, FormProps>((props, ref) => (
-    <Element {...props} ref={ref} as="form" />
-  ))
-);
+export const Form = React.memo((props: FormProps) => (
+  <Element as="form" {...props} />
+));
 
 // Composant Input
-export const Input = React.memo(
-  React.forwardRef<HTMLInputElement, InputProps>((props, ref) => (
-    <Element {...props} ref={ref} as="input" />
-  ))
-);
+export const Input = React.memo((props: InputProps) => (
+  <Element as="input" {...props} />
+));
 
 // Composant Button
-export const Button = React.memo(
-  React.forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => (
-    <Element {...props} ref={ref} as="button" />
-  ))
-);
+export const Button = React.memo((props: ButtonProps) => (
+  <Element as="button" {...props} />
+));

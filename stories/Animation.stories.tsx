@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ComponentStory, ComponentMeta } from '@storybook/react';
-import { View, Button, Animation, Typewriter } from '../src/index';
+import { View, Button, Animation } from '../src/index';
 
 export default {
   title: 'Animation/Selectable',
@@ -54,40 +54,22 @@ SelectableAnimation.args = {
 
 const animationSequence: any = [
   {
-    from: { opacity: 0, transform: 'translateY(-10px)' },
+    from: { opacity: 0, transform: 'translateY(-100px)' },
     to: { opacity: 1, transform: 'translateY(0)' },
-    duration: '0.5s',
+    duration: '2s',
     timingFunction: 'ease-in',
   },
   {
-    from: { transform: 'scale(1)' },
-    to: { transform: 'scale(1.2)' },
-    duration: '0.5s',
-  },
-  {
-    from: { transform: 'rotate(0deg)' },
-    to: { transform: 'rotate(360deg)' },
-    duration: '1s',
+    from: { opacity: 1, transform: 'translateY(100px)' },
+    to: { opacity: 0, transform: 'translateY(0)' },
+    duration: '2s',
     timingFunction: 'ease-out',
   },
 ];
 
 export const SequencesAnimation: ComponentStory<typeof View> = () => (
   <View>
-    <View animate={animationSequence}>Mon élément animé</View>;
-    <View
-      on={{
-        hover: {
-          animate: {
-            from: { transform: 'scale(1)' },
-            to: { transform: 'scale(1.1)' },
-            duration: '0.2s',
-          }, // Animation au survol
-        },
-      }}
-    >
-      Cliquez moi !
-    </View>
+    <View animate={animationSequence} backgroundColor={'red'} size={50}></View>;
   </View>
 );
 
@@ -114,12 +96,6 @@ export const RotationOnHover: ComponentStory<typeof View> = () => (
         },
       }}
     />
-  </View>
-);
-
-export const TypeWriterView: ComponentStory<typeof View> = () => (
-  <View>
-    <Typewriter text="Bienvenue sur notre site web !" />
   </View>
 );
 

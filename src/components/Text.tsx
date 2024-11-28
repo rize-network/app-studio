@@ -13,20 +13,18 @@ export interface TextProps
   toUpperCase?: boolean;
 }
 
-export const Text = React.memo(
-  React.forwardRef<HTMLSpanElement, TextProps>((props, ref) => {
-    const { toUpperCase, children, ...rest } = props;
+export const Text = React.memo((props: TextProps) => {
+  const { toUpperCase, children, ...rest } = props;
 
-    // Convertir le texte en majuscules si toUpperCase est activé
-    const content =
-      toUpperCase && typeof children === 'string'
-        ? children.toUpperCase()
-        : children;
+  // Convertir le texte en majuscules si toUpperCase est activé
+  const content =
+    toUpperCase && typeof children === 'string'
+      ? children.toUpperCase()
+      : children;
 
-    return (
-      <Element as="span" ref={ref} {...rest}>
-        {content}
-      </Element>
-    );
-  })
-);
+  return (
+    <Element as="span" {...rest}>
+      {content}
+    </Element>
+  );
+});

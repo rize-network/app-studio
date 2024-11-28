@@ -274,6 +274,22 @@ function generatePropertyShorthand(
 const propertyShorthand = generatePropertyShorthand(StyleProps);
 export const utilityClassManager = new UtilityClassManager(propertyShorthand);
 
+function parseDuration(duration: string): number {
+  const match = duration.match(/^([\d.]+)(ms|s)$/);
+  if (!match) return 0;
+  const value = parseFloat(match[1]);
+  const unit = match[2];
+  return unit === 's' ? value * 1000 : value;
+}
+
+// Fonction pour formater une durée en millisecondes en chaîne avec unité
+function formatDuration(ms: number): string {
+  if (ms >= 1000 && ms % 1000 === 0) {
+    return `${ms / 1000}s`;
+  }
+  return `${ms}ms`;
+}
+
 export const extractUtilityClasses = (
   props: CssProps,
   getColor: (color: string) => string,
@@ -377,7 +393,9 @@ export const extractUtilityClasses = (
     const animationFillModes: string[] = [];
     const animationPlayStates: string[] = [];
 
-    animations.forEach((animation) => {
+    let cumulativeTime = 0; // Temps cumulé en millisecondes
+
+    animations.forEach((animation, index) => {
       const { keyframesName, keyframes } = generateKeyframes(animation);
 
       if (keyframes && typeof document !== 'undefined') {
@@ -385,9 +403,24 @@ export const extractUtilityClasses = (
       }
 
       animationNames.push(keyframesName);
-      animationDurations.push(animation.duration || '0s');
+
+      // Parse duration and delay
+      const durationStr = animation.duration || '0s';
+      const durationMs = parseDuration(durationStr);
+
+      const delayStr = animation.delay || '0s';
+      const delayMs = parseDuration(delayStr);
+
+      // Calculer le délai total pour cette animation
+      const totalDelayMs = cumulativeTime + delayMs;
+
+      // Mettre à jour le temps cumulé
+      cumulativeTime = totalDelayMs + durationMs;
+
+      // Ajouter les valeurs formatées aux tableaux
+      animationDurations.push(formatDuration(durationMs));
       animationTimingFunctions.push(animation.timingFunction || 'ease');
-      animationDelays.push(animation.delay || '0s');
+      animationDelays.push(formatDuration(totalDelayMs));
       animationIterationCounts.push(
         animation.iterationCount !== undefined
           ? `${animation.iterationCount}`

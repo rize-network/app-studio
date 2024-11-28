@@ -14,9 +14,12 @@ export const setSize = (
 };
 
 // Function to convert style object to CSS string
-export const styleObjectToCss = (styleObj: Record<string, any>): string => {
-  return Object.entries(styleObj)
-    .map(([key, value]) => `${toKebabCase(key)}: ${value};`)
+export const styleObjectToCss = (styles: Record<string, any>): string => {
+  return Object.entries(styles)
+    .map(([key, value]) => {
+      const cssProperty = key.replace(/([A-Z])/g, '-$1').toLowerCase();
+      return `${cssProperty}: ${value};`;
+    })
     .join(' ');
 };
 

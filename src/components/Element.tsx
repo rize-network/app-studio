@@ -30,44 +30,46 @@ export interface CssProps {
 }
 
 export const Element = React.memo(
-  forwardRef<HTMLElement, ElementProps>(({ as = 'div', ...props }, ref) => {
-    if ((props.onClick || props.onPress) && props.cursor == undefined) {
-      props.cursor = 'pointer';
-    }
-
-    const { onPress, ...rest } = props;
-    const { getColor } = useTheme();
-    const { mediaQueries, devices } = useResponsiveContext();
-
-    const utilityClasses = useMemo(
-      () => extractUtilityClasses(rest, getColor, mediaQueries, devices),
-      [rest, getColor, mediaQueries, devices]
-    );
-
-    const newProps: any = { ref };
-    if (onPress) {
-      newProps.onClick = onPress;
-    }
-
-    if (utilityClasses.length > 0) {
-      newProps.className = utilityClasses.join(' ');
-    }
-
-    const { style, children, ...otherProps } = rest;
-    Object.keys(otherProps).forEach((key) => {
-      if (
-        (!excludedKeys.has(key) && !isStyleProp(key)) ||
-        includeKeys.has(key)
-      ) {
-        newProps[key] = otherProps[key];
+  forwardRef<HTMLElement, ElementProps>(
+    ({ as = 'div', ...props }: ElementProps, ref) => {
+      if ((props.onClick || props.onPress) && props.cursor == undefined) {
+        props.cursor = 'pointer';
       }
-    });
 
-    if (style) {
-      newProps.style = style;
+      const { onPress, ...rest } = props;
+      const { getColor } = useTheme();
+      const { mediaQueries, devices } = useResponsiveContext();
+
+      const utilityClasses = useMemo(
+        () => extractUtilityClasses(rest, getColor, mediaQueries, devices),
+        [rest, getColor, mediaQueries, devices]
+      );
+
+      const newProps: any = { ref };
+      if (onPress) {
+        newProps.onClick = onPress;
+      }
+
+      if (utilityClasses.length > 0) {
+        newProps.className = utilityClasses.join(' ');
+      }
+
+      const { style, children, ...otherProps } = rest;
+      Object.keys(otherProps).forEach((key) => {
+        if (
+          (!excludedKeys.has(key) && !isStyleProp(key)) ||
+          includeKeys.has(key)
+        ) {
+          newProps[key] = otherProps[key];
+        }
+      });
+
+      if (style) {
+        newProps.style = style;
+      }
+
+      const Component = as;
+      return <Component {...newProps}>{children}</Component>;
     }
-
-    const Component = as;
-    return <Component {...newProps}>{children}</Component>;
-  })
+  )
 );
