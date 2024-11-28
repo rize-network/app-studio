@@ -54,17 +54,35 @@ export interface InputProps
     >,
     Omit<CSSProperties, 'style' | 'dir' | 'translate'> {}
 
-// Composant Form
-export const Form = React.memo((props: FormProps) => (
-  <Element as="form" {...props} />
-));
+export const Form = React.memo(
+  React.forwardRef<
+    HTMLElement,
+    React.ComponentPropsWithRef<typeof Element> & FormProps
+  >((props, ref) => <Element as="form" {...props} ref={ref} />)
+) as unknown as React.ForwardRefExoticComponent<
+  React.ComponentPropsWithRef<typeof Element> &
+    FormProps &
+    React.RefAttributes<HTMLElement>
+>;
 
-// Composant Input
-export const Input = React.memo((props: InputProps) => (
-  <Element as="input" {...props} />
-));
+export const Input = React.memo(
+  React.forwardRef<
+    HTMLElement,
+    React.ComponentPropsWithRef<typeof Element> & InputProps
+  >((props, ref) => <Element as="input" {...props} ref={ref} />)
+) as unknown as React.ForwardRefExoticComponent<
+  React.ComponentPropsWithRef<typeof Element> &
+    InputProps &
+    React.RefAttributes<HTMLElement>
+>;
 
-// Composant Button
-export const Button = React.memo((props: ButtonProps) => (
-  <Element as="button" {...props} />
-));
+export const Button = React.memo(
+  React.forwardRef<
+    HTMLElement,
+    React.ComponentPropsWithRef<typeof Element> & ButtonProps
+  >((props, ref) => <Element as="button" {...props} ref={ref} />)
+) as unknown as React.ForwardRefExoticComponent<
+  React.ComponentPropsWithRef<typeof Element> &
+    ButtonProps &
+    React.RefAttributes<HTMLElement>
+>;

@@ -20,6 +20,13 @@ export interface ImageProps
     Omit<CSSProperties, 'animation'>,
     ElementProps {}
 
-export const Image = React.memo((props: ImageProps) => (
-  <Element as="img" {...props} />
-));
+export const View = React.memo(
+  React.forwardRef<
+    HTMLElement,
+    React.ComponentPropsWithRef<typeof Element> & ImageProps
+  >((props, ref) => <Element as="img" {...props} ref={ref} />)
+) as unknown as React.ForwardRefExoticComponent<
+  React.ComponentPropsWithRef<typeof Element> &
+    ImageProps &
+    React.RefAttributes<HTMLElement>
+>;
