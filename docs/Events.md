@@ -2,12 +2,6 @@
 
 App-Studio provides an intuitive way to manage events in your CSS through the `on` prop. This feature is designed to offer a convenient way to style elements based on various interactive states, represented by CSS pseudo-classes like `hover`, `active`, and `focus`.
 
-## Table of Contents
-
-1. [Introduction to `on` Prop](#introduction-to-on-prop)
-2. [Usage Examples](#usage-examples)
-3. [Supported Events](#supported-events)
-
 ---
 
 ## 1. Introduction to `on` Prop

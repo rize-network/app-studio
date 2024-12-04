@@ -1,52 +1,4 @@
-# App-Studio Documentation
-
-## Table of Contents
-- [App-Studio Documentation](#app-studio-documentation)
-  - [Table of Contents](#table-of-contents)
-  - [1. Introduction](#1-introduction)
-    - [Features](#features)
-  - [2. Installation](#2-installation)
-  - [3. Core Components](#3-core-components)
-    - [Element](#element)
-      - [Usage](#usage)
-      - [Key Properties](#key-properties)
-    - [View](#view)
-      - [Usage](#usage-1)
-    - [Text](#text)
-      - [Usage](#usage-2)
-    - [Form](#form)
-      - [Usage](#usage-3)
-    - [Image](#image)
-      - [Usage](#usage-4)
-  - [4. Responsive Design](#4-responsive-design)
-    - [Media Prop](#media-prop)
-      - [Example](#example)
-    - [useResponsive Hook](#useresponsive-hook)
-      - [Example](#example-1)
-  - [5. Event Management](#5-event-management)
-      - [Example](#example-2)
-  - [6. Theming](#6-theming)
-      - [Setting up the Theme](#setting-up-the-theme)
-      - [Using ThemeProvider](#using-themeprovider)
-      - [Applying Theme in Components](#applying-theme-in-components)
-  - [7. Custom Hooks](#7-custom-hooks)
-    - [useMount](#usemount)
-      - [Usage](#usage-5)
-  - [8. Design Props](#8-design-props)
-    - [Example](#example-3)
-    - [Shadow Prop](#shadow-prop)
-  - [9. Animations](#9-animations)
-    - [Basic Usage](#basic-usage)
-    - [Available Animations](#available-animations)
-    - [Customizing Animations](#customizing-animations)
-    - [Creating Custom Animations](#creating-custom-animations)
-    - [Combining Animations](#combining-animations)
-    - [Animation Events](#animation-events)
-  - [10. Advanced Usage](#10-advanced-usage)
-  - [10. Contributing](#10-contributing)
-  - [11. License](#11-license)
-
-## 1. Introduction
+# App-Studio 
 
 App-Studio is a powerful React-based library designed to simplify the process of building responsive, interactive, and visually consistent web applications. It provides CSS design props for layout, spacing, sizing, shadows, event management, and theming.
 
@@ -299,9 +251,60 @@ The `shadow` prop is used to manage shadows in CSS. It takes a number or a strin
 </View>
 ```
 
-## 9. Animations
+## 9. Animation
 
-App-Studio provides a powerful and flexible animation system that allows you to easily add dynamic effects to your components. The animation system is based on CSS animations and can be applied using the `animate` prop.
+App-Studio provides a powerful animation system through the `Animation` object. Animations can be applied to any `Element` or its derivatives using the `animate` prop.
+
+#### Usage
+
+```jsx
+// Basic animation
+<View 
+  animate={Animation.fadeIn({
+    duration: '1s',
+    timingFunction: 'ease',
+    iterationCount: '1'
+  })}
+/>
+
+// Animation sequence
+const sequence = [
+  {
+    from: { opacity: 0, transform: 'translateY(-100px)' },
+    to: { opacity: 1, transform: 'translateY(0)' },
+    duration: '2s',
+    timingFunction: 'ease-in'
+  },
+  {
+    from: { opacity: 1, transform: 'translateY(100px)' },
+    to: { opacity: 0, transform: 'translateY(0)' },
+    duration: '2s',
+    timingFunction: 'ease-out'
+  }
+];
+
+<View animate={sequence} />
+
+// Animation on hover
+<View
+  on={{
+    hover: {
+      animate: Animation.rotate({ duration: '1s', timingFunction: 'ease' })
+    }
+  }}
+/>
+```
+
+#### Available Animations
+
+All animations are available through the `Animation` object:
+- `Animation.fadeIn()`
+- `Animation.fadeOut()`
+- `Animation.bounce()`
+- `Animation.rotate()`
+- `Animation.pulse()`
+- And many more...
+
 
 ### Basic Usage
 
@@ -347,77 +350,12 @@ App-Studio comes with a set of pre-defined animations that you can use out of th
 
 Each animation function accepts parameters to customize the duration, timing function, and other properties.
 
-### Customizing Animations
+#### Animation Properties
 
-You can customize animations by passing parameters to the animation functions:
-
-```jsx
-<View
-  animate={Animation.fadeIn({duration:'2s', timingFunction:'ease-in-out'})}
-  backgroundColor="theme.primary"
-  padding={20}
->
-  This view will fade in slowly
-</View>
-```
-
-### Creating Custom Animations
-
-You can also create custom animations by defining your own keyframes:
-
-```jsx
-const customAnimation = {
-  from: { opacity: 0, transform: 'translateY(-50px)' },
-  to: { opacity: 1, transform: 'translateY(0)' },
-  duration: '1s',
-  timingFunction: 'ease-out'
-};
-
-<View
-  animate={customAnimation}
-  backgroundColor="theme.primary"
-  padding={20}
->
-  This view will have a custom animation
-</View>
-```
-
-### Combining Animations
-
-You can combine multiple animations by using the `Animation.compose` function:
-
-```jsx
-const combinedAnimation = Animation.compose(
-  Animation.fadeIn(),
-  Animation.slideInUp()
-);
-
-<View
-  animate={combinedAnimation}
-  backgroundColor="theme.primary"
-  padding={20}
->
-  This view will fade in and slide up simultaneously
-</View>
-```
-
-### Animation Events
-
-You can also listen to animation events using the `onAnimationStart`, `onAnimationEnd`, and `onAnimationIteration` props:
-
-```jsx
-<View
-  animate={Animation.bounce()}
-  onAnimationStart={() => console.log('Animation started')}
-  onAnimationEnd={() => console.log('Animation ended')}
-  backgroundColor="theme.primary"
-  padding={20}
->
-  This view will bounce
-</View>
-```
-
-By leveraging these animation capabilities, you can create rich, interactive user interfaces with App-Studio.
+Each animation function accepts an object with the following properties:
+- `duration`: Length of the animation (e.g., '1s', '500ms')
+- `timingFunction`: CSS timing function (e.g., 'ease', 'linear', 'ease-in-out')
+- `iterationCount`: Number of times to play the animation (number or 'infinite')
 
 ## 10. Advanced Usage
 
@@ -477,14 +415,13 @@ function Example() {
 }
 ```
 
-
-## 10. Contributing
+## 11. Contributing
 
 We welcome all contributions to App-Studio. Please read our [contributing guide](https://ant.design/docs/react/contributing) and let's build a better App-Studio together.
 
 For more detailed information on contributing, including how to apply for being a collaborator, please refer to our [GitHub repository](https://github.com/rize-network/app-studio).
 
-## 11. License
+## 12. License
 
 App-Studio is available under the MIT license. See the LICENSE file for more info.
 

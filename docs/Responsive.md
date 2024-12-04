@@ -2,10 +2,6 @@
 
 Creating a responsive design is an essential part of modern web development. In App-Studio, two primary features help you achieve this: `useResponsive` hook and the `media` prop. This document provides an overview and examples for both approaches.
 
-## Table of Contents
-1. Media Prop for Responsive Design
-2. Using `useResponsive` Hook
-
 ---
 
 ## 1. Media Prop for Responsive Design

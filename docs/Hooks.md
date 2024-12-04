@@ -2,11 +2,6 @@
 
 The 'app-studio' library offers a set of custom React hooks that provide useful functionalities for building responsive, interactive, and maintainable components. This documentation will cover some of the most essential hooks available in the library.
 
-## Table of Contents
-
-1. [useMount](#usemount)
-2. [useResponsive](#useresponsive)
-
 ---
 
 ## 1. useMount

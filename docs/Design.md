@@ -1,5 +1,5 @@
 
-##  Props for Design Integration
+#  Props for Design Integration
 
 
 The 'app-studio' library also provides  props to better manage design integration in CSS. These props are specific to the 'app-studio' library and provide more control over the styling of the components. They include props for managing layout, spacing, sizing, and more.
