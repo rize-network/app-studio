@@ -1,6 +1,5 @@
 import { RefObject, useEffect, useState, useCallback } from 'react';
 
-// Types
 export interface ScrollPosition {
   x: number;
   y: number;
@@ -14,7 +13,6 @@ export interface UseScrollOptions {
   offset?: [number, number];
 }
 
-// Utility to get scroll dimensions
 const getScrollDimensions = (element: HTMLElement | Window) => {
   if (element instanceof Window) {
     return {
@@ -37,10 +35,8 @@ const getScrollDimensions = (element: HTMLElement | Window) => {
   };
 };
 
-// Main scroll hook
 export const useScroll = ({
   container,
-  target,
   offset = [0, 0],
 }: UseScrollOptions = {}) => {
   const [scrollPosition, setScrollPosition] = useState<ScrollPosition>({
@@ -51,8 +47,8 @@ export const useScroll = ({
   });
 
   const handleScroll = useCallback(() => {
-    const element = container?.current || window;
-
+    if (!container || !container.current) return;
+    const element = container.current;
     const {
       scrollHeight,
       scrollWidth,
@@ -62,47 +58,45 @@ export const useScroll = ({
       scrollLeft,
     } = getScrollDimensions(element);
 
-    // Calculate scroll positions
     const x = scrollLeft + offset[0];
     const y = scrollTop + offset[1];
 
-    // Calculate maximum scroll distances
     const maxScrollX = scrollWidth - clientWidth;
     const maxScrollY = scrollHeight - clientHeight;
 
-    // Calculate progress (0 to 1)
-    const xProgress = maxScrollX <= 0 ? 1 : x / maxScrollX;
-    const yProgress = maxScrollY <= 0 ? 1 : y / maxScrollY;
+    const xProgress = maxScrollX > 0 ? x / maxScrollX : 1;
+    const yProgress = maxScrollY > 0 ? y / maxScrollY : 1;
 
-    setScrollPosition({
-      x,
-      y,
-      xProgress,
-      yProgress,
+    setScrollPosition((prev) => {
+      if (
+        prev.x !== x ||
+        prev.y !== y ||
+        prev.xProgress !== xProgress ||
+        prev.yProgress !== yProgress
+      ) {
+        return { x, y, xProgress, yProgress };
+      }
+      return prev;
     });
-  }, [container, target, offset]);
+  }, [container, offset]);
 
   useEffect(() => {
-    const element = container?.current || window;
-
-    // Add scroll listener
+    if (!container || container.current) return;
+    const element = container.current || window;
     element.addEventListener('scroll', handleScroll, { passive: true });
     window.addEventListener('resize', handleScroll, { passive: true });
 
-    // Initial calculation
     handleScroll();
 
-    // Cleanup
     return () => {
       element.removeEventListener('scroll', handleScroll);
       window.removeEventListener('resize', handleScroll);
     };
-  }, [handleScroll]);
+  }, [handleScroll, container]);
 
   return scrollPosition;
 };
 
-// Hook for scroll-linked animations
 export const useScrollAnimation = (
   ref: RefObject<HTMLElement>,
   options: {
@@ -137,24 +131,15 @@ export const useScrollAnimation = (
   return { isInView, progress };
 };
 
-// Hook for smooth scrolling
 export const useSmoothScroll = () => {
-  const scrollTo = useCallback((element: HTMLElement | null, offset = 0) => {
+  return useCallback((element: HTMLElement | null, offset = 0) => {
     if (!element) return;
-
     const targetPosition =
       element.getBoundingClientRect().top + window.scrollY - offset;
-
-    window.scrollTo({
-      top: targetPosition,
-      behavior: 'smooth',
-    });
+    window.scrollTo({ top: targetPosition, behavior: 'smooth' });
   }, []);
-
-  return scrollTo;
 };
 
-// Hook for infinite scroll
 export const useInfiniteScroll = (
   callback: () => void,
   options: {
@@ -166,27 +151,19 @@ export const useInfiniteScroll = (
 
   useEffect(() => {
     if (!sentinel || options.isLoading) return;
-
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting) {
-          callback();
-        }
+        if (entries[0].isIntersecting) callback();
       },
-      {
-        threshold: options.threshold || 0,
-      }
+      { threshold: options.threshold || 0 }
     );
-
     observer.observe(sentinel);
-
     return () => observer.disconnect();
   }, [sentinel, callback, options.threshold, options.isLoading]);
 
   return { sentinelRef: setSentinel };
 };
 
-// Hook for scroll direction
 export const useScrollDirection = (threshold = 0) => {
   const [scrollDirection, setScrollDirection] = useState<'up' | 'down'>('up');
   const [lastScrollY, setLastScrollY] = useState(0);
@@ -194,20 +171,17 @@ export const useScrollDirection = (threshold = 0) => {
   const updateScrollDirection = useCallback(() => {
     const scrollY = window.scrollY;
     const direction = scrollY > lastScrollY ? 'down' : 'up';
-
     if (
       Math.abs(scrollY - lastScrollY) > threshold &&
       direction !== scrollDirection
     ) {
       setScrollDirection(direction);
     }
-
     setLastScrollY(scrollY > 0 ? scrollY : 0);
   }, [scrollDirection, lastScrollY, threshold]);
 
   useEffect(() => {
-    window.addEventListener('scroll', updateScrollDirection);
-
+    window.addEventListener('scroll', updateScrollDirection, { passive: true });
     return () => {
       window.removeEventListener('scroll', updateScrollDirection);
     };

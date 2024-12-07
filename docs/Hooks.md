@@ -1,12 +1,12 @@
 # Hooks
 
-The 'app-studio' library offers a set of custom React hooks that provide useful functionalities for building responsive, interactive, and maintainable components. This documentation will cover some of the most essential hooks available in the library.
+The `app-studio` library provides a set of custom React hooks to simplify building responsive, interactive, and maintainable components. These hooks cover various needs: lifecycle management, responsiveness, user interactions (hover, focus, clicks outside), and more.
 
 ---
 
 ## 1. useMount
 
-The `useMount` hook is designed for executing logic when a component first mounts. It takes a callback function as an argument, which is called when the component mounts.
+The `useMount` hook allows you to run code when a component is first mounted. It takes a callback function that will be called only once, when the component mounts.
 
 ### Syntax
 
@@ -16,14 +16,12 @@ useMount(callback: Function)
 
 ### Parameters
 
-- `callback`: A function that will be called when the component mounts.
+- `callback`: A function invoked when the component mounts.
 
-### Usage Example
-
-Here's a simple example demonstrating how to use `useMount`:
+### Example
 
 ```jsx
-import { useMount } from '@your-org/app-studio';
+import { useMount } from 'app-studio';
 
 const MyComponent = () => {
   useMount(() => {
@@ -34,13 +32,13 @@ const MyComponent = () => {
 };
 ```
 
-In this example, "MyComponent mounted" will be logged to the console when `MyComponent` first mounts.
+When `MyComponent` is mounted, "MyComponent mounted" will be logged to the console.
 
 ---
 
 ## 2. useResponsive
 
-The `useResponsive` hook is used for making components responsive to different screen sizes and devices. It leverages the library's responsive context to obtain relevant values like breakpoints and media queries and provides utility functions for checking the current screen size and device.
+The `useResponsive` hook makes it easier to build responsive components. It leverages the library’s responsive context to obtain breakpoints, media queries, and offers utility functions for checking the current screen size and device type.
 
 ### Syntax
 
@@ -50,16 +48,14 @@ const { screen, on, is } = useResponsive()
 
 ### Returned Values
 
-- `screen`: Provides the current screen size according to defined breakpoints.
-- `on`: A function that returns a boolean indicating whether the current device matches the given criteria.
-- `is`: A function that returns a boolean indicating whether the current screen size matches the given breakpoint.
+- `screen`: The current screen size based on defined breakpoints.
+- `on(criteria: string)`: Returns a boolean indicating if the current device matches the given criteria (e.g., 'mobile').
+- `is(breakpoint: string)`: Returns a boolean indicating if the current screen size matches the given breakpoint (e.g., 'xs').
 
-### Usage Example
-
-Here's a basic example demonstrating how to use `useResponsive`:
+### Example
 
 ```jsx
-import { useResponsive } from '@your-org/app-studio';
+import { useResponsive } from 'app-studio';
 
 const MyComponent = () => {
   const { screen, on, is } = useResponsive();
@@ -78,8 +74,294 @@ const MyComponent = () => {
 };
 ```
 
-In this example, the current screen size, device type, and extra small screen size are logged to the console based on the conditions.
+---
+
+## 3. useHover
+
+The `useHover` hook detects whether the referenced element is currently hovered by the mouse.
+
+### Syntax
+
+```jsx
+const [ref, hover] = useHover<HTMLElement>();
+```
+
+### Returned Values
+
+- `ref`: A ref to attach to the element you want to observe.
+- `hover`: A boolean indicating if the element is hovered (`true` if hovered, `false` otherwise).
+
+### Example
+
+```jsx
+import { useHover } from 'app-studio';
+
+const HoverComponent = () => {
+  const [ref, hover] = useHover<HTMLDivElement>();
+
+  return (
+    <div ref={ref} style={{ background: hover ? 'red' : 'blue', width: '100px', height: '100px' }}>
+      Hover over me!
+    </div>
+  );
+};
+```
 
 ---
 
-These hooks offer a simple yet effective way to manage component lifecycle and responsiveness, making it easier for developers to build robust applications.
+## 4. useFocus
+
+The `useFocus` hook indicates whether the referenced element is currently focused.
+
+### Syntax
+
+```jsx
+const [ref, focused] = useFocus<HTMLElement>();
+```
+
+### Returned Values
+
+- `ref`: A ref to attach to the target element.
+- `focused`: A boolean indicating if the element is focused (`true` if yes, `false` otherwise).
+
+### Example
+
+```jsx
+import { useFocus } from 'app-studio';
+
+const FocusInput = () => {
+  const [ref, focused] = useFocus<HTMLInputElement>();
+
+  return (
+    <input
+      ref={ref}
+      style={{
+        border: focused ? '2px solid blue' : '1px solid black',
+        padding: '8px',
+        outline: 'none',
+      }}
+    />
+  );
+};
+```
+
+---
+
+## 5. useActive
+
+The `useActive` hook indicates if the referenced element is currently being pressed (e.g., during a mousedown or touchstart).
+
+### Syntax
+
+```jsx
+const [ref, active] = useActive<HTMLElement>();
+```
+
+### Returned Values
+
+- `ref`: A ref to attach to the element.
+- `active`: A boolean indicating if the element is active (clicked or touched).
+
+### Example
+
+```jsx
+import { useActive } from 'app-studio';
+
+const ActiveButton = () => {
+  const [ref, active] = useActive<HTMLButtonElement>();
+
+  return (
+    <button
+      ref={ref}
+      style={{
+        background: active ? 'green' : 'gray',
+        color: 'white',
+        padding: '10px 20px',
+      }}
+    >
+      {active ? 'Pressed' : 'Normal'}
+    </button>
+  );
+};
+```
+
+---
+
+## 6. useKeyPress
+
+The `useKeyPress` hook detects if a specific keyboard key is currently pressed.
+
+### Syntax
+
+```jsx
+const keyPressed = useKeyPress(targetKey: string);
+```
+
+### Parameters
+
+- `targetKey`: The key to monitor (e.g. 'Enter', 'Escape', 'a').
+
+### Returned Value
+
+- `keyPressed`: A boolean indicating if the specified key is pressed.
+
+### Example
+
+```jsx
+import { useKeyPress } from 'app-studio';
+
+const KeyPressComponent = () => {
+  const isEnterPressed = useKeyPress('Enter');
+
+  return <div>{isEnterPressed ? 'Enter key is pressed' : 'Press the Enter key'}</div>;
+};
+```
+
+---
+
+## 7. useWindowSize
+
+The `useWindowSize` hook provides the current window size (width and height) and updates when the window is resized.
+
+### Syntax
+
+```jsx
+const { width, height } = useWindowSize();
+```
+
+### Returned Values
+
+- `width`: The current window width.
+- `height`: The current window height.
+
+### Example
+
+```jsx
+import { useWindowSize } from 'app-studio';
+
+const WindowSizeComponent = () => {
+  const { width, height } = useWindowSize();
+
+  return <div>Window size: {width} x {height}</div>;
+};
+```
+
+---
+
+## 8. useOnScreen
+
+The `useOnScreen` hook uses the Intersection Observer API to determine if the referenced element is visible in the viewport.
+
+### Syntax
+
+```jsx
+const [ref, isOnScreen] = useOnScreen<HTMLElement>(options?: IntersectionObserverInit);
+```
+
+### Parameters
+
+- `options`: Optional Intersection Observer options.
+
+### Returned Values
+
+- `ref`: A ref to attach to the element.
+- `isOnScreen`: A boolean indicating if the element is on the screen.
+
+### Example
+
+```jsx
+import { useOnScreen } from 'app-studio';
+
+const OnScreenComponent = () => {
+  const [ref, isOnScreen] = useOnScreen<HTMLDivElement>();
+
+  return (
+    <div ref={ref} style={{ height: '200px', background: isOnScreen ? 'lime' : 'tomato' }}>
+      {isOnScreen ? 'Visible' : 'Not visible'}
+    </div>
+  );
+};
+```
+
+---
+
+## 9. useClickOutside
+
+The `useClickOutside` hook detects clicks made outside of the referenced element.
+
+### Syntax
+
+```jsx
+const [ref, clickedOutside] = useClickOutside<HTMLElement>();
+```
+
+### Returned Values
+
+- `ref`: A ref to attach to the target element.
+- `clickedOutside`: A boolean indicating if a click outside the element was detected.
+
+### Example
+
+```jsx
+import { useClickOutside } from 'app-studio';
+
+const Dropdown = () => {
+  const [ref, clickedOutside] = useClickOutside<HTMLDivElement>();
+
+  return (
+    <div ref={ref} style={{ border: '1px solid black', padding: '10px' }}>
+      {clickedOutside ? 'Click inside this box' : 'Click outside this box to toggle the text'}
+    </div>
+  );
+};
+```
+
+## 10. useScroll
+
+The `useScroll` hook provides the current scroll position and progress of a scrollable container or the window.
+
+## Usage
+
+```tsx
+import React, { useRef } from 'react';
+import { useScroll , View} from 'app-studio';
+
+const MyComponent = () => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const { x, y, xProgress, yProgress } = useScroll({ container: containerRef });
+
+  return (
+    <View ref={containerRef} overflow='auto' height='200px' >
+      <View height='1000px'>
+        <p>Scroll Position X: {x}</p>
+        <p>Scroll Position Y: {y}</p>
+        <p>Scroll Progress X: {xProgress}</p>
+        <p>Scroll Progress Y: {yProgress}</p>
+      </View>
+    </View>
+  );
+};
+```
+
+## Parameters
+
+- **`container`**: `RefObject<HTMLElement>` *(optional)*  
+  A ref to a scrollable element. If not provided, `window` is used.
+
+- **`offset`**: `[number, number]` *(optional)*  
+  Additional offset values for the X and Y scroll positions. Defaults to `[0, 0]`.
+
+## Returns
+
+- **`x`**: `number`  
+  Current horizontal scroll position.
+
+- **`y`**: `number`  
+  Current vertical scroll position.
+
+- **`xProgress`**: `number`  
+  Horizontal scroll progress as a value between 0 and 1.
+
+- **`yProgress`**: `number`  
+  Vertical scroll progress as a value between 0 and 1.
+```
