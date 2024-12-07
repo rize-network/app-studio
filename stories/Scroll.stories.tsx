@@ -10,7 +10,7 @@ import {
   useSmoothScroll,
   useScrollAnimation,
 } from '../src/hooks/useScroll';
-import { slideInDown } from '../src/components/Animation';
+import { slideInDown } from '../src/animation/Animation';
 
 const ScrollExample = () => {
   const containerRef = useRef(null);

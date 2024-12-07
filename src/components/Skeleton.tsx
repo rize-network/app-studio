@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, ViewProps } from './View';
-import { shimmer } from './Animation';
+import { shimmer } from '../animation/Animation';
 
 export const Skeleton = React.memo(
   ({

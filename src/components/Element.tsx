@@ -4,7 +4,7 @@ import { useResponsiveContext } from '../providers/Responsive';
 
 import { isStyleProp } from '../utils/style';
 import { AnimationProps, excludedKeys, includeKeys } from '../utils/constants';
-import { extractUtilityClasses } from '../utils/cssClass';
+import { extractUtilityClasses } from '../animation/css';
 import { Shadow } from '../utils/shadow';
 
 export interface ElementProps extends CssProps {

@@ -4,7 +4,7 @@ export * from './components/Text';
 export * from './components/Form';
 export * from './components/Element';
 export * from './components/Skeleton';
-export * as Animation from './components/Animation';
+export * as Animation from './animation/Animation';
 export * from './utils/typography';
 export * from './utils/shadow';
 export * from './utils/env';

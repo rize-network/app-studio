@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable prefer-const */
-import { Shadows } from './shadow';
+import { Shadows } from '../utils/shadow';
 import Color from 'color-convert';
-import { generateKeyframes } from './animation';
-import { isStyleProp, StyleProps } from './style';
+import { generateKeyframes } from './utils';
+import { isStyleProp, StyleProps } from '../utils/style';
 import { CssProps } from '../components/Element';
-import { numericCssProperties } from './cssProperties';
+import { numericCssProperties } from '../utils/cssProperties';
 
 // utils/UtilityClassManager.ts
 type StyleContext = 'base' | 'pseudo' | 'media';

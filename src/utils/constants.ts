@@ -57,8 +57,8 @@ export const includeKeys = new Set<string>(['src', 'alt', 'style', 'as']);
 
 // Type definitions for animation props
 export interface AnimationProps {
-  from: CSSProperties;
-  to: CSSProperties;
+  from?: CSSProperties;
+  to?: CSSProperties;
   leave?: CSSProperties;
   duration?: string;
   timingFunction?:
@@ -75,5 +75,10 @@ export interface AnimationProps {
   fillMode?: AnimationFillMode;
   playState?: AnimationPlayState;
   keyframes?: AnimationKeyframes;
-  [key: string]: any;
+  [key: string]:
+    | CSSProperties
+    | Record<string, string | number>
+    | string
+    | number
+    | undefined;
 }

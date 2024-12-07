@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // animationHelpers.ts
-import { styleObjectToCss } from './style';
+import { styleObjectToCss } from '../utils/style';
 
 let keyframesCounter = 0;
 const keyframesCache = new Map<string, string>();
