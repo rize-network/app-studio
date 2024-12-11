@@ -8,13 +8,18 @@ import { CssProps } from '../components/Element';
 import { numericCssProperties } from '../utils/cssProperties';
 
 // utils/UtilityClassManager.ts
-type StyleContext = 'base' | 'pseudo' | 'media';
+type StyleContext = 'base' | 'pseudo' | 'media' | 'modifier';
 
 class UtilityClassManager {
-  private styleSheet: CSSStyleSheet | null = null;
+  private baseStyleSheet: CSSStyleSheet | null = null;
+  private mediaStyleSheet: CSSStyleSheet | null = null;
+  private modifierStyleSheet: CSSStyleSheet | null = null;
   private classCache: Map<string, string> = new Map();
   private maxCacheSize: number;
   private propertyShorthand: Record<string, string>;
+  private injectedRulesBase: Set<string> = new Set();
+  private injectedRulesMedia: Set<string> = new Set();
+  private injectedRulesModifier: Set<string> = new Set();
 
   constructor(
     propertyShorthand: Record<string, string>,
@@ -22,20 +27,43 @@ class UtilityClassManager {
   ) {
     this.propertyShorthand = propertyShorthand;
     this.maxCacheSize = maxCacheSize;
-    this.initStyleSheet();
+    this.initStyleSheets();
   }
 
-  private initStyleSheet() {
+  private initStyleSheets() {
     if (typeof document !== 'undefined') {
-      let styleTag = document.getElementById(
-        'utility-classes'
+      // Feuille de style de base
+      let baseStyleTag = document.getElementById(
+        'utility-classes-base'
       ) as HTMLStyleElement;
-      if (!styleTag) {
-        styleTag = document.createElement('style');
-        styleTag.id = 'utility-classes';
-        document.head.appendChild(styleTag);
+      if (!baseStyleTag) {
+        baseStyleTag = document.createElement('style');
+        baseStyleTag.id = 'utility-classes-base';
+        document.head.appendChild(baseStyleTag);
       }
-      this.styleSheet = styleTag.sheet as CSSStyleSheet;
+      this.baseStyleSheet = baseStyleTag.sheet as CSSStyleSheet;
+
+      // Feuille de style pour les media queries
+      let mediaStyleTag = document.getElementById(
+        'utility-classes-media'
+      ) as HTMLStyleElement;
+      if (!mediaStyleTag) {
+        mediaStyleTag = document.createElement('style');
+        mediaStyleTag.id = 'utility-classes-media';
+        document.head.appendChild(mediaStyleTag);
+      }
+      this.mediaStyleSheet = mediaStyleTag.sheet as CSSStyleSheet;
+
+      // Feuille de style pour les modificateurs
+      let modifierStyleTag = document.getElementById(
+        'utility-classes-modifier'
+      ) as HTMLStyleElement;
+      if (!modifierStyleTag) {
+        modifierStyleTag = document.createElement('style');
+        modifierStyleTag.id = 'utility-classes-modifier';
+        document.head.appendChild(modifierStyleTag);
+      }
+      this.modifierStyleSheet = modifierStyleTag.sheet as CSSStyleSheet;
     }
   }
 
@@ -43,15 +71,36 @@ class UtilityClassManager {
     return className.replace(/:/g, '\\:');
   }
 
-  injectRule(cssRule: string) {
-    if (this.styleSheet) {
+  injectRule(cssRule: string, context: StyleContext = 'base') {
+    let styleSheet: CSSStyleSheet | null = null;
+    let injectedRules: Set<string> = new Set();
+
+    switch (context) {
+      case 'base':
+        styleSheet = this.baseStyleSheet;
+        injectedRules = this.injectedRulesBase;
+        break;
+      case 'pseudo':
+        styleSheet = this.baseStyleSheet; // Si les pseudo-classes sont dans la feuille de base
+        injectedRules = this.injectedRulesBase;
+        break;
+      case 'media':
+        styleSheet = this.mediaStyleSheet;
+        injectedRules = this.injectedRulesMedia;
+        break;
+      case 'modifier':
+        styleSheet = this.modifierStyleSheet;
+        injectedRules = this.injectedRulesModifier;
+        break;
+      default:
+        styleSheet = this.baseStyleSheet;
+        injectedRules = this.injectedRulesBase;
+    }
+
+    if (styleSheet && !injectedRules.has(cssRule)) {
       try {
-        const existingRules = Array.from(this.styleSheet.cssRules).map(
-          (rule) => rule.cssText
-        );
-        if (!existingRules.includes(cssRule)) {
-          this.styleSheet.insertRule(cssRule, this.styleSheet.cssRules.length);
-        }
+        styleSheet.insertRule(cssRule, styleSheet.cssRules.length);
+        injectedRules.add(cssRule);
       } catch (e) {
         console.error(
           `Erreur lors de l'insertion de la règle CSS: "${cssRule}"`,
@@ -69,16 +118,6 @@ class UtilityClassManager {
     this.classCache.set(key, className);
   }
 
-  /**
-   * Génère un ou plusieurs noms de classes pour une propriété et une valeur donnée.
-   * @param property La propriété CSS (ex: 'padding', 'color').
-   * @param value La valeur de la propriété (ex: '10px', '#fff').
-   * @param context Le contexte de la classe ('base', 'pseudo', 'media').
-   * @param modifier Le modificateur pour les pseudo-classes ou media queries (ex: 'hover', 'sm').
-   * @param getColor Fonction pour convertir les couleurs si nécessaire.
-   * @param mediaQueries Un tableau de media queries associées (utilisé uniquement pour le contexte 'media').
-   * @returns Un tableau de noms de classes générés.
-   */
   public getClassNames(
     property: string,
     value: any,
@@ -89,14 +128,13 @@ class UtilityClassManager {
   ): string[] {
     let processedValue = value;
 
-    // If the property is a color, convert it to a hexadecimal or RGB value
+    // Si la propriété est une couleur, la convertir
     if (property.toLowerCase().includes('color')) {
       processedValue = getColor(value);
     }
 
-    // Handle compound values (like padding and margin)
+    // Gérer les valeurs numériques
     if (typeof processedValue === 'number') {
-      // Add 'px' to numeric values for properties that typically use length units
       if (numericCssProperties.has(property)) {
         processedValue = `${processedValue}px`;
       }
@@ -118,50 +156,42 @@ class UtilityClassManager {
       shorthand = property.replace(/([A-Z])/g, '-$1').toLowerCase();
     }
 
-    // console.log({ shorthand, property, processedValue });
-    // Normaliser la valeur pour le nom de classe
     let normalizedValue = formattedValue
       .toString()
-      .replace(/\./g, 'p') // Replace dots with 'p'
-      .replace(/\s+/g, '-') // Replace spaces with '-'
-      .replace(/[^a-zA-Z0-9\-]/g, '') // Remove other special characters
-      .replace(/%/g, 'pct') // Replace % with 'pct'
-      .replace(/vw/g, 'vw') // Keep 'vw' as is
-      .replace(/vh/g, 'vh') // Keep 'vh' as is
-      .replace(/em/g, 'em') // Keep 'em' as is
-      .replace(/rem/g, 'rem'); // Keep 'rem' as is
+      .replace(/\./g, 'p')
+      .replace(/\s+/g, '-')
+      .replace(/[^a-zA-Z0-9\-]/g, '')
+      .replace(/%/g, 'pct')
+      .replace(/vw/g, 'vw')
+      .replace(/vh/g, 'vh')
+      .replace(/em/g, 'em')
+      .replace(/rem/g, 'rem');
 
     let baseClassName = `${shorthand}-${normalizedValue}`;
 
-    // Préfixer les noms de classe pour les pseudo-classes et media queries
-    let classNames: string[] = [baseClassName]; // Utiliser le nom de classe de base
+    let classNames: string[] = [baseClassName];
 
     if (context === 'pseudo' && modifier) {
-      // Pseudo-class : ajouter '-modifier' suffix
-      const pseudoClassName = `${baseClassName}-${modifier}`;
+      const pseudoClassName = `${baseClassName}--${modifier}`;
       classNames.push(pseudoClassName);
     } else if (context === 'media' && modifier) {
-      // Media query : générer une classe pour chaque media query associée
       mediaQueries.forEach(() => {
-        const mediaClassName = `${modifier}:${baseClassName}`;
+        const mediaClassName = `${modifier}--${baseClassName}`;
         classNames.push(mediaClassName);
       });
     } else {
       classNames.push(baseClassName);
     }
 
-    // Convertir camelCase en kebab-case
     const cssProperty = property.replace(/([A-Z])/g, '-$1').toLowerCase();
     let valueForCss = processedValue;
 
-    // Ajouter des unités si nécessaire
     if (typeof valueForCss === 'number') {
       if (numericCssProperties.has(cssProperty)) {
         valueForCss = `${valueForCss}px`;
       }
     }
 
-    // Construire les règles CSS pour chaque classe générée
     classNames.forEach((className) => {
       const escapedClassName = this.escapeClassName(className);
       let cssRules: string[] = [];
@@ -173,14 +203,11 @@ class UtilityClassManager {
           );
           break;
         case 'pseudo':
-          // Appliquer le pseudo-sélecteur au sélecteur de classe
           cssRules.push(
             `.${escapedClassName}:${modifier} { ${cssProperty}: ${valueForCss}; }`
           );
           break;
         case 'media':
-          // Les media queries sont gérées séparément
-
           mediaQueries.forEach((mq) => {
             cssRules.push(
               `@media ${mq} { .${escapedClassName} { ${cssProperty}: ${valueForCss}; } }`
@@ -192,7 +219,6 @@ class UtilityClassManager {
               );
             }
           });
-
           break;
         default:
           cssRules.push(
@@ -200,8 +226,14 @@ class UtilityClassManager {
           );
       }
 
-      // Injecter les règles CSS
-      cssRules.forEach((rule) => this.injectRule(rule));
+      // Déterminer si la classe est un modificateur
+      const isModifier = className.includes('--');
+
+      // Définir le contexte approprié
+      const ruleContext: StyleContext = isModifier ? 'modifier' : context;
+
+      // Injecter les règles CSS avec le contexte approprié
+      cssRules.forEach((rule) => this.injectRule(rule, ruleContext));
 
       // Ajouter au cache
       this.addToCache(key, className);

@@ -4,7 +4,13 @@ import React from 'react';
 
 import { ComponentStory, ComponentMeta } from '@storybook/react';
 
-import { View } from '../src/index';
+import {
+  Horizontal,
+  HorizontalResponsive,
+  Vertical,
+  VerticalResponsive,
+  View,
+} from '../src/index';
 
 export default {
   /* 👇 The title prop is optional.
@@ -19,7 +25,7 @@ export const Exemple: ComponentStory<typeof View> = () => {
   return (
     <View display="flex" flexWrap="wrap" width={100} height={200}>
       <View
-        size={'10vh'}
+        size={100}
         shadow={4}
         display="flex"
         margin="0 20px 20px"
@@ -53,5 +59,85 @@ export const Exemple: ComponentStory<typeof View> = () => {
         //     only={['mobile']}
       />
     </View>
+  );
+};
+
+export const VerticalExemple: ComponentStory<typeof View> = () => {
+  return (
+    <Vertical>
+      <View
+        size={100}
+        shadow={4}
+        display="flex"
+        margin="0 20px 20px"
+        backgroundColor="color.blue"
+      />
+      <View
+        size={100}
+        shadow={4}
+        backgroundColor="color.red"
+        paddingHorizontal={20}
+      />
+    </Vertical>
+  );
+};
+
+export const VerticalResponsiveExemple: ComponentStory<typeof View> = () => {
+  return (
+    <VerticalResponsive>
+      <View
+        size={100}
+        shadow={4}
+        display="flex"
+        margin="0 20px 20px"
+        backgroundColor="color.blue"
+      />
+      <View
+        size={100}
+        shadow={4}
+        backgroundColor="color.red"
+        paddingHorizontal={20}
+      />
+    </VerticalResponsive>
+  );
+};
+
+export const HorizontalExemple: ComponentStory<typeof View> = () => {
+  return (
+    <Horizontal>
+      <View
+        size={100}
+        shadow={4}
+        display="flex"
+        margin="0 20px 20px"
+        backgroundColor="color.blue"
+      />
+      <View
+        size={100}
+        shadow={4}
+        backgroundColor="color.red"
+        paddingHorizontal={20}
+      />
+    </Horizontal>
+  );
+};
+
+export const HorizontalResponsiveExemple: ComponentStory<typeof View> = () => {
+  return (
+    <HorizontalResponsive>
+      <View
+        size={100}
+        shadow={4}
+        display="flex"
+        margin="0 20px 20px"
+        backgroundColor="color.blue"
+      />
+      <View
+        size={100}
+        shadow={4}
+        backgroundColor="color.red"
+        paddingHorizontal={20}
+      />
+    </HorizontalResponsive>
   );
 };

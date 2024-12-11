@@ -24,6 +24,70 @@ export const View = React.forwardRef<
     React.RefAttributes<HTMLElement>
 >;
 
+export const Horizontal = React.forwardRef<
+  HTMLElement,
+  React.ComponentPropsWithRef<typeof Element> & ViewProps
+>((props, ref) => (
+  <Element display="flex" flexDirection="row" {...props} ref={ref} />
+)) as unknown as React.ForwardRefExoticComponent<
+  React.ComponentPropsWithRef<typeof Element> &
+    ViewProps &
+    React.RefAttributes<HTMLElement>
+>;
+
+export const Vertical = React.forwardRef<
+  HTMLElement,
+  React.ComponentPropsWithRef<typeof Element> & ViewProps
+>((props, ref) => (
+  <Element display="flex" flexDirection="column" {...props} ref={ref} />
+)) as unknown as React.ForwardRefExoticComponent<
+  React.ComponentPropsWithRef<typeof Element> &
+    ViewProps &
+    React.RefAttributes<HTMLElement>
+>;
+
+export const HorizontalResponsive = React.forwardRef<
+  HTMLElement,
+  React.ComponentPropsWithRef<typeof Element> & ViewProps
+>(({ media, ...props }, ref) => (
+  <Horizontal
+    media={{
+      ...media,
+      mobile: {
+        ...media?.mobile,
+        flexDirection: 'column',
+      },
+    }}
+    {...props}
+    ref={ref}
+  />
+)) as unknown as React.ForwardRefExoticComponent<
+  React.ComponentPropsWithRef<typeof Element> &
+    ViewProps &
+    React.RefAttributes<HTMLElement>
+>;
+
+export const VerticalResponsive = React.forwardRef<
+  HTMLElement,
+  React.ComponentPropsWithRef<typeof Element> & ViewProps
+>(({ media, ...props }, ref) => (
+  <Vertical
+    media={{
+      ...media,
+      mobile: {
+        ...media?.mobile,
+        flexDirection: 'row',
+      },
+    }}
+    {...props}
+    ref={ref}
+  />
+)) as unknown as React.ForwardRefExoticComponent<
+  React.ComponentPropsWithRef<typeof Element> &
+    ViewProps &
+    React.RefAttributes<HTMLElement>
+>;
+
 export const Scroll = React.forwardRef<
   HTMLElement,
   React.ComponentPropsWithRef<typeof Element> & ViewProps
