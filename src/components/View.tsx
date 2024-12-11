@@ -49,12 +49,12 @@ export const Vertical = React.forwardRef<
 export const HorizontalResponsive = React.forwardRef<
   HTMLElement,
   React.ComponentPropsWithRef<typeof Element> & ViewProps
->(({ media, ...props }, ref) => (
+>(({ media = {}, ...props }, ref) => (
   <Horizontal
     media={{
       ...media,
       mobile: {
-        ...media?.mobile,
+        ...media.mobile,
         flexDirection: 'column',
       },
     }}
@@ -70,12 +70,12 @@ export const HorizontalResponsive = React.forwardRef<
 export const VerticalResponsive = React.forwardRef<
   HTMLElement,
   React.ComponentPropsWithRef<typeof Element> & ViewProps
->(({ media, ...props }, ref) => (
+>(({ media = {}, ...props }, ref) => (
   <Vertical
     media={{
       ...media,
       mobile: {
-        ...media?.mobile,
+        ...media.mobile,
         flexDirection: 'row',
       },
     }}
