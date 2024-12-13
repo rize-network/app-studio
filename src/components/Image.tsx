@@ -1,5 +1,5 @@
 import React from 'react';
-import { CssProps, Element, ElementProps } from './Element';
+import { Element, ElementProps } from './Element';
 import { ImageStyleProps } from '../types/style';
 
 export interface ImageProps
@@ -19,7 +19,6 @@ export interface ImageProps
       | 'draggable'
       | 'style'
     >,
-    CssProps,
     ElementProps {}
 
 export const Image = React.forwardRef<

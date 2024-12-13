@@ -1,10 +1,10 @@
 import React from 'react';
-import { CssProps, Element, ElementProps } from './Element';
+import { Element, ElementProps } from './Element';
 import { ViewStyleProps } from '../types/style';
 
 // Common props pour éviter la répétition
 interface CommonProps
-  extends CssProps,
+  extends ElementProps,
     Omit<ViewStyleProps, 'children' | 'style' | 'pointerEvents' | 'onClick'> {}
 
 // Props pour le composant Form
@@ -20,7 +20,6 @@ export interface FormProps
       | 'border'
       | 'draggable'
     >,
-    CssProps,
     ElementProps {}
 
 // Props pour le composant Button
@@ -38,7 +37,6 @@ export interface ButtonProps
       | 'style'
       | 'draggable'
     >,
-    Omit<CssProps, 'animation'>,
     ElementProps {
   children?: React.ReactNode;
   onClick?: (..._args: any) => void;

@@ -1,5 +1,5 @@
 import React from 'react';
-import { CssProps, Element, ElementProps } from './Element';
+import { Element, ElementProps } from './Element';
 import { ViewStyleProps } from '../types/style';
 
 export interface ViewProps
@@ -7,7 +7,6 @@ export interface ViewProps
       ViewStyleProps,
       'children' | 'translate' | 'style' | 'pointerEvents' | 'onClick'
     >,
-    Omit<CssProps, 'translate' | 'animation'>,
     ElementProps {
   onPress?: (..._args: any) => void;
 }
