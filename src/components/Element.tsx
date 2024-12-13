@@ -12,21 +12,21 @@ export interface ElementProps extends CssProps {
   media?: Record<string, CssProps> | undefined;
   only?: string[] | undefined;
   css?: CSSProperties | undefined;
+  onPress?: any;
+  onClick?: any;
+  as?: keyof JSX.IntrinsicElements;
+  style?: CSSProperties;
+  animate?: AnimationProps[] | AnimationProps;
+  shadow?: boolean | number | Shadow;
+  children?: React.ReactNode;
+  size?: number | string;
 }
 
 export interface CssProps extends CSSProperties {
-  children?: React.ReactNode;
-  size?: number | string;
   paddingHorizontal?: number | string;
   marginHorizontal?: number | string;
   paddingVertical?: number | string;
   marginVertical?: number | string;
-  shadow?: boolean | number | Shadow;
-  style?: CSSProperties;
-  animate?: AnimationProps[] | AnimationProps;
-  onPress?: any;
-  onClick?: any;
-  as?: keyof JSX.IntrinsicElements;
 }
 
 export const Element = React.memo(
