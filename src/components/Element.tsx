@@ -16,7 +16,6 @@ export interface ElementProps extends CssProps {
   onClick?: any;
   as?: keyof JSX.IntrinsicElements;
   style?: CSSProperties;
-  animate?: AnimationProps[] | AnimationProps;
   shadow?: boolean | number | Shadow;
   children?: React.ReactNode;
   size?: number | string;
@@ -27,6 +26,7 @@ export interface CssProps extends CSSProperties {
   marginHorizontal?: number | string;
   paddingVertical?: number | string;
   marginVertical?: number | string;
+  animate?: AnimationProps[] | AnimationProps;
 }
 
 export const Element = React.memo(
