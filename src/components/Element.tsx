@@ -8,10 +8,10 @@ import { extractUtilityClasses } from '../animation/css';
 import { Shadow } from '../utils/shadow';
 
 export interface ElementProps extends CssProps {
-  on?: Record<string, CssProps>;
-  media?: Record<string, CssProps>;
-  only?: string[];
-  css?: CSSProperties;
+  on?: Record<string, CssProps> | undefined;
+  media?: Record<string, CssProps> | undefined;
+  only?: string[] | undefined;
+  css?: CSSProperties | undefined;
 }
 
 export interface CssProps extends CSSProperties {
