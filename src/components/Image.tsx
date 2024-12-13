@@ -1,10 +1,12 @@
 import React from 'react';
-import { CSSProperties } from 'react';
-import { Element, ElementProps } from './Element';
+import { CssProps, Element, ElementProps } from './Element';
 import { ImageStyleProps } from '../types/style';
 
 export interface ImageProps
-  extends Omit<ImageStyleProps, 'children' | 'style' | 'pointerEvents'>,
+  extends Omit<
+      ImageStyleProps,
+      'children' | 'style' | 'pointerEvents' | 'onClick'
+    >,
     Omit<
       Partial<HTMLImageElement>,
       | 'width'
@@ -17,7 +19,7 @@ export interface ImageProps
       | 'draggable'
       | 'style'
     >,
-    Omit<CSSProperties, 'animation'>,
+    CssProps,
     ElementProps {}
 
 export const Image = React.forwardRef<

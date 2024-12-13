@@ -1,14 +1,13 @@
 import React from 'react';
-import { CSSProperties } from 'react';
-import { Element, ElementProps } from './Element';
+import { CssProps, Element, ElementProps } from './Element';
 import { TextStyleProps } from '../types/style';
 
 export interface TextProps
   extends Omit<
       TextStyleProps,
-      'children' | 'style' | 'onPress' | 'pointerEvents'
+      'children' | 'style' | 'onPress' | 'pointerEvents' | 'onClick'
     >,
-    Omit<CSSProperties, 'animation'>,
+    Omit<CssProps, 'animation'>,
     ElementProps {
   toUpperCase?: boolean;
 }

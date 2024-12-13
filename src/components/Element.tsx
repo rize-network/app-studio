@@ -14,7 +14,7 @@ export interface ElementProps extends CssProps {
   css?: CSSProperties;
 }
 
-export interface CssProps {
+export interface CssProps extends CSSProperties {
   children?: React.ReactNode;
   size?: number | string;
   paddingHorizontal?: number | string;
@@ -24,9 +24,9 @@ export interface CssProps {
   shadow?: boolean | number | Shadow;
   style?: CSSProperties;
   animate?: AnimationProps[] | AnimationProps;
-  onPress?: () => void;
+  onPress?: any;
+  onClick?: any;
   as?: keyof JSX.IntrinsicElements;
-  [key: string]: any;
 }
 
 export const Element = React.memo(
@@ -60,7 +60,7 @@ export const Element = React.memo(
           (!excludedKeys.has(key) && !isStyleProp(key)) ||
           includeKeys.has(key)
         ) {
-          newProps[key] = otherProps[key];
+          newProps[key] = (otherProps as any)[key];
         }
       });
 

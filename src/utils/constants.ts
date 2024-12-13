@@ -75,10 +75,11 @@ export interface AnimationProps {
   fillMode?: AnimationFillMode;
   playState?: AnimationPlayState;
   keyframes?: AnimationKeyframes;
+
   [key: string]:
     | CSSProperties
-    | Record<string, string | number>
     | string
     | number
+    | Record<string, string | number>
     | undefined;
 }

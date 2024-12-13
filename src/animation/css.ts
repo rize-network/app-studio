@@ -528,7 +528,7 @@ export const extractUtilityClasses = (
       property !== 'style' &&
       (isStyleProp(property) || ['on', 'media'].includes(property))
     ) {
-      const value = props[property];
+      const value = (props as any)[property];
 
       if (typeof value === 'object' && value !== null) {
         if (property === 'on') {

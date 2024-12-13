@@ -10,70 +10,100 @@ import {
   useSmoothScroll,
   useScrollAnimation,
 } from '../src/hooks/useScroll';
-import { slideInDown } from '../src/animation/Animation';
 
 const ScrollExample = () => {
-  const containerRef = useRef(null);
-  const sectionRef = useRef(null);
-  const sectionTwoRef = useRef(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const sectionTwoRef = useRef<HTMLDivElement>(null);
   const smoothScroll = useSmoothScroll();
   const scrollDirection = useScrollDirection(50);
-  const { y, yProgress } = useScroll();
+  const { y, yProgress } = useScroll({ container: containerRef });
+  const scroll = useScroll();
 
   const { isInView, progress } = useScrollAnimation(sectionRef, {
     threshold: [0, 0.5, 1],
   });
 
+  console.log('y', y);
+  console.log('yProgress', yProgress);
+  console.log('isInView', isInView);
+  console.log('progress', progress);
+  console.log('scrollDirection', scrollDirection);
+  console.log('scroll', scroll);
   return (
-    <View ref={containerRef} height="200vh">
-      {/* Header that changes based on scroll direction */}
+    <View
+      ref={containerRef}
+      style={{
+        height: '200vh',
+        position: 'relative',
+        overflowY: 'scroll', // Enable scrolling
+      }}
+    >
+      {/* Section Two: Target for Smooth Scroll */}
       <View
         ref={sectionTwoRef}
-        height="20vh"
-        backgroundColor="color.blue.100"
-      />
-      <View
-        position="fixed"
-        top={0}
-        left={0}
-        right={0}
-        backgroundColor="color.white"
-        padding={4}
-        animate={slideInDown({})}
         style={{
+          height: '20vh',
+          backgroundColor: '#ADD8E6', // Light Blue
+          position: 'absolute',
+          top: '0',
+          left: '0',
+          right: '0',
+        }}
+      />
+      {/* Header that changes based on scroll direction */}
+      <View
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          backgroundColor: '#FFFFFF',
+          padding: '16px',
           transform: `translateY(${
             scrollDirection === 'down' ? '-100%' : '0'
           })`,
           transition: 'transform 0.3s ease-in-out',
+          zIndex: 1000, // Ensure the header stays on top
         }}
       >
         <Text>Scroll Progress: {(yProgress * 100).toFixed(0)}%</Text>
         <Text>Scroll y: {y} </Text>
       </View>
-
-      <View height="100vh" backgroundColor="color.red.200" />
-
+      {/* Spacer to enable scrolling */}
+      <View style={{ height: '100vh', backgroundColor: '#F08080' }} />{' '}
+      {/* Light Coral */}
       {/* Scroll-animated section */}
       <View
         ref={sectionRef}
-        height="50vh"
-        backgroundColor="color.gray.100"
         style={{
+          height: '50vh',
+          backgroundColor: '#D3D3D3', // Light Gray
           opacity: progress,
           transform: `scale(${0.5 + progress * 0.5})`,
-          transition: 'all 0.3s ease-in-out',
+          transition: 'opacity 0.3s ease-in-out, transform 0.3s ease-in-out',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
         }}
       >
         <Text>
           {isInView ? 'Section is in view!' : 'Scroll down to see the section'}
         </Text>
       </View>
-
       {/* Smooth scroll button */}
       <Button
-        position="fixed"
-        bottom={4}
-        right={4}
+        style={{
+          position: 'fixed',
+          bottom: '16px',
+          right: '16px',
+          padding: '8px 16px',
+          backgroundColor: '#007BFF', // Bootstrap Blue
+          color: '#FFFFFF',
+          border: 'none',
+          borderRadius: '4px',
+          cursor: 'pointer',
+        }}
         onClick={() => smoothScroll(sectionTwoRef.current)}
       >
         Scroll to Section

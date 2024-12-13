@@ -56,6 +56,7 @@ type NumberOrString = number | string;
 export type AnimationDirection =
   | 'alternate'
   | 'alternate-reverse'
+  | 'forwards'
   | 'normal'
   | 'reverse';
 export type AnimationFillMode = 'none' | 'forwards' | 'backwards' | 'both';
