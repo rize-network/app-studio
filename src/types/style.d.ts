@@ -436,8 +436,8 @@ export type ViewStyleProps = {
   onScrollShouldSetResponderCapture?: (e: any) => boolean;
   onSelectionChangeShouldSetResponder?: (e: any) => boolean;
   onSelectionChangeShouldSetResponderCapture?: (e: any) => boolean;
-  onStartShouldSetResponder?: (e: any) => boolean;
-  onStartShouldSetResponderCapture?: (e: any) => boolean;
+  // onStartShouldSetResponder?: (e: any) => boolean;
+  // onStartShouldSetResponderCapture?: (e: any) => boolean;
   pointerEvents?: 'box-none' | 'none' | 'box-only' | 'auto';
   style?:
     | false

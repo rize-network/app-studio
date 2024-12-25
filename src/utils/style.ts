@@ -1,221 +1,252 @@
 // styleHelpers.ts
 import { extraKeys, includeKeys, NumberProps } from './constants';
-// Excluded keys imported from constants.ts
-// import { excludedKeys } from './constants';
 
-// const nonStyleAttributes = new Set(['length', 'parentRule', 'src']);
+// Comprehensive list of CSS properties that should be converted to classes
+const cssProperties = new Set([
+  // Standard CSS properties
+  ...Object.keys(document.createElement('div').style),
+
+  // Box model
+  'margin',
+  'marginTop',
+  'marginRight',
+  'marginBottom',
+  'marginLeft',
+  'marginHorizontal',
+  'marginVertical',
+  'padding',
+  'paddingTop',
+  'paddingRight',
+  'paddingBottom',
+  'paddingLeft',
+  'paddingHorizontal',
+  'paddingVertical',
+  'width',
+  'height',
+  'minWidth',
+  'minHeight',
+  'maxWidth',
+  'maxHeight',
+
+  // Positioning
+  'position',
+  'top',
+  'right',
+  'bottom',
+  'left',
+  'zIndex',
+
+  // Flexbox
+  'flex',
+  'flexDirection',
+  'flexWrap',
+  'flexFlow',
+  'justifyContent',
+  'alignItems',
+  'alignContent',
+  'alignSelf',
+  'order',
+  'flexGrow',
+  'flexShrink',
+  'flexBasis',
+
+  // Grid
+  'gridTemplateColumns',
+  'gridTemplateRows',
+  'gridTemplate',
+  'gridAutoColumns',
+  'gridAutoRows',
+  'gridAutoFlow',
+  'gridArea',
+  'gridColumn',
+  'gridRow',
+  'gap',
+  'gridGap',
+  'rowGap',
+  'columnGap',
+
+  // Typography
+  'fontFamily',
+  'fontSize',
+  'fontWeight',
+  'lineHeight',
+  'letterSpacing',
+  'textAlign',
+  'textDecoration',
+  'textTransform',
+  'whiteSpace',
+  'wordBreak',
+  'wordSpacing',
+  'wordWrap',
+
+  // Colors and Backgrounds
+  'color',
+  'backgroundColor',
+  'background',
+  'backgroundImage',
+  'backgroundSize',
+  'backgroundPosition',
+  'backgroundRepeat',
+  'opacity',
+
+  // Borders
+  'border',
+  'borderWidth',
+  'borderStyle',
+  'borderColor',
+  'borderRadius',
+  'borderTop',
+  'borderRight',
+  'borderBottom',
+  'borderLeft',
+  'borderTopLeftRadius',
+  'borderTopRightRadius',
+  'borderBottomLeftRadius',
+  'borderBottomRightRadius',
+
+  // Effects
+  'boxShadow',
+  'textShadow',
+  'transform',
+  'transition',
+  'animation',
+  'filter',
+  'backdropFilter',
+
+  // Layout
+  'display',
+  'visibility',
+  'overflow',
+  'overflowX',
+  'overflowY',
+  'float',
+  'clear',
+  'objectFit',
+  'objectPosition',
+
+  // Interactivity
+  'cursor',
+  'pointerEvents',
+  'userSelect',
+  'resize',
+
+  // Custom properties
+  'size',
+  'shadow',
+
+  // Additional properties from cssExtraProps
+  'textJustify',
+  'lineClamp',
+  'textIndent',
+  'perspective',
+]);
 
 // Function to set the size of the element
 export const setSize = (
   newSize: string | number,
   styleProps: Record<string, any>
 ) => {
-  styleProps.height = styleProps.width = newSize; // Set height and width
+  styleProps.height = styleProps.width = newSize;
 };
 
-// Function to convert style object to CSS string
+// Improved style prop detection
+export const isStyleProp = (prop: string): boolean => {
+  // Check if it's a valid CSS property or custom style prop
+  return (
+    cssProperties.has(prop) ||
+    extraKeys.has(prop) ||
+    // Check for vendor prefixes
+    /^(webkit|moz|ms|o)[A-Z]/.test(prop) ||
+    // Check for custom properties
+    prop.startsWith('--') ||
+    // Check for data attributes that should be treated as styles
+    (prop.startsWith('data-style-') && !includeKeys.has(prop))
+  );
+};
+
+// Convert style object to CSS string
 export const styleObjectToCss = (styles: Record<string, any>): string => {
   return Object.entries(styles)
+    .filter(([key]) => isStyleProp(key))
     .map(([key, value]) => {
-      const cssProperty = key.replace(/([A-Z])/g, '-$1').toLowerCase();
-      return `${cssProperty}: ${value};`;
+      const cssProperty = toKebabCase(key);
+      const processedValue = processStyleProperty(key, value, (color) => color);
+      return `${cssProperty}: ${processedValue};`;
     })
     .join(' ');
 };
 
-// Function to convert camelCase to kebab-case
+// Convert camelCase to kebab-case
 export const toKebabCase = (str: string): string =>
-  str.replace(/([A-Z])/g, (match) => '-' + match.toLowerCase());
+  str.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
 
-// // Function to check if a property is a style prop
-// export const isStyleProp = (prop: string): boolean => {
-//   // Implement your logic to determine if a prop is a style prop
-//   // For simplicity, we assume all props not in excludedKeys are style props
-//   return !excludedKeys.has(prop);
-// };
-
-//const cssExtraProps: Array<keyof CSSProperties> = [
-
-const cssExtraProps = [
-  'textJustify',
-  'lineClamp',
-  'borderBottomLeftRadius',
-  'borderBottomRightRadius',
-  'borderBottomWidth',
-  'borderLeftWidth',
-  'borderRadius',
-  'borderRightWidth',
-  'borderSpacing',
-  'borderTopLeftRadius',
-  'borderTopRightRadius',
-  'borderTopWidth',
-  'borderWidth',
-  'bottom',
-  'columnGap',
-  'columnRuleWidth',
-  'columnWidth',
-  'fontSize',
-  'gap',
-  'height',
-  'left',
-  'letterSpacing',
-  'lineHeight',
-  'margin',
-  'marginBottom',
-  'marginLeft',
-  'marginRight',
-  'marginTop',
-  'maxHeight',
-  'maxWidth',
-  'minHeight',
-  'minWidth',
-  'outlineOffset',
-  'outlineWidth',
-  'padding',
-  'paddingBottom',
-  'paddingLeft',
-  'paddingRight',
-  'paddingTop',
-  'perspective',
-  'right',
-  'rowGap',
-  'textIndent',
-  'top',
-  'width',
-  'animation',
-  // 'backgroundRepeatX',
-  // 'backgroundRepeatY',
-  // 'maxZoom',
-  // 'minZoom',
-  // 'orientation',
-  // 'userZoom',
-  // 'wrap',
-  // 'alwaysBounceHorizontal',
-  // 'alwaysBounceVertical',
-  // 'automaticallyAdjustContentInsets',
-  // 'bounces',
-  // 'bouncesZoom',
-  // 'canCancelContentTouches',
-  // 'centerContent',
-  // 'contentLayoutStyle',
-  // 'contentInset',
-  // 'contentInsetAdjustmentBehavior',
-  // 'contentOffset',
-  // 'decelerationRate',
-  // 'directionalLockEnabled',
-  // 'disableIntervalMomentum',
-  // 'disableScrollViewPanResponder',
-  // 'endFillColor',
-  // 'fadingEdgeLength',
-  // 'horizontal',
-  // 'indicatorStyle',
-  // 'invertStickyHeaders',
-  // 'keyboardDismissMode',
-  // 'keyboardShouldPersistTaps',
-  // 'maintainVisibleContentPosition',
-  // 'maximumZoomScale',
-  // 'minimumZoomScale',
-  // 'nestedScrollEnabled',
-  // 'onContentSizeChange',
-  // 'onMomentumScrollBegin',
-  // 'onMomentumScrollEnd',
-  // 'onScroll',
-  // 'onScrollBeginDrag',
-  // 'onScrollEndDrag',
-  // 'onScrollToTop',
-  // 'overScrollMode',
-  // 'pagingEnabled',
-  // 'persistentScrollbar',
-  // 'pinchGestureEnabled',
-  // 'refreshControl',
-  // 'removeClippedSubviews',
-  // 'scrollBarThumbImage',
-  // 'scrollEnabled',
-  // 'scrollEventThrottle',
-  // 'scrollIndicatorInsets',
-  // 'scrollPerfTag',
-  // 'scrollToOverflowEnabled',
-  // 'scrollsToTop',
-  // 'DEPRECATED_sendUpdatedChildFrames',
-  // 'showsHorizontalScrollIndicator',
-  // 'showsVerticalScrollIndicator',
-  // 'snapToAlignment',
-  // 'snapToEnd',
-  // 'snapToInterval',
-  // 'snapToOffsets',
-  // 'snapToStart',
-  // 'stickyHeaderIndices',
-  // 'zoomScale',
-  // 'borderBottomEndRadius',
-  // 'borderBottomStartRadius',
-  // 'borderEndColor',
-  // 'borderStartColor',
-  // 'borderTopEndRadius',
-  // 'borderTopStartRadius',
-  // 'elevation',
-  // 'shadowColor',
-  // 'shadowOffset',
-  // 'shadowOpacity',
-  // 'shadowRadius',
-  // 'borderEndWidth',
-  // 'borderStartWidth',
-  // 'end',
-  // 'marginEnd',
-  // 'marginHorizontal',
-  // 'marginStart',
-  // 'marginVertical',
-  // 'paddingEnd',
-  // 'paddingHorizontal',
-  // 'paddingStart',
-  // 'paddingVertical',
-  // 'start',
-  // 'resizeMode',
-  // 'tintColor',
-  // 'overlayColor',
-  // 'transformMatrix',
-  // 'rotation',
-  // 'scaleX',
-  // 'scaleY',
-  // 'translateX',
-  // 'translateY',
-  // 'rotateX',
-  // 'rotateY',
-  // 'rotateZ',
-  // 'skewX',
-  // 'skewY',
-  // 'testID',
-  // 'decomposedMatrix',
-];
-
-// Create a set of all valid CSS properties
-export const StyleProps: string[] = [
-  ...Object.keys(document.createElement('div').style),
-  ...cssExtraProps,
-];
-// Create a set of all valid CSS properties
-export const StyledProps: Set<string> = new Set(StyleProps);
-
-// console.log({
-//   props: JSON.stringify(StyleProps.filter((prop) => !cssProperties.has(prop))),
-// });
-
-export const isStyleProp = (prop: string): boolean => {
-  return (
-    (StyledProps.has(prop) || extraKeys.has(prop)) && !includeKeys.has(prop)
-  );
-};
-
-// Function to process and normalize style properties
+// Process and normalize style properties
 export const processStyleProperty = (
   property: string,
   value: any,
   getColor: (color: string) => string
 ): string | number => {
-  if (typeof value === 'number' && !NumberProps.has(property)) {
-    return `${value}px`;
-  } else if (property.toLowerCase().includes('color')) {
-    return getColor(value);
-  } else {
+  // Handle null or undefined values
+  if (value == null) {
+    return '';
+  }
+
+  // Convert numbers to pixels for appropriate properties
+  if (typeof value === 'number') {
+    if (!NumberProps.has(property)) {
+      return `${value}px`;
+    }
     return value;
   }
+
+  // Handle color properties
+  if (
+    property.toLowerCase().includes('color') ||
+    property === 'fill' ||
+    property === 'stroke'
+  ) {
+    return getColor(value);
+  }
+
+  // Handle arrays (e.g., for transforms)
+  if (Array.isArray(value)) {
+    return value.join(' ');
+  }
+
+  // Handle objects (e.g., for gradients or transforms)
+  if (typeof value === 'object') {
+    return JSON.stringify(value);
+  }
+
+  return value;
+};
+
+// Export the set of valid style properties
+export const StyleProps: string[] = Array.from(cssProperties);
+export const StyledProps: Set<string> = cssProperties;
+
+// Helper function to validate if a prop should be an attribute
+export const shouldBeAttribute = (prop: string): boolean => {
+  return (
+    !isStyleProp(prop) &&
+    !includeKeys.has(prop) &&
+    // Common non-style attributes
+    /^(id|className|role|aria-|data-(?!style-)|tabIndex|title|lang|dir)/.test(
+      prop
+    )
+  );
+};
+
+// Helper to generate class name from style prop
+export const generateClassName = (
+  property: string,
+  value: any,
+  getColor: (color: string) => string
+): string => {
+  const processedValue = processStyleProperty(property, value, getColor);
+  const normalizedValue = String(processedValue)
+    .replace(/[^a-zA-Z0-9-]/g, '-')
+    .replace(/^-+|-+$/g, '');
+
+  return `${toKebabCase(property)}-${normalizedValue}`;
 };

@@ -17,8 +17,8 @@ export interface ElementProps extends CssProps {
   as?: keyof JSX.IntrinsicElements;
   style?: CSSProperties;
   shadow?: boolean | number | Shadow;
-  children?: React.ReactNode;
   size?: number | string;
+  children?: React.ReactNode;
 }
 
 export interface CssProps extends CSSProperties {
