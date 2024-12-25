@@ -4,7 +4,7 @@ import { Shadows } from '../utils/shadow';
 import Color from 'color-convert';
 import { generateKeyframes } from './utils';
 import { isStyleProp, StyleProps } from '../utils/style';
-import { CssProps } from '../components/Element';
+import { ElementProps } from '../components/Element';
 import { numericCssProperties } from '../utils/cssProperties';
 
 // utils/UtilityClassManager.ts
@@ -323,7 +323,7 @@ function formatDuration(ms: number): string {
 }
 
 export const extractUtilityClasses = (
-  props: CssProps,
+  props: ElementProps,
   getColor: (color: string) => string,
   mediaQueries: Record<string, string>,
   devices: Record<string, string[]>
