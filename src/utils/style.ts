@@ -201,7 +201,7 @@ export const processStyleProperty = (
 
   // Handle color properties
   if (
-    property.toLowerCase().includes('color') ||
+    property.toLowerCase().indexOf('color') >= 0 ||
     property === 'fill' ||
     property === 'stroke'
   ) {
