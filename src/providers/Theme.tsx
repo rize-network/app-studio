@@ -1,26 +1,40 @@
-import React, { createContext, useContext } from 'react';
-import { palette as defaultPalette } from '../utils/colors'; // Assurez-vous que ce chemin est correct
+import React, {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useEffect,
+} from 'react';
+import {
+  ColorConfig,
+  ColorPalette,
+  ColorSingleton,
+  defaultDarkColors,
+  defaultLightColors,
+  palette,
+} from '../utils/colors';
 
-type ColorConfig = Record<string, any>; // Permet des objets imbriqués
-type VariantColorConfig = Record<string, Record<string, string>>;
+// Extend Colors to include the palette
+interface Colors {
+  main: ColorSingleton;
+  palette: ColorPalette;
+}
 
+// Theme Interfaces
 interface Theme {
   main: ColorConfig;
   components?: Record<string, Record<string, any>>;
 }
 
-interface Colors {
-  main?: ColorConfig;
-  palette?: VariantColorConfig;
-}
-
 interface ThemeContextProps {
-  getColor: (color: string) => string;
+  getColor: (color: string, themeMode: 'light' | 'dark') => string;
   theme?: Theme;
   colors?: Colors;
+  themeMode: 'light' | 'dark';
+  setThemeMode: (mode: 'light' | 'dark') => void;
 }
 
-// Configuration de thème par défaut
+// Default Theme Configuration
 export const defaultThemeMain: ColorConfig = {
   primary: 'color.black',
   secondary: 'color.blue',
@@ -31,178 +45,166 @@ export const defaultThemeMain: ColorConfig = {
   loading: 'color.dark.500',
 };
 
-// Configuration des couleurs par défaut
-export const defaultColors: ColorConfig = {
-  white: '#FFFFFF',
-  black: '#000000',
-  red: '#FF0000',
-  green: '#00FF00',
-  blue: '#0000FF',
-  yellow: '#FFFF00',
-  cyan: '#00FFFF',
-  magenta: '#FF00FF',
-  grey: '#808080',
-  orange: '#FFA500',
-  brown: '#A52A2A',
-  purple: '#800080',
-  pink: '#FFC0CB',
-  lime: '#00FF00',
-  teal: '#008080',
-  navy: '#000080',
-  olive: '#808000',
-  maroon: '#800000',
-  gold: '#FFD700',
-  silver: '#C0C0C0',
-  indigo: '#4B0082',
-  violet: '#EE82EE',
-  beige: '#F5F5DC',
-  turquoise: '#40E0D0',
-  coral: '#FF7F50',
-  chocolate: '#D2691E',
-  skyBlue: '#87CEEB',
-  plum: '#DDA0DD',
-  darkGreen: '#006400',
-  salmon: '#FA8072',
-};
-
-// Création du contexte de thème avec des valeurs par défaut
+// Create Theme Context with Default Values
 export const ThemeContext = createContext<ThemeContextProps>({
-  getColor: (name: string): string => name,
-  colors: {
-    main: defaultColors,
-    palette: defaultPalette,
-  },
+  getColor: (name) => name, // Removed the extra parameter
+  colors: { main: defaultLightColors, palette: palette },
   theme: { main: defaultThemeMain, components: {} },
+  themeMode: 'light',
+  setThemeMode: () => {},
 });
 
-// Hook personnalisé pour utiliser le contexte de thème
+// Custom Hook to Use Theme
 export const useTheme = () => useContext(ThemeContext);
 
-// Fonction de fusion profonde simple
+// Deep Merge Function
 const deepMerge = (target: any, source: any): any => {
   if (typeof source !== 'object' || source === null) {
     return target;
   }
-
   const merged = { ...target };
-
   for (const key in source) {
     if (Object.prototype.hasOwnProperty.call(source, key)) {
       const sourceValue = source[key];
       const targetValue = target[key];
-
       if (Array.isArray(sourceValue)) {
-        // Remplacer les tableaux
         merged[key] = sourceValue;
       } else if (
         typeof sourceValue === 'object' &&
         sourceValue !== null &&
         !Array.isArray(sourceValue)
       ) {
-        // Fusion récursive des objets
         merged[key] = deepMerge(targetValue || {}, sourceValue);
       } else {
-        // Remplacer les autres types de valeurs
         merged[key] = sourceValue;
       }
     }
   }
-
   return merged;
 };
 
-// Composant ThemeProvider
+const defaultLightPalette: ColorPalette = {
+  whiteAlpha: palette.whiteAlpha,
+  white: palette.white,
+  blackAlpha: palette.blackAlpha,
+  black: palette.black,
+  gray: palette.gray,
+  dark: palette.dark,
+  light: palette.light,
+};
+
+const defaultDarkPalette: ColorPalette = {
+  whiteAlpha: palette.blackAlpha,
+  white: palette.black,
+  blackAlpha: palette.blackAlpha,
+  black: palette.black,
+  dark: palette.light,
+  light: palette.dark,
+};
+
+// ThemeProvider Component
 export const ThemeProvider = ({
-  theme = {
-    main: defaultThemeMain,
-    components: {},
+  theme = { main: defaultThemeMain, components: {} },
+  mode = 'light',
+  dark = {
+    main: defaultDarkColors,
+    palette: defaultDarkPalette,
   },
-  colors = {
-    main: defaultColors,
-    palette: defaultPalette,
+  light = {
+    main: defaultLightColors,
+    palette: defaultLightPalette,
   },
   children,
 }: {
   theme?: Theme;
-  colors?: Colors;
-  children: React.ReactNode;
+  dark?: Colors;
+  light?: Colors;
+  mode?: 'light' | 'dark';
+  children: ReactNode;
 }): React.ReactElement => {
-  // Fusion profonde des thèmes par défaut avec ceux fournis
+  const [themeMode, setThemeMode] = useState<'light' | 'dark'>(mode);
+
+  useEffect(() => {
+    setThemeMode(mode);
+  }, [mode]);
+
   const mergedTheme = deepMerge(defaultThemeMain, theme);
 
-  // Fusion profonde des couleurs par défaut avec celles fournies
-  const mergedColors = deepMerge(
-    { main: defaultColors, palette: defaultPalette },
-    colors
-  );
+  // Corrected the merging logic: light should use defaultLightColors and defaultLightPalette
+  // dark should use defaultDarkColors and defaultDarkPalette
+  const colors: { light: Colors; dark: Colors } = {
+    light: deepMerge(
+      { main: defaultLightColors, palette: defaultLightPalette },
+      light
+    ),
+    dark: deepMerge(
+      { main: defaultDarkColors, palette: defaultDarkPalette },
+      dark
+    ),
+  };
 
-  /**
-   * Fonction pour récupérer une couleur basée sur un chemin en chaîne.
-   * Supporte les références imbriquées comme 'theme.button.primary.background'.
-   * @param name - Le nom de la couleur à récupérer.
-   * @returns La valeur de couleur résolue ou le nom original si non trouvé.
-   */
-
-  const getColor = (name: string): string => {
+  const getColor = (name: string, themeMode: 'light' | 'dark'): string => {
     if (name === 'transparent') return name;
 
     try {
       if (name.startsWith('theme.')) {
         const keys = name.split('.');
         let value: any = mergedTheme;
-
         for (let i = 1; i < keys.length; i++) {
           value = value[keys[i]];
-          if (value === undefined) {
-            console.warn(`Couleur "${name}" non trouvée dans le thème.`);
-            return name;
-          }
+          if (value === undefined) return name;
         }
-
-        if (typeof value === 'string') {
-          return getColor(value); // Résoudre les références imbriquées
-        } else {
-          console.warn(
-            `La couleur "${name}" a résolu à une valeur non-string.`
-          );
-          return name;
-        }
+        if (typeof value === 'string') return getColor(value, themeMode);
+        return name;
       } else if (name.startsWith('color.')) {
         const keys = name.split('.');
-
         if (keys.length === 2) {
-          // Exemple : "color.white"
+          // Example: "color.white"
           const colorName = keys[1];
-          return mergedColors.main[colorName] || name;
+          const color = colors[themeMode].main[colorName];
+          if (typeof color === 'string') {
+            return color;
+          }
+          console.warn(`Color "${colorName}" is not a singleton color.`);
+          return name;
         } else if (keys.length === 3) {
-          // Exemple : "color.palette.primary.500"
-          const [_, paletteName, variant] = keys;
+          // Example: "color.blue.500"
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const [colorName, variant] = keys.slice(1);
           if (
-            mergedColors.palette[paletteName] &&
-            mergedColors.palette[paletteName][variant]
+            colors[themeMode].palette &&
+            colors[themeMode].palette[colorName] &&
+            colors[themeMode].palette[colorName][Number(variant)]
           ) {
-            return mergedColors.palette[paletteName][variant];
+            return colors[themeMode].palette[colorName][Number(variant)];
           } else {
-            console.warn(`Color ${_} non trouvée`);
+            console.warn(
+              `Color "${colorName}" with shade "${variant}" not found.`
+            );
           }
         }
-        console.warn(
-          `Color "${name}" non trouvée dans la palette ou les couleurs principales.`
-        );
       }
     } catch (e) {
-      console.error('Erreur lors de la récupération de la couleur:', e);
+      console.error('Error fetching color:', e);
     }
-
-    return name; // Retourner le nom original si non trouvé
+    return name; // Return the original name if not found
   };
+
+  // Optional: Apply a CSS class or data attribute to the body for global theming
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      document.body.setAttribute('data-theme', themeMode);
+    }
+  }, [themeMode]);
 
   return (
     <ThemeContext.Provider
       value={{
         getColor,
         theme: mergedTheme,
-        colors: mergedColors,
+        colors: colors[themeMode],
+        themeMode,
+        setThemeMode,
       }}
     >
       {children}

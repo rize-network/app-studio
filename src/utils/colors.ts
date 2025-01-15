@@ -319,6 +319,18 @@ export const palette: ColorPalette = {
     800: '#f4f4f5',
     900: '#fafafa',
   },
+  light: {
+    50: '#f8f9fa',
+    100: '#f1f3f5',
+    200: '#e9ecef',
+    300: '#dee2e6',
+    400: '#ced4da',
+    500: '#adb5bd',
+    600: '#868e96',
+    700: '#495057',
+    800: '#343a40',
+    900: '#212529',
+  },
   coolGray: {
     50: '#f9fafb',
     100: '#f3f4f6',
@@ -343,4 +355,53 @@ export const palette: ColorPalette = {
     800: '#1e293b',
     900: '#0f172a',
   },
+};
+
+export const defaultColors: ColorConfig = {
+  white: '#FFFFFF',
+  black: '#000000',
+  red: '#FF0000',
+  green: '#00FF00',
+  blue: '#0000FF',
+  yellow: '#FFFF00',
+  cyan: '#00FFFF',
+  magenta: '#FF00FF',
+  grey: '#808080',
+  orange: '#FFA500',
+  brown: '#A52A2A',
+  purple: '#800080',
+  pink: '#FFC0CB',
+  lime: '#00FF00',
+  teal: '#008080',
+  navy: '#000080',
+  olive: '#808000',
+  maroon: '#800000',
+  gold: '#FFD700',
+  silver: '#C0C0C0',
+  indigo: '#4B0082',
+  violet: '#EE82EE',
+  beige: '#F5F5DC',
+  turquoise: '#40E0D0',
+  coral: '#FF7F50',
+  chocolate: '#D2691E',
+  skyBlue: '#87CEEB',
+  plum: '#DDA0DD',
+  darkGreen: '#006400',
+  salmon: '#FA8072',
+};
+
+export type ColorConfig = Record<string, any>;
+
+export const defaultLightColors: ColorConfig = {
+  ...defaultColors,
+  dark: '#a1a1aa',
+  white: '#FFFFFF',
+  black: '#000000',
+};
+
+export const defaultDarkColors: ColorConfig = {
+  ...defaultColors,
+  dark: '#adb5bd',
+  white: '#000000',
+  black: '#FFFFFF',
 };

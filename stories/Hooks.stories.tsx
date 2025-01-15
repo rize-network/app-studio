@@ -12,7 +12,11 @@ const Responsive = () => {
   const responsive = useResponsive();
   return (
     <>
-      {responsive.screen}, {responsive.on('mobile')}, {responsive.is('mobile')}
+      screen :{responsive.screen}
+      <br />
+      on mobile :{responsive.on('mobile').toString()}
+      <br />
+      is mobile :{responsive.is('mobile').toString()}
     </>
   );
 };

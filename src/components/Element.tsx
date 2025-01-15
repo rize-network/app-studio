@@ -6,6 +6,7 @@ import { isStyleProp } from '../utils/style';
 import { AnimationProps, excludedKeys, includeKeys } from '../utils/constants';
 import { extractUtilityClasses } from '../animation/css';
 import { Shadow } from '../utils/shadow';
+import { useAnalytics } from '../providers/Analytics';
 
 export interface ElementProps extends CssProps {
   on?: Record<string, CssProps> | undefined;
@@ -14,6 +15,7 @@ export interface ElementProps extends CssProps {
   css?: CSSProperties | undefined;
   onPress?: any;
   onClick?: any;
+  themeMode?: 'light' | 'dark';
   as?: keyof JSX.IntrinsicElements;
   style?: CSSProperties;
   shadow?: boolean | number | Shadow;
@@ -37,12 +39,22 @@ export const Element = React.memo(
       }
 
       const { onPress, ...rest } = props;
-      const { getColor } = useTheme();
+      const { getColor, themeMode } = useTheme();
+      const { trackEvent } = useAnalytics();
       const { mediaQueries, devices } = useResponsiveContext();
 
+      const elementMode = props.themeMode ? props.themeMode : themeMode;
       const utilityClasses = useMemo(
-        () => extractUtilityClasses(rest, getColor, mediaQueries, devices),
-        [rest, getColor, mediaQueries, devices]
+        () =>
+          extractUtilityClasses(
+            rest,
+            (color: string) => {
+              return getColor(color, elementMode);
+            },
+            mediaQueries,
+            devices
+          ),
+        [rest, mediaQueries, devices, elementMode]
       );
 
       const newProps: any = { ref };
@@ -52,6 +64,32 @@ export const Element = React.memo(
 
       if (utilityClasses.length > 0) {
         newProps.className = utilityClasses.join(' ');
+      }
+
+      if (trackEvent && props.onClick) {
+        let componentName: string;
+        if (typeof as === 'string') {
+          componentName = as;
+        } else {
+          componentName =
+            (as as React.ComponentType<any>).displayName ||
+            (as as React.ComponentType<any>).name ||
+            'div';
+        }
+        let text: string | undefined;
+        if (typeof props.children === 'string') {
+          text = props.children.slice(0, 100);
+        }
+        newProps.onClick = (event: any) => {
+          trackEvent({
+            type: 'click',
+            target: componentName !== 'div' ? componentName : undefined,
+            text,
+          });
+          if (props.onClick) {
+            props.onClick(event);
+          }
+        };
       }
 
       const { style, children, ...otherProps } = rest;

@@ -10,6 +10,7 @@ export * from './utils/shadow';
 export * from './utils/env';
 export * from './utils/colors';
 export * from './providers/Responsive';
+export * from './providers/Analytics';
 export * from './providers/Theme';
 export * from './hooks/useActive';
 export * from './hooks/useClickOutside';

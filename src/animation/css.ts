@@ -32,7 +32,7 @@ class UtilityClassManager {
 
   private initStyleSheets() {
     if (typeof document !== 'undefined') {
-      // Feuille de style de base
+      // Base stylesheet
       let baseStyleTag = document.getElementById(
         'utility-classes-base'
       ) as HTMLStyleElement;
@@ -43,7 +43,7 @@ class UtilityClassManager {
       }
       this.baseStyleSheet = baseStyleTag.sheet as CSSStyleSheet;
 
-      // Feuille de style pour les media queries
+      // Media queries stylesheet
       let mediaStyleTag = document.getElementById(
         'utility-classes-media'
       ) as HTMLStyleElement;
@@ -54,7 +54,7 @@ class UtilityClassManager {
       }
       this.mediaStyleSheet = mediaStyleTag.sheet as CSSStyleSheet;
 
-      // Feuille de style pour les modificateurs
+      // Modifier stylesheet
       let modifierStyleTag = document.getElementById(
         'utility-classes-modifier'
       ) as HTMLStyleElement;
@@ -81,7 +81,7 @@ class UtilityClassManager {
         injectedRules = this.injectedRulesBase;
         break;
       case 'pseudo':
-        styleSheet = this.baseStyleSheet; // Si les pseudo-classes sont dans la feuille de base
+        styleSheet = this.baseStyleSheet; // Pseudo-classes in base stylesheet
         injectedRules = this.injectedRulesBase;
         break;
       case 'media':
@@ -102,10 +102,7 @@ class UtilityClassManager {
         styleSheet.insertRule(cssRule, styleSheet.cssRules.length);
         injectedRules.add(cssRule);
       } catch (e) {
-        console.error(
-          `Erreur lors de l'insertion de la règle CSS: "${cssRule}"`,
-          e
-        );
+        console.error(`Error inserting CSS rule: "${cssRule}"`, e);
       }
     }
   }
@@ -123,17 +120,18 @@ class UtilityClassManager {
     value: any,
     context: StyleContext = 'base',
     modifier: string = '',
-    getColor: (color: string) => string = (color) => color,
+    getColor: (color: string) => string, // Removed themeMode parameter
     mediaQueries: string[] = []
   ): string[] {
     let processedValue = value;
 
-    // Si la propriété est une couleur, la convertir
+    // If the property is a color, convert it
     if (property.toLowerCase().includes('color')) {
       processedValue = getColor(value);
+      // console.log(' = > getColor', { value, themeMode, processedValue });
     }
 
-    // Gérer les valeurs numériques
+    // Handle numeric values
     if (typeof processedValue === 'number') {
       if (numericCssProperties.has(property)) {
         processedValue = `${processedValue}px`;
@@ -150,7 +148,7 @@ class UtilityClassManager {
       return [this.classCache.get(key)!];
     }
 
-    // Générer un nom de classe unique avec le modificateur
+    // Generate a unique class name with modifier
     let shorthand = this.propertyShorthand[property];
     if (!shorthand) {
       shorthand = property.replace(/([A-Z])/g, '-$1').toLowerCase();
@@ -226,16 +224,16 @@ class UtilityClassManager {
           );
       }
 
-      // Déterminer si la classe est un modificateur
+      // Determine if the class is a modifier
       const isModifier = className.includes('--');
 
-      // Définir le contexte approprié
+      // Set the appropriate context
       const ruleContext: StyleContext = isModifier ? 'modifier' : context;
 
-      // Injecter les règles CSS avec le contexte approprié
+      // Inject CSS rules with the appropriate context
       cssRules.forEach((rule) => this.injectRule(rule, ruleContext));
 
-      // Ajouter au cache
+      // Add to cache
       this.addToCache(key, className);
     });
 
@@ -244,9 +242,9 @@ class UtilityClassManager {
 }
 
 /**
- * Mappe un événement React à une pseudo-classe CSS.
- * @param event L'événement React (ex: 'hover', 'active')
- * @returns La pseudo-classe CSS correspondante ou null si non supporté.
+ * Maps a React event to a CSS pseudo-class.
+ * @param event The React event (e.g., 'hover', 'active')
+ * @returns The corresponding CSS pseudo-class or null if unsupported.
  */
 const mapEventToPseudo = (event: string): string | null => {
   const eventMap: Record<string, string> = {
@@ -254,15 +252,15 @@ const mapEventToPseudo = (event: string): string | null => {
     active: 'active',
     focus: 'focus',
     visited: 'visited',
-    // Ajoutez d'autres mappings si nécessaire
+    // Add more mappings if necessary
   };
   return eventMap[event] || null;
 };
 
 /**
- * Génère des abréviations pour les propriétés CSS.
- * @param styledProps Tableau des propriétés CSS à abréger.
- * @returns Un objet mappant chaque propriété CSS à son abréviation.
+ * Generates shorthand abbreviations for CSS properties.
+ * @param styledProps Array of CSS properties to abbreviate.
+ * @returns An object mapping each CSS property to its abbreviation.
  */
 function generatePropertyShorthand(
   styledProps: string[]
@@ -271,9 +269,9 @@ function generatePropertyShorthand(
   const usedAbbreviations = new Set<string>();
 
   /**
-   * Génère une abréviation unique pour une propriété CSS donnée.
-   * @param prop La propriété CSS à abréger.
-   * @returns L'abréviation unique générée.
+   * Generates a unique abbreviation for a given CSS property.
+   * @param prop The CSS property to abbreviate.
+   * @returns The unique abbreviation generated.
    */
   function generateAbbreviation(prop: string): string {
     const first = prop[0].toLowerCase();
@@ -314,7 +312,7 @@ function parseDuration(duration: string): number {
   return unit === 's' ? value * 1000 : value;
 }
 
-// Fonction pour formater une durée en millisecondes en chaîne avec unité
+// Function to format a duration in milliseconds to a string with units
 function formatDuration(ms: number): string {
   if (ms >= 1000 && ms % 1000 === 0) {
     return `${ms / 1000}s`;
@@ -330,10 +328,10 @@ export const extractUtilityClasses = (
 ): string[] => {
   const classes: string[] = [];
 
-  // Styles calculés basés sur les props
+  // Computed styles based on props
   const computedStyles: Record<string, any> = {};
 
-  // Gestion de la taille de l'élément
+  // Handle element size
   const size =
     props.height !== undefined &&
     props.width !== undefined &&
@@ -349,7 +347,7 @@ export const extractUtilityClasses = (
     computedStyles.height = sizeValue;
   }
 
-  // Gestion du padding et de la marge
+  // Handle padding and margin
   if (props.paddingHorizontal) {
     const paddingH =
       typeof props.paddingHorizontal === 'number'
@@ -383,7 +381,7 @@ export const extractUtilityClasses = (
     computedStyles.marginBottom = marginV;
   }
 
-  // Application des ombres si spécifié
+  // Apply shadows if specified
   if (props.shadow) {
     let shadowValue: number;
     if (
@@ -403,7 +401,7 @@ export const extractUtilityClasses = (
       const shadowOffset = Shadows[shadowValue].shadowOffset;
       const shadowRadius = Shadows[shadowValue].shadowRadius;
 
-      // Convertir la couleur en rgba
+      // Convert color to rgba
       const rgb = Color.hex.rgb(shadowColor);
       const rgbaColor = `rgba(${rgb.join(',')}, ${shadowOpacity})`;
 
@@ -411,7 +409,7 @@ export const extractUtilityClasses = (
     }
   }
 
-  // Gestion des animations
+  // Handle animations
   if (props.animate) {
     const animations = Array.isArray(props.animate)
       ? props.animate
@@ -425,7 +423,7 @@ export const extractUtilityClasses = (
     const animationFillModes: string[] = [];
     const animationPlayStates: string[] = [];
 
-    let cumulativeTime = 0; // Temps cumulé en millisecondes
+    let cumulativeTime = 0; // Cumulative time in milliseconds
 
     animations.forEach((animation) => {
       const { keyframesName, keyframes } = generateKeyframes(animation);
@@ -443,13 +441,13 @@ export const extractUtilityClasses = (
       const delayStr = animation.delay || '0s';
       const delayMs = parseDuration(delayStr);
 
-      // Calculer le délai total pour cette animation
+      // Calculate total delay for this animation
       const totalDelayMs = cumulativeTime + delayMs;
 
-      // Mettre à jour le temps cumulé
+      // Update cumulative time
       cumulativeTime = totalDelayMs + durationMs;
 
-      // Ajouter les valeurs formatées aux tableaux
+      // Add formatted values to arrays
       animationDurations.push(formatDuration(durationMs));
       animationTimingFunctions.push(animation.timingFunction || 'ease');
       animationDelays.push(formatDuration(totalDelayMs));
@@ -476,10 +474,10 @@ export const extractUtilityClasses = (
   }
 
   /**
-   * Génère des classes utilitaires pour un ensemble de styles.
-   * @param styles Les styles à transformer en classes utilitaires.
-   * @param context Le contexte des styles ('base', 'pseudo', 'media').
-   * @param modifier Le modificateur pour les pseudo-classes ou media queries.
+   * Generates utility classes for a set of styles.
+   * @param styles The styles to transform into utility classes.
+   * @param context The context of the styles ('base', 'pseudo', 'media').
+   * @param modifier The modifier for pseudo-classes or media queries.
    */
   const generateUtilityClasses = (
     styles: Record<string, any>,
@@ -491,13 +489,13 @@ export const extractUtilityClasses = (
       let mediaQueriesForClass: string[] = [];
 
       if (context === 'media') {
-        // 'modifier' peut être un breakpoint ou un dispositif
+        // 'modifier' can be a breakpoint or a device
         if (mediaQueries[modifier]) {
           mediaQueriesForClass = [mediaQueries[modifier]];
         } else if (devices[modifier]) {
           mediaQueriesForClass = devices[modifier]
             .map((mq) => mediaQueries[mq])
-            .filter((mq) => mq); // Filtrer les media queries valides
+            .filter((mq) => mq); // Filter valid media queries
         }
       }
 
@@ -507,7 +505,7 @@ export const extractUtilityClasses = (
           value,
           context,
           modifier,
-          getColor,
+          getColor, // Pass getColor with single parameter
           mediaQueriesForClass
         );
 
@@ -519,10 +517,10 @@ export const extractUtilityClasses = (
     });
   };
 
-  // Générer des classes utilitaires pour les styles calculés
+  // Generate utility classes for computed styles
   generateUtilityClasses(computedStyles, 'base');
 
-  // Parcourir toutes les propriétés de style et générer des classes utilitaires
+  // Iterate over all style properties and generate utility classes
   Object.keys(props).forEach((property) => {
     if (
       property !== 'style' &&
@@ -532,14 +530,14 @@ export const extractUtilityClasses = (
 
       if (typeof value === 'object' && value !== null) {
         if (property === 'on') {
-          // Styles liés aux événements (pseudo-classes)
+          // Styles related to events (pseudo-classes)
           Object.keys(value).forEach((event) => {
             const eventStyles = value[event];
-            // Séparer les propriétés de transition et les autres propriétés
-            // Extraire 'animate' des styles d'événement
+            // Separate transition properties and other properties
+            // Extract 'animate' from event styles
             const { animate, ...otherEventStyles } = eventStyles;
 
-            // Gestion des animations dans les événements
+            // Handle animations in events
             if (animate) {
               const animations = Array.isArray(animate) ? animate : [animate];
               const animationNames: string[] = [];
@@ -575,7 +573,7 @@ export const extractUtilityClasses = (
                 animationPlayStates.push(animation.playState || 'running');
               });
 
-              // Créer un objet avec les propriétés d'animation
+              // Create an object with animation properties
               const animationStyles = {
                 animationName: animationNames.join(', '),
                 animationDuration: animationDurations.join(', '),
@@ -587,11 +585,11 @@ export const extractUtilityClasses = (
                 animationPlayState: animationPlayStates.join(', '),
               };
 
-              // Fusionner les styles d'animation avec les autres styles de l'événement
+              // Merge animation styles with other event styles
               Object.assign(otherEventStyles, animationStyles);
             }
 
-            // Générer les classes pour les pseudo-classes
+            // Generate classes for pseudo-classes
             if (Object.keys(otherEventStyles).length > 0) {
               const pseudo = mapEventToPseudo(event);
               if (pseudo) {
@@ -600,21 +598,22 @@ export const extractUtilityClasses = (
             }
           });
         } else if (property === 'media') {
-          // Styles conditionnels basés sur les media queries ou devices
+          // Conditional styles based on media queries or devices
           Object.keys(value).forEach((screenOrDevice) => {
             const mediaStyles = value[screenOrDevice];
             generateUtilityClasses(mediaStyles, 'media', screenOrDevice);
           });
         }
       } else {
-        // Générer une classe utilitaire pour cette propriété et valeur
+        // Generate a utility class for this property and value
         if (value !== undefined && value !== '') {
           const classNames = utilityClassManager.getClassNames(
             property,
             value,
             'base',
             '',
-            getColor
+            getColor,
+            []
           );
 
           classes.push(...classNames);

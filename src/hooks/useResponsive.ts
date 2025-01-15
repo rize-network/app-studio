@@ -47,11 +47,17 @@ export const useResponsive = () => {
     );
   });
 
-  const on = (device: keyof typeof devices) => {
-    return devices[device].includes(screen);
+  const on = (s: string) => {
+    if (devices[s] !== undefined) {
+      return devices[s].includes(screen);
+    }
+    return s == screen;
   };
 
-  const is = (s: keyof typeof breakpoints) => {
+  const is = (s: string) => {
+    if (devices[s] !== undefined) {
+      return devices[s].includes(screen);
+    }
     return s == screen;
   };
 
