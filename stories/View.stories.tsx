@@ -29,7 +29,7 @@ export const Exemple: ComponentStory<typeof View> = () => {
         shadow={4}
         display="flex"
         margin="0 20px 20px"
-        backgroundColor="color.blue"
+        backgroundColor="color.blue.200"
       />
       <View
         size={'70%'}
@@ -90,7 +90,7 @@ export const VerticalResponsiveExemple: ComponentStory<typeof View> = () => {
         shadow={4}
         display="flex"
         margin="0 20px 20px"
-        backgroundColor="color.blue"
+        backgroundColor="color.blue.300"
       />
       <View
         size={100}

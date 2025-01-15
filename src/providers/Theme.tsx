@@ -10,8 +10,9 @@ import {
   ColorPalette,
   ColorSingleton,
   defaultDarkColors,
+  defaultDarkPalette,
   defaultLightColors,
-  palette,
+  defaultLightPalette,
 } from '../utils/colors';
 
 // Extend Colors to include the palette
@@ -22,8 +23,13 @@ interface Colors {
 
 // Theme Interfaces
 interface Theme {
-  main: ColorConfig;
-  components?: Record<string, Record<string, any>>;
+  primary?: string;
+  secondary?: string;
+  success?: string;
+  error?: string;
+  warning?: string;
+  disabled?: string;
+  loading?: string;
 }
 
 interface ThemeContextProps {
@@ -48,8 +54,7 @@ export const defaultThemeMain: ColorConfig = {
 // Create Theme Context with Default Values
 export const ThemeContext = createContext<ThemeContextProps>({
   getColor: (name) => name, // Removed the extra parameter
-  colors: { main: defaultLightColors, palette: palette },
-  theme: { main: defaultThemeMain, components: {} },
+  theme: defaultThemeMain,
   themeMode: 'light',
   setThemeMode: () => {},
 });
@@ -83,28 +88,9 @@ const deepMerge = (target: any, source: any): any => {
   return merged;
 };
 
-const defaultLightPalette: ColorPalette = {
-  whiteAlpha: palette.whiteAlpha,
-  white: palette.white,
-  blackAlpha: palette.blackAlpha,
-  black: palette.black,
-  gray: palette.gray,
-  dark: palette.dark,
-  light: palette.light,
-};
-
-const defaultDarkPalette: ColorPalette = {
-  whiteAlpha: palette.blackAlpha,
-  white: palette.black,
-  blackAlpha: palette.blackAlpha,
-  black: palette.black,
-  dark: palette.light,
-  light: palette.dark,
-};
-
 // ThemeProvider Component
 export const ThemeProvider = ({
-  theme = { main: defaultThemeMain, components: {} },
+  theme = defaultThemeMain,
   mode = 'light',
   dark = {
     main: defaultDarkColors,
@@ -173,7 +159,7 @@ export const ThemeProvider = ({
         } else if (keys.length === 3) {
           // Example: "color.blue.500"
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          const [colorName, variant] = keys.slice(1);
+          const [colorName, variant] = keys.splice(1);
           if (colors[themeMode].palette[colorName][Number(variant)]) {
             return colors[themeMode].palette[colorName][Number(variant)];
           } else {
@@ -201,7 +187,6 @@ export const ThemeProvider = ({
       value={{
         getColor,
         theme: mergedTheme,
-        colors: colors[themeMode],
         themeMode,
         setThemeMode,
       }}
