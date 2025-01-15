@@ -171,11 +171,7 @@ export const ThemeProvider = ({
           // Example: "color.blue.500"
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const [colorName, variant] = keys.slice(1);
-          if (
-            colors[themeMode].palette &&
-            colors[themeMode].palette[colorName] &&
-            colors[themeMode].palette[colorName][Number(variant)]
-          ) {
+          if (colors[themeMode].palette[colorName][Number(variant)]) {
             return colors[themeMode].palette[colorName][Number(variant)];
           } else {
             console.warn(
