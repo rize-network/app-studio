@@ -27,7 +27,7 @@ interface Theme {
 }
 
 interface ThemeContextProps {
-  getColor: (color: string, themeMode: 'light' | 'dark') => string;
+  getColor: (color: string, themeMode?: 'light' | 'dark') => string;
   theme?: Theme;
   colors?: Colors;
   themeMode: 'light' | 'dark';
@@ -143,7 +143,10 @@ export const ThemeProvider = ({
     ),
   };
 
-  const getColor = (name: string, themeMode: 'light' | 'dark'): string => {
+  const getColor = (
+    name: string,
+    themeMode: 'light' | 'dark' = 'light'
+  ): string => {
     if (name === 'transparent') return name;
 
     try {
