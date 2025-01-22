@@ -10,25 +10,25 @@ The `useMount` hook allows you to run code when a component is first mounted. It
 
 ### Syntax
 
-```jsx
-useMount(callback: Function)
+```tsx
+useMount(callback: () => void): void;
 ```
 
 ### Parameters
 
-- `callback`: A function invoked when the component mounts.
+-   `callback`: A function invoked when the component mounts.
 
 ### Example
 
-```jsx
+```tsx
 import { useMount } from 'app-studio';
 
 const MyComponent = () => {
-  useMount(() => {
-    console.log('MyComponent mounted');
-  });
+    useMount(() => {
+        console.log('MyComponent mounted');
+    });
 
-  return <div>MyComponent</div>;
+    return <div>MyComponent</div>;
 };
 ```
 
@@ -42,35 +42,35 @@ The `useResponsive` hook makes it easier to build responsive components. It leve
 
 ### Syntax
 
-```jsx
-const { screen, on, is } = useResponsive()
+```tsx
+const { screen, on, is } = useResponsive();
 ```
 
 ### Returned Values
 
-- `screen`: The current screen size based on defined breakpoints.
-- `on(criteria: string)`: Returns a boolean indicating if the current device matches the given criteria (e.g., 'mobile').
-- `is(breakpoint: string)`: Returns a boolean indicating if the current screen size matches the given breakpoint (e.g., 'xs').
+-   `screen`: The current screen size based on defined breakpoints.
+-   `on(criteria: string)`: *Function*. Returns `true` if the current screen size falls within the device criteria (e.g., 'mobile', 'tablet', 'desktop') defined in the `ResponsiveProvider`.
+-   `is(breakpoint: string)`: *Function*. Returns `true` if the current screen size matches the specific breakpoint (e.g., 'xs', 'sm', 'md', 'lg', 'xl').
 
 ### Example
 
-```jsx
+```tsx
 import { useResponsive } from 'app-studio';
 
 const MyComponent = () => {
-  const { screen, on, is } = useResponsive();
+    const { screen, on, is } = useResponsive();
 
-  console.log('Current screen size:', screen);
+    console.log('Current screen size:', screen);
 
-  if (on('mobile')) {
-    console.log('On a mobile device');
-  }
+    if (on('mobile')) {
+        console.log('On a mobile device');
+    }
 
-  if (is('xs')) {
-    console.log('Extra small screen size');
-  }
+    if (is('xs')) {
+        console.log('Extra small screen size');
+    }
 
-  return <div>MyComponent</div>;
+    return <div>MyComponent</div>;
 };
 ```
 
@@ -82,28 +82,38 @@ The `useHover` hook detects whether the referenced element is currently hovered 
 
 ### Syntax
 
-```jsx
-const [ref, hover] = useHover<HTMLElement>();
+```tsx
+const [ref, hover] = useHover<T extends HTMLElement = HTMLElement>(): [
+    React.RefObject<T>,
+    boolean
+];
 ```
 
 ### Returned Values
 
-- `ref`: A ref to attach to the element you want to observe.
-- `hover`: A boolean indicating if the element is hovered (`true` if hovered, `false` otherwise).
+-   `ref`: A ref to attach to the element you want to observe.
+-   `hover`: A boolean indicating if the element is hovered (`true` if hovered, `false` otherwise).
 
 ### Example
 
-```jsx
+```tsx
 import { useHover } from 'app-studio';
 
 const HoverComponent = () => {
-  const [ref, hover] = useHover<HTMLDivElement>();
+    const [ref, hover] = useHover<HTMLDivElement>();
 
-  return (
-    <div ref={ref} style={{ background: hover ? 'red' : 'blue', width: '100px', height: '100px' }}>
-      Hover over me!
-    </div>
-  );
+    return (
+        <div
+            ref={ref}
+            style={{
+                background: hover ? 'red' : 'blue',
+                width: '100px',
+                height: '100px',
+            }}
+        >
+            Hover over me!
+        </div>
+    );
 };
 ```
 
@@ -115,33 +125,36 @@ The `useFocus` hook indicates whether the referenced element is currently focuse
 
 ### Syntax
 
-```jsx
-const [ref, focused] = useFocus<HTMLElement>();
+```tsx
+const [ref, focused] = useFocus<T extends HTMLElement = HTMLElement>(): [
+    React.RefObject<T>,
+    boolean
+];
 ```
 
 ### Returned Values
 
-- `ref`: A ref to attach to the target element.
-- `focused`: A boolean indicating if the element is focused (`true` if yes, `false` otherwise).
+-   `ref`: A ref to attach to the target element.
+-   `focused`: A boolean indicating if the element is focused (`true` if yes, `false` otherwise).
 
 ### Example
 
-```jsx
+```tsx
 import { useFocus } from 'app-studio';
 
 const FocusInput = () => {
-  const [ref, focused] = useFocus<HTMLInputElement>();
+    const [ref, focused] = useFocus<HTMLInputElement>();
 
-  return (
-    <input
-      ref={ref}
-      style={{
-        border: focused ? '2px solid blue' : '1px solid black',
-        padding: '8px',
-        outline: 'none',
-      }}
-    />
-  );
+    return (
+        <input
+            ref={ref}
+            style={{
+                border: focused ? '2px solid blue' : '1px solid black',
+                padding: '8px',
+                outline: 'none',
+            }}
+        />
+    );
 };
 ```
 
@@ -153,35 +166,38 @@ The `useActive` hook indicates if the referenced element is currently being pres
 
 ### Syntax
 
-```jsx
-const [ref, active] = useActive<HTMLElement>();
+```tsx
+const [ref, active] = useActive<T extends HTMLElement = HTMLElement>(): [
+    React.RefObject<T>,
+    boolean
+];
 ```
 
 ### Returned Values
 
-- `ref`: A ref to attach to the element.
-- `active`: A boolean indicating if the element is active (clicked or touched).
+-   `ref`: A ref to attach to the element.
+-   `active`: A boolean indicating if the element is active (clicked or touched).
 
 ### Example
 
-```jsx
+```tsx
 import { useActive } from 'app-studio';
 
 const ActiveButton = () => {
-  const [ref, active] = useActive<HTMLButtonElement>();
+    const [ref, active] = useActive<HTMLButtonElement>();
 
-  return (
-    <button
-      ref={ref}
-      style={{
-        background: active ? 'green' : 'gray',
-        color: 'white',
-        padding: '10px 20px',
-      }}
-    >
-      {active ? 'Pressed' : 'Normal'}
-    </button>
-  );
+    return (
+        <button
+            ref={ref}
+            style={{
+                background: active ? 'green' : 'gray',
+                color: 'white',
+                padding: '10px 20px',
+            }}
+        >
+            {active ? 'Pressed' : 'Normal'}
+        </button>
+    );
 };
 ```
 
@@ -193,27 +209,29 @@ The `useKeyPress` hook detects if a specific keyboard key is currently pressed.
 
 ### Syntax
 
-```jsx
-const keyPressed = useKeyPress(targetKey: string);
+```tsx
+const keyPressed = useKeyPress(targetKey: string): boolean;
 ```
 
 ### Parameters
 
-- `targetKey`: The key to monitor (e.g. 'Enter', 'Escape', 'a').
+-   `targetKey`: The key to monitor (e.g. 'Enter', 'Escape', 'a').
 
-### Returned Value
+### Returned Values
 
-- `keyPressed`: A boolean indicating if the specified key is pressed.
+-   `keyPressed`: A boolean indicating if the specified key is pressed.
 
 ### Example
 
-```jsx
+```tsx
 import { useKeyPress } from 'app-studio';
 
 const KeyPressComponent = () => {
-  const isEnterPressed = useKeyPress('Enter');
+    const isEnterPressed = useKeyPress('Enter');
 
-  return <div>{isEnterPressed ? 'Enter key is pressed' : 'Press the Enter key'}</div>;
+    return (
+        <div>{isEnterPressed ? 'Enter key is pressed' : 'Press the Enter key'}</div>
+    );
 };
 ```
 
@@ -225,24 +243,27 @@ The `useWindowSize` hook provides the current window size (width and height) and
 
 ### Syntax
 
-```jsx
-const { width, height } = useWindowSize();
+```tsx
+const { width, height } = useWindowSize(): {
+    width: number;
+    height: number;
+};
 ```
 
 ### Returned Values
 
-- `width`: The current window width.
-- `height`: The current window height.
+-   `width`: The current window width.
+-   `height`: The current window height.
 
 ### Example
 
-```jsx
+```tsx
 import { useWindowSize } from 'app-studio';
 
 const WindowSizeComponent = () => {
-  const { width, height } = useWindowSize();
+    const { width, height } = useWindowSize();
 
-  return <div>Window size: {width} x {height}</div>;
+    return <div>Window size: {width} x {height}</div>;
 };
 ```
 
@@ -254,32 +275,37 @@ The `useOnScreen` hook uses the Intersection Observer API to determine if the re
 
 ### Syntax
 
-```jsx
-const [ref, isOnScreen] = useOnScreen<HTMLElement>(options?: IntersectionObserverInit);
+```tsx
+const [ref, isOnScreen] = useOnScreen<
+    T extends HTMLElement = HTMLElement
+>(options?: IntersectionObserverInit): [React.RefObject<T>, boolean];
 ```
 
 ### Parameters
 
-- `options`: Optional Intersection Observer options.
+-   `options`: Optional Intersection Observer options.
 
 ### Returned Values
 
-- `ref`: A ref to attach to the element.
-- `isOnScreen`: A boolean indicating if the element is on the screen.
+-   `ref`: A ref to attach to the element.
+-   `isOnScreen`: A boolean indicating if the element is on the screen.
 
 ### Example
 
-```jsx
+```tsx
 import { useOnScreen } from 'app-studio';
 
 const OnScreenComponent = () => {
-  const [ref, isOnScreen] = useOnScreen<HTMLDivElement>();
+    const [ref, isOnScreen] = useOnScreen<HTMLDivElement>();
 
-  return (
-    <div ref={ref} style={{ height: '200px', background: isOnScreen ? 'lime' : 'tomato' }}>
-      {isOnScreen ? 'Visible' : 'Not visible'}
-    </div>
-  );
+    return (
+        <div
+            ref={ref}
+            style={{ height: '200px', background: isOnScreen ? 'lime' : 'tomato' }}
+        >
+            {isOnScreen ? 'Visible' : 'Not visible'}
+        </div>
+    );
 };
 ```
 
@@ -291,28 +317,46 @@ The `useClickOutside` hook detects clicks made outside of the referenced element
 
 ### Syntax
 
-```jsx
-const [ref, clickedOutside] = useClickOutside<HTMLElement>();
+```tsx
+const [ref, clickedOutside] = useClickOutside<
+    T extends HTMLElement = HTMLElement
+>(): [React.RefObject<T>, boolean];
 ```
 
 ### Returned Values
 
-- `ref`: A ref to attach to the target element.
-- `clickedOutside`: A boolean indicating if a click outside the element was detected.
+-   `ref`: A ref to attach to the target element.
+-   `clickedOutside`: A boolean indicating if a click outside the element was detected.
 
 ### Example
 
-```jsx
+```tsx
+import { useState } from 'react';
 import { useClickOutside } from 'app-studio';
 
 const Dropdown = () => {
-  const [ref, clickedOutside] = useClickOutside<HTMLDivElement>();
+    const [isOpen, setIsOpen] = useState(false);
+    const [ref, clickedOutside] = useClickOutside<HTMLDivElement>();
 
-  return (
-    <div ref={ref} style={{ border: '1px solid black', padding: '10px' }}>
-      {clickedOutside ? 'Click inside this box' : 'Click outside this box to toggle the text'}
-    </div>
-  );
+    // Toggle the dropdown state when clickedOutside changes
+    useEffect(() => {
+        if (clickedOutside) {
+            setIsOpen(false);
+        }
+    }, [clickedOutside]);
+
+    return (
+        <div ref={ref} style={{ border: '1px solid black', padding: '10px' }}>
+            <button onClick={() => setIsOpen(!isOpen)}>
+                {isOpen ? 'Close Dropdown' : 'Open Dropdown'}
+            </button>
+            {isOpen && (
+                <div style={{ marginTop: '10px' }}>
+                    Dropdown Content Here
+                </div>
+            )}
+        </div>
+    );
 };
 ```
 

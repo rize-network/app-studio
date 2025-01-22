@@ -124,7 +124,11 @@ In this example, `useResponsive` provides `screen` and `on`:
 - `screen`: Gives you the current screen size based on your breakpoints.
 - `on`: A function that returns `true` or `false` depending on whether the current screen size is included in the given device type.
 
+It's important to note that `useResponsive` causes re-renders when the screen size changes, as it relies on React state updates. In contrast, the `media` prop avoids re-renders because it applies styles directly through CSS media queries. Choose the method that best suits your performance needs and design requirements.
+
+
 These can then be used to dynamically apply styles to your components, as demonstrated with the `responsive` object.
+
 
 ---
 

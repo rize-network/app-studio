@@ -1,13 +1,39 @@
-# App-Studio 
+# App-Studio
 
 App-Studio is a powerful React-based library designed to simplify the process of building responsive, interactive, and visually consistent web applications. It provides CSS design props for layout, spacing, sizing, shadows, event management, and theming.
 
 ### Features
 
-- 🌈 Add styled props to your application
-- 📦 A set of simple and powerful React components
-- 🌍 Internationalization support for dozens of languages
-- 🎨 Powerful theme customization in every detail
+-   🌈 Add styled props to your application
+-   📦 A set of simple and powerful React components
+-   🌍 Internationalization support for dozens of languages
+-   🎨 Powerful theme customization in every detail
+
+## Table of Contents
+
+- [Installation](#2-installation)
+- [Core Components](#3-core-components)
+  - [Element](#element)
+  - [View](#view)
+  - [Text](#text)
+  - [Form](#form)
+  - [Image](#image)
+- [Responsive Design](#4-responsive-design)
+  - [Media Prop](#media-prop)
+  - [useResponsive Hook](#useresponsive-hook)
+- [Event Management](#5-event-management)
+- [Theming](#6-theming)
+- [Custom Hooks](#7-custom-hooks)
+  - [useMount](#usemount)
+- [Design Props](#8-design-props)
+  - [Shadow Prop](#shadow-prop)
+- [Animation](#9-animation)
+  - [Basic Usage](#basic-usage)
+  - [Available Animations](#available-animations)
+  - [Animation Properties](#animation-properties)
+- [Advanced Usage](#10-advanced-usage)
+- [Contributing](#11-contributing)
+- [License](#12-license)
 
 ## 2. Installation
 
@@ -21,7 +47,14 @@ npm install app-studio  --save
 
 ### Element
 
-The `Element` component is the foundation of App-Studio. It handles a large part of the styling for other components, including responsiveness, shadow, margins, and padding.
+The `Element` component is the base for all other components. It handles responsiveness, shadows, margins, padding, and more.
+
+#### Key Features
+
+-   Sets both `width` and `height` with the `size` prop.
+-   Defines styles for different CSS events with the `on` prop.
+-   Defines responsive styles for different media queries with the `media` prop.
+-   Applies shadow effects with the `shadow` prop.
 
 #### Usage
 
@@ -31,16 +64,14 @@ The `Element` component is the foundation of App-Studio. It handles a large part
 </Element>
 ```
 
-#### Key Properties
-
-- `size`: Sets equal width and height
-- `on`: Defines styles for different CSS events
-- `media`: Defines styles for different media queries
-- `shadow`: Adds shadow to an element (boolean, number, or `Shadow` object)
-
 ### View
 
-The `View` component is a versatile layout component that extends the basic HTML `div` tag with additional styling properties.
+The `View` component extends the basic `div` HTML element. It's a generic container used to create various layouts.
+
+#### Key Features
+
+-   Provides a flexible way to structure content.
+-   Supports all `Element` props.
 
 #### Usage
 
@@ -52,7 +83,12 @@ The `View` component is a versatile layout component that extends the basic HTML
 
 ### Text
 
-The `Text` component extends the HTML `div` tag with additional text styling properties.
+The `Text` component extends the basic `div` HTML element for rendering text content.
+
+#### Key Features
+
+-   Provides text-specific styling options.
+-   Supports all `Element` props.
 
 #### Usage
 
@@ -62,20 +98,31 @@ The `Text` component extends the HTML `div` tag with additional text styling pro
 
 ### Form
 
-The `Form` component extends the HTML `form` tag and provides `Button` and `Input` subcomponents.
+The `Form` component extends the basic `form` HTML element and provides nested `Form.Button` and `Form.Input` components.
+
+#### Key Features
+
+-   Simplifies form creation and management.
+-   Supports all `Element` props.
 
 #### Usage
 
 ```jsx
 <Form>
-  <Input placeholder="Enter your name" />
-  <Button>Submit</Button>
+  <Form.Input placeholder="Enter your name" />
+  <Form.Button>Submit</Form.Button>
 </Form>
 ```
 
 ### Image
 
-The `Image` component extends the HTML `img` tag with additional properties like `shadow`, `media`, and `on`.
+The `Image` component extends the basic `img` HTML element for displaying images.
+
+#### Key Features
+
+-   Supports responsive image loading with `media`.
+-   Applies shadow effects with `shadow`.
+-   Handles events with `on`.
 
 #### Usage
 
@@ -305,7 +352,6 @@ All animations are available through the `Animation` object:
 - `Animation.pulse()`
 - And many more...
 
-
 ### Basic Usage
 
 To apply an animation to a component, use the `animate` prop with an animation object:
@@ -316,7 +362,7 @@ import { View, Animation } from 'app-studio';
 function Example() {
   return (
     <View
-      animate={Animation.fadeIn()}
+      animate={Animation.fadeIn()} // Fades in the view
       backgroundColor="theme.primary"
       padding={20}
     >
@@ -330,32 +376,43 @@ function Example() {
 
 App-Studio comes with a set of pre-defined animations that you can use out of the box:
 
-- `fadeIn` / `fadeOut`
-- `slideInLeft` / `slideInRight` / `slideInUp` / `slideInDown`
-- `zoomIn` / `zoomOut`
-- `bounce`
-- `rotate`
-- `pulse`
-- `flash`
-- `shake`
-- `swing`
-- `rubberBand`
-- `wobble`
-- `flip`
-- `heartBeat`
-- `rollIn` / `rollOut`
-- `lightSpeedIn` / `lightSpeedOut`
-- `hinge`
-- `jackInTheBox`
+#### Transition Animations
+
+-   `fadeIn` / `fadeOut`
+-   `slideInLeft` / `slideInRight` / `slideInUp` / `slideInDown`
+-   `zoomIn` / `zoomOut`
+
+#### Transform Animations
+
+-   `rotate`
+-   `scale`
+-   `translate`
+
+#### Effect Animations
+
+-   `bounce`
+-   `pulse`
+-   `flash`
+-   `shake`
+-   `swing`
+-   `rubberBand`
+-   `wobble`
+-   `flip`
+-   `heartBeat`
+-   `rollIn` / `rollOut`
+-   `lightSpeedIn` / `lightSpeedOut`
+-   `hinge`
+-   `jackInTheBox`
 
 Each animation function accepts parameters to customize the duration, timing function, and other properties.
 
 #### Animation Properties
 
 Each animation function accepts an object with the following properties:
-- `duration`: Length of the animation (e.g., '1s', '500ms')
-- `timingFunction`: CSS timing function (e.g., 'ease', 'linear', 'ease-in-out')
-- `iterationCount`: Number of times to play the animation (number or 'infinite')
+
+-   `duration`: Length of the animation (e.g., '1s', '500ms')
+-   `timingFunction`: CSS timing function (e.g., 'ease', 'linear', 'ease-in-out')
+-   `iterationCount`: Number of times to play the animation (number or 'infinite') // e.g., '1', 'infinite'
 
 ## 10. Advanced Usage
 

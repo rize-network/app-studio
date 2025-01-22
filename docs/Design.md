@@ -1,8 +1,8 @@
 
-#  Props for Design Integration
+# Design Props and Styling
 
 
-The 'app-studio' library also provides  props to better manage design integration in CSS. These props are specific to the 'app-studio' library and provide more control over the styling of the components. They include props for managing layout, spacing, sizing, and more.
+The `app-studio` library provides a set of design props that simplify styling and enhance design integration. These props offer a more streamlined and efficient way to manage styling compared to using inline styles or CSS classes directly. They are particularly beneficial for implementing responsive and theme-aware styling, allowing you to easily adapt your components to different screen sizes and themes.
 
 Here is an example:
 
@@ -20,18 +20,14 @@ Here is an example:
 
 In this example, the View component is styled with custom background color, padding, margin, width, and height.
 
-The 'shadow' prop is used to manage Shadows in CSS. It takes a string as a value, which defines the shadow effect to apply to the component. 
+The `shadow` prop allows you to apply shadow effects to components. It can accept a boolean, a number, or a `Shadow` object. A boolean value applies a default shadow, while a number references predefined shadow levels (e.g., `shadow={6}` might correspond to a specific shadow intensity defined in your theme). For more granular control, you can use a `Shadow` object to customize the shadow's properties.
 
 Here is an example:
 
 ```jsx
-<View 
-  backgroundColor="theme.primary" 
-  padding={20}
-  shadow={6}
->
+<View backgroundColor="theme.primary" padding={20} shadow={6}>
   I have a shadow
 </View>
 ```
 
-In this example, the View component will have a shadow effect defined by the value of the 'shadow' prop.
+In this example, the `shadow={6}` applies the 6th predefined shadow level from your theme to the `View` component.

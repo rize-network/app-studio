@@ -29,17 +29,24 @@ function MyComponent() {
 
 ### Options
 
-- `container`: RefObject<HTMLElement> - Reference to the scrollable container (optional, defaults to window)
-- `target`: RefObject<HTMLElement> - Reference to the target element (optional)
-- `offset`: [number, number] - X and Y offset values (optional, defaults to [0, 0])
+-   `container`: `RefObject<HTMLElement>` - Reference to the scrollable container (optional, defaults to window).
+-   `target`: `RefObject<HTMLElement>` - Reference to the target element (optional).
+-   `offset`: `[number, number]` - X and Y offset values (optional, defaults to `[0, 0]`).
+-   `throttleMs`: `number` - Throttle interval in milliseconds to limit the rate of scroll events (optional, defaults to 100).
+-   `disabled`: `boolean` - Whether to disable the hook (optional, defaults to `false`).
+
+### Usage Notes
+
+-   The `throttleMs` option can be used to improve performance by reducing the frequency of scroll event handling.
+-   The `disabled` option can be used to temporarily disable the hook without unmounting the component.
 
 ### Returns
 
-- `ScrollPosition` object:
-  - `x`: number - Horizontal scroll position
-  - `y`: number - Vertical scroll position
-  - `xProgress`: number - Horizontal scroll progress (0 to 1)
-  - `yProgress`: number - Vertical scroll progress (0 to 1)
+-   `ScrollPosition` object:
+    -   `x`: `number` - Horizontal scroll position in pixels.
+    -   `y`: `number` - Vertical scroll position in pixels.
+    -   `xProgress`: `number` - Horizontal scroll progress as a fraction between 0 and 1, representing the current horizontal scroll position relative to the total scrollable width.
+    -   `yProgress`: `number` - Vertical scroll progress as a fraction between 0 and 1, representing the current vertical scroll position relative to the total scrollable height.
 
 ## useScrollAnimation
 
@@ -67,13 +74,14 @@ function MyComponent() {
 
 ### Options
 
-- `threshold`: number | number[] - Intersection observer threshold (optional)
-- `rootMargin`: string - Intersection observer root margin (optional)
+-   `threshold`: `number | number[]` - Intersection observer threshold (optional).
+-   `root`: `React.RefObject<HTMLElement>` - The root element to use for the Intersection Observer (optional, defaults to the viewport).
+-   `rootMargin`: `string` - Margin around the root. Can have values similar to the CSS margin property (optional, defaults to '0px').
 
 ### Returns
 
-- `isInView`: boolean - Whether the element is in view
-- `progress`: number - Intersection ratio (0 to 1)
+-   `isInView`: `boolean` - Whether the element is in the viewport.
+-   `progress`: `number` - Intersection ratio (between 0 and 1) indicating the percentage of the target element that is visible within the root.
 
 ## useSmoothScroll
 
@@ -101,7 +109,9 @@ function MyComponent() {
 
 ### Returns
 
-- `scrollTo`: (element: HTMLElement | null, offset?: number) => void - Function to smoothly scroll to an element
+-   `scrollTo`: `(element: HTMLElement | null, offset?: number) => void` - Function to initiate smooth scrolling.
+    -   `element`: The target element to scroll to.
+    -   `offset`: Optional offset from the top of the element (in pixels).
 
 ## useInfiniteScroll
 
@@ -135,12 +145,15 @@ function MyComponent() {
 
 ### Options
 
-- `threshold`: number - Intersection observer threshold (optional)
-- `isLoading`: boolean - Loading state to prevent multiple triggers (optional)
+-   `threshold`: `number` - Intersection observer threshold (optional, defaults to 0).
+-   `root`: `React.RefObject<HTMLElement>` - The root element to use for the Intersection Observer (optional, defaults to the viewport).
+-   `rootMargin`: `string` - Margin around the root. Can have values similar to the CSS margin property (optional, defaults to '0px').
+-   `debounceMs`: `number` - Debounce interval in milliseconds to limit the rate of loadMore calls (optional, defaults to 300).
+-   `isLoading`: `boolean` - Loading state to prevent multiple triggers (optional).
 
 ### Returns
 
-- `sentinelRef`: (element: HTMLDivElement | null) => void - Ref callback for the sentinel element
+-   `sentinelRef`: `React.RefCallback<HTMLDivElement>` - Ref callback function that should be attached to the sentinel `div` element in your component. This `div` acts as a trigger for loading more content when it comes into view.
 
 ## useScrollDirection
 
@@ -164,8 +177,8 @@ function MyComponent() {
 
 ### Parameters
 
-- `threshold`: number - Minimum scroll amount before direction change is detected (optional, defaults to 0)
+-   `threshold`: `number` - Minimum scroll distance in pixels before the direction change is detected (optional, defaults to 0).
 
 ### Returns
 
-- `scrollDirection`: 'up' | 'down' - Current scroll direction
+-   `scrollDirection`: `'up' | 'down'` - Current scroll direction.

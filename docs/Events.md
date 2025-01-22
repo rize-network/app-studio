@@ -49,7 +49,18 @@ The `on` prop currently supports a variety of CSS pseudo-classes, allowing you t
 - `hover`: Triggered when the mouse is placed over the component.
 - `active`: Triggered when the component is actively being interacted with (e.g., a mouse click).
 - `focus`: Triggered when the component gains focus (e.g., through tab navigation).
-- `disabled`: Triggered when the component is disabled.
+- `:disabled`: Triggered when the component is disabled.
+
+### Example 3: Changing Text Color on Focus for `Input`
+
+```jsx
+<Form.Input
+  value="Focus me"
+  on={{ focus: { color: 'green' } }}
+/>
+```
+
+In this example, the `Form.Input` component's text color will change to `green` when it receives focus.
 
 ---
 

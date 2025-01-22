@@ -16,16 +16,14 @@ const ScrollExample = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
   const sectionTwoRef = useRef<HTMLDivElement>(null);
   const smoothScroll = useSmoothScroll();
-  const scrollDirection = useScrollDirection(50);
-  const { y, yProgress } = useScroll({ container: containerRef });
+  const scrollDirection = useScrollDirection(300);
   const scroll = useScroll();
+  // const scroll = useScroll();
 
   const { isInView, progress } = useScrollAnimation(sectionRef, {
     threshold: [0, 0.5, 1],
   });
 
-  console.log('y', y);
-  console.log('yProgress', yProgress);
   console.log('isInView', isInView);
   console.log('progress', progress);
   console.log('scrollDirection', scrollDirection);
@@ -67,8 +65,8 @@ const ScrollExample = () => {
           zIndex: 1000, // Ensure the header stays on top
         }}
       >
-        <Text>Scroll Progress: {(yProgress * 100).toFixed(0)}%</Text>
-        <Text>Scroll y: {y} </Text>
+        <Text>Scroll Progress: {(scroll.yProgress * 100).toFixed(0)}%</Text>
+        <Text>Scroll y: {scroll.y} </Text>
       </View>
       {/* Spacer to enable scrolling */}
       <View style={{ height: '100vh', backgroundColor: '#F08080' }} />{' '}
@@ -108,6 +106,30 @@ const ScrollExample = () => {
       >
         Scroll to Section
       </Button>
+    </View>
+  );
+};
+
+export const AnimatedComponent: React.FC = () => {
+  const elementRef = useRef<HTMLDivElement>(null);
+  const { progress } = useScrollAnimation(elementRef, {
+    threshold: [0, 0.25, 0.5, 0.75, 1], // Get more granular progress updates
+  });
+
+  return (
+    <View>
+      <View
+        ref={elementRef}
+        style={{
+          opacity: progress, // Directly tie opacity to scroll progress
+          transition: 'opacity 0.5s ease-out', // Add a smooth transition
+        }}
+        backgroundColor="color.blue"
+        color="color.white"
+      >
+        This content will fade in as you scroll.
+      </View>
+      <View height={'200vh'} />
     </View>
   );
 };
