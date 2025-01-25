@@ -2,8 +2,16 @@
 
 import { ComponentStory, ComponentMeta } from '@storybook/react';
 
-import { Input as $Input, Button, Text, View } from '../src/index';
-import React, { useRef } from 'react';
+import {
+  Input as $Input,
+  Button,
+  Horizontal,
+  Image,
+  Text,
+  Vertical,
+  View,
+} from '../src/index';
+import React, { useEffect, useRef } from 'react';
 import {
   useScroll,
   useScrollDirection,
@@ -131,6 +139,117 @@ export const AnimatedComponent: React.FC = () => {
       </View>
       <View height={'200vh'} />
     </View>
+  );
+};
+
+const Card = ({ title, description, image, tag }) => (
+  <Horizontal
+    minHeight="414px"
+    width="100%"
+    backgroundColor="#2D2D2D"
+    borderRadius={16}
+    overflow="hidden"
+    style={{ color: '#FFFFFF' }}
+    padding={24}
+  >
+    <Vertical width="50%" justifyContent="space-between" gap={24}>
+      <View
+        backgroundColor="#FACC15"
+        color="#111111"
+        paddingLeft={12}
+        paddingTop={8}
+        borderRadius={999}
+        style={{ fontWeight: '500' }}
+      >
+        {tag}
+      </View>
+      <Vertical gap={16}>
+        <View style={{ fontSize: '3rem', fontWeight: '600', lineHeight: 1.2 }}>
+          {title}
+        </View>
+        <View style={{ fontSize: '1rem' }}>{description}</View>
+      </Vertical>
+    </Vertical>
+    <Image
+      src={image}
+      alt="Feature"
+      objectFit="cover"
+      width="100%"
+      height="100%"
+    />
+  </Horizontal>
+);
+
+export const StickyComponent: React.FC = () => {
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            (entry.target as any).style.transform = 'translateY(0)';
+            (entry.target as any).style.opacity = '1';
+          } else {
+            (entry.target as any).style.transform = 'translateY(50px)';
+            (entry.target as any).style.opacity = '0';
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+    const cards = (containerRef.current as any).querySelectorAll('.card');
+    cards.forEach((card) => {
+      card.style.transition = 'all 0.6s ease-out';
+      observer.observe(card);
+    });
+    return () => observer.disconnect();
+  }, []);
+
+  const cardsData = [
+    {
+      tag: 'Radar',
+      title: "Détection d'opportunités",
+      description: 'Consultez une liste exhaustive de toutes les opportunités',
+      image: '/api/placeholder/400/320',
+    },
+    {
+      tag: 'Assistant',
+      title: 'Génération de dossiers',
+      description: 'Créez automatiquement une candidature de haute qualité',
+      image: '/api/placeholder/400/320',
+    },
+    {
+      tag: 'Dataroom',
+      title: 'Gestion des données',
+      description: 'Centralisez vos documents importants',
+      image: '/api/placeholder/400/320',
+    },
+  ];
+
+  return (
+    <Vertical
+      ref={containerRef}
+      minHeight="100vh"
+      backgroundColor="#111111"
+      padding={32}
+      gap={48}
+      style={{ overflowY: 'auto' }}
+    >
+      {cardsData.map((card, index) => (
+        <View
+          key={index}
+          className="card"
+          style={{
+            opacity: 0,
+            transform: 'translateY(50px)',
+            marginBottom: '2rem',
+          }}
+        >
+          <Card {...card} />
+        </View>
+      ))}
+    </Vertical>
   );
 };
 

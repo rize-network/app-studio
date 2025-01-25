@@ -18,6 +18,7 @@ export interface ElementProps
   css?: CSSProperties | undefined;
   onPress?: any;
   onClick?: any;
+  className?: string;
   themeMode?: 'light' | 'dark';
   as?: keyof JSX.IntrinsicElements;
   style?: CSSProperties;
