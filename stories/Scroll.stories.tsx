@@ -4,14 +4,13 @@ import { ComponentStory, ComponentMeta } from '@storybook/react';
 
 import {
   Input as $Input,
+  Animation,
   Button,
-  Horizontal,
-  Image,
   Text,
   Vertical,
   View,
 } from '../src/index';
-import React, { useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
 import {
   useScroll,
   useScrollDirection,
@@ -142,114 +141,60 @@ export const AnimatedComponent: React.FC = () => {
   );
 };
 
-const Card = ({ title, description, image, tag }) => (
-  <Horizontal
-    minHeight="414px"
-    width="100%"
-    backgroundColor="#2D2D2D"
+const Card = ({ tag, title, description }) => (
+  <View
+    backgroundColor="color.gray.800"
     borderRadius={16}
     overflow="hidden"
-    style={{ color: '#FFFFFF' }}
-    padding={24}
+    minHeight={414}
+    width="100%"
   >
-    <Vertical width="50%" justifyContent="space-between" gap={24}>
-      <View
-        backgroundColor="#FACC15"
-        color="#111111"
-        paddingLeft={12}
-        paddingTop={8}
-        borderRadius={999}
-        style={{ fontWeight: '500' }}
-      >
-        {tag}
-      </View>
-      <Vertical gap={16}>
-        <View style={{ fontSize: '3rem', fontWeight: '600', lineHeight: 1.2 }}>
-          {title}
-        </View>
-        <View style={{ fontSize: '1rem' }}>{description}</View>
-      </Vertical>
-    </Vertical>
-    <Image
-      src={image}
-      alt="Feature"
-      objectFit="cover"
-      width="100%"
-      height="100%"
-    />
-  </Horizontal>
+    <View
+      backgroundColor="color.yellow.300"
+      color="color.gray.800"
+      padding={8}
+      borderRadius={30}
+      width="fit-content"
+    >
+      <Text>{tag}</Text>
+    </View>
+
+    <View>
+      <Text>{title}</Text>
+      <Text size="lg">{description}</Text>
+    </View>
+  </View>
 );
 
-export const StickyComponent: React.FC = () => {
-  const containerRef = useRef(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            (entry.target as any).style.transform = 'translateY(0)';
-            (entry.target as any).style.opacity = '1';
-          } else {
-            (entry.target as any).style.transform = 'translateY(50px)';
-            (entry.target as any).style.opacity = '0';
-          }
-        });
-      },
-      { threshold: 0.1 }
-    );
-    const cards = (containerRef.current as any).querySelectorAll('.card');
-    cards.forEach((card) => {
-      card.style.transition = 'all 0.6s ease-out';
-      observer.observe(card);
-    });
-    return () => observer.disconnect();
-  }, []);
-
-  const cardsData = [
+export const AnimatedCards = () => {
+  const cards = [
     {
       tag: 'Radar',
       title: "Détection d'opportunités",
       description: 'Consultez une liste exhaustive de toutes les opportunités',
-      image: '/api/placeholder/400/320',
     },
     {
       tag: 'Assistant',
       title: 'Génération de dossiers',
       description: 'Créez automatiquement une candidature de haute qualité',
-      image: '/api/placeholder/400/320',
     },
     {
       tag: 'Dataroom',
       title: 'Gestion des données',
       description: 'Centralisez vos documents importants',
-      image: '/api/placeholder/400/320',
     },
   ];
 
   return (
-    <Vertical
-      ref={containerRef}
-      minHeight="100vh"
-      backgroundColor="#111111"
-      padding={32}
-      gap={48}
-      style={{ overflowY: 'auto' }}
-    >
-      {cardsData.map((card, index) => (
-        <View
-          key={index}
-          className="card"
-          style={{
-            opacity: 0,
-            transform: 'translateY(50px)',
-            marginBottom: '2rem',
-          }}
-        >
-          <Card {...card} />
-        </View>
-      ))}
-    </Vertical>
+    <View backgroundColor="color.gray.900" minHeight="100vh" padding={32}>
+      <Vertical gap={48}>
+        {cards.map((card, index) => (
+          <View key={index} position="sticky" top={32}>
+            <Card {...card} />
+          </View>
+        ))}
+      </Vertical>
+    </View>
   );
 };
 
