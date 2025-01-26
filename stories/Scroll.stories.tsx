@@ -23,7 +23,7 @@ const ScrollExample = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
   const sectionTwoRef = useRef<HTMLDivElement>(null);
   const smoothScroll = useSmoothScroll();
-  const scrollDirection = useScrollDirection(300);
+  const scrollDirection = useScrollDirection(10);
   const scroll = useScroll();
   // const scroll = useScroll();
 

@@ -266,45 +266,54 @@ export const useInfiniteScroll = (
   return { sentinelRef: setSentinel };
 };
 
-// Enhanced useScrollDirection with better performance
-export const useScrollDirection = (threshold = 0) => {
+export const useScrollDirection = (threshold = 5) => {
   const [scrollDirection, setScrollDirection] = useState<'up' | 'down'>('up');
-  const lastScrollYRef = useRef(0);
-  const prevDirectionRef = useRef<'up' | 'down'>('up');
-  const frameRef = useRef<number>();
+  const lastScrollY = useRef(0);
+  const lastDirection = useRef<'up' | 'down'>('up');
+  const animationFrame = useRef<number>();
+  const ticking = useRef(false);
 
-  const updateDirection = useCallback(() => {
-    const scrollY = window.scrollY || window.pageYOffset;
-    const direction = scrollY > lastScrollYRef.current ? 'down' : 'up';
+  const updateDirection = () => {
+    const scrollY = window.scrollY || document.documentElement.scrollTop;
+    const direction = scrollY > lastScrollY.current ? 'down' : 'up';
+    const scrollDelta = Math.abs(scrollY - lastScrollY.current);
 
-    if (
-      Math.abs(scrollY - lastScrollYRef.current) > threshold &&
-      direction !== prevDirectionRef.current
-    ) {
-      setScrollDirection(direction);
-      prevDirectionRef.current = direction;
+    // Vérifier si on est au bas de la page
+    const isAtBottom =
+      window.innerHeight + scrollY >= document.documentElement.scrollHeight - 1;
+
+    // Logique principale
+    if (scrollDelta > threshold || (direction === 'down' && isAtBottom)) {
+      if (direction !== lastDirection.current) {
+        lastDirection.current = direction;
+        setScrollDirection(direction);
+      }
     }
 
-    lastScrollYRef.current = scrollY > 0 ? scrollY : 0;
-  }, [threshold]);
+    // Mise à jour de la position avec un minimum de 0
+    lastScrollY.current = Math.max(scrollY, 0);
+    ticking.current = false;
+  };
 
   useEffect(() => {
     const handleScroll = () => {
-      if (frameRef.current) {
-        cancelAnimationFrame(frameRef.current);
+      if (!ticking.current) {
+        animationFrame.current = requestAnimationFrame(() => {
+          updateDirection();
+          ticking.current = false;
+        });
+        ticking.current = true;
       }
-      frameRef.current = requestAnimationFrame(updateDirection);
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
-
     return () => {
       window.removeEventListener('scroll', handleScroll);
-      if (frameRef.current) {
-        cancelAnimationFrame(frameRef.current);
+      if (animationFrame.current) {
+        cancelAnimationFrame(animationFrame.current);
       }
     };
-  }, [updateDirection]);
+  }, [threshold]);
 
   return scrollDirection;
 };
