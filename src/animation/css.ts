@@ -7,13 +7,13 @@ import { isStyleProp, StyleProps } from '../utils/style';
 import { ElementProps } from '../components/Element';
 import { numericCssProperties } from '../utils/cssProperties';
 
-// utils/UtilityClassManager.ts
 type StyleContext = 'base' | 'pseudo' | 'media' | 'modifier';
 
 class UtilityClassManager {
-  private baseStyleSheet: CSSStyleSheet | null = null;
-  private mediaStyleSheet: CSSStyleSheet | null = null;
-  private modifierStyleSheet: CSSStyleSheet | null = null;
+  // Maintain a Map from Document to its style sheets.
+  private baseStyleSheet: Map<Document, CSSStyleSheet> = new Map();
+  private mediaStyleSheet: Map<Document, CSSStyleSheet> = new Map();
+  private modifierStyleSheet: Map<Document, CSSStyleSheet> = new Map();
   private classCache: Map<string, string> = new Map();
   private maxCacheSize: number;
   private propertyShorthand: Record<string, string>;
@@ -27,84 +27,112 @@ class UtilityClassManager {
   ) {
     this.propertyShorthand = propertyShorthand;
     this.maxCacheSize = maxCacheSize;
-    this.initStyleSheets();
+    // Register the main document
+    if (typeof document !== 'undefined') {
+      this.initStyleSheets(document);
+    }
   }
 
-  private initStyleSheets() {
-    if (typeof document !== 'undefined') {
-      // Base stylesheet
-      let baseStyleTag = document.getElementById(
+  private initStyleSheets(targetDoc: Document) {
+    // Base stylesheet
+    if (!this.baseStyleSheet.has(targetDoc)) {
+      let baseStyleTag = targetDoc.getElementById(
         'utility-classes-base'
       ) as HTMLStyleElement;
       if (!baseStyleTag) {
-        baseStyleTag = document.createElement('style');
+        baseStyleTag = targetDoc.createElement('style');
         baseStyleTag.id = 'utility-classes-base';
-        document.head.appendChild(baseStyleTag);
+        targetDoc.head.appendChild(baseStyleTag);
       }
-      this.baseStyleSheet = baseStyleTag.sheet as CSSStyleSheet;
-
-      // Media queries stylesheet
-      let mediaStyleTag = document.getElementById(
+      this.baseStyleSheet.set(targetDoc, baseStyleTag.sheet as CSSStyleSheet);
+    }
+    // Media stylesheet
+    if (!this.mediaStyleSheet.has(targetDoc)) {
+      let mediaStyleTag = targetDoc.getElementById(
         'utility-classes-media'
       ) as HTMLStyleElement;
       if (!mediaStyleTag) {
-        mediaStyleTag = document.createElement('style');
+        mediaStyleTag = targetDoc.createElement('style');
         mediaStyleTag.id = 'utility-classes-media';
-        document.head.appendChild(mediaStyleTag);
+        targetDoc.head.appendChild(mediaStyleTag);
       }
-      this.mediaStyleSheet = mediaStyleTag.sheet as CSSStyleSheet;
-
-      // Modifier stylesheet
-      let modifierStyleTag = document.getElementById(
+      this.mediaStyleSheet.set(targetDoc, mediaStyleTag.sheet as CSSStyleSheet);
+    }
+    // Modifier stylesheet
+    if (!this.modifierStyleSheet.has(targetDoc)) {
+      let modifierStyleTag = targetDoc.getElementById(
         'utility-classes-modifier'
       ) as HTMLStyleElement;
       if (!modifierStyleTag) {
-        modifierStyleTag = document.createElement('style');
+        modifierStyleTag = targetDoc.createElement('style');
         modifierStyleTag.id = 'utility-classes-modifier';
-        document.head.appendChild(modifierStyleTag);
+        targetDoc.head.appendChild(modifierStyleTag);
       }
-      this.modifierStyleSheet = modifierStyleTag.sheet as CSSStyleSheet;
+      this.modifierStyleSheet.set(
+        targetDoc,
+        modifierStyleTag.sheet as CSSStyleSheet
+      );
     }
+  }
+
+  // Register a new document (e.g. an iframe's document)
+  public addDocument(targetDoc: Document) {
+    this.initStyleSheets(targetDoc);
+    // Reinject cached rules
+    this.injectedRulesBase.forEach((rule) =>
+      this.injectRuleToDocument(rule, 'base', targetDoc)
+    );
+    this.injectedRulesMedia.forEach((rule) =>
+      this.injectRuleToDocument(rule, 'media', targetDoc)
+    );
+    this.injectedRulesModifier.forEach((rule) =>
+      this.injectRuleToDocument(rule, 'modifier', targetDoc)
+    );
+  }
+
+  // Remove a document from management
+  public removeDocument(targetDoc: Document) {
+    this.baseStyleSheet.delete(targetDoc);
+    this.mediaStyleSheet.delete(targetDoc);
+    this.modifierStyleSheet.delete(targetDoc);
+  }
+
+  // Clear cache and injected rules
+  public clearCache() {
+    this.classCache.clear();
+    this.injectedRulesBase.clear();
+    this.injectedRulesMedia.clear();
+    this.injectedRulesModifier.clear();
+  }
+
+  private injectRuleToDocument(
+    cssRule: string,
+    context: StyleContext,
+    targetDoc: Document
+  ) {
+    let sheet: CSSStyleSheet | undefined;
+    if (context === 'base' || context === 'pseudo') {
+      sheet = this.baseStyleSheet.get(targetDoc) || undefined;
+    } else if (context === 'media') {
+      sheet = this.mediaStyleSheet.get(targetDoc) || undefined;
+    } else if (context === 'modifier') {
+      sheet = this.modifierStyleSheet.get(targetDoc) || undefined;
+    }
+    if (sheet) {
+      try {
+        sheet.insertRule(cssRule, sheet.cssRules.length);
+      } catch (e) {
+        console.error(`Error inserting rule into document: "${cssRule}"`, e);
+      }
+    }
+  }
+
+  private getAllRegisteredDocuments(): Document[] {
+    return Array.from(this.baseStyleSheet.keys());
   }
 
   private escapeClassName(className: string): string {
     return className.replace(/:/g, '\\:');
-  }
-
-  injectRule(cssRule: string, context: StyleContext = 'base') {
-    let styleSheet: CSSStyleSheet | null = null;
-    let injectedRules: Set<string> = new Set();
-
-    switch (context) {
-      case 'base':
-        styleSheet = this.baseStyleSheet;
-        injectedRules = this.injectedRulesBase;
-        break;
-      case 'pseudo':
-        styleSheet = this.baseStyleSheet; // Pseudo-classes in base stylesheet
-        injectedRules = this.injectedRulesBase;
-        break;
-      case 'media':
-        styleSheet = this.mediaStyleSheet;
-        injectedRules = this.injectedRulesMedia;
-        break;
-      case 'modifier':
-        styleSheet = this.modifierStyleSheet;
-        injectedRules = this.injectedRulesModifier;
-        break;
-      default:
-        styleSheet = this.baseStyleSheet;
-        injectedRules = this.injectedRulesBase;
-    }
-
-    if (styleSheet && !injectedRules.has(cssRule)) {
-      try {
-        styleSheet.insertRule(cssRule, styleSheet.cssRules.length);
-        injectedRules.add(cssRule);
-      } catch (e) {
-        console.error(`Error inserting CSS rule: "${cssRule}"`, e);
-      }
-    }
   }
 
   private addToCache(key: string, className: string) {
@@ -115,45 +143,55 @@ class UtilityClassManager {
     this.classCache.set(key, className);
   }
 
+  public injectRule(cssRule: string, context: StyleContext = 'base') {
+    let injectedRules: Set<string>;
+    if (context === 'base' || context === 'pseudo') {
+      injectedRules = this.injectedRulesBase;
+    } else if (context === 'media') {
+      injectedRules = this.injectedRulesMedia;
+    } else if (context === 'modifier') {
+      injectedRules = this.injectedRulesModifier;
+    } else {
+      injectedRules = this.injectedRulesBase;
+    }
+    if (!injectedRules.has(cssRule)) {
+      // Inject rule into all registered documents
+      for (const doc of this.getAllRegisteredDocuments()) {
+        this.injectRuleToDocument(cssRule, context, doc);
+      }
+      injectedRules.add(cssRule);
+    }
+  }
+
   public getClassNames(
     property: string,
     value: any,
     context: StyleContext = 'base',
     modifier: string = '',
-    getColor: (color: string) => string, // Removed themeMode parameter
+    getColor: (color: string) => string,
     mediaQueries: string[] = []
   ): string[] {
     let processedValue = value;
-
-    // If the property is a color, convert it
     if (property.toLowerCase().includes('color')) {
       processedValue = getColor(value);
-      // console.log(' = > getColor', { value, themeMode, processedValue });
     }
-
-    // Handle numeric values
     if (typeof processedValue === 'number') {
       if (numericCssProperties.has(property)) {
         processedValue = `${processedValue}px`;
       }
     }
-
     let formattedValue = processedValue.toString().split(' ').join('-');
     let key = `${property}:${formattedValue}`;
     if (modifier && context !== 'base') {
       key = `${property}:${formattedValue}|${context}:${modifier}`;
     }
-
     if (this.classCache.has(key)) {
       return [this.classCache.get(key)!];
     }
-
-    // Generate a unique class name with modifier
     let shorthand = this.propertyShorthand[property];
     if (!shorthand) {
       shorthand = property.replace(/([A-Z])/g, '-$1').toLowerCase();
     }
-
     let normalizedValue = formattedValue
       .toString()
       .replace(/\./g, 'p')
@@ -164,11 +202,8 @@ class UtilityClassManager {
       .replace(/vh/g, 'vh')
       .replace(/em/g, 'em')
       .replace(/rem/g, 'rem');
-
     let baseClassName = `${shorthand}-${normalizedValue}`;
-
     let classNames: string[] = [baseClassName];
-
     if (context === 'pseudo' && modifier) {
       const pseudoClassName = `${baseClassName}--${modifier}`;
       classNames.push(pseudoClassName);
@@ -180,20 +215,16 @@ class UtilityClassManager {
     } else {
       classNames.push(baseClassName);
     }
-
     const cssProperty = property.replace(/([A-Z])/g, '-$1').toLowerCase();
     let valueForCss = processedValue;
-
     if (typeof valueForCss === 'number') {
       if (numericCssProperties.has(cssProperty)) {
         valueForCss = `${valueForCss}px`;
       }
     }
-
     classNames.forEach((className) => {
       const escapedClassName = this.escapeClassName(className);
       let cssRules: string[] = [];
-
       switch (context) {
         case 'base':
           cssRules.push(
@@ -210,12 +241,6 @@ class UtilityClassManager {
             cssRules.push(
               `@media ${mq} { .${escapedClassName} { ${cssProperty}: ${valueForCss}; } }`
             );
-
-            if ((window as any).isResponsive === true) {
-              cssRules.push(
-                `.${modifier} { .${escapedClassName} { ${cssProperty}: ${valueForCss}; } }`
-              );
-            }
           });
           break;
         default:
@@ -223,28 +248,19 @@ class UtilityClassManager {
             `.${escapedClassName} { ${cssProperty}: ${valueForCss}; }`
           );
       }
-
-      // Determine if the class is a modifier
-      const isModifier = className.includes('--');
-
-      // Set the appropriate context
-      const ruleContext: StyleContext = isModifier ? 'modifier' : context;
-
-      // Inject CSS rules with the appropriate context
+      // If the generated class includes a modifier, treat its rules as modifier rules.
+      const ruleContext: StyleContext = className.includes('--')
+        ? 'modifier'
+        : context;
       cssRules.forEach((rule) => this.injectRule(rule, ruleContext));
-
-      // Add to cache
       this.addToCache(key, className);
     });
-
     return classNames;
   }
 }
 
 /**
  * Maps a React event to a CSS pseudo-class.
- * @param event The React event (e.g., 'hover', 'active')
- * @returns The corresponding CSS pseudo-class or null if unsupported.
  */
 const mapEventToPseudo = (event: string): string | null => {
   const eventMap: Record<string, string> = {
@@ -252,15 +268,12 @@ const mapEventToPseudo = (event: string): string | null => {
     active: 'active',
     focus: 'focus',
     visited: 'visited',
-    // Add more mappings if necessary
   };
   return eventMap[event] || null;
 };
 
 /**
  * Generates shorthand abbreviations for CSS properties.
- * @param styledProps Array of CSS properties to abbreviate.
- * @returns An object mapping each CSS property to its abbreviation.
  */
 function generatePropertyShorthand(
   styledProps: string[]
@@ -268,28 +281,20 @@ function generatePropertyShorthand(
   const propertyShorthand: Record<string, string> = {};
   const usedAbbreviations = new Set<string>();
 
-  /**
-   * Generates a unique abbreviation for a given CSS property.
-   * @param prop The CSS property to abbreviate.
-   * @returns The unique abbreviation generated.
-   */
   function generateAbbreviation(prop: string): string {
     const first = prop[0].toLowerCase();
     const last = prop[prop.length - 1].toLowerCase();
     const middle = prop.slice(1, -1).replace(/[a-z]/g, '').toLowerCase();
     let abbr = first + middle + last;
-
     if (abbr.length < 2) {
       abbr = prop.slice(0, 2).toLowerCase();
     }
-
     let i = 0;
     let uniqueAbbr = abbr;
     while (usedAbbreviations.has(uniqueAbbr)) {
       i++;
-      uniqueAbbr = abbr + prop.slice(-i, prop.length).toLowerCase();
+      uniqueAbbr = abbr + prop.slice(-i).toLowerCase();
     }
-
     usedAbbreviations.add(uniqueAbbr);
     return uniqueAbbr;
   }
@@ -297,7 +302,6 @@ function generatePropertyShorthand(
   for (const prop of styledProps) {
     propertyShorthand[prop] = generateAbbreviation(prop);
   }
-
   return propertyShorthand;
 }
 
@@ -312,7 +316,6 @@ function parseDuration(duration: string): number {
   return unit === 's' ? value * 1000 : value;
 }
 
-// Function to format a duration in milliseconds to a string with units
 function formatDuration(ms: number): string {
   if (ms >= 1000 && ms % 1000 === 0) {
     return `${ms / 1000}s`;
@@ -327,20 +330,15 @@ export const extractUtilityClasses = (
   devices: Record<string, string[]>
 ): string[] => {
   const classes: string[] = [];
-
-  // Computed styles based on props
   const computedStyles: Record<string, any> = {};
 
-  // Handle element size
+  // Handle size
   const size =
     props.height !== undefined &&
     props.width !== undefined &&
     props.height === props.width
       ? props.height
-      : props.size
-      ? props.size
-      : null;
-
+      : props.size || null;
   if (size) {
     const sizeValue = typeof size === 'number' ? `${size}px` : size;
     computedStyles.width = sizeValue;
@@ -381,7 +379,7 @@ export const extractUtilityClasses = (
     computedStyles.marginBottom = marginV;
   }
 
-  // Apply shadows if specified
+  // Handle shadows
   if (props.shadow) {
     let shadowValue: number;
     if (
@@ -394,17 +392,11 @@ export const extractUtilityClasses = (
     } else {
       shadowValue = 2;
     }
-
     if (Shadows[shadowValue]) {
-      const shadowColor = Shadows[shadowValue].shadowColor;
-      const shadowOpacity = Shadows[shadowValue].shadowOpacity;
-      const shadowOffset = Shadows[shadowValue].shadowOffset;
-      const shadowRadius = Shadows[shadowValue].shadowRadius;
-
-      // Convert color to rgba
+      const { shadowColor, shadowOpacity, shadowOffset, shadowRadius } =
+        Shadows[shadowValue];
       const rgb = Color.hex.rgb(shadowColor);
       const rgbaColor = `rgba(${rgb.join(',')}, ${shadowOpacity})`;
-
       computedStyles.boxShadow = `${shadowOffset.height}px ${shadowOffset.width}px ${shadowRadius}px ${rgbaColor}`;
     }
   }
@@ -422,32 +414,17 @@ export const extractUtilityClasses = (
     const animationDirections: string[] = [];
     const animationFillModes: string[] = [];
     const animationPlayStates: string[] = [];
-
-    let cumulativeTime = 0; // Cumulative time in milliseconds
-
+    let cumulativeTime = 0;
     animations.forEach((animation) => {
       const { keyframesName, keyframes } = generateKeyframes(animation);
-
       if (keyframes && typeof document !== 'undefined') {
         utilityClassManager.injectRule(keyframes);
       }
-
       animationNames.push(keyframesName);
-
-      // Parse duration and delay
-      const durationStr = animation.duration || '0s';
-      const durationMs = parseDuration(durationStr);
-
-      const delayStr = animation.delay || '0s';
-      const delayMs = parseDuration(delayStr);
-
-      // Calculate total delay for this animation
+      const durationMs = parseDuration(animation.duration || '0s');
+      const delayMs = parseDuration(animation.delay || '0s');
       const totalDelayMs = cumulativeTime + delayMs;
-
-      // Update cumulative time
       cumulativeTime = totalDelayMs + durationMs;
-
-      // Add formatted values to arrays
       animationDurations.push(formatDuration(durationMs));
       animationTimingFunctions.push(animation.timingFunction || 'ease');
       animationDelays.push(formatDuration(totalDelayMs));
@@ -460,7 +437,6 @@ export const extractUtilityClasses = (
       animationFillModes.push(animation.fillMode || 'none');
       animationPlayStates.push(animation.playState || 'running');
     });
-
     computedStyles.animationName = animationNames.join(', ');
     computedStyles.animationDuration = animationDurations.join(', ');
     computedStyles.animationTimingFunction =
@@ -473,12 +449,7 @@ export const extractUtilityClasses = (
     computedStyles.animationPlayState = animationPlayStates.join(', ');
   }
 
-  /**
-   * Generates utility classes for a set of styles.
-   * @param styles The styles to transform into utility classes.
-   * @param context The context of the styles ('base', 'pseudo', 'media').
-   * @param modifier The modifier for pseudo-classes or media queries.
-   */
+  // Generate utility classes for computed styles
   const generateUtilityClasses = (
     styles: Record<string, any>,
     context: 'base' | 'pseudo' | 'media' = 'base',
@@ -487,57 +458,43 @@ export const extractUtilityClasses = (
     Object.keys(styles).forEach((property) => {
       const value = styles[property];
       let mediaQueriesForClass: string[] = [];
-
       if (context === 'media') {
-        // 'modifier' can be a breakpoint or a device
         if (mediaQueries[modifier]) {
           mediaQueriesForClass = [mediaQueries[modifier]];
         } else if (devices[modifier]) {
           mediaQueriesForClass = devices[modifier]
             .map((mq) => mediaQueries[mq])
-            .filter((mq) => mq); // Filter valid media queries
+            .filter((mq) => mq);
         }
       }
-
       if (value !== undefined && value !== '') {
         const classNames = utilityClassManager.getClassNames(
           property,
           value,
           context,
           modifier,
-          getColor, // Pass getColor with single parameter
+          getColor,
           mediaQueriesForClass
         );
-
         classes.push(...classNames);
-      } else {
-        if ((window as any).isDebug === true)
-          console.error({ styles, value, property });
       }
     });
   };
 
-  // Generate utility classes for computed styles
   generateUtilityClasses(computedStyles, 'base');
 
-  // Iterate over all style properties and generate utility classes
+  // Iterate over remaining style props
   Object.keys(props).forEach((property) => {
     if (
       property !== 'style' &&
       (isStyleProp(property) || ['on', 'media'].includes(property))
     ) {
       const value = (props as any)[property];
-
       if (typeof value === 'object' && value !== null) {
         if (property === 'on') {
-          // Styles related to events (pseudo-classes)
           Object.keys(value).forEach((event) => {
             const eventStyles = value[event];
-            // Separate transition properties and other properties
-            // Extract 'animate' from event styles
             const { animate, ...otherEventStyles } = eventStyles;
-
-            // Handle animations in events
             if (animate) {
               const animations = Array.isArray(animate) ? animate : [animate];
               const animationNames: string[] = [];
@@ -548,15 +505,12 @@ export const extractUtilityClasses = (
               const animationDirections: string[] = [];
               const animationFillModes: string[] = [];
               const animationPlayStates: string[] = [];
-
               animations.forEach((animation) => {
                 const { keyframesName, keyframes } =
                   generateKeyframes(animation);
-
                 if (keyframes && typeof document !== 'undefined') {
                   utilityClassManager.injectRule(keyframes);
                 }
-
                 animationNames.push(keyframesName);
                 animationDurations.push(animation.duration || '0s');
                 animationTimingFunctions.push(
@@ -572,8 +526,6 @@ export const extractUtilityClasses = (
                 animationFillModes.push(animation.fillMode || 'none');
                 animationPlayStates.push(animation.playState || 'running');
               });
-
-              // Create an object with animation properties
               const animationStyles = {
                 animationName: animationNames.join(', '),
                 animationDuration: animationDurations.join(', '),
@@ -584,12 +536,8 @@ export const extractUtilityClasses = (
                 animationFillMode: animationFillModes.join(', '),
                 animationPlayState: animationPlayStates.join(', '),
               };
-
-              // Merge animation styles with other event styles
               Object.assign(otherEventStyles, animationStyles);
             }
-
-            // Generate classes for pseudo-classes
             if (Object.keys(otherEventStyles).length > 0) {
               const pseudo = mapEventToPseudo(event);
               if (pseudo) {
@@ -598,14 +546,12 @@ export const extractUtilityClasses = (
             }
           });
         } else if (property === 'media') {
-          // Conditional styles based on media queries or devices
           Object.keys(value).forEach((screenOrDevice) => {
             const mediaStyles = value[screenOrDevice];
             generateUtilityClasses(mediaStyles, 'media', screenOrDevice);
           });
         }
       } else {
-        // Generate a utility class for this property and value
         if (value !== undefined && value !== '') {
           const classNames = utilityClassManager.getClassNames(
             property,
@@ -615,11 +561,7 @@ export const extractUtilityClasses = (
             getColor,
             []
           );
-
           classes.push(...classNames);
-        } else {
-          if ((window as any).isDebug === true)
-            console.error({ value, property });
         }
       }
     }

@@ -8,6 +8,7 @@ export * as Animation from './animation/Animation';
 export * from './utils/typography';
 export * from './utils/shadow';
 export * from './utils/env';
+export * from './animation/css';
 export * from './utils/colors';
 export * from './providers/Responsive';
 export * from './providers/Analytics';
