@@ -5,7 +5,7 @@ import { ImageStyleProps } from '../types/style';
 export interface ImageProps
   extends Omit<
       ImageStyleProps,
-      'children' | 'style' | 'pointerEvents' | 'onClick'
+      'children' | 'style' | 'pointerEvents' | 'onClick' | 'onLayout'
     >,
     Omit<
       Partial<HTMLImageElement>,

@@ -263,12 +263,6 @@ class UtilityClassManager {
               rule: `@media ${mq} { .${escapedClassName} { ${cssProperty}: ${valueForCss}; } }`,
               context: 'media',
             });
-            if ((window as any).isResponsive === true) {
-              rules.push({
-                rule: `.${modifier} { .${escapedClassName} { ${cssProperty}: ${valueForCss}; } }`,
-                context: 'media',
-              });
-            }
           });
           break;
       }

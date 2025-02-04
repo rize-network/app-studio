@@ -5,7 +5,7 @@ import { useTheme, useResponsive } from '../src';
 const Theme = () => {
   const theme: any = useTheme();
 
-  return <>{Object.keys(theme.colors).join(', ')}</>;
+  return <>mode : {theme.themeMode}</>;
 };
 
 const Responsive = () => {

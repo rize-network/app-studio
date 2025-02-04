@@ -5,7 +5,13 @@ import { TextStyleProps } from '../types/style';
 export interface TextProps
   extends Omit<
       TextStyleProps,
-      'children' | 'style' | 'onPress' | 'pointerEvents' | 'onClick'
+      | 'children'
+      | 'style'
+      | 'onPress'
+      | 'pointerEvents'
+      | 'onClick'
+      | 'accessibilityRole'
+      | 'accessibilityState'
     >,
     ElementProps {
   toUpperCase?: boolean;
