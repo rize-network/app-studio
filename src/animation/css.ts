@@ -24,6 +24,7 @@ class UtilityClassManager {
   > = new Map();
   private maxCacheSize: number;
   private propertyShorthand: Record<string, string>;
+  private mainDocument: Document | null = null;
 
   constructor(
     propertyShorthand: Record<string, string>,
@@ -32,6 +33,7 @@ class UtilityClassManager {
     this.propertyShorthand = propertyShorthand;
     this.maxCacheSize = maxCacheSize;
     if (typeof document !== 'undefined') {
+      this.mainDocument = document;
       this.initStyleSheets(document);
     }
   }
@@ -83,17 +85,63 @@ class UtilityClassManager {
     }
   }
 
-  public addDocument(targetDocument: Document) {
-    this.initStyleSheets(targetDocument);
-    // Reinject all cached rules into the new document
-    const values = Array.from(this.classCache.values());
-    for (const { rules } of values) {
-      rules.forEach(
-        ({ rule, context }: { rule: string; context: StyleContext }) => {
-          this.injectRuleToDocument(rule, context, targetDocument);
-        }
-      );
+  private getMainDocumentRules(): Array<{
+    cssText: string;
+    context: StyleContext;
+  }> {
+    if (!this.mainDocument) return [];
+
+    const rules: Array<{ cssText: string; context: StyleContext }> = [];
+
+    // Get base rules
+    const baseSheet = this.baseStyleSheet.get(this.mainDocument);
+    if (baseSheet) {
+      Array.from(baseSheet.cssRules).forEach((rule) => {
+        rules.push({ cssText: rule.cssText, context: 'base' });
+      });
     }
+
+    // Get media rules
+    const mediaSheet = this.mediaStyleSheet.get(this.mainDocument);
+    if (mediaSheet) {
+      Array.from(mediaSheet.cssRules).forEach((rule) => {
+        rules.push({ cssText: rule.cssText, context: 'media' });
+      });
+    }
+
+    // Get modifier rules
+    const modifierSheet = this.modifierStyleSheet.get(this.mainDocument);
+    if (modifierSheet) {
+      Array.from(modifierSheet.cssRules).forEach((rule) => {
+        rules.push({ cssText: rule.cssText, context: 'modifier' });
+      });
+    }
+
+    return rules;
+  }
+
+  public addDocument(targetDocument: Document) {
+    if (targetDocument === this.mainDocument) return;
+
+    this.initStyleSheets(targetDocument);
+
+    this.clearStylesFromDocument(targetDocument);
+
+    // Reinject all cached rules into the new document
+    const mainRules = this.getMainDocumentRules();
+    mainRules.forEach(({ cssText, context }) => {
+      this.injectRuleToDocument(cssText, context, targetDocument);
+    });
+  }
+
+  private clearStylesFromDocument(targetDocument: Document) {
+    const baseSheet = this.baseStyleSheet.get(targetDocument);
+    const mediaSheet = this.mediaStyleSheet.get(targetDocument);
+    const modifierSheet = this.modifierStyleSheet.get(targetDocument);
+
+    if (baseSheet) this.clearStyleSheet(baseSheet);
+    if (mediaSheet) this.clearStyleSheet(mediaSheet);
+    if (modifierSheet) this.clearStyleSheet(modifierSheet);
   }
 
   private escapeClassName(className: string): string {
@@ -101,9 +149,16 @@ class UtilityClassManager {
   }
 
   injectRule(cssRule: string, context: StyleContext = 'base') {
-    // Inject to all registered documents
-    for (const targetDocument of this.getAllRegisteredDocuments()) {
-      this.injectRuleToDocument(cssRule, context, targetDocument);
+    // First inject to main document
+    if (this.mainDocument) {
+      this.injectRuleToDocument(cssRule, context, this.mainDocument);
+    }
+
+    // Then inject to all iframe documents
+    for (const document of this.getAllRegisteredDocuments()) {
+      if (document !== this.mainDocument) {
+        this.injectRuleToDocument(cssRule, context, document);
+      }
     }
   }
 
@@ -243,6 +298,8 @@ class UtilityClassManager {
   }
 
   public removeDocument(targetDocument: Document) {
+    if (targetDocument === this.mainDocument) return;
+
     this.baseStyleSheet.delete(targetDocument);
     this.mediaStyleSheet.delete(targetDocument);
     this.modifierStyleSheet.delete(targetDocument);
@@ -259,24 +316,20 @@ class UtilityClassManager {
   }
 
   public regenerateStyles(targetDocument: Document) {
-    // Get all stylesheets for this document
-    const baseSheet = this.baseStyleSheet.get(targetDocument);
-    const mediaSheet = this.mediaStyleSheet.get(targetDocument);
-    const modifierSheet = this.modifierStyleSheet.get(targetDocument);
-
-    // Clear existing rules
-    if (baseSheet) this.clearStyleSheet(baseSheet);
-    if (mediaSheet) this.clearStyleSheet(mediaSheet);
-    if (modifierSheet) this.clearStyleSheet(modifierSheet);
-
-    // Reinject all cached rules
-    const values = Array.from(this.classCache.values());
-    for (const { rules } of values) {
-      rules.forEach(
-        ({ rule, context }: { rule: string; context: StyleContext }) => {
-          this.injectRuleToDocument(rule, context, targetDocument);
-        }
-      );
+    if (targetDocument === this.mainDocument) {
+      // For main document, regenerate from cache
+      this.clearStylesFromDocument(targetDocument);
+      const values = Array.from(this.classCache.values());
+      for (const { rules } of values) {
+        rules.forEach(
+          ({ rule, context }: { rule: string; context: StyleContext }) => {
+            this.injectRuleToDocument(rule, context, targetDocument);
+          }
+        );
+      }
+    } else {
+      // For iframes, copy from main document
+      this.addDocument(targetDocument);
     }
   }
 
