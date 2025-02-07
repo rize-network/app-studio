@@ -17,7 +17,7 @@ export function useOnScreen<T extends HTMLElement = HTMLElement>(
     observer.observe(node);
 
     return () => {
-      observer.unobserve(node);
+      observer.disconnect();
     };
   }, [options]);
 
