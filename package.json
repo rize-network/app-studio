@@ -80,6 +80,7 @@
     "@emotion/is-prop-valid": "^1.2.1",
     "@emotion/unitless": "^0.8.1",
     "color-convert": "^2.0.1",
+    "gsap": "^3.12.7",
     "murmurhash-js": "^1.0.0"
   },
   "devDependencies": {

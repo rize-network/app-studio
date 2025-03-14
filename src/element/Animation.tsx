@@ -759,3 +759,181 @@ export const blinkCursor = ({
   iterationCount,
   ...props,
 });
+
+export const fadeInScroll = ({
+  duration = '0.5s',
+  timingFunction = 'ease',
+  timeline = 'scroll()',
+  range = 'cover',
+  ...props
+}: AnimationProps) => ({
+  from: { opacity: 0 },
+  to: { opacity: 1 },
+  duration,
+  timingFunction,
+  timeline,
+  range,
+  ...props,
+});
+
+export const slideInLeftScroll = ({
+  duration = '0.5s',
+  timingFunction = 'ease-out',
+  timeline = 'scroll()',
+  range = 'cover',
+  ...props
+}: AnimationProps) => ({
+  from: { transform: 'translateX(-200%)' },
+  to: { transform: 'translateX(0)' },
+  duration,
+  timingFunction,
+  timeline,
+  range,
+  ...props,
+});
+
+export const scaleDownScroll = ({
+  duration = '0.8s',
+  timingFunction = 'ease',
+  timeline = 'scroll()',
+  range = 'cover',
+  ...props
+}: AnimationProps) => ({
+  from: { transform: 'scale(3)' },
+  to: { transform: 'scale(1)' },
+  duration,
+  timingFunction,
+  timeline,
+  range,
+  ...props,
+});
+
+// Text fill reveal on scroll driven by a custom property (--fill)
+// Requires @property --fill defined in CSS
+export const fillTextScroll = ({
+  duration = '1s',
+  timingFunction = 'linear',
+  timeline = '--section',
+  range = 'entry 100% cover 50%, cover 50% exit 0%',
+  ...props
+}: AnimationProps) => ({
+  from: {
+    '--fill': 0,
+    color: 'transparent',
+    backgroundPositionX:
+      'calc(var(--underline-block-width) * -1), calc(var(--underline-block-width) * -1), 0',
+  },
+  '50%': { '--fill': 0.5 },
+  to: {
+    '--fill': 1,
+    backgroundPositionX: '0, 0, 0',
+    color: 'var(--finish-fill)',
+  },
+  duration,
+  timingFunction,
+  timeline,
+  range,
+  ...props,
+});
+
+// Collapsing floating call-to-action on scroll
+// This animates the width from an expanded value to a collapsed width.
+export const ctaCollapseScroll = ({
+  duration = '1s',
+  timingFunction = 'linear',
+  timeline = 'scroll()',
+  range = '0 400px',
+  ...props
+}: AnimationProps) => ({
+  from: { width: 'calc(48px + 120px)' },
+  to: { width: '48px' },
+  duration,
+  timingFunction,
+  timeline,
+  range,
+  ...props,
+});
+
+// Hand wave animation on scroll with a defined view range
+export const handWaveScroll = ({
+  duration = '2s',
+  timingFunction = 'linear',
+  timeline = 'scroll()',
+  range = '10vh 60vh',
+  ...props
+}: AnimationProps) => ({
+  from: { transform: 'rotate(0deg)' },
+  '50%': { transform: 'rotate(20deg)' },
+  to: { transform: 'rotate(0deg)' },
+  duration,
+  timingFunction,
+  timeline,
+  range,
+  ...props,
+});
+
+// Fade out and blur text on scroll exit
+export const fadeBlurScroll = ({
+  duration = '1s',
+  timingFunction = 'linear',
+  timeline = 'view()',
+  range = 'cover 40% cover 85%',
+  ...props
+}: AnimationProps) => ({
+  to: { opacity: 0, filter: 'blur(2rem)' },
+  duration,
+  timingFunction,
+  timeline,
+  range,
+  ...props,
+});
+
+// Unclip animation using clip-path on scroll
+export const unclipScroll = ({
+  duration = '1s',
+  timingFunction = 'linear',
+  timeline = '--article',
+  range = 'entry',
+  ...props
+}: AnimationProps) => ({
+  to: { clipPath: 'ellipse(220% 200% at 50% 175%)' },
+  duration,
+  timingFunction,
+  timeline,
+  range,
+  ...props,
+});
+
+// Scale down image (or content) on scroll using article timeline
+export const scaleDownArticleScroll = ({
+  duration = '1s',
+  timingFunction = 'linear',
+  timeline = '--article',
+  range = 'entry',
+  ...props
+}: AnimationProps) => ({
+  '0%': { transform: 'scale(5)' },
+  to: { transform: 'scale(1)' },
+  duration,
+  timingFunction,
+  timeline,
+  range,
+  ...props,
+});
+
+// List item scaling animation on scroll driven by an inline view-timeline (--i)
+export const listItemScaleScroll = ({
+  duration = '0.5s',
+  timingFunction = 'ease',
+  timeline = '--i',
+  range = 'cover 40% cover 60%',
+  ...props
+}: AnimationProps) => ({
+  from: { transform: 'scale(0.8)' },
+  '50%': { transform: 'scale(1)' },
+  duration,
+  timingFunction,
+  timeline,
+  range,
+  ...props,
+});

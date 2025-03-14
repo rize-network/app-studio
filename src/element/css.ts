@@ -4,15 +4,77 @@ import { Shadows } from '../utils/shadow';
 import Color from 'color-convert';
 import { generateKeyframes } from './utils';
 import { isStyleProp, StyleProps } from '../utils/style';
-import { ElementProps } from '../components/Element';
+import { ElementProps } from './Element';
 import { numericCssProperties } from '../utils/cssProperties';
 
 type StyleContext = 'base' | 'pseudo' | 'media' | 'modifier';
+
+// Implement a simple LRU cache for classCache
+class LRUCache<K, V> {
+  private cache: Map<K, V>;
+  private maxSize: number;
+
+  constructor(maxSize: number) {
+    this.maxSize = maxSize;
+    this.cache = new Map();
+  }
+
+  get(key: K): V | undefined {
+    const item = this.cache.get(key);
+    if (item) {
+      // Move to the end to mark as recently used
+      this.cache.delete(key);
+      this.cache.set(key, item);
+      return item;
+    }
+    return undefined;
+  }
+
+  set(key: K, value: V): void {
+    if (this.cache.has(key)) {
+      // If already in cache, just move to the end
+      this.cache.delete(key);
+    } else if (this.cache.size >= this.maxSize) {
+      // Remove the least recently used (first item in the map)
+      const firstKey = this.cache.keys().next().value;
+      if (firstKey) {
+        this.cache.delete(firstKey);
+      }
+    }
+    this.cache.set(key, value);
+  }
+
+  clear(): void {
+    this.cache.clear();
+  }
+
+  delete(key: K): void {
+    this.cache.delete(key);
+  }
+
+  get size(): number {
+    return this.cache.size;
+  }
+
+  keys(): IterableIterator<K> {
+    return this.cache.keys();
+  }
+
+  values(): IterableIterator<V> {
+    return this.cache.values();
+  }
+
+  has(key: K): boolean {
+    return this.cache.has(key);
+  }
+}
+
 class UtilityClassManager {
   private baseStyleSheet: Map<Document, CSSStyleSheet> = new Map();
   private mediaStyleSheet: Map<Document, CSSStyleSheet> = new Map();
   private modifierStyleSheet: Map<Document, CSSStyleSheet> = new Map();
-  private classCache: Map<
+  // Use LRUCache instead of WeakMap for classCache
+  private classCache: LRUCache<
     string,
     {
       className: string;
@@ -21,7 +83,7 @@ class UtilityClassManager {
         context: StyleContext;
       }>;
     }
-  > = new Map();
+  >;
   private maxCacheSize: number;
   private propertyShorthand: Record<string, string>;
   private mainDocument: Document | null = null;
@@ -32,6 +94,8 @@ class UtilityClassManager {
   ) {
     this.propertyShorthand = propertyShorthand;
     this.maxCacheSize = maxCacheSize;
+    // Initialize LRUCache with maxSize
+    this.classCache = new LRUCache(this.maxCacheSize);
     if (typeof document !== 'undefined') {
       this.mainDocument = document;
       this.initStyleSheets(document);
@@ -171,10 +235,7 @@ class UtilityClassManager {
     className: string,
     rules: Array<{ rule: string; context: StyleContext }>
   ) {
-    if (this.classCache.size >= this.maxCacheSize) {
-      const firstKey = this.classCache.keys().next().value;
-      if (firstKey) this.classCache.delete(firstKey);
-    }
+    // LRUCache handles size limit internally
     this.classCache.set(key, { className, rules });
   }
 
@@ -399,16 +460,16 @@ class UtilityClassManager {
 }
 
 /**
- * Maps a React event to a CSS pseudo-class.
+ * WeakMaps a React event to a CSS pseudo-class.
  */
 const mapEventToPseudo = (event: string): string | null => {
-  const eventMap: Record<string, string> = {
+  const eventWeakMap: Record<string, string> = {
     hover: 'hover',
     active: 'active',
     focus: 'focus',
     visited: 'visited',
   };
-  return eventMap[event] || null;
+  return eventWeakMap[event] || null;
 };
 
 /**
@@ -444,8 +505,31 @@ function generatePropertyShorthand(
   return propertyShorthand;
 }
 
+const rawCssCache = new Map<string, string>();
+function generateUniqueClassName(css: string): string {
+  // If we already have a class name for this exact CSS, return it
+
+  // Otherwise, create a new encoded and truncated class name
+
+  if (rawCssCache.has(css)) {
+    return rawCssCache.get(css)!;
+  }
+
+  const shortName = Math.random().toString(36).substring(7);
+
+  // Optionally include a counter to reduce collisions on identical slice
+  const newClassName = `raw-css-${shortName}`;
+
+  // Store it in the cache
+  rawCssCache.set(css, newClassName);
+  return newClassName;
+}
+
 const propertyShorthand = generatePropertyShorthand(StyleProps);
-export const utilityClassManager = new UtilityClassManager(propertyShorthand);
+export const utilityClassManager = new UtilityClassManager(
+  propertyShorthand,
+  10000
+); // You can adjust maxSize here
 
 function parseDuration(duration: string): number {
   const match = duration.match(/^([\d.]+)(ms|s)$/);
@@ -553,6 +637,8 @@ export const extractUtilityClasses = (
     const animationDirections: string[] = [];
     const animationFillModes: string[] = [];
     const animationPlayStates: string[] = [];
+    const animationTimelines: string[] = [];
+    const animationRanges: string[] = [];
     let cumulativeTime = 0;
     animations.forEach((animation) => {
       const { keyframesName, keyframes } = generateKeyframes(animation);
@@ -575,6 +661,8 @@ export const extractUtilityClasses = (
       animationDirections.push(animation.direction || 'normal');
       animationFillModes.push(animation.fillMode || 'none');
       animationPlayStates.push(animation.playState || 'running');
+      animationTimelines.push(animation.timeline || '');
+      animationRanges.push(animation.range || '');
     });
     computedStyles.animationName = animationNames.join(', ');
     computedStyles.animationDuration = animationDurations.join(', ');
@@ -586,6 +674,12 @@ export const extractUtilityClasses = (
     computedStyles.animationDirection = animationDirections.join(', ');
     computedStyles.animationFillMode = animationFillModes.join(', ');
     computedStyles.animationPlayState = animationPlayStates.join(', ');
+    if (animationTimelines.some((t) => t)) {
+      computedStyles.animationTimeline = animationTimelines.join(', ');
+    }
+    if (animationRanges.some((r) => r)) {
+      computedStyles.animationRange = animationRanges.join(', ');
+    }
   }
 
   // Generate utility classes for computed styles
@@ -626,6 +720,7 @@ export const extractUtilityClasses = (
   Object.keys(props).forEach((property) => {
     if (
       property !== 'style' &&
+      property !== 'css' &&
       (isStyleProp(property) || ['on', 'media'].includes(property))
     ) {
       const value = (props as any)[property];
@@ -705,6 +800,18 @@ export const extractUtilityClasses = (
       }
     }
   });
+
+  if (props.css) {
+    if (typeof props.css === 'object') {
+      Object.assign(computedStyles, props.css);
+    } else if (typeof props.css === 'string') {
+      // Generate or reuse a class for the raw CSS
+      const uniqueClassName = generateUniqueClassName(props.css);
+      console.log('uniqueClassName', uniqueClassName, props.css);
+      utilityClassManager.injectRule(`.${uniqueClassName} { ${props.css} }`);
+      classes.push(uniqueClassName);
+    }
+  }
 
   return classes;
 };

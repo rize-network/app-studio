@@ -17,6 +17,8 @@ export const generateKeyframes = (
     direction,
     fillMode,
     playState,
+    timeline,
+    range,
     ...keyframesDef
   } = animation;
 

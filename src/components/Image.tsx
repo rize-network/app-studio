@@ -1,5 +1,5 @@
 import React from 'react';
-import { Element, ElementProps } from './Element';
+import { Element, ElementProps } from '../element/Element';
 import { ImageStyleProps } from '../types/style';
 
 export interface ImageProps

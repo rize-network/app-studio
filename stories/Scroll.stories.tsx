@@ -2,14 +2,7 @@
 
 import { ComponentStory, ComponentMeta } from '@storybook/react';
 
-import {
-  Input as $Input,
-  Animation,
-  Button,
-  Text,
-  Vertical,
-  View,
-} from '../src/index';
+import { Input as $Input, Button, Text, Vertical, View } from '../src/index';
 import React, { useRef } from 'react';
 import {
   useScroll,

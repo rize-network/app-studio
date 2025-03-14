@@ -28,8 +28,13 @@ export default {
 } as ComponentMeta<typeof View>;
 
 const Template: ComponentStory<typeof View> = (args) => {
-  const { animationName, duration, timingFunction, iterationCount, ...rest } =
-    args;
+  const {
+    animationName,
+    duration,
+    timingFunction,
+    iterationCount,
+    ...rest
+  }: any = args;
 
   // Récupérer la fonction d'animation correspondante
   const animationFunc = Animation[animationName as string];
@@ -39,9 +44,14 @@ const Template: ComponentStory<typeof View> = (args) => {
     ? animationFunc(duration, timingFunction, iterationCount)
     : undefined;
 
-  return animate ? (
-    <View size={100} backgroundColor="color.blue" animate={animate} {...rest} />
-  ) : null;
+  return (
+    <View
+      size={100}
+      backgroundColor="color.blue"
+      animate={animate ? animate : undefined}
+      {...rest}
+    />
+  );
 };
 
 export const SelectableAnimation = Template.bind({});

@@ -4,7 +4,7 @@ import { useResponsiveContext } from '../providers/Responsive';
 
 import { isStyleProp } from '../utils/style';
 import { AnimationProps, excludedKeys, includeKeys } from '../utils/constants';
-import { extractUtilityClasses } from '../animation/css';
+import { extractUtilityClasses } from './css';
 import { Shadow } from '../utils/shadow';
 import { useAnalytics } from '../providers/Analytics';
 import { ViewStyleProps } from '../types/style';
@@ -15,7 +15,7 @@ export interface ElementProps
   on?: Record<string, CssProps> | undefined;
   media?: Record<string, CssProps> | undefined;
   only?: string[] | undefined;
-  css?: CSSProperties | undefined;
+  css?: CSSProperties | any;
   onPress?: any;
   onClick?: any;
   className?: string;
