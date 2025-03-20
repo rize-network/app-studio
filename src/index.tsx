@@ -23,3 +23,4 @@ export * from './hooks/useOnScreen';
 export * from './hooks/useResponsive';
 export * from './hooks/useScroll';
 export * from './hooks/useWindowSize';
+export * from './hooks/useInView';
