@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { addDecorator } from '@storybook/addon-actions';
 import { ThemeProvider, ResponsiveProvider } from '../src';
+import { WindowSizeProvider } from '../src/providers/WindowSize';
 
 // https://storybook.js.org/docs/react/writing-stories/parameters#global-parameters
 export const parameters = {
@@ -10,9 +11,11 @@ export const parameters = {
 
 const Container = ({ children }) => {
   return (
-    <ResponsiveProvider>
-      <ThemeProvider>{children}</ThemeProvider>
-    </ResponsiveProvider>
+    <WindowSizeProvider>
+      <ResponsiveProvider>
+        <ThemeProvider>{children}</ThemeProvider>
+      </ResponsiveProvider>
+    </WindowSizeProvider>
   );
 };
 

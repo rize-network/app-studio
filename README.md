@@ -1,487 +1,714 @@
-# App-Studio
+# App-Studio 
 
-App-Studio is a powerful React-based library designed to simplify the process of building responsive, interactive, and visually consistent web applications. It provides CSS design props for layout, spacing, sizing, shadows, event management, and theming.
+App-Studio is a React library that simplifies the creation of modern web applications by providing reusable components, hooks, and utilities. It offers built-in support for theming, responsive design, and analytics, making it an ideal choice for developers aiming to build high-quality, efficient, and scalable projects. Key features include:
 
-### Features
+- A robust set of UI components for layouts, forms, and more.
+- Hooks for managing state, events, and responsiveness.
+- Providers for theming, responsiveness, and analytics.
+- Utilities for styling, colors, and typography.
 
--   🌈 Add styled props to your application
--   📦 A set of simple and powerful React components
--   🌍 Internationalization support for dozens of languages
--   🎨 Powerful theme customization in every detail
+Whether you're building a small prototype or a large-scale application, App-Studio empowers you to work faster and smarter.
 
-## Table of Contents
+---
 
-- [Installation](#2-installation)
-- [Core Components](#3-core-components)
-  - [Element](#element)
-  - [View](#view)
-  - [Text](#text)
-  - [Form](#form)
-  - [Image](#image)
-- [Responsive Design](#4-responsive-design)
-  - [Media Prop](#media-prop)
-  - [useResponsive Hook](#useresponsive-hook)
-- [Event Management](#5-event-management)
-- [Theming](#6-theming)
-- [Custom Hooks](#7-custom-hooks)
-  - [useMount](#usemount)
-- [Design Props](#8-design-props)
-  - [Shadow Prop](#shadow-prop)
-- [Animation](#9-animation)
-  - [Basic Usage](#basic-usage)
-  - [Available Animations](#available-animations)
-  - [Animation Properties](#animation-properties)
-- [Advanced Usage](#10-advanced-usage)
-- [Contributing](#11-contributing)
-- [License](#12-license)
+# Installation
 
-## 2. Installation
+To get started with App-Studio, install it via npm and set up the necessary providers in your application.
 
-To install App-Studio, run the following command:
+Prerequisites
+
+- Node.js (>= 14.x)
+- React (>= 17.x)
+
+# Installation Steps
+
+Run the following command to install App-Studio:
+
+bash
 
 ```bash
-npm install app-studio  --save
+npm install --save app-studio 
 ```
 
-## 3. Core Components
+After installation, wrap your application with the core providers to enable theming, responsiveness, and analytics:
 
-### Element
-
-The `Element` component is the base for all other components. It handles responsiveness, shadows, margins, padding, and more.
-
-#### Key Features
-
--   Sets both `width` and `height` with the `size` prop.
--   Defines styles for different CSS events with the `on` prop.
--   Defines responsive styles for different media queries with the `media` prop.
--   Applies shadow effects with the `shadow` prop.
-
-#### Usage
+jsx
 
 ```jsx
-<Element backgroundColor="color.blue" padding={10}>
-  This is an element
-</Element>
+import { ThemeProvider, ResponsiveProvider, AnalyticsProvider } from 'app-studio';
+
+function App() {
+  return (
+    <ThemeProvider>
+      <ResponsiveProvider>
+        <AnalyticsProvider>
+          {/* Your application components */}
+        </AnalyticsProvider>
+      </ResponsiveProvider>
+    </ThemeProvider>
+  );
+}
+
+export default App;
 ```
 
-### View
+---
 
-The `View` component extends the basic `div` HTML element. It's a generic container used to create various layouts.
+# Components
 
-#### Key Features
+App-Studio provides a set of reusable components to handle common UI tasks. Below is detailed documentation for each component.
 
--   Provides a flexible way to structure content.
--   Supports all `Element` props.
+## View
 
-#### Usage
+The View component is a versatile container for creating layouts, supporting a wide range of styling options.
+
+Props
+
+| **Prop** | **Type** | **Default** | **Description** |
+| --- | --- | --- | --- |
+| as | string | 'div' | The HTML element to render as. |
+| children | React.ReactNode | - | Content inside the view. |
+
+Example
+
+jsx
 
 ```jsx
-<View backgroundColor="color.red" color="color.white" padding={20}>
-  This is a view
-</View>
-```
+import { View } from 'app-studio';
 
-### Text
-
-The `Text` component extends the basic `div` HTML element for rendering text content.
-
-#### Key Features
-
--   Provides text-specific styling options.
--   Supports all `Element` props.
-
-#### Usage
-
-```jsx
-<Text color="color.blue">This is a text</Text>
-```
-
-### Form
-
-The `Form` component extends the basic `form` HTML element and provides nested `Form.Button` and `Form.Input` components.
-
-#### Key Features
-
--   Simplifies form creation and management.
--   Supports all `Element` props.
-
-#### Usage
-
-```jsx
-<Form>
-  <Form.Input placeholder="Enter your name" />
-  <Form.Button>Submit</Form.Button>
-</Form>
-```
-
-### Image
-
-The `Image` component extends the basic `img` HTML element for displaying images.
-
-#### Key Features
-
--   Supports responsive image loading with `media`.
--   Applies shadow effects with `shadow`.
--   Handles events with `on`.
-
-#### Usage
-
-```jsx
-<Image src="url_to_image" alt="description" />
-```
-
-## 4. Responsive Design
-
-App-Studio offers two primary methods for implementing responsive design: the `media` prop and the `useResponsive` hook.
-
-### Media Prop
-
-The `media` prop allows you to specify different styles for various devices or screen sizes without causing component re-renders.
-
-#### Example
-
-```jsx
-<View size={100} 
-  media={{
-  mobile: { backgroundColor: 'color.green' },
-  tablet: { backgroundColor: 'color.yellow' },
-  xl: { backgroundColor: 'color.blue' },
-  }}  
-/>
-```
-
-### useResponsive Hook
-
-The `useResponsive` hook provides information about the current screen size and device type based on defined breakpoints and devices.
-
-#### Example
-
-```jsx
-const { screen, on } = useResponsive();
-
-return (
-  <View size={100} backgroundColor={responsive[screen]}>
-  {screen} - mobile: {on('mobile') ? 'yes' : 'no'}
-  </View>
-);
-```
-
-To use these responsive features, wrap your app with `ResponsiveProvider`:
-
-```jsx
-<ResponsiveProvider 
-  breakpoints={{
-  xs: 0,
-  sm: 340,
-  md: 560,
-  lg: 1080,
-  xl: 1300,
-  }}
-  devices={{  
-  mobile: ['xs', 'sm'],
-  tablet: ['md', 'lg'],
-  desktop: ['lg', 'xl']
-  }}
->
-  <App />
-</ResponsiveProvider>
-```
-
-## 5. Event Management
-
-App-Studio provides an intuitive way to manage CSS events through the `on` prop. This feature allows you to style elements based on various interactive states.
-
-#### Example
-
-```jsx
-<View 
-  backgroundColor="grey" 
-  padding={20}
-  on={{ hover: { backgroundColor: 'blue.100' } }}
->
-  Hover over me
-</View>
-```
-
-Supported events include `hover`, `active`, `focus`, and `disabled`.
-
-## 6. Theming
-
-App-Studio's theming system allows you to maintain a consistent look across your application using the `ThemeProvider` component.
-
-#### Setting up the Theme
-
-```javascript
-const theme = {
-  main: { primary: '#fff7ed' },
-  components: { button: { background: '#fff7ed' } }
-};
-
-const colors = {
-  main: { blue: '#94a3b8' },
-  palette: {
-  blueGray: {
-    50: '#f8fafc',
-    // ... other shades
-    900: '#0f172a'
-  }
-  }
-};
-```
-
-#### Using ThemeProvider
-
-```jsx
-<ThemeProvider theme={theme} colors={colors}>
-  <App />
-</ThemeProvider>
-```
-
-#### Applying Theme in Components
-
-```jsx
-<View backgroundColor="color.blue">
-  <Text color="theme.primary">Hello</Text>
-  <Button backgroundColor="theme.button.background">Click me</Button>
-</View>
-```
-
-## 7. Custom Hooks
-
-### useMount
-
-The `useMount` hook executes logic when a component first mounts.
-
-#### Usage
-
-```jsx
-import { useMount } from '@your-org/app-studio';
-
-const MyComponent = () => {
-  useMount(() => {
-  console.log('MyComponent mounted');
-  });
-
-  return <div>MyComponent</div>;
-};
-```
-
-## 8. Design Props
-
-App-Studio provides additional props to better manage design integration in CSS. These props offer more control over the styling of components, including layout, spacing, and sizing.
-
-### Example
-
-```jsx
-<View 
-  backgroundColor="theme.primary" 
-  padding={20}
-  margin={10}
-  width={200}
-  height={100}
->
-  I am a View component with custom styling
-</View>
-```
-
-### Shadow Prop
-
-The `shadow` prop is used to manage shadows in CSS. It takes a number or a string as a value, which defines the shadow effect to apply to the component.
-
-```jsx
-<View 
-  backgroundColor="theme.primary" 
-  padding={20}
-  shadow={6}
->
-  I have a shadow
-</View>
-```
-
-## 9. Animation
-
-App-Studio provides a powerful animation system through the `Animation` object. Animations can be applied to any `Element` or its derivatives using the `animate` prop.
-
-#### Usage
-
-```jsx
-// Basic animation
-<View 
-  animate={Animation.fadeIn({
-    duration: '1s',
-    timingFunction: 'ease',
-    iterationCount: '1'
-  })}
-/>
-
-// Animation sequence
-const sequence = [
-  {
-    from: { opacity: 0, transform: 'translateY(-100px)' },
-    to: { opacity: 1, transform: 'translateY(0)' },
-    duration: '2s',
-    timingFunction: 'ease-in'
-  },
-  {
-    from: { opacity: 1, transform: 'translateY(100px)' },
-    to: { opacity: 0, transform: 'translateY(0)' },
-    duration: '2s',
-    timingFunction: 'ease-out'
-  }
-];
-
-<View animate={sequence} />
-
-// Animation on hover
-<View
-  on={{
-    hover: {
-      animate: Animation.rotate({ duration: '1s', timingFunction: 'ease' })
-    }
-  }}
-/>
-```
-
-#### Available Animations
-
-All animations are available through the `Animation` object:
-- `Animation.fadeIn()`
-- `Animation.fadeOut()`
-- `Animation.bounce()`
-- `Animation.rotate()`
-- `Animation.pulse()`
-- And many more...
-
-### Basic Usage
-
-To apply an animation to a component, use the `animate` prop with an animation object:
-
-```jsx
-import { View, Animation } from 'app-studio';
-
-function Example() {
+function MyComponent() {
   return (
     <View
-      animate={Animation.fadeIn()} // Fades in the view
-      backgroundColor="theme.primary"
-      padding={20}
+      backgroundColor="color.blue.500"
+      padding={16}
+      borderRadius={8}
+      onClick={() => console.log('Clicked!')}
     >
-      This view will fade in
+      Hello, World!
     </View>
   );
 }
 ```
 
-### Available Animations
+Best Practices
 
-App-Studio comes with a set of pre-defined animations that you can use out of the box:
+- Use as to render semantic HTML elements (e.g., section, article).
+- Leverage theme colors for consistent styling.
 
-#### Transition Animations
+## Image
 
--   `fadeIn` / `fadeOut`
--   `slideInLeft` / `slideInRight` / `slideInUp` / `slideInDown`
--   `zoomIn` / `zoomOut`
+The Image component optimizes image loading and rendering.
 
-#### Transform Animations
+Props
 
--   `rotate`
--   `scale`
--   `translate`
+| **Prop** | **Type** | **Default** | **Description** |
+| --- | --- | --- | --- |
+| src | string | - | Image URL. |
+| alt | string | - | Alternative text for the image. |
+| lazy | boolean | true | Enables lazy loading. |
 
-#### Effect Animations
+Example
 
--   `bounce`
--   `pulse`
--   `flash`
--   `shake`
--   `swing`
--   `rubberBand`
--   `wobble`
--   `flip`
--   `heartBeat`
--   `rollIn` / `rollOut`
--   `lightSpeedIn` / `lightSpeedOut`
--   `hinge`
--   `jackInTheBox`
-
-Each animation function accepts parameters to customize the duration, timing function, and other properties.
-
-#### Animation Properties
-
-Each animation function accepts an object with the following properties:
-
--   `duration`: Length of the animation (e.g., '1s', '500ms')
--   `timingFunction`: CSS timing function (e.g., 'ease', 'linear', 'ease-in-out')
--   `iterationCount`: Number of times to play the animation (number or 'infinite') // e.g., '1', 'infinite'
-
-## 10. Advanced Usage
-
-Here's an advanced example showcasing various features of App-Studio, including animations:
+jsx
 
 ```jsx
-import { ThemeProvider, ResponsiveProvider, View, Span, Text, Button, Animation } from 'app-studio';
+import { Image } from 'app-studio';
 
-const theme = {
-  main: { primary: '#fff7ed' },
-  components: { button: { background: '#fff7ed' } }
-};
+function MyComponent() {
+  return <Image src="example.jpg" alt="Example" lazy />;
+}
+```
 
-const colors = {
-  main: { blue: '#94a3b8' },
-  palette: { blueGray: { 500: '#64748b' } }
-};
+## Text
 
-function Example() {
+The Text component provides styled text with typography support.
+
+Props
+
+| **Prop** | **Type** | **Default** | **Description** |
+| --- | --- | --- | --- |
+| as | string | 'p' | HTML element to render as. |
+| size | string | 'md' | Font size (e.g., 'sm', 'lg'). |
+| weight | string | 'normal' | Font weight (e.g., 'bold'). |
+
+Example
+
+jsx
+
+```jsx
+import { Text } from 'app-studio';
+
+function MyComponent() {
+  return <Text size="lg" weight="bold">Bold Large Text</Text>;
+}
+```
+
+## Form
+
+The Form component simplifies form creation and validation.
+
+Props
+
+| **Prop** | **Type** | **Default** | **Description** |
+| --- | --- | --- | --- |
+| onSubmit | function | - | Callback on form submission. |
+| children | React.ReactNode | - | Form fields and elements. |
+
+Example
+
+jsx
+
+```jsx
+import { Form } from 'app-studio';
+
+function MyComponent() {
   return (
-    <ResponsiveProvider>
-      <ThemeProvider theme={theme} colors={colors}>
-        <Span
-          animate={Animation.fadeIn({duration: '1s',timingFunction:'ease-out'})}
-          backgroundColor="color.blue"
-          padding={10}
-          media={{
-            mobile: {
-              padding: 20
-            }
-          }}
-        >
-          Base element
-        </Span>
-        <View 
-          animate={Animation.slideInRight()}
-          backgroundColor="theme.primary" 
-          margin={10}
-          width={200}
-          on={{ hover: { backgroundColor: 'color.blueGray.500' } }}
-        >
-          Hover to change color
-        </View>
-        <Button 
-          animate={Animation.pulse({timingFunction:'infinite'})}
-          backgroundColor="theme.button.background"
-        >
-          Click here
-        </Button>
-        <Text 
-          animate={Animation.typewriter('Hello', 100)}
-          color="theme.primary"
-        />
-      </ThemeProvider>
+    <Form onSubmit={(data) => console.log(data)}>
+      <input name="username" />
+      <button type="submit">Submit</button>
+    </Form>
+  );
+}
+```
+
+## Skeleton
+
+The Skeleton component displays a placeholder while content loads.
+
+Props
+
+| **Prop** | **Type** | **Default** | **Description** |
+| --- | --- | --- | --- |
+| width | string | '100%' | Width of the skeleton. |
+| height | string | '20px' | Height of the skeleton. |
+
+Example
+
+jsx
+
+```jsx
+import { Skeleton } from 'app-studio';
+
+function MyComponent() {
+  return <Skeleton width="200px" height="30px" />;
+}
+```
+
+# Hooks
+
+App-Studio includes a variety of hooks to manage state, events, and responsiveness.
+
+## useActive
+
+Detects if an element is active (e.g., pressed).
+
+Parameters
+
+None.
+
+Return Values
+
+| **Value** | **Type** | **Description** |
+| --- | --- | --- |
+| active | boolean | Whether the element is active. |
+
+Example
+
+jsx
+
+```jsx
+import { useActive } from 'app-studio';
+
+function MyComponent() {
+  const { active } = useActive();
+  return <button style={{ opacity: active ? 0.7 : 1 }}>Click me</button>;
+}
+```
+
+## useClickOutside
+
+Triggers a callback when clicking outside an element.
+
+Parameters
+
+| **Param** | **Type** | **Description** |
+| --- | --- | --- |
+| callback | function | Called when clicking outside. |
+
+Example
+
+jsx
+
+```jsx
+import { useClickOutside } from 'app-studio';
+import { useRef } from 'react';
+
+function MyComponent() {
+  const ref = useRef();
+  useClickOutside(() => console.log('Clicked outside'), ref);
+  return <div ref={ref}>Click outside me</div>;
+}
+```
+
+## useFocus
+
+Tracks focus state of an element.
+
+Return Values
+
+| **Value** | **Type** | **Description** |
+| --- | --- | --- |
+| focused | boolean | Whether the element is focused. |
+
+Example
+
+jsx
+
+```jsx
+import { useFocus } from 'app-studio';
+
+function MyComponent() {
+  const { focused } = useFocus();
+  return <input style={{ borderColor: focused ? 'blue' : 'gray' }} />;
+}
+```
+
+## useHover
+
+Detects if an element is being hovered.
+
+Return Values
+
+| **Value** | **Type** | **Description** |
+| --- | --- | --- |
+| hovered | boolean | Whether the element is hovered. |
+
+Example
+
+jsx
+
+```jsx
+import { useHover } from 'app-studio';
+
+function MyComponent() {
+  const { hovered } = useHover();
+  return <div style={{ background: hovered ? 'lightgray' : 'white' }}>Hover me</div>;
+}
+```
+
+## useInView
+
+Detects if an element is in the viewport.
+
+Return Values
+
+| **Value** | **Type** | **Description** |
+| --- | --- | --- |
+| inView | boolean | Whether the element is in view. |
+
+Example
+
+jsx
+
+```jsx
+import { useInView } from 'app-studio';
+import { useRef } from 'react';
+
+function MyComponent() {
+  const ref = useRef();
+  const { inView } = useInView(ref);
+  return <div ref={ref}>{inView ? 'Visible' : 'Hidden'}</div>;
+}
+```
+
+## useKeyPress
+
+Detects key presses.
+
+Parameters
+
+| **Param** | **Type** | **Description** |
+| --- | --- | --- |
+| key | string | The key to listen for (e.g., 'Enter'). |
+
+Return Values
+
+| **Value** | **Type** | **Description** |
+| --- | --- | --- |
+| pressed | boolean | Whether the key is pressed. |
+
+Example
+
+jsx
+
+```jsx
+import { useKeyPress } from 'app-studio';
+
+function MyComponent() {
+  const pressed = useKeyPress('Enter');
+  return <div>{pressed ? 'Enter pressed' : 'Waiting...'}</div>;
+}
+```
+
+## useMount
+
+Runs a callback when the component mounts.
+
+Parameters
+
+| **Param** | **Type** | **Description** |
+| --- | --- | --- |
+| callback | function | Called on mount. |
+
+Example
+
+jsx
+
+```jsx
+import { useMount } from 'app-studio';
+
+function MyComponent() {
+  useMount(() => console.log('Mounted'));
+  return <div>Hello</div>;
+}
+```
+
+## useOnScreen
+
+Similar to useInView, detects if an element is on screen.
+
+Return Values
+
+| **Value** | **Type** | **Description** |
+| --- | --- | --- |
+| onScreen | boolean | Whether the element is on screen. |
+
+Example
+
+jsx
+
+```jsx
+import { useOnScreen } from 'app-studio';
+import { useRef } from 'react';
+
+function MyComponent() {
+  const ref = useRef();
+  const { onScreen } = useOnScreen(ref);
+  return <div ref={ref}>{onScreen ? 'On screen' : 'Off screen'}</div>;
+}
+```
+
+## useResponsive
+
+Provides screen size and orientation data.
+
+Return Values
+
+| **Value** | **Type** | **Description** |
+| --- | --- | --- |
+| screen | string | Current screen size (e.g., 'xs', 'sm'). |
+| orientation | `'landscape' | 'portrait'` |
+| on | function | Checks if the screen matches a size. |
+
+Example
+
+jsx
+
+```jsx
+import { useResponsive } from 'app-studio';
+
+function MyComponent() {
+  const { screen, orientation, on } = useResponsive();
+  return (
+    <div>
+      Screen: {screen}, Orientation: {orientation}
+      {on('mobile') && <div>Mobile view</div>}
+    </div>
+  );
+}
+```
+
+## useScroll
+
+Tracks scroll position and direction.
+
+Parameters
+
+| **Param** | **Type** | **Default** | **Description** |
+| --- | --- | --- | --- |
+| throttleMs | number | 100 | Throttle updates (in ms). |
+
+Return Values
+
+| **Value** | **Type** | **Description** |
+| --- | --- | --- |
+| scrollY | number | Vertical scroll position. |
+| scrollX | number | Horizontal scroll position. |
+
+Example
+
+jsx
+
+```jsx
+import { useScroll } from 'app-studio';
+
+function MyComponent() {
+  const { scrollY } = useScroll({ throttleMs: 200 });
+  return <div>Scroll Y: {scrollY}px</div>;
+}
+```
+
+## useWindowSize
+
+Tracks window dimensions.
+
+Return Values
+
+| **Value** | **Type** | **Description** |
+| --- | --- | --- |
+| width | number | Window width. |
+| height | number | Window height. |
+
+Example
+
+jsx
+
+```jsx
+import { useWindowSize } from 'app-studio';
+
+function MyComponent() {
+  const { width, height } = useWindowSize();
+  return <div>Window: {width}x{height}</div>;
+}
+```
+
+---
+
+# Providers
+
+Providers manage global state and functionality across your application.
+
+## AnalyticsProvider
+
+Enables analytics tracking.
+
+Props
+
+| **Prop** | **Type** | **Default** | **Description** |
+| --- | --- | --- | --- |
+| trackEvent | function | - | Callback for tracking events. |
+
+Example
+
+jsx
+
+```jsx
+import { AnalyticsProvider } from 'app-studio';
+
+function App() {
+  return (
+    <AnalyticsProvider  
+        trackEvent={({ type, target, ...event }) => {
+            AppAnalytics.track(`${type}_${target}`, event);
+          }}>
+      {/* App content */}
+    </AnalyticsProvider>
+  );
+}
+```
+
+## ResponsiveProvider
+
+Manages responsive design context.
+
+Props
+
+| **Prop** | **Type** | **Default** | **Description** |
+| --- | --- | --- | --- |
+| breakpoints | object | - | Custom breakpoints. |
+
+Example
+
+jsx
+
+```jsx
+import { ResponsiveProvider } from 'app-studio';
+
+function App() {
+  return (
+    <ResponsiveProvider breakpoints={{ xs: 0, sm: 600, md: 960 }}>
+      {/* App content */}
     </ResponsiveProvider>
   );
 }
 ```
 
-## 11. Contributing
+## ThemeProvider
 
-We welcome all contributions to App-Studio. Please read our [contributing guide](https://ant.design/docs/react/contributing) and let's build a better App-Studio together.
+Manages theming, including colors and typography.
 
-For more detailed information on contributing, including how to apply for being a collaborator, please refer to our [GitHub repository](https://github.com/rize-network/app-studio).
+Props
 
-## 12. License
+| **Prop** | **Type** | **Default** | **Description** |
+| --- | --- | --- | --- |
+| theme | Theme | - | Custom theme configuration. |
+| mode | `'light' | 'dark'` | 'light' |
+| dark | Colors | - | Dark mode colors. |
+| light | Colors | - | Light mode colors. |
 
-App-Studio is available under the MIT license. See the LICENSE file for more info.
+Context
+
+- getColor: Resolves theme colors.
+- theme: Current theme configuration.
+- themeMode: Current mode.
+- setThemeMode: Switches mode.
+
+Example
+
+jsx
+
+```jsx
+import { ThemeProvider, useTheme } from 'app-studio';
+
+function App() {
+  return (
+    <ThemeProvider mode="dark">
+      <MyComponent />
+    </ThemeProvider>
+  );
+}
+
+function MyComponent() {
+  const { getColor, themeMode } = useTheme();
+  return <div style={{ color: getColor('primary') }}>{themeMode} mode</div>;
+}
+```
 
 ---
 
-For the latest updates, changelog, and more detailed information, please visit our [GitHub repository](https://github.com/rize-network/app-studio).
+# Utilities
+
+Utilities provide helper functions and constants.
+
+Colors
+
+Predefined color palettes for theming.
+
+Usage
+
+jsx
+
+```jsx
+import { useTheme } from 'app-studio';
+
+function MyComponent() {
+  const { getColor } = useTheme();
+  return <div style={{ backgroundColor: getColor('color.blue.500') }} />;
+}
+```
+
+# Constants
+
+Common values like breakpoints and sizes.
+
+Usage
+
+jsx
+
+```jsx
+import { BREAKPOINTS } from 'app-studio/constants';
+
+console.log(BREAKPOINTS.sm); // 600
+```
+
+## Theming
+
+Customize themes with ThemeProvider. Define light and dark modes and use getColor to access colors.
+
+Example
+
+jsx
+
+```jsx
+<ThemeProvider
+  theme={{ primary: '#007bff' }}
+  dark={{ background: '#333' }}
+  light={{ background: '#fff' }}
+/>
+```
+
+---
+
+# Responsive Design
+
+Use ResponsiveProvider and useResponsive to adapt to screen sizes.
+
+Example
+
+jsx
+
+```jsx
+const { on } = useResponsive();
+return on('sm') ? <SmallLayout /> : <LargeLayout />;
+```
+
+---
+
+## Analytics
+
+Integrate analytics with AnalyticsProvider to track events.
+
+Example
+
+jsx
+
+```jsx
+<AnalyticsProvider config={{ provider: 'google', trackingId: 'UA-123' }} />
+```
+
+---
+
+API Reference
+
+- Components: View, Image, Text, Form, Skeleton, Wrapper
+- Hooks: useActive, useClickOutside, etc.
+- Providers: AnalyticsProvider, ResponsiveProvider, ThemeProvider
+- Utilities: colors, constants, etc.
+
+---
+
+Examples
+
+## Responsive Layout
+
+jsx
+
+```jsx
+import { View, useResponsive } from 'app-studio';
+
+function Layout() {
+  const { on } = useResponsive();
+  return (
+    <View flexDirection={on('mobile') ? 'column' : 'row'}>
+      <View>Sidebar</View>
+      <View>Main Content</View>
+    </View>
+  );
+}
+```
+
+---
+
+Contributing
+
+Contributions are welcome! Please follow these steps:
+
+1. Fork the repository.
+2. Create a feature branch.
+3. Submit a pull request with tests.
+
+---
+
+Changelog
+
+- v1.0.0: Initial release with components, hooks, and providers.

@@ -71,7 +71,7 @@ const getScrollDimensions = (
 export const useScroll = ({
   container,
   offset = [0, 0],
-  throttleMs = 0,
+  throttleMs = 100,
   disabled = false,
 }: UseScrollOptions = {}): ScrollPosition => {
   const [scrollPosition, setScrollPosition] = useState<ScrollPosition>({

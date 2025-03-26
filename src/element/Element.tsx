@@ -12,6 +12,7 @@ import { ViewStyleProps } from '../types/style';
 export interface ElementProps
   extends CssProps,
     Omit<ViewStyleProps, 'children' | 'style' | 'pointerEvents' | 'onClick'> {
+  [key: string]: any;
   on?: Record<string, CssProps> | undefined;
   media?: Record<string, CssProps> | undefined;
   only?: string[] | undefined;

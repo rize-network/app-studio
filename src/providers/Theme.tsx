@@ -4,6 +4,7 @@ import React, {
   useState,
   ReactNode,
   useEffect,
+  useRef,
 } from 'react';
 import {
   ColorConfig,
@@ -109,6 +110,7 @@ export const ThemeProvider = ({
   children: ReactNode;
 }): React.ReactElement => {
   const [themeMode, setThemeMode] = useState<'light' | 'dark'>(mode);
+  const colorCache = useRef(new Map<string, string>()).current;
 
   useEffect(() => {
     setThemeMode(mode);
@@ -134,6 +136,8 @@ export const ThemeProvider = ({
     themeMode: 'light' | 'dark' = 'light'
   ): string => {
     if (name === 'transparent') return name;
+    const cacheKey = `${name}-${themeMode}`;
+    if (colorCache.has(cacheKey)) return colorCache.get(cacheKey)!;
 
     try {
       if (name.startsWith('theme.')) {
@@ -143,8 +147,11 @@ export const ThemeProvider = ({
           value = value[keys[i]];
           if (value === undefined) return name;
         }
-        if (typeof value === 'string') return getColor(value, themeMode);
-        return name;
+        if (typeof value === 'string') {
+          const resolved = getColor(value, themeMode);
+          colorCache.set(cacheKey, resolved);
+          return resolved;
+        }
       } else if (name.startsWith('color.')) {
         const keys = name.split('.');
         if (keys.length === 2) {
@@ -152,6 +159,7 @@ export const ThemeProvider = ({
           const colorName = keys[1];
           const color = colors[themeMode].main[colorName];
           if (typeof color === 'string') {
+            colorCache.set(cacheKey, color);
             return color;
           }
           console.warn(`Color "${colorName}" is not a singleton color.`);
@@ -172,15 +180,29 @@ export const ThemeProvider = ({
     } catch (e) {
       console.error('Error fetching color:', e);
     }
+    colorCache.set(cacheKey, name);
     return name; // Return the original name if not found
   };
 
-  // Optional: Apply a CSS class or data attribute to the body for global theming
   useEffect(() => {
-    if (typeof document !== 'undefined') {
-      document.body.setAttribute('data-theme', themeMode);
-    }
-  }, [themeMode]);
+    const colors = themeMode === 'light' ? light : dark;
+    let cssString = '';
+
+    Object.entries(colors.main).forEach(([name, value]) => {
+      cssString += `--color-${name}: ${value};`;
+    });
+
+    Object.entries(colors.palette).forEach(([color, shades]) => {
+      if (typeof shades === 'object' && shades !== null) {
+        Object.entries(shades).forEach(([shade, value]) => {
+          cssString += `--color-${color}-${shade}: ${String(value || '')};`;
+        });
+      }
+    });
+
+    const root = document.documentElement;
+    root.setAttribute('style', cssString);
+  }, [themeMode, light, dark]);
 
   return (
     <ThemeContext.Provider

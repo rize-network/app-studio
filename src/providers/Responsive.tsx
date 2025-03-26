@@ -6,7 +6,6 @@ import React, {
   useMemo,
   useState,
   useEffect,
-  useCallback,
 } from 'react';
 
 // Define Types
@@ -75,31 +74,6 @@ const getMediaQueries = (breakpoints: ResponsiveConfig): QueryConfig => {
   return queries;
 };
 
-// Utility Function to Determine Current Breakpoint
-const determineCurrentBreakpoint = (
-  width: number,
-  breakpoints: ResponsiveConfig
-): keyof ResponsiveConfig => {
-  const sortedBreakpoints = Object.keys(breakpoints)
-    .map((key) => ({
-      breakpoint: key as keyof ResponsiveConfig,
-      min: breakpoints[key],
-    }))
-    .sort((a, b) => a.min - b.min);
-
-  let current = sortedBreakpoints[0].breakpoint;
-
-  for (let i = 0; i < sortedBreakpoints.length; i++) {
-    if (width >= sortedBreakpoints[i].min) {
-      current = sortedBreakpoints[i].breakpoint;
-    } else {
-      break;
-    }
-  }
-
-  return current;
-};
-
 // Utility Function to Determine Current Device Type
 const determineCurrentDevice = (
   breakpoint: keyof ResponsiveConfig,
@@ -137,8 +111,6 @@ export const ResponsiveContext = createContext<ScreenConfig>({
 // Custom Hook to Access the Responsive Context
 export const useResponsiveContext = (): ScreenConfig =>
   useContext(ResponsiveContext);
-
-// ResponsiveProvider Component
 export const ResponsiveProvider = ({
   breakpoints = defaultBreakpointsConfig,
   devices = defaultDeviceConfig,
@@ -146,98 +118,48 @@ export const ResponsiveProvider = ({
 }: {
   breakpoints?: ResponsiveConfig;
   devices?: DeviceConfig;
-  children?: ReactNode;
-}): React.ReactElement => {
-  // Initialize State with Window Dimensions or Default Values
-  const getInitialDimensions = (): {
-    width: number;
-    height: number;
-    orientation: ScreenOrientation;
-  } => {
-    if (typeof window !== 'undefined') {
-      return {
-        width: window.innerWidth,
-        height: window.innerHeight,
-        orientation:
-          window.innerWidth > window.innerHeight ? 'landscape' : 'portrait',
-      };
-    } else {
-      // Default values for SSR
-      return {
-        width: breakpoints.xs,
-        height: 800, // Arbitrary default height
-        orientation: 'portrait',
-      };
-    }
-  };
-
-  const [windowSize, setWindowSize] = useState<{
-    width: number;
-    height: number;
-    orientation: ScreenOrientation;
-  }>(getInitialDimensions());
-
-  // Update Window Dimensions on Resize
-  const handleResize = useCallback(
-    debounce(() => {
-      setWindowSize({
-        width: window.innerWidth,
-        height: window.innerHeight,
-        orientation:
-          window.innerWidth > window.innerHeight ? 'landscape' : 'portrait',
-      });
-    }, 150), // Debounce delay of 150ms
-    []
+  children: ReactNode;
+}) => {
+  const [screen, setScreen] = useState('xs');
+  const [orientation, setOrientation] = useState(
+    'portrait' as ScreenOrientation
   );
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      window.addEventListener('resize', handleResize);
-      return () => window.removeEventListener('resize', handleResize);
-    }
-    return undefined;
-  }, [handleResize]);
-
-  // Determine Current Breakpoint
-  const currentBreakpoint = useMemo(
-    () => determineCurrentBreakpoint(windowSize.width, breakpoints),
-    [windowSize.width, breakpoints]
-  );
-
-  // Determine Current Device
-  const currentDevice = useMemo(
-    () => determineCurrentDevice(currentBreakpoint, devices),
-    [currentBreakpoint, devices]
-  );
-
-  // Generate Media Queries
   const mediaQueries = useMemo(
     () => getMediaQueries(breakpoints),
     [breakpoints]
   );
 
-  // Compile Context Value
-  const value: ScreenConfig = useMemo(
+  useEffect(() => {
+    const listeners: Array<() => void> = [];
+    for (const screenSize in mediaQueries) {
+      const mql = window.matchMedia(mediaQueries[screenSize]);
+      const onChange = () => mql.matches && setScreen(screenSize);
+      mql.addListener(onChange);
+      if (mql.matches) setScreen(screenSize);
+      listeners.push(() => mql.removeListener(onChange));
+    }
+    const orientationMql = window.matchMedia('(orientation: landscape)');
+    const onOrientationChange = () =>
+      setOrientation(orientationMql.matches ? 'landscape' : 'portrait');
+    orientationMql.addListener(onOrientationChange);
+    onOrientationChange();
+    listeners.push(() => orientationMql.removeListener(onOrientationChange));
+
+    return () => listeners.forEach((cleanup) => cleanup());
+  }, [breakpoints]);
+
+  const value = useMemo(
     () => ({
       breakpoints,
       devices,
       mediaQueries,
-      currentWidth: windowSize.width,
-      currentHeight: windowSize.height,
-      currentBreakpoint,
-      currentDevice,
-      orientation: windowSize.orientation,
+      currentWidth: window.innerWidth,
+      currentHeight: window.innerHeight,
+      currentBreakpoint: screen,
+      currentDevice: determineCurrentDevice(screen, devices),
+      orientation,
     }),
-    [
-      breakpoints,
-      devices,
-      mediaQueries,
-      windowSize.width,
-      windowSize.height,
-      currentBreakpoint,
-      currentDevice,
-      windowSize.orientation,
-    ]
+    [breakpoints, devices, screen, orientation]
   );
 
   return (

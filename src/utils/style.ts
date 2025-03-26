@@ -176,9 +176,9 @@ export const styleObjectToCss = (styles: Record<string, any>): string => {
     .join(' ');
 };
 
-// Convert camelCase to kebab-case
-export const toKebabCase = (str: string): string =>
-  str.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
+export const toKebabCase = (str: string): string => {
+  return str.replace(/([A-Z])/g, '-$1').toLowerCase();
+};
 
 // Process and normalize style properties
 export const processStyleProperty = (
