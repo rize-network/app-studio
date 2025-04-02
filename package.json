@@ -1,5 +1,5 @@
 {
-  "version": "0.5.73",
+  "version": "0.5.79",
   "name": "app-studio",
   "description": "App Studio is a responsive and themeable framework to build cross platform applications",
   "repository": "git@github.com:rize-network/app-studio.git",
@@ -85,6 +85,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.23.2",
+    "@babel/plugin-proposal-optional-chaining": "^7.21.0",
     "@commitlint/cli": "^18.2.0",
     "@commitlint/config-conventional": "^18.1.0",
     "@size-limit/preset-small-lib": "^10.0.2",
@@ -125,6 +126,7 @@
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "release-it": "^16.2.1",
+    "rollup-plugin-terser": "^7.0.2",
     "size-limit": "^10.0.2",
     "storybook": "^7.5.3",
     "stylis": "^4.3.0",

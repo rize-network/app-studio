@@ -5,6 +5,8 @@ import React, {
   ReactNode,
   useEffect,
   useRef,
+  useMemo,
+  useCallback,
 } from 'react';
 import {
   ColorConfig,
@@ -14,15 +16,19 @@ import {
   defaultDarkPalette,
   defaultLightColors,
   defaultLightPalette,
-} from '../utils/colors';
+} from '../utils/colors'; // Assuming this path is correct
 
-// Extend Colors to include the palette
+// --- Constants ---
+const THEME_PREFIX = 'theme.';
+const COLOR_PREFIX = 'color.';
+const TRANSPARENT = 'transparent';
+
+// --- Interfaces ---
 export interface Colors {
   main: ColorSingleton;
   palette: ColorPalette;
 }
 
-// Theme Interfaces
 export interface Theme {
   primary?: string;
   secondary?: string;
@@ -33,42 +39,59 @@ export interface Theme {
   loading?: string;
 }
 
-interface ThemeContextProps {
-  getColor: (
-    color: string,
-    themeMode?: 'light' | 'dark',
-    colors?: Colors
-  ) => string;
-  theme?: Theme;
+interface Override {
   colors?: Colors;
+  theme?: Theme;
+  themeMode?: 'light' | 'dark';
+}
+
+interface ThemeContextProps {
+  // Signature allows overriding the mode for a specific lookup
+  getColor: (name: string, override?: Override) => string;
+  theme: Theme;
+  colors: Colors; // Current mode's colors
   themeMode: 'light' | 'dark';
   setThemeMode: (mode: 'light' | 'dark') => void;
 }
 
-// Default Theme Configuration
+// --- Default Configuration ---
 export const defaultThemeMain: ColorConfig = {
-  primary: 'color.black',
-  secondary: 'color.blue',
-  success: 'color.green.500',
-  error: 'color.red.500',
-  warning: 'color.orange.500',
-  disabled: 'color.gray.500',
-  loading: 'color.dark.500',
+  primary: `${COLOR_PREFIX}black`,
+  secondary: `${COLOR_PREFIX}blue`,
+  success: `${COLOR_PREFIX}green.500`,
+  error: `${COLOR_PREFIX}red.500`,
+  warning: `${COLOR_PREFIX}orange.500`,
+  disabled: `${COLOR_PREFIX}gray.500`,
+  loading: `${COLOR_PREFIX}dark.500`,
 };
 
-// Create Theme Context with Default Values
-export const ThemeContext = createContext<ThemeContextProps>({
-  getColor: (name) => name, // Removed the extra parameter
-  theme: defaultThemeMain,
-  themeMode: 'light',
-  setThemeMode: () => {},
-});
+const defaultLightColorConfig: Colors = {
+  main: defaultLightColors,
+  palette: defaultLightPalette,
+};
 
-// Custom Hook to Use Theme
-export const useTheme = () => useContext(ThemeContext);
+const defaultDarkColorConfig: Colors = {
+  main: defaultDarkColors,
+  palette: defaultDarkPalette,
+};
 
-// Deep Merge Function
+// --- Create Theme Context ---
+export const ThemeContext = createContext<ThemeContextProps>(null!);
+
+// --- Custom Hook ---
+export const useTheme = () => {
+  const context = useContext(ThemeContext);
+  if (!context) {
+    throw new Error('useTheme must be used within a ThemeProvider');
+  }
+  return context;
+};
+
+// --- Deep Merge Function (remains the same, assuming it works as intended) ---
+// Consider using a library like `lodash.merge` or `deepmerge` if complexity grows
+// or edge cases (like merging arrays) need different handling.
 const deepMerge = (target: any, source: any): any => {
+  // (Implementation from original code)
   if (typeof source !== 'object' || source === null) {
     return target;
   }
@@ -78,6 +101,7 @@ const deepMerge = (target: any, source: any): any => {
       const sourceValue = source[key];
       const targetValue = target[key];
       if (Array.isArray(sourceValue)) {
+        // Overwrite arrays, don't merge them (common for theme configs)
         merged[key] = sourceValue;
       } else if (
         typeof sourceValue === 'object' &&
@@ -85,7 +109,8 @@ const deepMerge = (target: any, source: any): any => {
         !Array.isArray(sourceValue)
       ) {
         merged[key] = deepMerge(targetValue || {}, sourceValue);
-      } else {
+      } else if (sourceValue !== undefined) {
+        // Ensure undefined doesn't overwrite
         merged[key] = sourceValue;
       }
     }
@@ -93,139 +118,184 @@ const deepMerge = (target: any, source: any): any => {
   return merged;
 };
 
-// ThemeProvider Component
-export const ThemeProvider = ({
-  theme = defaultThemeMain,
-  mode = 'light',
-  dark = {
-    main: defaultDarkColors,
-    palette: defaultDarkPalette,
-  },
-  light = {
-    main: defaultLightColors,
-    palette: defaultLightPalette,
-  },
-  children,
-}: {
-  theme?: Theme;
-  dark?: Colors;
-  light?: Colors;
+// --- ThemeProvider Component ---
+interface ThemeProviderProps {
+  theme?: Partial<Theme>;
+  dark?: Partial<Colors>;
+  light?: Partial<Colors>;
   mode?: 'light' | 'dark';
   children: ReactNode;
-}): React.ReactElement => {
-  const [themeMode, setThemeMode] = useState<'light' | 'dark'>(mode);
+}
+
+export const ThemeProvider = ({
+  theme: themeOverride = {},
+  mode: initialMode = 'light',
+  dark: darkOverride = {},
+  light: lightOverride = {},
+  children,
+}: ThemeProviderProps): React.ReactElement => {
+  const [themeMode, setThemeMode] = useState<'light' | 'dark'>(initialMode);
   const colorCache = useRef(new Map<string, string>()).current;
 
+  // Sync state with prop changes
   useEffect(() => {
-    setThemeMode(mode);
-  }, [mode]);
+    setThemeMode(initialMode);
+  }, [initialMode]);
 
-  const mergedTheme = deepMerge(defaultThemeMain, theme);
+  // Clear cache when theme definitions change to avoid stale colors
+  useEffect(() => {
+    colorCache.clear();
+  }, [lightOverride, darkOverride, themeOverride, colorCache]);
 
-  // Corrected the merging logic: light should use defaultLightColors and defaultLightPalette
-  // dark should use defaultDarkColors and defaultDarkPalette
-  const themeColors: { light: Colors; dark: Colors } = {
-    light: deepMerge(
-      { main: defaultLightColors, palette: defaultLightPalette },
-      light
-    ),
-    dark: deepMerge(
-      { main: defaultDarkColors, palette: defaultDarkPalette },
-      dark
-    ),
-  };
+  // --- Memoize derived values ---
+  const mergedTheme = useMemo(
+    () => deepMerge(defaultThemeMain, themeOverride),
+    [themeOverride]
+  );
 
-  const getColor = (
-    name: string,
-    themeMode: 'light' | 'dark' = 'light',
-    optionalColors?: Colors
-  ): string => {
-    if (name === 'transparent') return name;
-    const cacheKey = `${name}-${themeMode}`;
-    if (colorCache.has(cacheKey)) return colorCache.get(cacheKey)!;
+  const themeColors = useMemo<{ light: Colors; dark: Colors }>(
+    () => ({
+      light: deepMerge(defaultLightColorConfig, lightOverride),
+      dark: deepMerge(defaultDarkColorConfig, darkOverride),
+    }),
+    [lightOverride, darkOverride]
+  );
 
-    try {
-      if (name.startsWith('theme.')) {
-        const keys = name.split('.');
-        let value: any = mergedTheme;
-        for (let i = 1; i < keys.length; i++) {
-          value = value[keys[i]];
-          if (value === undefined) return name;
-        }
-        if (typeof value === 'string') {
-          const resolved = getColor(value, themeMode, optionalColors);
-          colorCache.set(cacheKey, resolved);
-          return resolved;
-        }
-      } else if (name.startsWith('color.')) {
-        const keys = name.split('.');
-        if (keys.length === 2) {
-          // Example: "color.white"
-          const colorName = keys[1];
-          const colors =
-            optionalColors && optionalColors.palette[colorName]
-              ? optionalColors
-              : themeColors[themeMode];
-          const color = colors.main[colorName];
-          if (typeof color === 'string') {
-            colorCache.set(cacheKey, color);
-            return color;
+  const currentColors = useMemo(
+    () => themeColors[themeMode],
+    [themeColors, themeMode]
+  );
+
+  // --- Memoized getColor function - Revised for Robustness ---
+  const getColor = useCallback(
+    (name: string, override: Override = {}): string => {
+      if (!name || typeof name !== 'string') return String(name); // Handle invalid input
+      if (name === TRANSPARENT) return name;
+
+      // 1. Determine the effective mode for this specific lookup
+      const effectiveMode = override.themeMode ?? themeMode;
+
+      const needCache = Object.keys(override).length === 0;
+      // 2. Create a cache key based on the name and the *effective* mode
+      const cacheKey = `${name}-${effectiveMode}`;
+      if (colorCache.has(cacheKey) && needCache) {
+        return colorCache.get(cacheKey)!;
+      }
+
+      // 3. Select the correct color set (light/dark) based on the effective mode
+      const colorsToUse = themeColors[effectiveMode];
+      if (!colorsToUse) {
+        console.warn(`Color set for mode "${effectiveMode}" not found.`);
+        return name; // Fallback if colors for the mode don't exist
+      }
+
+      let resolvedColor = name; // Default fallback is the original name
+
+      try {
+        // --- Resolve "theme.*" paths ---
+        if (name.startsWith(THEME_PREFIX)) {
+          // console.log(
+          //   `Resolving color "${name}" for mode "${effectiveMode}".`,
+          //   override
+          // );
+
+          const keys = name.substring(THEME_PREFIX.length).split('.');
+          let value: any = { ...mergedTheme, ...override.theme }; // Theme definitions are mode-agnostic
+
+          for (const key of keys) {
+            if (value === undefined || value === null) break; // Stop if path breaks
+            value = value[key];
           }
-          console.warn(`Color "${colorName}" is not a singleton color.`);
-          return name;
-        } else if (keys.length === 3) {
-          // Example: "color.blue.500"
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          const [colorName, variant] = keys.splice(1);
-          const colors =
-            optionalColors && optionalColors.palette[colorName]
-              ? optionalColors
-              : themeColors[themeMode];
-          if (colors.palette[colorName][Number(variant)]) {
-            return colors.palette[colorName][Number(variant)];
+
+          if (typeof value === 'string' && value !== name) {
+            // Recursively resolve if it points to another color string.
+            // CRITICAL: Pass the *same* effectiveMode down.
+            resolvedColor = getColor(value, override);
+          } else if (value === undefined) {
+            console.warn(`Theme path "${name}" not found.`);
+            resolvedColor = name; // Fallback
+          } else if (typeof value !== 'string') {
+            console.warn(
+              `Theme path "${name}" resolved to a non-string value.`
+            );
+            resolvedColor = name; // Fallback
+          }
+          // If value === name, it resolved to itself, keep fallback
+
+          // --- Resolve "color.*" paths ---
+        } else if (name.startsWith(COLOR_PREFIX)) {
+          // console.log(
+          //   `Resolving color "${name}" for mode "${effectiveMode}".`,
+          //   override
+          // );
+          const keys = name.substring(COLOR_PREFIX.length).split('.');
+
+          if (keys.length === 1) {
+            // e.g., "color.white"
+            const colorName = keys[0];
+            const colorValue =
+              override.colors?.main?.[colorName] ||
+              colorsToUse.main?.[colorName]; // Use optional chaining
+            if (typeof colorValue === 'string') {
+              resolvedColor = colorValue;
+            } else {
+              console.warn(
+                `Singleton color "${name}" not found in ${effectiveMode} mode.`
+              );
+            }
+          } else if (keys.length === 2) {
+            // e.g., "color.blue.500"
+            const [colorName, variant] = keys;
+            const palette =
+              override.colors?.palette?.[colorName] ||
+              colorsToUse.palette?.[colorName];
+            const shadeValue = palette?.[variant as any];
+            if (typeof shadeValue === 'string') {
+              resolvedColor = shadeValue;
+            } else {
+              console.warn(
+                `Palette color "${name}" not found in ${effectiveMode} mode.`
+              );
+            }
           } else {
             console.warn(
-              `Color "${colorName}" with shade "${variant}" not found.`
+              `Invalid color format: "${name}". Expected 'color.name' or 'color.name.shade'.`
             );
           }
         }
+        // --- Direct Color Value ---
+        // If it's not theme.* or color.*, assume it's a direct value ('red', '#fff').
+        // resolvedColor remains 'name', which is correct.
+      } catch (e) {
+        console.error(
+          `Error resolving color "${name}" for mode "${effectiveMode}":`,
+          e
+        );
+        resolvedColor = name; // Fallback on unexpected error
       }
-    } catch (e) {
-      console.error('Error fetching color:', e);
-    }
-    colorCache.set(cacheKey, name);
-    return name; // Return the original name if not found
-  };
 
-  // useEffect(() => {
-  //   const colors = themeMode === 'light' ? light : dark;
-  //   let cssString = '';
+      // Cache the result (the resolved color or the original name if failed)
+      if (needCache) colorCache.set(cacheKey, resolvedColor);
+      return resolvedColor;
+    },
+    // Dependencies: mergedTheme, themeColors, themeMode (for default), colorCache
+    [mergedTheme, themeColors, themeMode, colorCache]
+  );
 
-  //   Object.entries(colors.main).forEach(([name, value]) => {
-  //     cssString += `--color-${name}: ${value};`;
-  //   });
-
-  //   Object.entries(colors.palette).forEach(([color, shades]) => {
-  //     if (typeof shades === 'object' && shades !== null) {
-  //       Object.entries(shades).forEach(([shade, value]) => {
-  //         cssString += `--color-${color}-${shade}: ${String(value || '')};`;
-  //       });
-  //     }
-  //   });
-
-  //   const root = document.documentElement;
-  //   root.setAttribute('style', cssString);
-  // }, [themeMode, light, dark]);
+  // --- Memoize Context Value ---
+  const contextValue = useMemo(
+    () => ({
+      getColor, // Provide the robust getColor
+      theme: mergedTheme,
+      colors: currentColors, // Provide current mode's resolved colors
+      themeMode,
+      setThemeMode, // Stable function reference from useState
+    }),
+    [getColor, mergedTheme, currentColors, themeMode] // Exclude setThemeMode (stable)
+  );
 
   return (
-    <ThemeContext.Provider
-      value={{
-        getColor,
-        theme: mergedTheme,
-        themeMode,
-        setThemeMode,
-      }}
-    >
+    <ThemeContext.Provider value={contextValue}>
       {children}
     </ThemeContext.Provider>
   );

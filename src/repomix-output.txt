@@ -1,0 +1,5835 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+
+================================================================
+File Summary
+================================================================
+
+Purpose:
+--------
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+
+File Format:
+------------
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Multiple file entries, each consisting of:
+  a. A separator line (================)
+  b. The file path (File: path/to/file)
+  c. Another separator line
+  d. The full contents of the file
+  e. A blank line
+
+Usage Guidelines:
+-----------------
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+
+Notes:
+------
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+
+Additional Info:
+----------------
+
+================================================================
+Directory Structure
+================================================================
+components/
+  Form.tsx
+  Image.tsx
+  Skeleton.tsx
+  Text.tsx
+  View.tsx
+  Wrapper.tsx
+element/
+  Animation.tsx
+  css.ts
+  Element.tsx
+  utils.ts
+hooks/
+  useActive.ts
+  useClickOutside.ts
+  useFocus.ts
+  useHover.ts
+  useInView.ts
+  useKeyPress.ts
+  useMount.ts
+  useOnScreen.ts
+  useResponsive.ts
+  useScroll.ts
+  useWindowSize.ts
+providers/
+  Analytics.tsx
+  Responsive.tsx
+  Theme.tsx
+  WindowSize.tsx
+types/
+  module.d.ts
+  style.d.ts
+utils/
+  colors.ts
+  constants.ts
+  cssProperties.ts
+  env.ts
+  shadow.ts
+  style.ts
+  typography.ts
+index.tsx
+
+================================================================
+Files
+================================================================
+
+================
+File: components/Form.tsx
+================
+import React from 'react';
+import { Element, ElementProps } from '../element/Element';
+import { ViewStyleProps } from '../types/style';
+
+// Common props pour éviter la répétition
+interface CommonProps
+  extends ElementProps,
+    Omit<ViewStyleProps, 'children' | 'style' | 'pointerEvents' | 'onClick'> {}
+
+// Props pour le composant Form
+export interface FormProps
+  extends CommonProps,
+    Omit<
+      Partial<HTMLFormElement>,
+      | 'width'
+      | 'height'
+      | 'children'
+      | 'translate'
+      | 'target'
+      | 'border'
+      | 'draggable'
+    >,
+    ElementProps {}
+
+// Props pour le composant Button
+export interface ButtonProps
+  extends CommonProps,
+    Omit<
+      Partial<HTMLButtonElement>,
+      | 'width'
+      | 'height'
+      | 'children'
+      | 'translate'
+      | 'type'
+      | 'border'
+      | 'animate'
+      | 'style'
+      | 'draggable'
+    >,
+    ElementProps {
+  children?: React.ReactNode;
+  onClick?: (..._args: any) => void;
+}
+
+// Props pour le composant Input
+export interface InputProps
+  extends ElementProps,
+    CommonProps,
+    Omit<
+      Partial<HTMLInputElement>,
+      | 'children'
+      | 'translate'
+      | 'style'
+      | 'width'
+      | 'height'
+      | 'animate'
+      | 'size'
+    > {}
+
+export const Form = React.forwardRef<
+  HTMLElement,
+  React.ComponentPropsWithRef<typeof Element> & FormProps
+>((props, ref) => (
+  <Element as="form" {...props} ref={ref} />
+)) as unknown as React.ForwardRefExoticComponent<
+  React.ComponentPropsWithRef<typeof Element> &
+    FormProps &
+    React.RefAttributes<HTMLElement>
+>;
+
+export const Input = React.forwardRef<
+  HTMLElement,
+  React.ComponentPropsWithRef<typeof Element> & InputProps
+>((props, ref) => (
+  <Element as="input" {...props} ref={ref} />
+)) as unknown as React.ForwardRefExoticComponent<
+  React.ComponentPropsWithRef<typeof Element> &
+    InputProps &
+    React.RefAttributes<HTMLElement>
+>;
+
+export const Button = React.forwardRef<
+  HTMLElement,
+  React.ComponentPropsWithRef<typeof Element> & ButtonProps
+>((props, ref) => (
+  <Element as="button" {...props} ref={ref} />
+)) as unknown as React.ForwardRefExoticComponent<
+  React.ComponentPropsWithRef<typeof Element> &
+    ButtonProps &
+    React.RefAttributes<HTMLElement>
+>;
+
+================
+File: components/Image.tsx
+================
+import React from 'react';
+import { Element, ElementProps } from '../element/Element';
+import { ImageStyleProps } from '../types/style';
+
+export interface ImageProps
+  extends Omit<
+      ImageStyleProps,
+      'children' | 'style' | 'pointerEvents' | 'onClick' | 'onLayout'
+    >,
+    Omit<
+      Partial<HTMLImageElement>,
+      | 'width'
+      | 'height'
+      | 'children'
+      | 'translate'
+      | 'target'
+      | 'border'
+      | 'animate'
+      | 'draggable'
+      | 'style'
+    >,
+    ElementProps {}
+
+export const Image = React.forwardRef<
+  HTMLElement,
+  React.ComponentPropsWithRef<typeof Element> & ImageProps
+>((props, ref) => (
+  <Element as="img" {...props} ref={ref} />
+)) as unknown as React.ForwardRefExoticComponent<
+  React.ComponentPropsWithRef<typeof Element> &
+    ImageProps &
+    React.RefAttributes<HTMLElement>
+>;
+
+export const ImageBackground = React.forwardRef<
+  HTMLElement,
+  React.ComponentPropsWithRef<typeof Element> & ImageProps
+>(({ src, ...props }, ref) => (
+  <Element
+    backgroundImage={`url(${src})`}
+    backgroundSize="cover"
+    backgroundRepeat="no-repeat"
+    {...props}
+    ref={ref}
+  />
+)) as unknown as React.ForwardRefExoticComponent<
+  React.ComponentPropsWithRef<typeof Element> &
+    ImageProps &
+    React.RefAttributes<HTMLElement>
+>;
+
+================
+File: components/Skeleton.tsx
+================
+import React from 'react';
+import { View } from './View';
+import { shimmer } from '../element/Animation';
+import { AnimationProps } from '../utils/constants';
+
+export const Skeleton = React.memo(
+  ({
+    duration = '2s',
+    timingFunction = 'linear',
+    iterationCount = 'infinite',
+    ...props
+  }: AnimationProps & any) => (
+    <View backgroundColor="color.black.300" {...props} overflow="hidden">
+      <View
+        position="relative"
+        inset={0}
+        width={'100%'}
+        height={'100%'}
+        animate={shimmer({ duration, timingFunction, iterationCount })}
+        background="linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent)"
+      />
+    </View>
+  )
+);
+
+================
+File: components/Text.tsx
+================
+import React from 'react';
+import { Element, ElementProps } from '../element/Element';
+import { TextStyleProps } from '../types/style';
+
+export interface TextProps
+  extends Omit<
+      TextStyleProps,
+      | 'children'
+      | 'style'
+      | 'onPress'
+      | 'pointerEvents'
+      | 'onClick'
+      | 'accessibilityRole'
+      | 'accessibilityState'
+    >,
+    ElementProps {
+  toUpperCase?: boolean;
+}
+
+export const Text = React.forwardRef<
+  HTMLElement,
+  React.ComponentPropsWithRef<typeof Element> & TextProps
+>((props, ref) => {
+  const { toUpperCase, children, ...rest } = props;
+
+  // Convertir le texte en majuscules si toUpperCase est activé
+  const content =
+    toUpperCase && typeof children === 'string'
+      ? children.toUpperCase()
+      : children;
+
+  return (
+    <Element as="span" {...rest} ref={ref}>
+      {content}
+    </Element>
+  );
+}) as unknown as React.ForwardRefExoticComponent<
+  React.ComponentPropsWithRef<typeof Element> &
+    TextProps &
+    React.RefAttributes<HTMLElement>
+>;
+
+================
+File: components/View.tsx
+================
+import React from 'react';
+import { Element, ElementProps } from '../element/Element';
+import { ViewStyleProps } from '../types/style';
+
+export interface ViewProps
+  extends Omit<
+      ViewStyleProps,
+      'children' | 'translate' | 'style' | 'pointerEvents' | 'onClick'
+    >,
+    ElementProps {
+  onPress?: (..._args: any) => void;
+}
+
+export const View = React.forwardRef<
+  HTMLElement,
+  React.ComponentPropsWithRef<typeof Element> & ViewProps
+>((props, ref) => (
+  <Element {...props} ref={ref} />
+)) as unknown as React.ForwardRefExoticComponent<
+  React.ComponentPropsWithRef<typeof Element> &
+    ViewProps &
+    React.RefAttributes<HTMLElement>
+>;
+
+export const Horizontal = React.forwardRef<
+  HTMLElement,
+  React.ComponentPropsWithRef<typeof Element> & ViewProps
+>((props, ref) => (
+  <Element display="flex" flexDirection="row" {...props} ref={ref} />
+)) as unknown as React.ForwardRefExoticComponent<
+  React.ComponentPropsWithRef<typeof Element> &
+    ViewProps &
+    React.RefAttributes<HTMLElement>
+>;
+
+export const Vertical = React.forwardRef<
+  HTMLElement,
+  React.ComponentPropsWithRef<typeof Element> & ViewProps
+>((props, ref) => (
+  <Element display="flex" flexDirection="column" {...props} ref={ref} />
+)) as unknown as React.ForwardRefExoticComponent<
+  React.ComponentPropsWithRef<typeof Element> &
+    ViewProps &
+    React.RefAttributes<HTMLElement>
+>;
+
+export const HorizontalResponsive = React.forwardRef<
+  HTMLElement,
+  React.ComponentPropsWithRef<typeof Element> & ViewProps
+>(({ media = {}, ...props }, ref) => (
+  <Horizontal
+    media={{
+      ...media,
+      mobile: {
+        ...media.mobile,
+        flexDirection: 'column',
+      },
+    }}
+    {...props}
+    ref={ref}
+  />
+)) as unknown as React.ForwardRefExoticComponent<
+  React.ComponentPropsWithRef<typeof Element> &
+    ViewProps &
+    React.RefAttributes<HTMLElement>
+>;
+
+export const VerticalResponsive = React.forwardRef<
+  HTMLElement,
+  React.ComponentPropsWithRef<typeof Element> & ViewProps
+>(({ media = {}, ...props }, ref) => (
+  <Vertical
+    media={{
+      ...media,
+      mobile: {
+        ...media.mobile,
+        flexDirection: 'row',
+      },
+    }}
+    {...props}
+    ref={ref}
+  />
+)) as unknown as React.ForwardRefExoticComponent<
+  React.ComponentPropsWithRef<typeof Element> &
+    ViewProps &
+    React.RefAttributes<HTMLElement>
+>;
+
+export const Scroll = React.forwardRef<
+  HTMLElement,
+  React.ComponentPropsWithRef<typeof Element> & ViewProps
+>((props, ref) => (
+  <Element {...props} ref={ref} />
+)) as unknown as React.ForwardRefExoticComponent<
+  React.ComponentPropsWithRef<typeof Element> &
+    ViewProps &
+    React.RefAttributes<HTMLElement>
+>;
+
+export const SafeArea = React.forwardRef<
+  HTMLElement,
+  React.ComponentPropsWithRef<typeof Element> & ViewProps
+>((props, ref) => (
+  <Element overflow="auto" {...props} ref={ref} />
+)) as unknown as React.ForwardRefExoticComponent<
+  React.ComponentPropsWithRef<typeof Element> &
+    ViewProps &
+    React.RefAttributes<HTMLElement>
+>;
+
+export const Div = React.forwardRef<
+  HTMLElement,
+  React.ComponentPropsWithRef<typeof Element> & ViewProps
+>((props, ref) => (
+  <Element {...props} ref={ref} />
+)) as unknown as React.ForwardRefExoticComponent<
+  React.ComponentPropsWithRef<typeof Element> &
+    ViewProps &
+    React.RefAttributes<HTMLElement>
+>;
+
+export const Span = React.forwardRef<
+  HTMLElement,
+  React.ComponentPropsWithRef<typeof Element> & ViewProps
+>((props, ref) => (
+  <Element as="span" {...props} ref={ref} />
+)) as unknown as React.ForwardRefExoticComponent<
+  React.ComponentPropsWithRef<typeof Element> &
+    ViewProps &
+    React.RefAttributes<HTMLElement>
+>;
+
+================
+File: components/Wrapper.tsx
+================
+import React from 'react';
+import { ThemeProvider } from '../providers/Theme';
+import { ResponsiveProvider } from '../providers/Responsive';
+import { WindowSizeProvider } from '../providers/WindowSize';
+
+export default class Wrapper extends React.Component<any> {
+  render() {
+    return (
+      <ThemeProvider>
+        <ResponsiveProvider>
+          <WindowSizeProvider>{this.props.children}</WindowSizeProvider>
+        </ResponsiveProvider>
+      </ThemeProvider>
+    );
+  }
+}
+
+================
+File: element/Animation.tsx
+================
+// animations.ts
+
+import { AnimationProps } from '../utils/constants';
+
+export const fadeIn = ({
+  duration = '1s',
+  timingFunction = 'ease',
+  ...props
+}: AnimationProps) => ({
+  from: { opacity: 0 },
+  to: { opacity: 1 },
+  duration,
+  timingFunction,
+  ...props,
+});
+
+export const fadeOut = ({
+  duration = '1s',
+  timingFunction = 'ease',
+  ...props
+}: AnimationProps) => ({
+  from: { opacity: 1 },
+  to: { opacity: 0 },
+  duration,
+  timingFunction,
+  ...props,
+});
+
+export const slideInLeft = ({
+  duration = '0.5s',
+  timingFunction = 'ease-out',
+  ...props
+}: AnimationProps) => ({
+  from: { transform: 'translateX(-100%)' },
+  to: { transform: 'translateX(0)' },
+  duration,
+  timingFunction,
+  ...props,
+});
+
+export const slideInRight = ({
+  duration = '0.5s',
+  timingFunction = 'ease-out',
+  ...props
+}: AnimationProps) => ({
+  from: { transform: 'translateX(100%)' },
+  to: { transform: 'translateX(0)' },
+  duration,
+  timingFunction,
+  ...props,
+});
+
+export const slideInDown = ({
+  duration = '0.5s',
+  timingFunction = 'ease-out',
+  ...props
+}: AnimationProps) => ({
+  from: { transform: 'translateY(-100%)' },
+  to: { transform: 'translateY(0)' },
+  duration,
+  timingFunction,
+  ...props,
+});
+
+export const slideInUp = ({
+  duration = '0.5s',
+  timingFunction = 'ease-out',
+  ...props
+}: AnimationProps) => ({
+  from: { transform: 'translateY(100%)' },
+  to: { transform: 'translateY(0)' },
+  duration,
+  timingFunction,
+  ...props,
+});
+
+export const bounce = ({
+  duration = '2s',
+  timingFunction = 'ease',
+  iterationCount = 'infinite',
+  ...props
+}: AnimationProps) => ({
+  from: { transform: 'translateY(0)' },
+  '20%': { transform: 'translateY(-30px)' },
+  '40%': { transform: 'translateY(0)' },
+  '60%': { transform: 'translateY(-15px)' },
+  '80%': { transform: 'translateY(0)' },
+  to: { transform: 'translateY(0)' },
+  duration,
+  timingFunction,
+  iterationCount,
+  ...props,
+});
+
+export const rotate = ({
+  duration = '1s',
+  timingFunction = 'linear',
+  iterationCount = 'infinite',
+  ...props
+}: AnimationProps) => ({
+  from: { transform: 'rotate(0deg)' },
+  to: { transform: 'rotate(360deg)' },
+  duration,
+  timingFunction,
+  iterationCount,
+  ...props,
+});
+
+export const pulse = ({
+  duration = '1s',
+  timingFunction = 'ease-in-out',
+  iterationCount = 'infinite',
+  ...props
+}: AnimationProps) => ({
+  from: { transform: 'scale(1)' },
+  '50%': { transform: 'scale(1.05)' },
+  to: { transform: 'scale(1)' },
+  duration,
+  timingFunction,
+  iterationCount,
+  ...props,
+});
+
+export const zoomIn = ({
+  duration = '0.5s',
+  timingFunction = 'ease-out',
+  ...props
+}: AnimationProps) => ({
+  from: { transform: 'scale(0)' },
+  to: { transform: 'scale(1)' },
+  duration,
+  timingFunction,
+  ...props,
+});
+
+export const zoomOut = ({
+  duration = '0.5s',
+  timingFunction = 'ease-out',
+  ...props
+}: AnimationProps) => ({
+  from: { transform: 'scale(1)' },
+  to: { transform: 'scale(0)' },
+  duration,
+  timingFunction,
+  ...props,
+});
+
+export const flash = ({
+  duration = '1s',
+  iterationCount = 'infinite',
+  ...props
+}: AnimationProps) => ({
+  from: { opacity: 1 },
+  '50%': { opacity: 0 },
+  to: { opacity: 1 },
+  duration,
+  iterationCount,
+  ...props,
+});
+
+export const shake = ({
+  duration = '0.5s',
+  iterationCount = 'infinite',
+  ...props
+}: AnimationProps) => ({
+  from: { transform: 'translateX(0)' },
+  '10%': { transform: 'translateX(-10px)' },
+  '20%': { transform: 'translateX(10px)' },
+  '30%': { transform: 'translateX(-10px)' },
+  '40%': { transform: 'translateX(10px)' },
+  '50%': { transform: 'translateX(-10px)' },
+  '60%': { transform: 'translateX(10px)' },
+  '70%': { transform: 'translateX(-10px)' },
+  '80%': { transform: 'translateX(10px)' },
+  '90%': { transform: 'translateX(-10px)' },
+  to: { transform: 'translateX(0)' },
+  duration,
+  iterationCount,
+  ...props,
+});
+
+export const swing = ({
+  duration = '1s',
+  iterationCount = 'infinite',
+  ...props
+}: AnimationProps) => ({
+  from: { transform: 'rotate(0deg)' },
+  '20%': { transform: 'rotate(15deg)' },
+  '40%': { transform: 'rotate(-10deg)' },
+  '60%': { transform: 'rotate(5deg)' },
+  '80%': { transform: 'rotate(-5deg)' },
+  to: { transform: 'rotate(0deg)' },
+  duration,
+  iterationCount,
+  ...props,
+});
+
+export const rubberBand = ({
+  duration = '1s',
+  timingFunction = 'ease-in-out',
+  ...props
+}: AnimationProps) => ({
+  from: { transform: 'scale3d(1, 1, 1)' },
+  '30%': { transform: 'scale3d(1.25, 0.75, 1)' },
+  '40%': { transform: 'scale3d(0.75, 1.25, 1)' },
+  '50%': { transform: 'scale3d(1.15, 0.85, 1)' },
+  '65%': { transform: 'scale3d(0.95, 1.05, 1)' },
+  '75%': { transform: 'scale3d(1.05, 0.95, 1)' },
+  to: { transform: 'scale3d(1, 1, 1)' },
+  duration,
+  timingFunction,
+  ...props,
+});
+
+export const wobble = ({ duration = '1s', ...props }) => ({
+  from: { transform: 'translateX(0%)' },
+  '15%': { transform: 'translateX(-25%) rotate(-5deg)' },
+  '30%': { transform: 'translateX(20%) rotate(3deg)' },
+  '45%': { transform: 'translateX(-15%) rotate(-3deg)' },
+  '60%': { transform: 'translateX(10%) rotate(2deg)' },
+  '75%': { transform: 'translateX(-5%) rotate(-1deg)' },
+  to: { transform: 'translateX(0%)' },
+  duration,
+  ...props,
+});
+
+export const flip = ({ duration = '1s', ...props }) => ({
+  from: {
+    transform: 'perspective(400px) rotateY(0deg)',
+  },
+  '40%': {
+    transform: 'perspective(400px) rotateY(-180deg)',
+  },
+  to: {
+    transform: 'perspective(400px) rotateY(-360deg)',
+  },
+  duration,
+  ...props,
+});
+
+export const heartBeat = ({
+  duration = '1.3s',
+  iterationCount = 'infinite',
+  ...props
+}: AnimationProps) => ({
+  from: { transform: 'scale(1)' },
+  '14%': { transform: 'scale(1.3)' },
+  '28%': { transform: 'scale(1)' },
+  '42%': { transform: 'scale(1.3)' },
+  '70%': { transform: 'scale(1)' },
+  to: { transform: 'scale(1)' },
+  duration,
+  iterationCount,
+  ...props,
+});
+
+export const rollIn = ({ duration = '1s', ...props }) => ({
+  from: {
+    opacity: 0,
+    transform: 'translateX(-100%) rotate(-120deg)',
+  },
+  to: {
+    opacity: 1,
+    transform: 'translateX(0px) rotate(0deg)',
+  },
+  duration,
+  ...props,
+});
+
+export const rollOut = ({ duration = '1s', ...props }) => ({
+  from: {
+    opacity: 1,
+    transform: 'translateX(0px) rotate(0deg)',
+  },
+  to: {
+    opacity: 0,
+    transform: 'translateX(100%) rotate(120deg)',
+  },
+  duration,
+  ...props,
+});
+
+export const lightSpeedIn = ({
+  duration = '1s',
+  timingFunction = 'ease-out',
+  ...props
+}: AnimationProps) => ({
+  from: {
+    transform: 'translateX(100%) skewX(-30deg)',
+    opacity: 0,
+  },
+  '60%': {
+    transform: 'skewX(20deg)',
+    opacity: 1,
+  },
+  '80%': {
+    transform: 'skewX(-5deg)',
+  },
+  to: {
+    transform: 'translateX(0)',
+    opacity: 1,
+  },
+  duration,
+  timingFunction,
+  ...props,
+});
+
+export const lightSpeedOut = ({
+  duration = '1s',
+  timingFunction = 'ease-in',
+  ...props
+}: AnimationProps) => ({
+  from: {
+    opacity: 1,
+  },
+  '20%': {
+    opacity: 1,
+    transform: 'translateX(-20%) skewX(20deg)',
+  },
+  to: {
+    opacity: 0,
+    transform: 'translateX(-100%) skewX(30deg)',
+  },
+  duration,
+  timingFunction,
+  ...props,
+});
+
+export const hinge = ({
+  duration = '2s',
+  timingFunction = 'ease-in-out',
+  ...props
+}: AnimationProps) => ({
+  from: {
+    transform: 'rotate(0deg)',
+    transformOrigin: 'top left',
+    opacity: 1,
+  },
+  '20%': {
+    transform: 'rotate(80deg)',
+    opacity: 1,
+  },
+  '40%': {
+    transform: 'rotate(60deg)',
+    opacity: 1,
+  },
+  '60%': {
+    transform: 'rotate(80deg)',
+    opacity: 1,
+  },
+  '80%': {
+    transform: 'rotate(60deg)',
+    opacity: 1,
+  },
+  to: {
+    transform: 'translateY(700px)',
+    opacity: 0,
+  },
+  duration,
+  timingFunction,
+  ...props,
+});
+
+export const jackInTheBox = ({
+  duration = '1s',
+  timingFunction = 'ease',
+  ...props
+}: AnimationProps) => ({
+  from: {
+    opacity: 0,
+    transform: 'scale(0.1) rotate(30deg)',
+    transformOrigin: 'center bottom',
+  },
+  '50%': {
+    transform: 'rotate(-10deg)',
+  },
+  '70%': {
+    transform: 'rotate(3deg)',
+  },
+  to: {
+    opacity: 1,
+    transform: 'scale(1) rotate(0deg)',
+  },
+  duration,
+  timingFunction,
+  ...props,
+});
+
+export const flipInX = ({
+  duration = '1s',
+  timingFunction = 'ease-in',
+  ...props
+}: AnimationProps) => ({
+  from: {
+    transform: 'perspective(400px) rotateX(90deg)',
+    opacity: 0,
+  },
+  '40%': {
+    transform: 'perspective(400px) rotateX(-10deg)',
+    opacity: 1,
+  },
+  to: {
+    transform: 'perspective(400px) rotateX(0deg)',
+  },
+  duration,
+  timingFunction,
+  ...props,
+});
+
+export const flipInY = ({
+  duration = '1s',
+  timingFunction = 'ease-in',
+  ...props
+}: AnimationProps) => ({
+  from: {
+    transform: 'perspective(400px) rotateY(90deg)',
+    opacity: 0,
+  },
+  '40%': {
+    transform: 'perspective(400px) rotateY(-10deg)',
+    opacity: 1,
+  },
+  to: {
+    transform: 'perspective(400px) rotateY(0deg)',
+  },
+  duration,
+  timingFunction,
+  ...props,
+});
+
+export const headShake = ({
+  duration = '1s',
+  iterationCount = 'infinite',
+  ...props
+}: AnimationProps) => ({
+  from: {
+    transform: 'translateX(0)',
+  },
+  '6.5%': {
+    transform: 'translateX(-6px) rotateY(-9deg)',
+  },
+  '18.5%': {
+    transform: 'translateX(5px) rotateY(7deg)',
+  },
+  '31.5%': {
+    transform: 'translateX(-3px) rotateY(-5deg)',
+  },
+  '43.5%': {
+    transform: 'translateX(2px) rotateY(3deg)',
+  },
+  '50%': {
+    transform: 'translateX(0)',
+  },
+  duration,
+  iterationCount,
+  ...props,
+});
+
+export const tada = ({
+  duration = '1s',
+  iterationCount = 'infinite',
+  ...props
+}: AnimationProps) => ({
+  from: { transform: 'scale3d(1, 1, 1)', opacity: 1 },
+  '10%, 20%': {
+    transform: 'scale3d(0.9, 0.9, 0.9) rotate(-3deg)',
+  },
+  '30%, 50%, 70%, 90%': {
+    transform: 'scale3d(1.1, 1.1, 1.1) rotate(3deg)',
+  },
+  '40%, 60%, 80%': {
+    transform: 'scale3d(1.1, 1.1, 1.1) rotate(-3deg)',
+  },
+  to: { transform: 'scale3d(1, 1, 1)', opacity: 1 },
+  duration,
+  iterationCount,
+  ...props,
+});
+
+export const jello = ({
+  duration = '1s',
+  iterationCount = 'infinite',
+  ...props
+}: AnimationProps) => ({
+  from: { transform: 'none' },
+  '11.1%': { transform: 'skewX(-12.5deg) skewY(-12.5deg)' },
+  '22.2%': { transform: 'skewX(6.25deg) skewY(6.25deg)' },
+  '33.3%': { transform: 'skewX(-3.125deg) skewY(-3.125deg)' },
+  '44.4%': { transform: 'skewX(1.5625deg) skewY(1.5625deg)' },
+  '55.5%': { transform: 'skewX(-0.78125deg) skewY(-0.78125deg)' },
+  '66.6%': { transform: 'skewX(0.390625deg) skewY(0.390625deg)' },
+  '77.7%': { transform: 'skewX(-0.1953125deg) skewY(-0.1953125deg)' },
+  '88.8%': { transform: 'skewX(0.09765625deg) skewY(0.09765625deg)' },
+  to: { transform: 'none' },
+  duration,
+  iterationCount,
+  ...props,
+});
+
+export const fadeInDown = ({
+  duration = '1s',
+  timingFunction = 'ease-out',
+  ...props
+}: AnimationProps) => ({
+  from: {
+    opacity: 0,
+    transform: 'translateY(-100%)',
+  },
+  to: {
+    opacity: 1,
+    transform: 'translateY(0)',
+  },
+  duration,
+  timingFunction,
+  ...props,
+});
+
+export const fadeInUp = ({
+  duration = '1s',
+  timingFunction = 'ease-out',
+  ...props
+}: AnimationProps) => ({
+  from: {
+    opacity: 0,
+    transform: 'translateY(100%)',
+  },
+  to: {
+    opacity: 1,
+    transform: 'translateY(0)',
+  },
+  duration,
+  timingFunction,
+  ...props,
+});
+
+export const bounceIn = ({
+  duration = '0.75s',
+  timingFunction = 'ease-in',
+  ...props
+}: AnimationProps) => ({
+  from: {
+    opacity: 0,
+    transform: 'scale(0.3)',
+  },
+  '50%': {
+    opacity: 1,
+    transform: 'scale(1.05)',
+  },
+  '70%': {
+    transform: 'scale(0.9)',
+  },
+  to: {
+    transform: 'scale(1)',
+  },
+  duration,
+  timingFunction,
+  ...props,
+});
+
+export const bounceOut = ({
+  duration = '0.75s',
+  timingFunction = 'ease-out',
+  ...props
+}: AnimationProps) => ({
+  from: {
+    transform: 'scale(1)',
+  },
+  '20%': {
+    transform: 'scale(0.9)',
+  },
+  '50%, 55%': {
+    opacity: 1,
+    transform: 'scale(1.1)',
+  },
+  to: {
+    opacity: 0,
+    transform: 'scale(0.3)',
+  },
+  duration,
+  timingFunction,
+  ...props,
+});
+
+export const slideOutLeft = ({
+  duration = '0.5s',
+  timingFunction = 'ease-in',
+  ...props
+}: AnimationProps) => ({
+  from: {
+    transform: 'translateX(0)',
+  },
+  to: {
+    transform: 'translateX(-100%)',
+  },
+  duration,
+  timingFunction,
+  ...props,
+});
+
+export const slideOutRight = ({
+  duration = '0.5s',
+  timingFunction = 'ease-in',
+  ...props
+}: AnimationProps) => ({
+  from: {
+    transform: 'translateX(0)',
+  },
+  to: {
+    transform: 'translateX(100%)',
+  },
+  duration,
+  timingFunction,
+  ...props,
+});
+
+export const zoomInDown = ({
+  duration = '1s',
+  timingFunction = 'ease-out',
+  ...props
+}: AnimationProps) => ({
+  from: {
+    opacity: 0,
+    transform: 'scale(0.1) translateY(-1000px)',
+  },
+  '60%': {
+    opacity: 1,
+    transform: 'scale(0.475) translateY(60px)',
+  },
+  to: {
+    transform: 'scale(1) translateY(0)',
+  },
+  duration,
+  timingFunction,
+  ...props,
+});
+
+export const zoomOutUp = ({
+  duration = '1s',
+  timingFunction = 'ease-in',
+  ...props
+}: AnimationProps) => ({
+  from: {
+    opacity: 1,
+    transform: 'scale(1) translateY(0)',
+  },
+  '40%': {
+    opacity: 1,
+    transform: 'scale(0.475) translateY(-60px)',
+  },
+  to: {
+    opacity: 0,
+    transform: 'scale(0.1) translateY(-1000px)',
+  },
+  duration,
+  timingFunction,
+  ...props,
+});
+
+export const backInDown = ({
+  duration = '1s',
+  timingFunction = 'ease-in',
+  ...props
+}: AnimationProps) => ({
+  from: {
+    opacity: 0.7,
+    transform: 'translateY(-2000px) scaleY(2.5) scaleX(0.2)',
+  },
+  to: {
+    opacity: 1,
+    transform: 'translateY(0) scaleY(1) scaleX(1)',
+  },
+  duration,
+  timingFunction,
+  ...props,
+});
+
+export const backOutUp = ({
+  duration = '1s',
+  timingFunction = 'ease-in',
+  ...props
+}: AnimationProps) => ({
+  from: {
+    opacity: 1,
+    transform: 'translateY(0)',
+  },
+  '80%': {
+    opacity: 0.7,
+    transform: 'translateY(-20px)',
+  },
+  to: {
+    opacity: 0,
+    transform: 'translateY(-2000px)',
+  },
+  duration,
+  timingFunction,
+  ...props,
+});
+
+export const shimmer = ({
+  duration = '2s',
+  timingFunction = 'linear',
+  iterationCount = 'infinite',
+  ...props
+}: AnimationProps) => ({
+  from: { transform: 'translateX(-100%)' },
+  '50%': { transform: 'translateX(100%)' },
+  to: { transform: 'translateX(100%)' },
+  duration,
+  timingFunction,
+  iterationCount,
+  ...props,
+});
+
+export const progress = ({
+  duration = '2s',
+  timingFunction = 'linear',
+  direction = 'forwards',
+  from = { width: '0%' },
+  to = { width: '100%' },
+  ...props
+}: AnimationProps) => ({
+  from,
+  to,
+  duration,
+  timingFunction,
+  direction,
+  ...props,
+});
+
+export const typewriter = ({
+  duration = '10s',
+  steps = 10,
+  iterationCount = 1,
+  width = 0,
+  ...props
+}: AnimationProps) => ({
+  from: { width: '0px' },
+  to: { width: `${width}px` },
+  timingFunction: `steps(${steps})`,
+  duration,
+  iterationCount,
+  ...props,
+});
+
+export const blinkCursor = ({
+  duration = '0.75s',
+  timingFunction = 'step-end',
+  iterationCount = 'infinite',
+  color = 'black',
+  ...props
+}: AnimationProps) => ({
+  from: { color: color },
+  to: { color: color },
+  '0%': { color: color },
+  '50%': { color: 'transparent' },
+  '100%': { color: color },
+  duration,
+  timingFunction,
+  iterationCount,
+  ...props,
+});
+
+export const fadeInScroll = ({
+  duration = '0.5s',
+  timingFunction = 'ease',
+  timeline = 'scroll()',
+  range = 'cover',
+  ...props
+}: AnimationProps) => ({
+  from: { opacity: 0 },
+  to: { opacity: 1 },
+  duration,
+  timingFunction,
+  timeline,
+  range,
+  ...props,
+});
+
+export const slideInLeftScroll = ({
+  duration = '0.5s',
+  timingFunction = 'ease-out',
+  timeline = 'scroll()',
+  range = 'cover',
+  ...props
+}: AnimationProps) => ({
+  from: { transform: 'translateX(-200%)' },
+  to: { transform: 'translateX(0)' },
+  duration,
+  timingFunction,
+  timeline,
+  range,
+  ...props,
+});
+
+export const scaleDownScroll = ({
+  duration = '0.8s',
+  timingFunction = 'ease',
+  timeline = 'scroll()',
+  range = 'cover',
+  ...props
+}: AnimationProps) => ({
+  from: { transform: 'scale(3)' },
+  to: { transform: 'scale(1)' },
+  duration,
+  timingFunction,
+  timeline,
+  range,
+  ...props,
+});
+
+// Text fill reveal on scroll driven by a custom property (--fill)
+// Requires @property --fill defined in CSS
+export const fillTextScroll = ({
+  duration = '1s',
+  timingFunction = 'linear',
+  timeline = '--section',
+  range = 'entry 100% cover 50%, cover 50% exit 0%',
+  ...props
+}: AnimationProps) => ({
+  from: {
+    '--fill': 0,
+    color: 'transparent',
+    backgroundPositionX:
+      'calc(var(--underline-block-width) * -1), calc(var(--underline-block-width) * -1), 0',
+  },
+  '50%': { '--fill': 0.5 },
+  to: {
+    '--fill': 1,
+    backgroundPositionX: '0, 0, 0',
+    color: 'var(--finish-fill)',
+  },
+  duration,
+  timingFunction,
+  timeline,
+  range,
+  ...props,
+});
+
+// Collapsing floating call-to-action on scroll
+// This animates the width from an expanded value to a collapsed width.
+export const ctaCollapseScroll = ({
+  duration = '1s',
+  timingFunction = 'linear',
+  timeline = 'scroll()',
+  range = '0 400px',
+  ...props
+}: AnimationProps) => ({
+  from: { width: 'calc(48px + 120px)' },
+  to: { width: '48px' },
+  duration,
+  timingFunction,
+  timeline,
+  range,
+  ...props,
+});
+
+// Hand wave animation on scroll with a defined view range
+export const handWaveScroll = ({
+  duration = '2s',
+  timingFunction = 'linear',
+  timeline = 'scroll()',
+  range = '10vh 60vh',
+  ...props
+}: AnimationProps) => ({
+  from: { transform: 'rotate(0deg)' },
+  '50%': { transform: 'rotate(20deg)' },
+  to: { transform: 'rotate(0deg)' },
+  duration,
+  timingFunction,
+  timeline,
+  range,
+  ...props,
+});
+
+// Fade out and blur text on scroll exit
+export const fadeBlurScroll = ({
+  duration = '1s',
+  timingFunction = 'linear',
+  timeline = 'view()',
+  range = 'cover 40% cover 85%',
+  ...props
+}: AnimationProps) => ({
+  to: { opacity: 0, filter: 'blur(2rem)' },
+  duration,
+  timingFunction,
+  timeline,
+  range,
+  ...props,
+});
+
+// Unclip animation using clip-path on scroll
+export const unclipScroll = ({
+  duration = '1s',
+  timingFunction = 'linear',
+  timeline = '--article',
+  range = 'entry',
+  ...props
+}: AnimationProps) => ({
+  to: { clipPath: 'ellipse(220% 200% at 50% 175%)' },
+  duration,
+  timingFunction,
+  timeline,
+  range,
+  ...props,
+});
+
+// Scale down image (or content) on scroll using article timeline
+export const scaleDownArticleScroll = ({
+  duration = '1s',
+  timingFunction = 'linear',
+  timeline = '--article',
+  range = 'entry',
+  ...props
+}: AnimationProps) => ({
+  '0%': { transform: 'scale(5)' },
+  to: { transform: 'scale(1)' },
+  duration,
+  timingFunction,
+  timeline,
+  range,
+  ...props,
+});
+
+// List item scaling animation on scroll driven by an inline view-timeline (--i)
+export const listItemScaleScroll = ({
+  duration = '0.5s',
+  timingFunction = 'ease',
+  timeline = '--i',
+  range = 'cover 40% cover 60%',
+  ...props
+}: AnimationProps) => ({
+  from: { transform: 'scale(0.8)' },
+  '50%': { transform: 'scale(1)' },
+  duration,
+  timingFunction,
+  timeline,
+  range,
+  ...props,
+});
+
+================
+File: element/css.ts
+================
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable prefer-const */
+import { Shadows } from '../utils/shadow';
+import Color from 'color-convert';
+import { generateKeyframes } from './utils';
+import { isStyleProp, StyleProps } from '../utils/style';
+import { ElementProps } from './Element';
+import { numericCssProperties } from '../utils/cssProperties';
+
+type StyleContext = 'base' | 'pseudo' | 'media' | 'modifier';
+
+// Implement a simple LRU cache for classCache
+class LRUCache<K, V> {
+  private cache: Map<K, V>;
+  private maxSize: number;
+
+  constructor(maxSize: number) {
+    this.maxSize = maxSize;
+    this.cache = new Map();
+  }
+
+  get(key: K): V | undefined {
+    const item = this.cache.get(key);
+    if (item) {
+      // Move to the end to mark as recently used
+      this.cache.delete(key);
+      this.cache.set(key, item);
+      return item;
+    }
+    return undefined;
+  }
+
+  set(key: K, value: V): void {
+    if (this.cache.has(key)) {
+      // If already in cache, just move to the end
+      this.cache.delete(key);
+    } else if (this.cache.size >= this.maxSize) {
+      // Remove the least recently used (first item in the map)
+      const firstKey = this.cache.keys().next().value;
+      if (firstKey) {
+        this.cache.delete(firstKey);
+      }
+    }
+    this.cache.set(key, value);
+  }
+
+  clear(): void {
+    this.cache.clear();
+  }
+
+  delete(key: K): void {
+    this.cache.delete(key);
+  }
+
+  get size(): number {
+    return this.cache.size;
+  }
+
+  keys(): IterableIterator<K> {
+    return this.cache.keys();
+  }
+
+  values(): IterableIterator<V> {
+    return this.cache.values();
+  }
+
+  has(key: K): boolean {
+    return this.cache.has(key);
+  }
+}
+
+class UtilityClassManager {
+  private baseStyleSheet: Map<Document, CSSStyleSheet> = new Map();
+  private mediaStyleSheet: Map<Document, CSSStyleSheet> = new Map();
+  private modifierStyleSheet: Map<Document, CSSStyleSheet> = new Map();
+  // Use LRUCache instead of WeakMap for classCache
+  private classCache: LRUCache<
+    string,
+    {
+      className: string;
+      rules: Array<{
+        rule: string;
+        context: StyleContext;
+      }>;
+    }
+  >;
+  private maxCacheSize: number;
+  private propertyShorthand: Record<string, string>;
+  private mainDocument: Document | null = null;
+
+  constructor(
+    propertyShorthand: Record<string, string>,
+    maxCacheSize: number = 10000
+  ) {
+    this.propertyShorthand = propertyShorthand;
+    this.maxCacheSize = maxCacheSize;
+    // Initialize LRUCache with maxSize
+    this.classCache = new LRUCache(this.maxCacheSize);
+    if (typeof document !== 'undefined') {
+      this.mainDocument = document;
+      this.initStyleSheets(document);
+    }
+  }
+
+  private initStyleSheets(targetDocument: Document) {
+    if (!this.baseStyleSheet.has(targetDocument)) {
+      let baseStyleTag = targetDocument.getElementById(
+        'utility-classes-base'
+      ) as HTMLStyleElement;
+      if (!baseStyleTag) {
+        baseStyleTag = targetDocument.createElement('style');
+        baseStyleTag.id = 'utility-classes-base';
+        targetDocument.head.appendChild(baseStyleTag);
+      }
+      this.baseStyleSheet.set(
+        targetDocument,
+        baseStyleTag.sheet as CSSStyleSheet
+      );
+    }
+
+    if (!this.mediaStyleSheet.has(targetDocument)) {
+      let mediaStyleTag = targetDocument.getElementById(
+        'utility-classes-media'
+      ) as HTMLStyleElement;
+      if (!mediaStyleTag) {
+        mediaStyleTag = targetDocument.createElement('style');
+        mediaStyleTag.id = 'utility-classes-media';
+        targetDocument.head.appendChild(mediaStyleTag);
+      }
+      this.mediaStyleSheet.set(
+        targetDocument,
+        mediaStyleTag.sheet as CSSStyleSheet
+      );
+    }
+
+    if (!this.modifierStyleSheet.has(targetDocument)) {
+      let modifierStyleTag = targetDocument.getElementById(
+        'utility-classes-modifier'
+      ) as HTMLStyleElement;
+      if (!modifierStyleTag) {
+        modifierStyleTag = targetDocument.createElement('style');
+        modifierStyleTag.id = 'utility-classes-modifier';
+        targetDocument.head.appendChild(modifierStyleTag);
+      }
+      this.modifierStyleSheet.set(
+        targetDocument,
+        modifierStyleTag.sheet as CSSStyleSheet
+      );
+    }
+  }
+
+  private getMainDocumentRules(): Array<{
+    cssText: string;
+    context: StyleContext;
+  }> {
+    if (!this.mainDocument) return [];
+
+    const rules: Array<{ cssText: string; context: StyleContext }> = [];
+
+    // Get base rules
+    const baseSheet = this.baseStyleSheet.get(this.mainDocument);
+    if (baseSheet) {
+      Array.from(baseSheet.cssRules).forEach((rule) => {
+        rules.push({ cssText: rule.cssText, context: 'base' });
+      });
+    }
+
+    // Get media rules
+    const mediaSheet = this.mediaStyleSheet.get(this.mainDocument);
+    if (mediaSheet) {
+      Array.from(mediaSheet.cssRules).forEach((rule) => {
+        rules.push({ cssText: rule.cssText, context: 'media' });
+      });
+    }
+
+    // Get modifier rules
+    const modifierSheet = this.modifierStyleSheet.get(this.mainDocument);
+    if (modifierSheet) {
+      Array.from(modifierSheet.cssRules).forEach((rule) => {
+        rules.push({ cssText: rule.cssText, context: 'modifier' });
+      });
+    }
+
+    return rules;
+  }
+
+  public addDocument(targetDocument: Document) {
+    if (targetDocument === this.mainDocument) return;
+
+    this.initStyleSheets(targetDocument);
+
+    this.clearStylesFromDocument(targetDocument);
+
+    // Reinject all cached rules into the new document
+    const mainRules = this.getMainDocumentRules();
+    mainRules.forEach(({ cssText, context }) => {
+      this.injectRuleToDocument(cssText, context, targetDocument);
+    });
+  }
+
+  private clearStylesFromDocument(targetDocument: Document) {
+    const baseSheet = this.baseStyleSheet.get(targetDocument);
+    const mediaSheet = this.mediaStyleSheet.get(targetDocument);
+    const modifierSheet = this.modifierStyleSheet.get(targetDocument);
+
+    if (baseSheet) this.clearStyleSheet(baseSheet);
+    if (mediaSheet) this.clearStyleSheet(mediaSheet);
+    if (modifierSheet) this.clearStyleSheet(modifierSheet);
+  }
+
+  private escapeClassName(className: string): string {
+    return className.replace(/:/g, '\\:');
+  }
+
+  injectRule(cssRule: string, context: StyleContext = 'base') {
+    // First inject to main document
+    if (this.mainDocument) {
+      this.injectRuleToDocument(cssRule, context, this.mainDocument);
+    }
+
+    // Then inject to all iframe documents
+    for (const document of this.getAllRegisteredDocuments()) {
+      if (document !== this.mainDocument) {
+        this.injectRuleToDocument(cssRule, context, document);
+      }
+    }
+  }
+
+  private getAllRegisteredDocuments(): Document[] {
+    return Array.from(this.baseStyleSheet.keys());
+  }
+
+  private addToCache(
+    key: string,
+    className: string,
+    rules: Array<{ rule: string; context: StyleContext }>
+  ) {
+    // LRUCache handles size limit internally
+    this.classCache.set(key, { className, rules });
+  }
+
+  public getClassNames(
+    property: string,
+    value: any,
+    context: StyleContext = 'base',
+    modifier: string = '',
+    getColor: (color: string) => string,
+    mediaQueries: string[] = []
+  ): string[] {
+    let processedValue = value;
+
+    // If the property is a color, convert it
+    if (property.toLowerCase().includes('color')) {
+      processedValue = getColor(value);
+    }
+
+    // Handle numeric values
+    if (typeof processedValue === 'number') {
+      if (numericCssProperties.has(property)) {
+        processedValue = `${processedValue}px`;
+      }
+    }
+
+    let formattedValue = processedValue.toString().split(' ').join('-');
+    let key = `${property}:${formattedValue}`;
+    if (modifier && context !== 'base') {
+      key = `${property}:${formattedValue}|${context}:${modifier}`;
+    }
+
+    const cached = this.classCache.get(key);
+    if (cached) {
+      return [cached.className];
+    }
+
+    let shorthand = this.propertyShorthand[property];
+    if (!shorthand) {
+      shorthand = property.replace(/([A-Z])/g, '-$1').toLowerCase();
+    }
+
+    let normalizedValue = formattedValue
+      .toString()
+      .replace(/\./g, 'p')
+      .replace(/\s+/g, '-')
+      .replace(/[^a-zA-Z0-9\-]/g, '')
+      .replace(/%/g, 'pct')
+      .replace(/vw/g, 'vw')
+      .replace(/vh/g, 'vh')
+      .replace(/em/g, 'em')
+      .replace(/rem/g, 'rem');
+
+    let baseClassName = `${shorthand}-${normalizedValue}`;
+    let classNames: string[] = [baseClassName];
+    let rules: Array<{ rule: string; context: StyleContext }> = [];
+
+    const cssProperty = property.replace(/([A-Z])/g, '-$1').toLowerCase();
+    let valueForCss = processedValue;
+
+    if (
+      typeof valueForCss === 'number' &&
+      numericCssProperties.has(cssProperty)
+    ) {
+      valueForCss = `${valueForCss}px`;
+    }
+
+    const generateRules = (className: string) => {
+      const escapedClassName = this.escapeClassName(className);
+
+      switch (context) {
+        case 'base':
+          rules.push({
+            rule: `.${escapedClassName} { ${cssProperty}: ${valueForCss}; }`,
+            context: 'base',
+          });
+          break;
+        case 'pseudo':
+          rules.push({
+            rule: `.${escapedClassName}:${modifier} { ${cssProperty}: ${valueForCss}; }`,
+            context: 'pseudo',
+          });
+          break;
+        case 'media':
+          mediaQueries.forEach((mq) => {
+            rules.push({
+              rule: `@media ${mq} { .${escapedClassName} { ${cssProperty}: ${valueForCss}; } }`,
+              context: 'media',
+            });
+          });
+          break;
+      }
+    };
+
+    if (context === 'pseudo' && modifier) {
+      const pseudoClassName = `${baseClassName}--${modifier}`;
+      classNames = [pseudoClassName];
+      generateRules(pseudoClassName);
+    } else if (context === 'media' && modifier) {
+      const mediaClassName = `${modifier}--${baseClassName}`;
+      classNames = [mediaClassName];
+      generateRules(mediaClassName);
+    } else {
+      generateRules(baseClassName);
+    }
+
+    // Inject all rules
+    rules.forEach(({ rule, context }) => {
+      this.injectRule(rule, context);
+    });
+
+    // Cache the generated rules
+    this.addToCache(key, classNames[0], rules);
+
+    return classNames;
+  }
+
+  public removeDocument(targetDocument: Document) {
+    if (targetDocument === this.mainDocument) return;
+
+    this.baseStyleSheet.delete(targetDocument);
+    this.mediaStyleSheet.delete(targetDocument);
+    this.modifierStyleSheet.delete(targetDocument);
+  }
+
+  public clearCache() {
+    this.classCache.clear();
+  }
+
+  private clearStyleSheet(styleSheet: CSSStyleSheet) {
+    while (styleSheet.cssRules.length > 0) {
+      styleSheet.deleteRule(0);
+    }
+  }
+
+  public regenerateStyles(targetDocument: Document) {
+    if (targetDocument === this.mainDocument) {
+      // For main document, regenerate from cache
+      this.clearStylesFromDocument(targetDocument);
+      const values = Array.from(this.classCache.values());
+      for (const { rules } of values) {
+        rules.forEach(
+          ({ rule, context }: { rule: string; context: StyleContext }) => {
+            this.injectRuleToDocument(rule, context, targetDocument);
+          }
+        );
+      }
+    } else {
+      // For iframes, copy from main document
+      this.addDocument(targetDocument);
+    }
+  }
+
+  public regenerateAllStyles() {
+    // Regenerate styles for all registered documents
+    for (const document of this.getAllRegisteredDocuments()) {
+      this.regenerateStyles(document);
+    }
+  }
+
+  private injectRuleToDocument(
+    cssRule: string,
+    context: StyleContext,
+    targetDocument: Document
+  ) {
+    let styleSheet: CSSStyleSheet | null = null;
+
+    switch (context) {
+      case 'base':
+      case 'pseudo':
+        styleSheet = this.baseStyleSheet.get(targetDocument) || null;
+        break;
+      case 'media':
+        styleSheet = this.mediaStyleSheet.get(targetDocument) || null;
+        break;
+      case 'modifier':
+        styleSheet = this.modifierStyleSheet.get(targetDocument) || null;
+        break;
+    }
+
+    if (styleSheet) {
+      try {
+        styleSheet.insertRule(cssRule, styleSheet.cssRules.length);
+      } catch (e) {
+        console.error(`Error inserting CSS rule to document: "${cssRule}"`, e);
+      }
+    }
+  }
+
+  // Optional: Add helpers for debugging
+  public printStyles(targetDocument: Document) {
+    console.group('Current styles for document:');
+
+    console.group('Base styles:');
+    const baseSheet = this.baseStyleSheet.get(targetDocument);
+    if (baseSheet) {
+      Array.from(baseSheet.cssRules).forEach((rule, i) => {
+        console.log(`${i}: ${rule.cssText}`);
+      });
+    }
+    console.groupEnd();
+
+    console.group('Media styles:');
+    const mediaSheet = this.mediaStyleSheet.get(targetDocument);
+    if (mediaSheet) {
+      Array.from(mediaSheet.cssRules).forEach((rule, i) => {
+        console.log(`${i}: ${rule.cssText}`);
+      });
+    }
+    console.groupEnd();
+
+    console.group('Modifier styles:');
+    const modifierSheet = this.modifierStyleSheet.get(targetDocument);
+    if (modifierSheet) {
+      Array.from(modifierSheet.cssRules).forEach((rule, i) => {
+        console.log(`${i}: ${rule.cssText}`);
+      });
+    }
+    console.groupEnd();
+
+    console.groupEnd();
+  }
+}
+
+/**
+ * WeakMaps a React event to a CSS pseudo-class.
+ */
+const mapEventToPseudo = (event: string): string | null => {
+  const eventWeakMap: Record<string, string> = {
+    hover: 'hover',
+    active: 'active',
+    focus: 'focus',
+    visited: 'visited',
+  };
+  return eventWeakMap[event] || null;
+};
+
+/**
+ * Generates shorthand abbreviations for CSS properties.
+ */
+function generatePropertyShorthand(
+  styledProps: string[]
+): Record<string, string> {
+  const propertyShorthand: Record<string, string> = {};
+  const usedAbbreviations = new Set<string>();
+
+  function generateAbbreviation(prop: string): string {
+    const first = prop[0].toLowerCase();
+    const last = prop[prop.length - 1].toLowerCase();
+    const middle = prop.slice(1, -1).replace(/[a-z]/g, '').toLowerCase();
+    let abbr = first + middle + last;
+    if (abbr.length < 2) {
+      abbr = prop.slice(0, 2).toLowerCase();
+    }
+    let i = 0;
+    let uniqueAbbr = abbr;
+    while (usedAbbreviations.has(uniqueAbbr)) {
+      i++;
+      uniqueAbbr = abbr + prop.slice(-i).toLowerCase();
+    }
+    usedAbbreviations.add(uniqueAbbr);
+    return uniqueAbbr;
+  }
+
+  for (const prop of styledProps) {
+    propertyShorthand[prop] = generateAbbreviation(prop);
+  }
+  return propertyShorthand;
+}
+
+const rawCssCache = new Map<string, string>();
+function generateUniqueClassName(css: string): string {
+  // If we already have a class name for this exact CSS, return it
+
+  // Otherwise, create a new encoded and truncated class name
+
+  if (rawCssCache.has(css)) {
+    return rawCssCache.get(css)!;
+  }
+
+  const shortName = Math.random().toString(36).substring(7);
+
+  // Optionally include a counter to reduce collisions on identical slice
+  const newClassName = `raw-css-${shortName}`;
+
+  // Store it in the cache
+  rawCssCache.set(css, newClassName);
+  return newClassName;
+}
+
+const propertyShorthand = generatePropertyShorthand(StyleProps);
+export const utilityClassManager = new UtilityClassManager(
+  propertyShorthand,
+  10000
+); // You can adjust maxSize here
+
+function parseDuration(duration: string): number {
+  const match = duration.match(/^([\d.]+)(ms|s)$/);
+  if (!match) return 0;
+  const value = parseFloat(match[1]);
+  const unit = match[2];
+  return unit === 's' ? value * 1000 : value;
+}
+
+function formatDuration(ms: number): string {
+  if (ms >= 1000 && ms % 1000 === 0) {
+    return `${ms / 1000}s`;
+  }
+  return `${ms}ms`;
+}
+
+export const extractUtilityClasses = (
+  props: ElementProps,
+  getColor: (color: string) => string,
+  mediaQueries: Record<string, string>,
+  devices: Record<string, string[]>
+): string[] => {
+  const classes: string[] = [];
+  const computedStyles: Record<string, any> = {};
+
+  // Handle size
+  const size =
+    props.height !== undefined &&
+    props.width !== undefined &&
+    props.height === props.width
+      ? props.height
+      : props.size || null;
+  if (size) {
+    const sizeValue = typeof size === 'number' ? `${size}px` : size;
+    computedStyles.width = sizeValue;
+    computedStyles.height = sizeValue;
+  }
+
+  // Handle padding and margin
+  if (props.paddingHorizontal) {
+    const paddingH =
+      typeof props.paddingHorizontal === 'number'
+        ? `${props.paddingHorizontal}px`
+        : props.paddingHorizontal;
+    computedStyles.paddingLeft = paddingH;
+    computedStyles.paddingRight = paddingH;
+  }
+  if (props.marginHorizontal) {
+    const marginH =
+      typeof props.marginHorizontal === 'number'
+        ? `${props.marginHorizontal}px`
+        : props.marginHorizontal;
+    computedStyles.marginLeft = marginH;
+    computedStyles.marginRight = marginH;
+  }
+  if (props.paddingVertical) {
+    const paddingV =
+      typeof props.paddingVertical === 'number'
+        ? `${props.paddingVertical}px`
+        : props.paddingVertical;
+    computedStyles.paddingTop = paddingV;
+    computedStyles.paddingBottom = paddingV;
+  }
+  if (props.marginVertical) {
+    const marginV =
+      typeof props.marginVertical === 'number'
+        ? `${props.marginVertical}px`
+        : props.marginVertical;
+    computedStyles.marginTop = marginV;
+    computedStyles.marginBottom = marginV;
+  }
+
+  // Handle shadows
+  if (props.shadow) {
+    let shadowValue: number;
+    if (
+      typeof props.shadow === 'number' &&
+      Shadows[props.shadow] !== undefined
+    ) {
+      shadowValue = props.shadow;
+    } else if (typeof props.shadow === 'boolean') {
+      shadowValue = props.shadow ? 2 : 0;
+    } else {
+      shadowValue = 2;
+    }
+    if (Shadows[shadowValue]) {
+      const { shadowColor, shadowOpacity, shadowOffset, shadowRadius } =
+        Shadows[shadowValue];
+      const rgb = Color.hex.rgb(shadowColor);
+      const rgbaColor = `rgba(${rgb.join(',')}, ${shadowOpacity})`;
+      computedStyles.boxShadow = `${shadowOffset.height}px ${shadowOffset.width}px ${shadowRadius}px ${rgbaColor}`;
+    }
+  }
+
+  // Handle animations
+  if (props.animate) {
+    const animations = Array.isArray(props.animate)
+      ? props.animate
+      : [props.animate];
+    const animationNames: string[] = [];
+    const animationDurations: string[] = [];
+    const animationTimingFunctions: string[] = [];
+    const animationDelays: string[] = [];
+    const animationIterationCounts: string[] = [];
+    const animationDirections: string[] = [];
+    const animationFillModes: string[] = [];
+    const animationPlayStates: string[] = [];
+    const animationTimelines: string[] = [];
+    const animationRanges: string[] = [];
+    let cumulativeTime = 0;
+    animations.forEach((animation) => {
+      const { keyframesName, keyframes } = generateKeyframes(animation);
+      if (keyframes && typeof document !== 'undefined') {
+        utilityClassManager.injectRule(keyframes);
+      }
+      animationNames.push(keyframesName);
+      const durationMs = parseDuration(animation.duration || '0s');
+      const delayMs = parseDuration(animation.delay || '0s');
+      const totalDelayMs = cumulativeTime + delayMs;
+      cumulativeTime = totalDelayMs + durationMs;
+      animationDurations.push(formatDuration(durationMs));
+      animationTimingFunctions.push(animation.timingFunction || 'ease');
+      animationDelays.push(formatDuration(totalDelayMs));
+      animationIterationCounts.push(
+        animation.iterationCount !== undefined
+          ? `${animation.iterationCount}`
+          : '1'
+      );
+      animationDirections.push(animation.direction || 'normal');
+      animationFillModes.push(animation.fillMode || 'none');
+      animationPlayStates.push(animation.playState || 'running');
+      animationTimelines.push(animation.timeline || '');
+      animationRanges.push(animation.range || '');
+    });
+    computedStyles.animationName = animationNames.join(', ');
+    computedStyles.animationDuration = animationDurations.join(', ');
+    computedStyles.animationTimingFunction =
+      animationTimingFunctions.join(', ');
+    computedStyles.animationDelay = animationDelays.join(', ');
+    computedStyles.animationIterationCount =
+      animationIterationCounts.join(', ');
+    computedStyles.animationDirection = animationDirections.join(', ');
+    computedStyles.animationFillMode = animationFillModes.join(', ');
+    computedStyles.animationPlayState = animationPlayStates.join(', ');
+    if (animationTimelines.some((t) => t)) {
+      computedStyles.animationTimeline = animationTimelines.join(', ');
+    }
+    if (animationRanges.some((r) => r)) {
+      computedStyles.animationRange = animationRanges.join(', ');
+    }
+  }
+
+  // Generate utility classes for computed styles
+  const generateUtilityClasses = (
+    styles: Record<string, any>,
+    context: 'base' | 'pseudo' | 'media' = 'base',
+    modifier: string = ''
+  ) => {
+    Object.keys(styles).forEach((property) => {
+      const value = styles[property];
+      let mediaQueriesForClass: string[] = [];
+      if (context === 'media') {
+        if (mediaQueries[modifier]) {
+          mediaQueriesForClass = [mediaQueries[modifier]];
+        } else if (devices[modifier]) {
+          mediaQueriesForClass = devices[modifier]
+            .map((mq) => mediaQueries[mq])
+            .filter((mq) => mq);
+        }
+      }
+      if (value !== undefined && value !== '') {
+        const classNames = utilityClassManager.getClassNames(
+          property,
+          value,
+          context,
+          modifier,
+          getColor,
+          mediaQueriesForClass
+        );
+        classes.push(...classNames);
+      }
+    });
+  };
+
+  generateUtilityClasses(computedStyles, 'base');
+
+  // Iterate over remaining style props
+  Object.keys(props).forEach((property) => {
+    if (
+      property !== 'style' &&
+      property !== 'css' &&
+      (isStyleProp(property) || ['on', 'media'].includes(property))
+    ) {
+      const value = (props as any)[property];
+      if (typeof value === 'object' && value !== null) {
+        if (property === 'on') {
+          Object.keys(value).forEach((event) => {
+            const eventStyles = value[event];
+            const { animate, ...otherEventStyles } = eventStyles;
+            if (animate) {
+              const animations = Array.isArray(animate) ? animate : [animate];
+              const animationNames: string[] = [];
+              const animationDurations: string[] = [];
+              const animationTimingFunctions: string[] = [];
+              const animationDelays: string[] = [];
+              const animationIterationCounts: string[] = [];
+              const animationDirections: string[] = [];
+              const animationFillModes: string[] = [];
+              const animationPlayStates: string[] = [];
+              animations.forEach((animation) => {
+                const { keyframesName, keyframes } =
+                  generateKeyframes(animation);
+                if (keyframes && typeof document !== 'undefined') {
+                  utilityClassManager.injectRule(keyframes);
+                }
+                animationNames.push(keyframesName);
+                animationDurations.push(animation.duration || '0s');
+                animationTimingFunctions.push(
+                  animation.timingFunction || 'ease'
+                );
+                animationDelays.push(animation.delay || '0s');
+                animationIterationCounts.push(
+                  animation.iterationCount !== undefined
+                    ? `${animation.iterationCount}`
+                    : '1'
+                );
+                animationDirections.push(animation.direction || 'normal');
+                animationFillModes.push(animation.fillMode || 'none');
+                animationPlayStates.push(animation.playState || 'running');
+              });
+              const animationStyles = {
+                animationName: animationNames.join(', '),
+                animationDuration: animationDurations.join(', '),
+                animationTimingFunction: animationTimingFunctions.join(', '),
+                animationDelay: animationDelays.join(', '),
+                animationIterationCount: animationIterationCounts.join(', '),
+                animationDirection: animationDirections.join(', '),
+                animationFillMode: animationFillModes.join(', '),
+                animationPlayState: animationPlayStates.join(', '),
+              };
+              Object.assign(otherEventStyles, animationStyles);
+            }
+            if (Object.keys(otherEventStyles).length > 0) {
+              const pseudo = mapEventToPseudo(event);
+              if (pseudo) {
+                generateUtilityClasses(otherEventStyles, 'pseudo', pseudo);
+              }
+            }
+          });
+        } else if (property === 'media') {
+          Object.keys(value).forEach((screenOrDevice) => {
+            const mediaStyles = value[screenOrDevice];
+            generateUtilityClasses(mediaStyles, 'media', screenOrDevice);
+          });
+        }
+      } else {
+        if (value !== undefined && value !== '') {
+          const classNames = utilityClassManager.getClassNames(
+            property,
+            value,
+            'base',
+            '',
+            getColor,
+            []
+          );
+          classes.push(...classNames);
+        }
+      }
+    }
+  });
+
+  if (props.css) {
+    if (typeof props.css === 'object') {
+      Object.assign(computedStyles, props.css);
+    } else if (typeof props.css === 'string') {
+      // Generate or reuse a class for the raw CSS
+      const uniqueClassName = generateUniqueClassName(props.css);
+      console.log('uniqueClassName', uniqueClassName, props.css);
+      utilityClassManager.injectRule(`.${uniqueClassName} { ${props.css} }`);
+      classes.push(uniqueClassName);
+    }
+  }
+
+  return classes;
+};
+
+================
+File: element/Element.tsx
+================
+import React, { CSSProperties, useMemo, forwardRef } from 'react';
+import { Colors, useTheme } from '../providers/Theme';
+import { useResponsiveContext } from '../providers/Responsive';
+
+import { isStyleProp } from '../utils/style';
+import { AnimationProps, excludedKeys, includeKeys } from '../utils/constants';
+import { extractUtilityClasses } from './css';
+import { Shadow } from '../utils/shadow';
+import { useAnalytics } from '../providers/Analytics';
+import { ViewStyleProps } from '../types/style';
+
+export interface ElementProps
+  extends CssProps,
+    Omit<ViewStyleProps, 'children' | 'style' | 'pointerEvents' | 'onClick'> {
+  [key: string]: any;
+  on?: Record<string, CssProps> | undefined;
+  media?: Record<string, CssProps> | undefined;
+  only?: string[] | undefined;
+  css?: CSSProperties | any;
+  onPress?: any;
+  onClick?: any;
+  className?: string;
+  themeMode?: 'light' | 'dark';
+  as?: keyof JSX.IntrinsicElements;
+  style?: CSSProperties;
+  shadow?: boolean | number | Shadow;
+  size?: number | string;
+  children?: React.ReactNode;
+  colors?: Colors;
+}
+
+export interface CssProps extends CSSProperties {
+  paddingHorizontal?: number | string;
+  marginHorizontal?: number | string;
+  paddingVertical?: number | string;
+  marginVertical?: number | string;
+  animate?: AnimationProps[] | AnimationProps;
+}
+
+export const Element = React.memo(
+  forwardRef<HTMLElement, ElementProps>(
+    ({ as = 'div', ...props }: ElementProps, ref) => {
+      if ((props.onClick || props.onPress) && props.cursor == undefined) {
+        props.cursor = 'pointer';
+      }
+
+      const { onPress, colors, ...rest } = props;
+      const { getColor, themeMode } = useTheme();
+      const { trackEvent } = useAnalytics();
+      const { mediaQueries, devices } = useResponsiveContext();
+
+      const elementMode = props.themeMode ? props.themeMode : themeMode;
+      const utilityClasses = useMemo(
+        () =>
+          extractUtilityClasses(
+            rest,
+            (color: string) => {
+              return getColor(color, elementMode, colors);
+            },
+            mediaQueries,
+            devices
+          ),
+        [rest, mediaQueries, devices, elementMode, colors]
+      );
+
+      const newProps: any = { ref };
+      if (onPress) {
+        newProps.onClick = onPress;
+      }
+
+      if (utilityClasses.length > 0) {
+        newProps.className = utilityClasses.join(' ');
+      }
+
+      if (trackEvent && props.onClick) {
+        let componentName: string;
+        if (typeof as === 'string') {
+          componentName = as;
+        } else {
+          componentName =
+            (as as React.ComponentType<any>).displayName ||
+            (as as React.ComponentType<any>).name ||
+            'div';
+        }
+        let text: string | undefined;
+        if (typeof props.children === 'string') {
+          text = props.children.slice(0, 100);
+        }
+        newProps.onClick = (event: any) => {
+          trackEvent({
+            type: 'click',
+            target: componentName !== 'div' ? componentName : undefined,
+            text,
+          });
+          if (props.onClick) {
+            props.onClick(event);
+          }
+        };
+      }
+
+      const { style, children, ...otherProps } = rest;
+      Object.keys(otherProps).forEach((key) => {
+        if (
+          (!excludedKeys.has(key) && !isStyleProp(key)) ||
+          includeKeys.has(key)
+        ) {
+          newProps[key] = (otherProps as any)[key];
+        }
+      });
+
+      if (style) {
+        newProps.style = style;
+      }
+
+      const Component = as;
+      return <Component {...newProps}>{children}</Component>;
+    }
+  )
+);
+
+================
+File: element/utils.ts
+================
+/* eslint-disable @typescript-eslint/no-unused-vars */
+// animationHelpers.ts
+import { styleObjectToCss } from '../utils/style';
+
+let keyframesCounter = 0;
+const keyframesCache = new Map<string, string>();
+
+export const generateKeyframes = (
+  animation: any
+): { keyframesName: string; keyframes: string } => {
+  // Exclure les propriétés qui ne font pas partie des keyframes
+  const {
+    duration,
+    timingFunction,
+    delay,
+    iterationCount,
+    direction,
+    fillMode,
+    playState,
+    timeline,
+    range,
+    ...keyframesDef
+  } = animation;
+
+  // Générer une clé pour le cache basée sur les keyframes
+  const animationConfigString = JSON.stringify(keyframesDef);
+
+  if (keyframesCache.has(animationConfigString)) {
+    const keyframesName = keyframesCache.get(animationConfigString)!;
+    return { keyframesName, keyframes: '' }; // Les keyframes existent déjà
+  }
+
+  const keyframesName = `animation-${keyframesCounter++}`;
+  keyframesCache.set(animationConfigString, keyframesName);
+
+  const keyframesContent: string[] = [];
+
+  // Trier les clés pour assurer un ordre cohérent
+  const keyframeKeys = Object.keys(keyframesDef).sort((a, b) => {
+    const getPercentage = (key: string): number => {
+      if (key === 'from') return 0;
+      if (key === 'to' || key === 'enter') return 100;
+      return parseInt(key.replace('%', ''), 10);
+    };
+    return getPercentage(a) - getPercentage(b);
+  });
+
+  keyframeKeys.forEach((key) => {
+    const cssKey = key === 'enter' ? 'to' : key; // Remplacer 'enter' par 'to'
+    const styles = keyframesDef[key];
+    keyframesContent.push(`${cssKey} { ${styleObjectToCss(styles)} }`);
+  });
+
+  const keyframes = `
+    @keyframes ${keyframesName} {
+      ${keyframesContent.join('\n')}
+    }
+  `;
+
+  return { keyframesName, keyframes };
+};
+
+================
+File: hooks/useActive.ts
+================
+import { useRef, useState, useEffect } from 'react';
+
+export function useActive<T extends HTMLElement = HTMLElement>(): [
+  React.RefObject<T>,
+  boolean,
+] {
+  const [active, setActive] = useState(false);
+  const ref = useRef<T>(null);
+
+  useEffect(() => {
+    const node = ref.current;
+    if (!node) return;
+
+    const handleMouseDown = () => setActive(true);
+    const handleMouseUp = () => setActive(false);
+    const handleTouchStart = () => setActive(true);
+    const handleTouchEnd = () => setActive(false);
+
+    node.addEventListener('mousedown', handleMouseDown);
+    node.addEventListener('mouseup', handleMouseUp);
+    node.addEventListener('mouseleave', handleMouseUp);
+    node.addEventListener('touchstart', handleTouchStart);
+    node.addEventListener('touchend', handleTouchEnd);
+
+    return () => {
+      node.removeEventListener('mousedown', handleMouseDown);
+      node.removeEventListener('mouseup', handleMouseUp);
+      node.removeEventListener('mouseleave', handleMouseUp);
+      node.removeEventListener('touchstart', handleTouchStart);
+      node.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, []);
+
+  return [ref, active];
+}
+
+================
+File: hooks/useClickOutside.ts
+================
+import { useRef, useState, useEffect } from 'react';
+
+export function useClickOutside<T extends HTMLElement = HTMLElement>(): [
+  React.RefObject<T>,
+  boolean,
+] {
+  const [clickedOutside, setClickedOutside] = useState(false);
+  const ref = useRef<T>(null);
+
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setClickedOutside(true);
+      } else {
+        setClickedOutside(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClick);
+    return () => {
+      document.removeEventListener('mousedown', handleClick);
+    };
+  }, []);
+
+  return [ref, clickedOutside];
+}
+
+================
+File: hooks/useFocus.ts
+================
+import { useRef, useState, useEffect } from 'react';
+
+export function useFocus<T extends HTMLElement = HTMLElement>(): [
+  React.RefObject<T>,
+  boolean,
+] {
+  const [focused, setFocused] = useState(false);
+  const ref = useRef<T>(null);
+
+  useEffect(() => {
+    const node = ref.current;
+    if (!node) return;
+
+    const handleFocus = () => setFocused(true);
+    const handleBlur = () => setFocused(false);
+
+    node.addEventListener('focus', handleFocus);
+    node.addEventListener('blur', handleBlur);
+
+    return () => {
+      node.removeEventListener('focus', handleFocus);
+      node.removeEventListener('blur', handleBlur);
+    };
+  }, []);
+
+  return [ref, focused];
+}
+
+================
+File: hooks/useHover.ts
+================
+import { useRef, useState, useEffect } from 'react';
+
+export function useHover<T extends HTMLElement = HTMLElement>(): [
+  React.RefObject<T>,
+  boolean,
+] {
+  const [hover, setHover] = useState(false);
+  const ref = useRef<T>(null);
+
+  useEffect(() => {
+    const node = ref.current;
+    if (!node) return;
+
+    const handleMouseEnter = () => setHover(true);
+    const handleMouseLeave = () => setHover(false);
+
+    node.addEventListener('mouseenter', handleMouseEnter);
+    node.addEventListener('mouseleave', handleMouseLeave);
+
+    return () => {
+      node.removeEventListener('mouseenter', handleMouseEnter);
+      node.removeEventListener('mouseleave', handleMouseLeave);
+    };
+  }, []);
+
+  return [ref, hover];
+}
+
+================
+File: hooks/useInView.ts
+================
+import { useRef, useState, useEffect } from 'react';
+
+interface InViewOptions extends IntersectionObserverInit {
+  triggerOnce?: boolean;
+}
+
+export function useInView(options?: InViewOptions) {
+  const { triggerOnce = false, ...observerOptions } = options || {};
+  const ref = useRef<HTMLElement>(null);
+  const [inView, setInView] = useState(false);
+
+  useEffect(() => {
+    const element = ref.current;
+    if (!element) return;
+
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        setInView(true);
+
+        // If triggerOnce is true, disconnect the observer once the element is in view
+        if (triggerOnce) {
+          observer.disconnect();
+        }
+      } else if (!triggerOnce) {
+        // Only update to false if not using triggerOnce
+        setInView(false);
+      }
+    }, observerOptions);
+
+    observer.observe(element);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [triggerOnce, ...Object.values(observerOptions || {})]);
+
+  return { ref, inView };
+}
+
+================
+File: hooks/useKeyPress.ts
+================
+import { useState, useEffect } from 'react';
+
+export function useKeyPress(targetKey: string): boolean {
+  const [keyPressed, setKeyPressed] = useState(false);
+
+  useEffect(() => {
+    const downHandler = (e: KeyboardEvent) => {
+      if (e.key === targetKey) setKeyPressed(true);
+    };
+    const upHandler = (e: KeyboardEvent) => {
+      if (e.key === targetKey) setKeyPressed(false);
+    };
+
+    window.addEventListener('keydown', downHandler);
+    window.addEventListener('keyup', upHandler);
+    return () => {
+      window.removeEventListener('keydown', downHandler);
+      window.removeEventListener('keyup', upHandler);
+    };
+  }, [targetKey]);
+
+  return keyPressed;
+}
+
+================
+File: hooks/useMount.ts
+================
+import { useEffect } from 'react';
+export const useMount = (callback: () => void) => {
+  useEffect(() => {
+    callback();
+  }, []);
+};
+
+================
+File: hooks/useOnScreen.ts
+================
+import { useRef, useState, useEffect } from 'react';
+
+export function useOnScreen<T extends HTMLElement = HTMLElement>(
+  options?: IntersectionObserverInit
+): [React.RefObject<T>, boolean] {
+  const ref = useRef<T>(null);
+  const [isOnScreen, setOnScreen] = useState(false);
+
+  useEffect(() => {
+    const node = ref.current;
+    if (!node) return;
+
+    const observer = new IntersectionObserver(([entry]) => {
+      setOnScreen(entry.isIntersecting);
+    }, options);
+
+    observer.observe(node);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [options]);
+
+  return [ref, isOnScreen];
+}
+
+================
+File: hooks/useResponsive.ts
+================
+import { useResponsiveContext } from '../providers/Responsive';
+
+export const useResponsive = () => {
+  const context = useResponsiveContext();
+  const { currentBreakpoint: screen, orientation, devices } = context;
+  const on = (s: string) =>
+    devices[s] ? devices[s].includes(screen) : s === screen;
+  return { ...context, screen, orientation, on, is: on };
+};
+
+================
+File: hooks/useScroll.ts
+================
+import { RefObject, useEffect, useState, useCallback, useRef } from 'react';
+
+// Enhanced type definitions with documentation
+export interface ScrollPosition {
+  x: number;
+  y: number;
+  xProgress: number; // Value between 0 and 1
+  yProgress: number; // Value between 0 and 1
+}
+
+export interface UseScrollOptions {
+  container?: RefObject<HTMLElement>;
+  offset?: [number, number];
+  throttleMs?: number;
+  // Added disabled option to conditionally disable scroll tracking
+  disabled?: boolean;
+}
+
+export interface UseScrollAnimationOptions {
+  threshold?: number | number[];
+  rootMargin?: string;
+  root?: Element | null;
+  onIntersectionChange?: (isIntersecting: boolean, ratio: number) => void;
+}
+
+export interface UseInfiniteScrollOptions {
+  threshold?: number;
+  isLoading?: boolean;
+  root?: Element | null;
+  rootMargin?: string;
+  // Added to prevent unnecessary rerenders
+  debounceMs?: number;
+}
+
+interface ScrollDimensions {
+  scrollHeight: number;
+  scrollWidth: number;
+  clientHeight: number;
+  clientWidth: number;
+  scrollTop: number;
+  scrollLeft: number;
+}
+
+// Memoized function to get scroll dimensions
+const getScrollDimensions = (
+  element: HTMLElement | Window
+): ScrollDimensions => {
+  if (element instanceof Window) {
+    const doc = document.documentElement;
+    return {
+      scrollHeight: Math.max(doc.scrollHeight, doc.offsetHeight),
+      scrollWidth: Math.max(doc.scrollWidth, doc.offsetWidth),
+      clientHeight: window.innerHeight,
+      clientWidth: window.innerWidth,
+      scrollTop: window.scrollY,
+      scrollLeft: window.scrollX,
+    };
+  }
+
+  return {
+    scrollHeight: element.scrollHeight,
+    scrollWidth: element.scrollWidth,
+    clientHeight: element.clientHeight,
+    clientWidth: element.clientWidth,
+    scrollTop: element.scrollTop,
+    scrollLeft: element.scrollLeft,
+  };
+};
+
+// Enhanced useScroll hook with better performance
+export const useScroll = ({
+  container,
+  offset = [0, 0],
+  throttleMs = 100,
+  disabled = false,
+}: UseScrollOptions = {}): ScrollPosition => {
+  const [scrollPosition, setScrollPosition] = useState<ScrollPosition>({
+    x: 0,
+    y: 0,
+    xProgress: 0,
+    yProgress: 0,
+  });
+
+  const lastUpdateRef = useRef<number>(0);
+  const frameRef = useRef<number>();
+
+  const handleScroll = useCallback(() => {
+    if (disabled) return;
+
+    const now = Date.now();
+    if (throttleMs > 0 && now - lastUpdateRef.current < throttleMs) {
+      frameRef.current = requestAnimationFrame(handleScroll);
+      return;
+    }
+
+    const target = container && container.current ? container.current : window;
+    const dimensions = getScrollDimensions(target);
+
+    const x = dimensions.scrollLeft + offset[0];
+    const y = dimensions.scrollTop + offset[1];
+    const maxScrollX = dimensions.scrollWidth - dimensions.clientWidth;
+    const maxScrollY = dimensions.scrollHeight - dimensions.clientHeight;
+
+    const xProgress =
+      maxScrollX <= 0 ? 1 : Math.min(Math.max(x / maxScrollX, 0), 1);
+    const yProgress =
+      maxScrollY <= 0 ? 1 : Math.min(Math.max(y / maxScrollY, 0), 1);
+
+    setScrollPosition((prev) => {
+      if (
+        prev.x !== x ||
+        prev.y !== y ||
+        prev.xProgress !== xProgress ||
+        prev.yProgress !== yProgress
+      ) {
+        lastUpdateRef.current = now;
+        return { x, y, xProgress, yProgress };
+      }
+      return prev;
+    });
+  }, [container, offset, throttleMs, disabled]);
+
+  useEffect(() => {
+    if (disabled) return;
+
+    const target = container && container.current ? container.current : window;
+    handleScroll();
+
+    const options = { passive: true };
+    target.addEventListener('scroll', handleScroll, options);
+    window.addEventListener('resize', handleScroll, options);
+
+    return () => {
+      target.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleScroll);
+      if (frameRef.current) {
+        cancelAnimationFrame(frameRef.current);
+      }
+    };
+  }, [handleScroll, container, disabled]);
+
+  return scrollPosition;
+};
+
+// Enhanced useScrollAnimation with callback support
+export const useScrollAnimation = (
+  ref: RefObject<HTMLElement>,
+  options: UseScrollAnimationOptions = {}
+) => {
+  const [isInView, setIsInView] = useState(false);
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    const element = ref.current;
+    if (!element) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        setIsInView(entry.isIntersecting);
+        setProgress(entry.intersectionRatio);
+        if (options.onIntersectionChange)
+          options.onIntersectionChange(
+            entry.isIntersecting,
+            entry.intersectionRatio
+          );
+      },
+      {
+        threshold: options.threshold ?? 0,
+        rootMargin: options.rootMargin ?? '0px',
+        root: options.root ?? null,
+      }
+    );
+
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [
+    ref,
+    options.threshold,
+    options.rootMargin,
+    options.root,
+    options.onIntersectionChange,
+  ]);
+
+  return { isInView, progress };
+};
+
+// Enhanced useSmoothScroll with error handling
+export const useSmoothScroll = () => {
+  return useCallback((element: HTMLElement | null, offset = 0) => {
+    if (!element) return;
+
+    try {
+      const top =
+        element.getBoundingClientRect().top +
+        (window.scrollY || window.pageYOffset) -
+        offset;
+
+      if ('scrollBehavior' in document.documentElement.style) {
+        window.scrollTo({ top, behavior: 'smooth' });
+      } else {
+        // Fallback for browsers that don't support smooth scrolling
+        window.scrollTo(0, top);
+      }
+    } catch (error) {
+      console.error('Error during smooth scroll:', error);
+    }
+  }, []);
+};
+
+// Enhanced useInfiniteScroll with debouncing
+export const useInfiniteScroll = (
+  callback: () => void,
+  options: UseInfiniteScrollOptions = {}
+) => {
+  const [sentinel, setSentinel] = useState<HTMLDivElement | null>(null);
+  const callbackRef = useRef(callback);
+  const timeoutRef = useRef<NodeJS.Timeout>();
+
+  useEffect(() => {
+    callbackRef.current = callback;
+  }, [callback]);
+
+  useEffect(() => {
+    if (!sentinel || options.isLoading) return;
+
+    const handleIntersection = (entries: IntersectionObserverEntry[]) => {
+      if (entries[0].isIntersecting) {
+        if (options.debounceMs) {
+          if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current);
+          }
+          timeoutRef.current = setTimeout(
+            callbackRef.current,
+            options.debounceMs
+          );
+        } else {
+          callbackRef.current();
+        }
+      }
+    };
+
+    const observer = new IntersectionObserver(handleIntersection, {
+      threshold: options.threshold ?? 0,
+      root: options.root ?? null,
+      rootMargin: options.rootMargin ?? '0px',
+    });
+
+    observer.observe(sentinel);
+
+    return () => {
+      observer.disconnect();
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, [
+    sentinel,
+    options.threshold,
+    options.isLoading,
+    options.root,
+    options.rootMargin,
+    options.debounceMs,
+  ]);
+
+  return { sentinelRef: setSentinel };
+};
+
+export const useScrollDirection = (threshold = 5) => {
+  const [scrollDirection, setScrollDirection] = useState<'up' | 'down'>('up');
+  const lastScrollY = useRef(0);
+  const lastDirection = useRef<'up' | 'down'>('up');
+  const animationFrame = useRef<number>();
+  const ticking = useRef(false);
+
+  const updateDirection = () => {
+    const scrollY = window.scrollY || document.documentElement.scrollTop;
+    const direction = scrollY > lastScrollY.current ? 'down' : 'up';
+    const scrollDelta = Math.abs(scrollY - lastScrollY.current);
+
+    // Vérifier si on est au bas de la page
+    const isAtBottom =
+      window.innerHeight + scrollY >= document.documentElement.scrollHeight - 1;
+
+    // Logique principale
+    if (scrollDelta > threshold || (direction === 'down' && isAtBottom)) {
+      if (direction !== lastDirection.current) {
+        lastDirection.current = direction;
+        setScrollDirection(direction);
+      }
+    }
+
+    // Mise à jour de la position avec un minimum de 0
+    lastScrollY.current = Math.max(scrollY, 0);
+    ticking.current = false;
+  };
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!ticking.current) {
+        animationFrame.current = requestAnimationFrame(() => {
+          updateDirection();
+          ticking.current = false;
+        });
+        ticking.current = true;
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (animationFrame.current) {
+        cancelAnimationFrame(animationFrame.current);
+      }
+    };
+  }, [threshold]);
+
+  return scrollDirection;
+};
+
+================
+File: hooks/useWindowSize.ts
+================
+import { useContext } from 'react';
+import { WindowSizeContext } from '../providers/WindowSize';
+
+export const useWindowSize = () => useContext(WindowSizeContext);
+
+================
+File: providers/Analytics.tsx
+================
+// analytics/AnalyticsContext.tsx
+import React, { createContext, ReactNode, useContext } from 'react';
+
+export type AnalyticsConfig = {
+  trackEvent?: (event: any) => void;
+};
+
+// Create the context with a default no-op implementation
+export const AnalyticsContext = createContext<AnalyticsConfig>({});
+
+export const useAnalytics = (): AnalyticsConfig => useContext(AnalyticsContext);
+
+export const AnalyticsProvider = ({
+  trackEvent,
+  children,
+}: AnalyticsConfig & {
+  children?: ReactNode;
+}): React.ReactElement => {
+  return (
+    <AnalyticsContext.Provider value={{ trackEvent }}>
+      {children}
+    </AnalyticsContext.Provider>
+  );
+};
+
+================
+File: providers/Responsive.tsx
+================
+// ResponsiveContext.tsx
+import React, {
+  ReactNode,
+  createContext,
+  useContext,
+  useMemo,
+  useState,
+  useEffect,
+} from 'react';
+
+// Define Types
+export type ResponsiveConfig = Record<string, number>;
+
+const defaultBreakpointsConfig: ResponsiveConfig = {
+  xs: 0,
+  sm: 340,
+  md: 560,
+  lg: 1080,
+  xl: 1300,
+};
+
+export type ScreenOrientation = 'landscape' | 'portrait';
+
+export type DeviceType = 'mobile' | 'tablet' | 'desktop';
+
+export type DeviceConfig = Record<string, string[]>;
+
+const defaultDeviceConfig: DeviceConfig = {
+  mobile: ['xs', 'sm'],
+  tablet: ['md', 'lg'],
+  desktop: ['lg', 'xl'],
+};
+
+export type QueryConfig = Record<string, string>;
+
+export type ScreenConfig = {
+  breakpoints: ResponsiveConfig;
+  devices: DeviceConfig;
+  mediaQueries: QueryConfig;
+  currentWidth: number;
+  currentHeight: number;
+  currentBreakpoint: keyof ResponsiveConfig;
+  currentDevice: DeviceType;
+  orientation: ScreenOrientation;
+};
+
+// Helper Function to Generate Media Queries
+const getMediaQueries = (breakpoints: ResponsiveConfig): QueryConfig => {
+  const sortedBreakpoints = Object.keys(breakpoints)
+    .map((key) => ({
+      breakpoint: key as keyof ResponsiveConfig,
+      min: breakpoints[key],
+      max: undefined as number | undefined,
+    }))
+    .sort((a, b) => a.min - b.min);
+
+  for (let i = 0; i < sortedBreakpoints.length - 1; i++) {
+    sortedBreakpoints[i].max = sortedBreakpoints[i + 1].min - 1;
+  }
+
+  const queries: Record<string, string> = {};
+
+  sortedBreakpoints.forEach((bp) => {
+    let mediaQuery = 'only screen';
+    if (bp.min > 0) {
+      mediaQuery += ` and (min-width: ${bp.min}px)`;
+    }
+    if (bp.max !== undefined) {
+      mediaQuery += ` and (max-width: ${bp.max}px)`;
+    }
+    queries[bp.breakpoint] = mediaQuery.trim();
+  });
+
+  return queries;
+};
+
+// Utility Function to Determine Current Device Type
+const determineCurrentDevice = (
+  breakpoint: keyof ResponsiveConfig,
+  devices: DeviceConfig
+): DeviceType => {
+  for (const device in devices) {
+    if (devices[device as DeviceType].includes(breakpoint)) {
+      return device as DeviceType;
+    }
+  }
+  return 'desktop'; // Default to desktop if not found
+};
+
+// Debounce Function to Optimize Resize Handling
+export const debounce = (func: Function, wait: number) => {
+  let timeout: NodeJS.Timeout;
+  return (...args: any[]) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func(...args), wait);
+  };
+};
+
+// Create the Context with default values
+export const ResponsiveContext = createContext<ScreenConfig>({
+  breakpoints: defaultBreakpointsConfig,
+  devices: defaultDeviceConfig,
+  mediaQueries: getMediaQueries(defaultBreakpointsConfig),
+  currentWidth: 0,
+  currentHeight: 0,
+  currentBreakpoint: 'xs',
+  currentDevice: 'mobile',
+  orientation: 'portrait',
+});
+
+// Custom Hook to Access the Responsive Context
+export const useResponsiveContext = (): ScreenConfig =>
+  useContext(ResponsiveContext);
+export const ResponsiveProvider = ({
+  breakpoints = defaultBreakpointsConfig,
+  devices = defaultDeviceConfig,
+  children,
+}: {
+  breakpoints?: ResponsiveConfig;
+  devices?: DeviceConfig;
+  children: ReactNode;
+}) => {
+  const [screen, setScreen] = useState('xs');
+  const [orientation, setOrientation] = useState(
+    'portrait' as ScreenOrientation
+  );
+  const mediaQueries = useMemo(
+    () => getMediaQueries(breakpoints),
+    [breakpoints]
+  );
+
+  useEffect(() => {
+    const listeners: Array<() => void> = [];
+    for (const screenSize in mediaQueries) {
+      const mql = window.matchMedia(mediaQueries[screenSize]);
+      const onChange = () => mql.matches && setScreen(screenSize);
+      mql.addListener(onChange);
+      if (mql.matches) setScreen(screenSize);
+      listeners.push(() => mql.removeListener(onChange));
+    }
+    const orientationMql = window.matchMedia('(orientation: landscape)');
+    const onOrientationChange = () =>
+      setOrientation(orientationMql.matches ? 'landscape' : 'portrait');
+    orientationMql.addListener(onOrientationChange);
+    onOrientationChange();
+    listeners.push(() => orientationMql.removeListener(onOrientationChange));
+
+    return () => listeners.forEach((cleanup) => cleanup());
+  }, [breakpoints]);
+
+  const value = useMemo(
+    () => ({
+      breakpoints,
+      devices,
+      mediaQueries,
+      currentWidth: window.innerWidth,
+      currentHeight: window.innerHeight,
+      currentBreakpoint: screen,
+      currentDevice: determineCurrentDevice(screen, devices),
+      orientation,
+    }),
+    [breakpoints, devices, screen, orientation]
+  );
+
+  return (
+    <ResponsiveContext.Provider value={value}>
+      {children}
+    </ResponsiveContext.Provider>
+  );
+};
+
+================
+File: providers/Theme.tsx
+================
+import React, {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useEffect,
+  useRef,
+} from 'react';
+import {
+  ColorConfig,
+  ColorPalette,
+  ColorSingleton,
+  defaultDarkColors,
+  defaultDarkPalette,
+  defaultLightColors,
+  defaultLightPalette,
+} from '../utils/colors';
+
+// Extend Colors to include the palette
+export interface Colors {
+  main: ColorSingleton;
+  palette: ColorPalette;
+}
+
+// Theme Interfaces
+export interface Theme {
+  primary?: string;
+  secondary?: string;
+  success?: string;
+  error?: string;
+  warning?: string;
+  disabled?: string;
+  loading?: string;
+}
+
+interface ThemeContextProps {
+  getColor: (
+    color: string,
+    themeMode?: 'light' | 'dark',
+    colors?: Colors
+  ) => string;
+  theme?: Theme;
+  colors?: Colors;
+  themeMode: 'light' | 'dark';
+  setThemeMode: (mode: 'light' | 'dark') => void;
+}
+
+// Default Theme Configuration
+export const defaultThemeMain: ColorConfig = {
+  primary: 'color.black',
+  secondary: 'color.blue',
+  success: 'color.green.500',
+  error: 'color.red.500',
+  warning: 'color.orange.500',
+  disabled: 'color.gray.500',
+  loading: 'color.dark.500',
+};
+
+// Create Theme Context with Default Values
+export const ThemeContext = createContext<ThemeContextProps>({
+  getColor: (name) => name, // Removed the extra parameter
+  theme: defaultThemeMain,
+  themeMode: 'light',
+  setThemeMode: () => {},
+});
+
+// Custom Hook to Use Theme
+export const useTheme = () => useContext(ThemeContext);
+
+// Deep Merge Function
+const deepMerge = (target: any, source: any): any => {
+  if (typeof source !== 'object' || source === null) {
+    return target;
+  }
+  const merged = { ...target };
+  for (const key in source) {
+    if (Object.prototype.hasOwnProperty.call(source, key)) {
+      const sourceValue = source[key];
+      const targetValue = target[key];
+      if (Array.isArray(sourceValue)) {
+        merged[key] = sourceValue;
+      } else if (
+        typeof sourceValue === 'object' &&
+        sourceValue !== null &&
+        !Array.isArray(sourceValue)
+      ) {
+        merged[key] = deepMerge(targetValue || {}, sourceValue);
+      } else {
+        merged[key] = sourceValue;
+      }
+    }
+  }
+  return merged;
+};
+
+// ThemeProvider Component
+export const ThemeProvider = ({
+  theme = defaultThemeMain,
+  mode = 'light',
+  dark = {
+    main: defaultDarkColors,
+    palette: defaultDarkPalette,
+  },
+  light = {
+    main: defaultLightColors,
+    palette: defaultLightPalette,
+  },
+  children,
+}: {
+  theme?: Theme;
+  dark?: Colors;
+  light?: Colors;
+  mode?: 'light' | 'dark';
+  children: ReactNode;
+}): React.ReactElement => {
+  const [themeMode, setThemeMode] = useState<'light' | 'dark'>(mode);
+  const colorCache = useRef(new Map<string, string>()).current;
+
+  useEffect(() => {
+    setThemeMode(mode);
+  }, [mode]);
+
+  const mergedTheme = deepMerge(defaultThemeMain, theme);
+
+  // Corrected the merging logic: light should use defaultLightColors and defaultLightPalette
+  // dark should use defaultDarkColors and defaultDarkPalette
+  const themeColors: { light: Colors; dark: Colors } = {
+    light: deepMerge(
+      { main: defaultLightColors, palette: defaultLightPalette },
+      light
+    ),
+    dark: deepMerge(
+      { main: defaultDarkColors, palette: defaultDarkPalette },
+      dark
+    ),
+  };
+
+  const getColor = (
+    name: string,
+    themeMode: 'light' | 'dark' = 'light',
+    optionalColors?: Colors
+  ): string => {
+    if (name === 'transparent') return name;
+    const cacheKey = `${name}-${themeMode}`;
+    if (colorCache.has(cacheKey)) return colorCache.get(cacheKey)!;
+
+    try {
+      if (name.startsWith('theme.')) {
+        const keys = name.split('.');
+        let value: any = mergedTheme;
+        for (let i = 1; i < keys.length; i++) {
+          value = value[keys[i]];
+          if (value === undefined) return name;
+        }
+        if (typeof value === 'string') {
+          const resolved = getColor(value, themeMode, optionalColors);
+          colorCache.set(cacheKey, resolved);
+          return resolved;
+        }
+      } else if (name.startsWith('color.')) {
+        const keys = name.split('.');
+        if (keys.length === 2) {
+          // Example: "color.white"
+          const colorName = keys[1];
+          const colors =
+            optionalColors && optionalColors.palette[colorName]
+              ? optionalColors
+              : themeColors[themeMode];
+          const color = colors.main[colorName];
+          if (typeof color === 'string') {
+            colorCache.set(cacheKey, color);
+            return color;
+          }
+          console.warn(`Color "${colorName}" is not a singleton color.`);
+          return name;
+        } else if (keys.length === 3) {
+          // Example: "color.blue.500"
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const [colorName, variant] = keys.splice(1);
+          const colors =
+            optionalColors && optionalColors.palette[colorName]
+              ? optionalColors
+              : themeColors[themeMode];
+          if (colors.palette[colorName][Number(variant)]) {
+            return colors.palette[colorName][Number(variant)];
+          } else {
+            console.warn(
+              `Color "${colorName}" with shade "${variant}" not found.`
+            );
+          }
+        }
+      }
+    } catch (e) {
+      console.error('Error fetching color:', e);
+    }
+    colorCache.set(cacheKey, name);
+    return name; // Return the original name if not found
+  };
+
+  // useEffect(() => {
+  //   const colors = themeMode === 'light' ? light : dark;
+  //   let cssString = '';
+
+  //   Object.entries(colors.main).forEach(([name, value]) => {
+  //     cssString += `--color-${name}: ${value};`;
+  //   });
+
+  //   Object.entries(colors.palette).forEach(([color, shades]) => {
+  //     if (typeof shades === 'object' && shades !== null) {
+  //       Object.entries(shades).forEach(([shade, value]) => {
+  //         cssString += `--color-${color}-${shade}: ${String(value || '')};`;
+  //       });
+  //     }
+  //   });
+
+  //   const root = document.documentElement;
+  //   root.setAttribute('style', cssString);
+  // }, [themeMode, light, dark]);
+
+  return (
+    <ThemeContext.Provider
+      value={{
+        getColor,
+        theme: mergedTheme,
+        themeMode,
+        setThemeMode,
+      }}
+    >
+      {children}
+    </ThemeContext.Provider>
+  );
+};
+
+================
+File: providers/WindowSize.tsx
+================
+import React, {
+  ReactNode,
+  createContext,
+  useState,
+  useEffect,
+  useContext,
+} from 'react';
+
+export const WindowSizeContext = createContext({ width: 0, height: 0 });
+
+export const WindowSizeProvider = ({ children }: { children: ReactNode }) => {
+  const [size, setSize] = useState({
+    width: window.innerWidth,
+    height: window.innerHeight,
+  });
+
+  useEffect(() => {
+    const handleResize = () =>
+      setSize({ width: window.innerWidth, height: window.innerHeight });
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  return (
+    <WindowSizeContext.Provider value={size}>
+      {children}
+    </WindowSizeContext.Provider>
+  );
+};
+
+export const useWindowSize = () => useContext(WindowSizeContext);
+
+================
+File: types/module.d.ts
+================
+declare module '@emotion/unitless';
+
+================
+File: types/style.d.ts
+================
+/**
+ * Copyright (c) Nicolas Gallagher.
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * @flow
+ */
+import { CSSProperties } from 'react';
+
+export type ColorValue = null | string;
+
+export type DimensionValue = null | number | string;
+
+export type EdgeInsetsValue = {
+  top: number;
+  left: number;
+  right: number;
+  bottom: number;
+};
+
+export type GenericStyleProp<T> =
+  | null
+  | void
+  | T
+  | false
+  | ''
+  | readonly GenericStyleProp<T>[];
+
+export type LayoutValue = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
+
+export type LayoutEvent = {
+  nativeEvent: {
+    layout: LayoutValue;
+    target: any;
+  };
+  timeStamp: number;
+};
+
+export type PointValue = {
+  x: number;
+  y: number;
+};
+
+type NumberOrString = number | string;
+
+/**
+ * Animations and transitions
+ */
+export type AnimationDirection =
+  | 'alternate'
+  | 'alternate-reverse'
+  | 'forwards'
+  | 'normal'
+  | 'reverse';
+export type AnimationFillMode = 'none' | 'forwards' | 'backwards' | 'both';
+export type AnimationIterationCount = number | string | 'infinite';
+export type AnimationKeyframes = string | Object;
+export type AnimationPlayState = 'paused' | 'running';
+
+export type AnimationStyles = {
+  animationDelay?: (string | string[]) | null | undefined;
+  animationDirection?:
+    | (AnimationDirection | AnimationDirection[])
+    | null
+    | undefined;
+  animationDuration?: (string | string[]) | null | undefined;
+  animationFillMode?:
+    | (AnimationFillMode | AnimationFillMode[])
+    | null
+    | undefined;
+  animationIterationCount?:
+    | (AnimationIterationCount | AnimationIterationCount[])
+    | null
+    | undefined;
+  animationKeyframes?:
+    | (AnimationKeyframes | AnimationKeyframes[])
+    | null
+    | undefined;
+  animationPlayState?:
+    | (AnimationPlayState | AnimationPlayState[])
+    | null
+    | undefined;
+  animationTimingFunction?: (string | string[]) | null | undefined;
+  transitionDelay?: (string | string[]) | null | undefined;
+  transitionDuration?: (string | string[]) | null | undefined;
+  transitionProperty?: (string | string[]) | null | undefined;
+  transitionTimingFunction?: (string | string[]) | null | undefined;
+};
+
+/**
+ * Border
+ */
+type BorderRadiusValue = number | string;
+type BorderStyleValue = 'solid' | 'dotted' | 'dashed';
+
+export type BorderStyles = {
+  border?: string | null | undefined;
+  borderColor?: ColorValue | null | undefined;
+  borderBottomColor?: ColorValue | null | undefined;
+  borderEndColor?: ColorValue | null | undefined;
+  borderLeftColor?: ColorValue | null | undefined;
+  borderRightColor?: ColorValue | null | undefined;
+  borderStartColor?: ColorValue | null | undefined;
+  borderTopColor?: ColorValue | null | undefined;
+  borderRadius?: BorderRadiusValue | null | undefined;
+  borderBottomEndRadius?: BorderRadiusValue | null | undefined;
+  borderBottomLeftRadius?: BorderRadiusValue | null | undefined;
+  borderBottomRightRadius?: BorderRadiusValue | null | undefined;
+  borderBottomStartRadius?: BorderRadiusValue | null | undefined;
+  borderTopEndRadius?: BorderRadiusValue | null | undefined;
+  borderTopLeftRadius?: BorderRadiusValue | null | undefined;
+  borderTopRightRadius?: BorderRadiusValue | null | undefined;
+  borderTopStartRadius?: BorderRadiusValue | null | undefined;
+  borderStyle?: BorderStyleValue | null | undefined;
+  borderBottomStyle?: BorderStyleValue | null | undefined;
+  borderEndStyle?: BorderStyleValue | null | undefined;
+  borderLeftStyle?: BorderStyleValue | null | undefined;
+  borderRightStyle?: BorderStyleValue | null | undefined;
+  borderStartStyle?: BorderStyleValue | null | undefined;
+  borderTopStyle?: BorderStyleValue | null | undefined;
+};
+
+/**
+ * Interactions
+ */
+type CursorValue =
+  | 'alias'
+  | 'all-scroll'
+  | 'auto'
+  | 'cell'
+  | 'context-menu'
+  | 'copy'
+  | 'crosshair'
+  | 'default'
+  | 'grab'
+  | 'grabbing'
+  | 'help'
+  | 'pointer'
+  | 'progress'
+  | 'wait'
+  | 'text'
+  | 'vertical-text'
+  | 'move'
+  | 'none'
+  | 'no-drop'
+  | 'not-allowed'
+  | 'zoom-in'
+  | 'zoom-out' // resize
+  | 'col-resize'
+  | 'e-resize'
+  | 'ew-resize'
+  | 'n-resize'
+  | 'ne-resize'
+  | 'ns-resize'
+  | 'nw-resize'
+  | 'row-resize'
+  | 's-resize'
+  | 'se-resize'
+  | 'sw-resize'
+  | 'w-resize'
+  | 'nesw-resize'
+  | 'nwse-resize';
+
+type TouchActionValue =
+  | 'auto'
+  | 'inherit'
+  | 'manipulation'
+  | 'none'
+  | 'pan-down'
+  | 'pan-left'
+  | 'pan-right'
+  | 'pan-up'
+  | 'pan-x'
+  | 'pan-y'
+  | 'pinch-zoom';
+
+type UserSelect = 'all' | 'auto' | 'contain' | 'none' | 'text';
+
+export type InteractionStyles = {
+  // https://developer.mozilla.org/en-US/docs/Web/CSS/cursor#Formal_syntax
+  cursor?: CursorValue | null | undefined;
+  // https://developer.mozilla.org/en-US/docs/Web/CSS/touch-action#Formal_syntax
+  touchAction?: TouchActionValue | null | undefined;
+  // https://developer.mozilla.org/en-US/docs/Web/CSS/user-select#Formal_syntax_2
+  userSelect?: UserSelect | null | undefined;
+  willChange?: string | null | undefined;
+};
+
+/**
+ * Layout
+ */
+type OverflowValue = 'auto' | 'hidden' | 'scroll' | 'visible';
+type VisiblilityValue = 'hidden' | 'visible';
+
+export type LayoutStyles = {
+  alignContent?:
+    | 'center'
+    | 'flex-end'
+    | 'flex-start'
+    | 'space-around'
+    | 'space-between'
+    | 'stretch';
+  alignItems?:
+    | ('baseline' | 'center' | 'flex-end' | 'flex-start' | 'stretch')
+    | null
+    | undefined;
+  alignSelf?:
+    | ('auto' | 'baseline' | 'center' | 'flex-end' | 'flex-start' | 'stretch')
+    | null
+    | undefined;
+  backfaceVisibility?: VisiblilityValue | null | undefined;
+  borderWidth?: DimensionValue | null | undefined;
+  borderBottomWidth?: DimensionValue | null | undefined;
+  borderEndWidth?: DimensionValue | null | undefined;
+  borderLeftWidth?: DimensionValue | null | undefined;
+  borderRightWidth?: DimensionValue | null | undefined;
+  borderStartWidth?: DimensionValue | null | undefined;
+  borderTopWidth?: DimensionValue | null | undefined;
+  bottom?: DimensionValue | null | undefined;
+  boxSizing?: ('border-box' | 'content-box' | 'padding-box') | null | undefined;
+  direction?: ('inherit' | 'ltr' | 'rtl') | null | undefined;
+  display?: string | null | undefined;
+  end?: DimensionValue | null | undefined;
+  flex?: number | null | undefined;
+  flexBasis?: DimensionValue | null | undefined;
+  flexDirection?:
+    | ('column' | 'column-reverse' | 'row' | 'row-reverse')
+    | null
+    | undefined;
+  flexGrow?: number | null | undefined;
+  flexShrink?: number | null | undefined;
+  flexWrap?: ('nowrap' | 'wrap' | 'wrap-reverse') | null | undefined;
+  height?: DimensionValue | null | undefined;
+  justifyContent?:
+    | (
+        | 'center'
+        | 'flex-end'
+        | 'flex-start'
+        | 'space-around'
+        | 'space-between'
+        | 'space-evenly'
+      )
+    | null
+    | undefined;
+  left?: DimensionValue | null | undefined;
+  margin?: DimensionValue | null | undefined;
+  marginBottom?: DimensionValue | null | undefined;
+  marginHorizontal?: DimensionValue | null | undefined;
+  marginEnd?: DimensionValue | null | undefined;
+  marginLeft?: DimensionValue | null | undefined;
+  marginRight?: DimensionValue | null | undefined;
+  marginStart?: DimensionValue | null | undefined;
+  marginTop?: DimensionValue | null | undefined;
+  marginVertical?: DimensionValue | null | undefined;
+  maxHeight?: DimensionValue | null | undefined;
+  maxWidth?: DimensionValue | null | undefined;
+  minHeight?: DimensionValue | null | undefined;
+  minWidth?: DimensionValue | null | undefined;
+  order?: number | null | undefined;
+  overflow?: OverflowValue | null | undefined;
+  overflowX?: OverflowValue | null | undefined;
+  overflowY?: OverflowValue | null | undefined;
+  padding?: DimensionValue | null | undefined;
+  paddingBottom?: DimensionValue | null | undefined;
+  paddingHorizontal?: DimensionValue | null | undefined;
+  paddingEnd?: DimensionValue | null | undefined;
+  paddingLeft?: DimensionValue | null | undefined;
+  paddingRight?: DimensionValue | null | undefined;
+  paddingStart?: DimensionValue | null | undefined;
+  paddingTop?: DimensionValue | null | undefined;
+  paddingVertical?: DimensionValue | null | undefined;
+  position?:
+    | ('absolute' | 'fixed' | 'relative' | 'static' | 'sticky')
+    | null
+    | undefined;
+  right?: DimensionValue | null | undefined;
+  start?: DimensionValue | null | undefined;
+  top?: DimensionValue | null | undefined;
+  visibility?: VisiblilityValue | null | undefined;
+  width?: DimensionValue | null | undefined;
+  zIndex?: number | null | undefined;
+
+  /**
+   * @platform unsupported
+   */
+  aspectRatio?: number | null | undefined;
+
+  /**
+   * @platform web
+   */
+  gridAutoColumns?: string | null | undefined;
+  gridAutoFlow?: string | null | undefined;
+  gridAutoRows?: string | null | undefined;
+  gridColumnEnd?: string | null | undefined;
+  gridColumnGap?: string | null | undefined;
+  gridColumnStart?: string | null | undefined;
+  gridRowEnd?: string | null | undefined;
+  gridRowGap?: string | null | undefined;
+  gridRowStart?: string | null | undefined;
+  gridTemplateColumns?: string | null | undefined;
+  gridTemplateRows?: string | null | undefined;
+  gridTemplateAreas?: string | null | undefined;
+};
+
+/**
+ * Shadows
+ */
+export type ShadowStyles = {
+  shadowColor?: ColorValue | null | undefined;
+  shadowOffset?: {
+    width?: DimensionValue;
+    height?: DimensionValue;
+  };
+  shadowOpacity?: number | null | undefined;
+  shadowRadius?: DimensionValue | null | undefined;
+};
+
+/**
+ * Transforms
+ */
+export type TransformStyles = {
+  perspective?: NumberOrString | null | undefined;
+  perspectiveOrigin?: string | null | undefined;
+  transform?: (
+    | { readonly perspective: NumberOrString }
+    | { readonly rotate: string }
+    | { readonly rotateX: string }
+    | { readonly rotateY: string }
+    | { readonly rotateZ: string }
+    | { readonly scale: number }
+    | { readonly scaleX: number }
+    | { readonly scaleY: number }
+    | { readonly scaleZ: number }
+    | { readonly scale3d: string }
+    | { readonly skewX: string }
+    | { readonly skewY: string }
+    | { readonly translateX: NumberOrString }
+    | { readonly translateY: NumberOrString }
+    | { readonly translateZ: NumberOrString }
+    | { readonly translate3d: string }
+  )[];
+  transformOrigin?: string | null | undefined;
+  transformStyle?: ('flat' | 'preserve-3d') | null | undefined;
+};
+
+type OverscrollBehaviorValue = 'auto' | 'contain' | 'none';
+
+export type ViewStyle = AnimationStyles &
+  BorderStyles &
+  InteractionStyles &
+  LayoutStyles &
+  ShadowStyles &
+  TransformStyles & {
+    backdropFilter?: string | null | undefined;
+    backgroundAttachment?: string | null | undefined;
+    backgroundBlendMode?: string | null | undefined;
+    backgroundClip?: string | null | undefined;
+    backgroundColor?: ColorValue | null | undefined;
+    backgroundImage?: string | null | undefined;
+    backgroundOrigin?: 'border-box' | 'content-box' | 'padding-box';
+    backgroundPosition?: string | null | undefined;
+    backgroundRepeat?: string | null | undefined;
+    backgroundSize?: string | null | undefined;
+    boxShadow?: string | null | undefined;
+    clip?: string | null | undefined;
+    filter?: string | null | undefined;
+    opacity?: number | null | undefined;
+    outlineColor?: ColorValue | null | undefined;
+    outlineOffset?: NumberOrString | null | undefined;
+    outlineStyle?: string | null | undefined;
+    outlineWidth?: NumberOrString | null | undefined;
+    overscrollBehavior?: OverscrollBehaviorValue | null | undefined;
+    overscrollBehaviorX?: OverscrollBehaviorValue | null | undefined;
+    overscrollBehaviorY?: OverscrollBehaviorValue | null | undefined;
+    scrollbarWidth?: 'auto' | 'none' | 'thin';
+    scrollSnapAlign?: string | null | undefined;
+    scrollSnapType?: string | null | undefined;
+    WebkitMaskImage?: string | null | undefined;
+    WebkitOverflowScrolling?: 'auto' | 'touch';
+  };
+
+export type ViewStyleProps = {
+  accessibilityLabel?: string | null | undefined;
+  accessibilityLiveRegion?: 'none' | 'polite' | 'assertive';
+  accessibilityRole?: string | null | undefined;
+  accessibilityState?: {
+    busy?: boolean | null | undefined;
+    checked?: (boolean | null | undefined) | 'mixed';
+    disabled?: boolean | null | undefined;
+    expanded?: boolean | null | undefined;
+    grabbed?: boolean | null | undefined;
+    hidden?: boolean | null | undefined;
+    invalid?: boolean | null | undefined;
+    modal?: boolean | null | undefined;
+    pressed?: boolean | null | undefined;
+    readonly?: boolean | null | undefined;
+    required?: boolean | null | undefined;
+    selected?: boolean | null | undefined;
+  };
+  accessibilityValue?: {
+    max?: number | null | undefined;
+    min?: number | null | undefined;
+    now?: number | null | undefined;
+    text?: string | null | undefined;
+  };
+  accessible?: boolean;
+  children?: any | null | undefined;
+  importantForAccessibility?: 'auto' | 'yes' | 'no' | 'no-hide-descendants';
+  nativeID?: string | null | undefined;
+  onBlur?: (e: any) => void;
+  onClick?: (e: any) => void;
+  onClickCapture?: (e: any) => void;
+  onContextMenu?: (e: any) => void;
+  onFocus?: (e: any) => void;
+  onKeyDown?: (e: any) => void;
+  onKeyUp?: (e: any) => void;
+  onLayout?: (e: LayoutEvent) => void;
+  onMoveShouldSetResponder?: (e: any) => boolean;
+  onMoveShouldSetResponderCapture?: (e: any) => boolean;
+  onResponderEnd?: (e: any) => void;
+  onResponderGrant?: (e: any) => void;
+  onResponderMove?: (e: any) => void;
+  onResponderReject?: (e: any) => void;
+  onResponderRelease?: (e: any) => void;
+  onResponderStart?: (e: any) => void;
+  onResponderTerminate?: (e: any) => void;
+  onResponderTerminationRequest?: (e: any) => boolean;
+  onScrollShouldSetResponder?: (e: any) => boolean;
+  onScrollShouldSetResponderCapture?: (e: any) => boolean;
+  onSelectionChangeShouldSetResponder?: (e: any) => boolean;
+  onSelectionChangeShouldSetResponderCapture?: (e: any) => boolean;
+  // onStartShouldSetResponder?: (e: any) => boolean;
+  // onStartShouldSetResponderCapture?: (e: any) => boolean;
+  pointerEvents?: 'box-none' | 'none' | 'box-only' | 'auto';
+  style?:
+    | false
+    | void
+    | ''
+    | ViewStyle
+    | readonly GenericStyleProp<ViewStyle>[]
+    | null
+    | undefined;
+  testID?: string | null | undefined;
+  // unstable
+  dataSet?: Object | null | undefined;
+  onMouseDown?: (e: any) => void;
+  onMouseEnter?: (e: any) => void;
+  onMouseLeave?: (e: any) => void;
+  onMouseMove?: (e: any) => void;
+  onMouseOver?: (e: any) => void;
+  onMouseOut?: (e: any) => void;
+  onMouseUp?: (e: any) => void;
+  onScroll?: (e: any) => void;
+  onTouchCancel?: (e: any) => void;
+  onTouchCancelCapture?: (e: any) => void;
+  onTouchEnd?: (e: any) => void;
+  onTouchEndCapture?: (e: any) => void;
+  onTouchMove?: (e: any) => void;
+  onTouchMoveCapture?: (e: any) => void;
+  onTouchStart?: (e: any) => void;
+  onTouchStartCapture?: (e: any) => void;
+  onWheel?: (e: any) => void;
+  href?: string | null | undefined;
+  rel?: string | null | undefined;
+  target?: string | null | undefined;
+};
+
+type SourceObject = {
+  /**
+   * `body` is the HTTP body to send with the request. This must be a valid
+   * UTF-8 string, and will be sent exactly as specified, with no
+   * additional encoding (e.g. URL-escaping or base64) applied.
+   */
+  body?: string;
+
+  /**
+   * `cache` determines how the requests handles potentially cached
+   * responses.
+   *
+   * - `default`: Use the native platforms default strategy. `useProtocolCachePolicy` on iOS.
+   *
+   * - `reload`: The data for the URL will be loaded from the originating source.
+   * No existing cache data should be used to satisfy a URL load request.
+   *
+   * - `force-cache`: The existing cached data will be used to satisfy the request,
+   * regardless of its age or expiration date. If there is no existing data in the cache
+   * corresponding the request, the data is loaded from the originating source.
+   *
+   * - `only-if-cached`: The existing cache data will be used to satisfy a request, regardless of
+   * its age or expiration date. If there is no existing data in the cache corresponding
+   * to a URL load request, no attempt is made to load the data from the originating source,
+   * and the load is considered to have failed.
+   *
+   * @platform ios
+   */
+  cache?: 'default' | 'reload' | 'force-cache' | 'only-if-cached';
+
+  /**
+   * `headers` is an object representing the HTTP headers to send along with the
+   * request for a remote image.
+   */
+  headers?: Record<string, string>;
+
+  /**
+   * `method` is the HTTP Method to use. Defaults to GET if not specified.
+   */
+  method?: string;
+
+  /**
+   * `scale` is used to indicate the scale factor of the image. Defaults to 1.0 if
+   * unspecified, meaning that one image pixel equates to one display point / DIP.
+   */
+  scale?: number;
+
+  /**
+   * `uri` is a string representing the resource identifier for the image, which
+   * could be an http address, a local file path, or the name of a static image
+   * resource (which should be wrapped in the `require('./path/to/image.png')`
+   * function).
+   */
+  uri: string;
+
+  /**
+   * `width` and `height` can be specified if known at build time, in which case
+   * these will be used to set the default `<Image/>` component dimensions.
+   */
+  height?: number;
+  width?: number;
+};
+
+export type ResizeMode =
+  | 'center'
+  | 'contain'
+  | 'cover'
+  | 'none'
+  | 'repeat'
+  | 'stretch';
+
+export type Source = number | string | SourceObject | SourceObject[];
+
+export type ImageStyle = AnimationStyles &
+  BorderStyles &
+  InteractionStyles &
+  LayoutStyles &
+  ShadowStyles &
+  TransformStyles & {
+    backgroundColor?: ColorValue;
+    boxShadow?: string;
+    filter?: string;
+    opacity?: number;
+    resizeMode?: ResizeMode;
+    tintColor?: ColorValue;
+  };
+
+export type ImageStyleProps = ViewStyleProps & {
+  blurRadius?: number;
+  defaultSource?: Source;
+  draggable?: boolean;
+  onError?: (e: any) => void;
+  onLayout?: (e: any) => void;
+  onLoad?: (e: any) => void;
+  onLoadEnd?: (e: any) => void;
+  onLoadStart?: (e: any) => void;
+  onProgress?: (e: any) => void;
+  resizeMode?: ResizeMode;
+  source?: Source;
+  style?:
+    | false
+    | void
+    | ''
+    | ViewStyle
+    | readonly GenericStyleProp<ImageStyle>[]
+    | null
+    | undefined;
+};
+
+type FontWeightValue =
+  | 'normal'
+  | 'bold'
+  | '100'
+  | '200'
+  | '300'
+  | '400'
+  | '500'
+  | '600'
+  | '700'
+  | '800'
+  | '900';
+
+export type TextStyle = ViewStyle & {
+  color?: ColorValue | null | undefined;
+  float?: string | null | undefined;
+  fontFamily?: string | null | undefined;
+  fontFeatureSettings?: string | null | undefined;
+  fontSize?: NumberOrString | null | undefined;
+  fontStyle?: 'italic' | 'normal';
+  fontWeight?: FontWeightValue | null | undefined;
+  fontVariant?: readonly (
+    | 'small-caps'
+    | 'oldstyle-nums'
+    | 'lining-nums'
+    | 'tabular-nums'
+    | 'proportional-nums'
+  )[];
+  letterSpacing?: NumberOrString | null | undefined;
+  lineHeight?: NumberOrString | null | undefined;
+  textAlign?:
+    | 'center'
+    | 'end'
+    | 'inherit'
+    | 'justify'
+    | 'justify-all'
+    | 'left'
+    | 'right'
+    | 'start';
+  textAlignVertical?: string | null | undefined;
+  textDecorationColor?: ColorValue | null | undefined;
+  textDecorationLine?:
+    | 'none'
+    | 'underline'
+    | 'line-through'
+    | 'underline line-through';
+  textDecorationStyle?: 'solid' | 'double' | 'dotted' | 'dashed';
+  textIndent?: NumberOrString | null | undefined;
+  textOverflow?: string | null | undefined;
+  textRendering?:
+    | 'auto'
+    | 'geometricPrecision'
+    | 'optimizeLegibility'
+    | 'optimizeSpeed';
+  textShadowColor?: ColorValue | null | undefined;
+  textShadowOffset?: { width?: number; height?: number };
+  textShadowRadius?: number | null | undefined;
+  textTransform?: 'capitalize' | 'lowercase' | 'none' | 'uppercase';
+  unicodeBidi?:
+    | 'normal'
+    | 'bidi-override'
+    | 'embed'
+    | 'isolate'
+    | 'isolate-override'
+    | 'plaintext';
+  whiteSpace?: string | null | undefined;
+  wordBreak?: 'normal' | 'break-all' | 'break-word' | 'keep-all';
+  wordWrap?: string | null | undefined;
+  writingDirection?: 'auto' | 'ltr' | 'rtl';
+
+  /* @platform web */
+  MozOsxFontSmoothing?: string | null | undefined;
+  WebkitFontSmoothing?: string | null | undefined;
+};
+
+export type TextStyleProps = ViewStyleProps & {
+  accessibilityRole?:
+    | 'button'
+    | 'header'
+    | 'heading'
+    | 'label'
+    | 'link'
+    | 'listitem'
+    | 'none'
+    | 'text';
+  accessibilityState?: {
+    busy?: boolean | null | undefined;
+    checked?: (boolean | null | undefined) | 'mixed';
+    disabled?: boolean | null | undefined;
+    expanded?: boolean | null | undefined;
+    grabbed?: boolean | null | undefined;
+    hidden?: boolean | null | undefined;
+    invalid?: boolean | null | undefined;
+    pressed?: boolean | null | undefined;
+    readonly?: boolean | null | undefined;
+    required?: boolean | null | undefined;
+    selected?: boolean | null | undefined;
+  };
+  dir?: 'auto' | 'ltr' | 'rtl';
+  numberOfLines?: number | null | undefined;
+  onPress?: (e: any) => void;
+  selectable?: boolean;
+  style?:
+    | false
+    | void
+    | ''
+    | ViewStyle
+    | readonly GenericStyleProp<TextStyle>[]
+    | null
+    | undefined;
+  testID?: string | null | undefined;
+};
+
+export type ResponsiveStyle = Record<string, CSSProperties>;
+
+================
+File: utils/colors.ts
+================
+export type ColorPalette = Record<string, Record<number, string>>;
+
+export type ColorSingleton = Record<
+  string,
+  {
+    50: string;
+    100: string;
+    200: string;
+    300: string;
+    400: string;
+    500: string;
+    600: string;
+    700: string;
+    800: string;
+    900: string;
+  }
+>;
+
+export const defaultLightPalette: ColorPalette = {
+  whiteAlpha: {
+    50: 'rgba(255, 255, 255, 0.04)',
+    100: 'rgba(255, 255, 255, 0.06)',
+    200: 'rgba(255, 255, 255, 0.08)',
+    300: 'rgba(255, 255, 255, 0.16)',
+    400: 'rgba(255, 255, 255, 0.24)',
+    500: 'rgba(255, 255, 255, 0.36)',
+    600: 'rgba(255, 255, 255, 0.48)',
+    700: 'rgba(255, 255, 255, 0.64)',
+    800: 'rgba(255, 255, 255, 0.80)',
+    900: 'rgba(255, 255, 255, 0.92)',
+  },
+
+  blackAlpha: {
+    50: 'rgba(0, 0, 0, 0.04)',
+    100: 'rgba(0, 0, 0, 0.06)',
+    200: 'rgba(0, 0, 0, 0.08)',
+    300: 'rgba(0, 0, 0, 0.16)',
+    400: 'rgba(0, 0, 0, 0.24)',
+    500: 'rgba(0, 0, 0, 0.36)',
+    600: 'rgba(0, 0, 0, 0.48)',
+    700: 'rgba(0, 0, 0, 0.64)',
+    800: 'rgba(0, 0, 0, 0.80)',
+    900: 'rgba(0, 0, 0, 0.92)',
+  },
+  white: {
+    50: 'rgba(255, 255, 255, 0.04)',
+    100: 'rgba(255, 255, 255, 0.08)',
+    200: 'rgba(255, 255, 255, 0.16)',
+    300: 'rgba(255, 255, 255, 0.24)',
+    400: 'rgba(255, 255, 255, 0.36)',
+    500: 'rgba(255, 255, 255, 0.48)',
+    600: 'rgba(255, 255, 255, 0.64)',
+    700: 'rgba(255, 255, 255, 0.80)',
+    800: 'rgba(255, 255, 255, 0.92)',
+    900: 'rgba(255, 255, 255, 1)',
+  },
+
+  black: {
+    50: 'rgba(0, 0, 0, 0.04)',
+    100: 'rgba(0, 0, 0, 0.08)',
+    200: 'rgba(0, 0, 0, 0.16)',
+    300: 'rgba(0, 0, 0, 0.24)',
+    400: 'rgba(0, 0, 0, 0.36)',
+    500: 'rgba(0, 0, 0, 0.48)',
+    600: 'rgba(0, 0, 0, 0.64)',
+    700: 'rgba(0, 0, 0, 0.80)',
+    800: 'rgba(0, 0, 0, 0.92)',
+    900: 'rgba(0, 0, 0, 1)',
+  },
+  rose: {
+    50: '#fff1f2',
+    100: '#ffe4e6',
+    200: '#fecdd3',
+    300: '#fda4af',
+    400: '#fb7185',
+    500: '#f43f5e',
+    600: '#e11d48',
+    700: '#be123c',
+    800: '#9f1239',
+    900: '#881337',
+  },
+  pink: {
+    50: '#fdf2f8',
+    100: '#fce7f3',
+    200: '#fbcfe8',
+    300: '#f9a8d4',
+    400: '#f472b6',
+    500: '#ec4899',
+    600: '#db2777',
+    700: '#be185d',
+    800: '#9d174d',
+    900: '#831843',
+  },
+  fuchsia: {
+    50: '#fdf4ff',
+    100: '#fae8ff',
+    200: '#f5d0fe',
+    300: '#f0abfc',
+    400: '#e879f9',
+    500: '#d946ef',
+    600: '#c026d3',
+    700: '#a21caf',
+    800: '#86198f',
+    900: '#701a75',
+  },
+  purple: {
+    50: '#faf5ff',
+    100: '#f3e8ff',
+    200: '#e9d5ff',
+    300: '#d8b4fe',
+    400: '#c084fc',
+    500: '#a855f7',
+    600: '#9333ea',
+    700: '#7e22ce',
+    800: '#6b21a8',
+    900: '#581c87',
+  },
+  violet: {
+    50: '#f5f3ff',
+    100: '#ede9fe',
+    200: '#ddd6fe',
+    300: '#c4b5fd',
+    400: '#a78bfa',
+    500: '#8b5cf6',
+    600: '#7c3aed',
+    700: '#6d28d9',
+    800: '#5b21b6',
+    900: '#4c1d95',
+  },
+  indigo: {
+    50: '#eef2ff',
+    100: '#e0e7ff',
+    200: '#c7d2fe',
+    300: '#a5b4fc',
+    400: '#818cf8',
+    500: '#6366f1',
+    600: '#4f46e5',
+    700: '#4338ca',
+    800: '#3730a3',
+    900: '#312e81',
+  },
+  blue: {
+    50: '#eff6ff',
+    100: '#dbeafe',
+    200: '#bfdbfe',
+    300: '#93c5fd',
+    400: '#60a5fa',
+    500: '#3b82f6',
+    600: '#2563eb',
+    700: '#1d4ed8',
+    800: '#1e40af',
+    900: '#1e3a8a',
+  },
+  lightBlue: {
+    50: '#f0f9ff',
+    100: '#e0f2fe',
+    200: '#bae6fd',
+    300: '#7dd3fc',
+    400: '#38bdf8',
+    500: '#0ea5e9',
+    600: '#0284c7',
+    700: '#0369a1',
+    800: '#075985',
+    900: '#0c4a6e',
+  },
+  cyan: {
+    50: '#ecfeff',
+    100: '#cffafe',
+    200: '#a5f3fc',
+    300: '#67e8f9',
+    400: '#22d3ee',
+    500: '#06b6d4',
+    600: '#0891b2',
+    700: '#0e7490',
+    800: '#155e75',
+    900: '#164e63',
+  },
+  teal: {
+    50: '#f0fdfa',
+    100: '#ccfbf1',
+    200: '#99f6e4',
+    300: '#5eead4',
+    400: '#2dd4bf',
+    500: '#14b8a6',
+    600: '#0d9488',
+    700: '#0f766e',
+    800: '#115e59',
+    900: '#134e4a',
+  },
+  emerald: {
+    50: '#ecfdf5',
+    100: '#d1fae5',
+    200: '#a7f3d0',
+    300: '#6ee7b7',
+    400: '#34d399',
+    500: '#10b981',
+    600: '#059669',
+    700: '#047857',
+    800: '#065f46',
+    900: '#064e3b',
+  },
+  green: {
+    50: '#f0fdf4',
+    100: '#dcfce7',
+    200: '#bbf7d0',
+    300: '#86efac',
+    400: '#4ade80',
+    500: '#22c55e',
+    600: '#16a34a',
+    700: '#15803d',
+    800: '#166534',
+    900: '#14532d',
+  },
+  lime: {
+    50: '#f7fee7',
+    100: '#ecfccb',
+    200: '#d9f99d',
+    300: '#bef264',
+    400: '#a3e635',
+    500: '#84cc16',
+    600: '#65a30d',
+    700: '#4d7c0f',
+    800: '#3f6212',
+    900: '#365314',
+  },
+  yellow: {
+    50: '#fefce8',
+    100: '#fef9c3',
+    200: '#fef08a',
+    300: '#fde047',
+    400: '#facc15',
+    500: '#eab308',
+    600: '#ca8a04',
+    700: '#a16207',
+    800: '#854d0e',
+    900: '#713f12',
+  },
+  amber: {
+    50: '#fffbeb',
+    100: '#fef3c7',
+    200: '#fde68a',
+    300: '#fcd34d',
+    400: '#fbbf24',
+    500: '#f59e0b',
+    600: '#d97706',
+    700: '#b45309',
+    800: '#92400e',
+    900: '#78350f',
+  },
+  orange: {
+    50: '#fff7ed',
+    100: '#ffedd5',
+    200: '#fed7aa',
+    300: '#fdba74',
+    400: '#fb923c',
+    500: '#f97316',
+    600: '#ea580c',
+    700: '#c2410c',
+    800: '#9a3412',
+    900: '#7c2d12',
+  },
+  red: {
+    50: '#fef2f2',
+    100: '#fee2e2',
+    200: '#fecaca',
+    300: '#fca5a5',
+    400: '#f87171',
+    500: '#ef4444',
+    600: '#dc2626',
+    700: '#b91c1c',
+    800: '#991b1b',
+    900: '#7f1d1d',
+  },
+  warmGray: {
+    50: '#fafaf9',
+    100: '#f5f5f4',
+    200: '#e7e5e4',
+    300: '#d6d3d1',
+    400: '#a8a29e',
+    500: '#78716c',
+    600: '#57534e',
+    700: '#44403c',
+    800: '#292524',
+    900: '#1c1917',
+  },
+  trueGray: {
+    50: '#fafafa',
+    100: '#f5f5f5',
+    200: '#e5e5e5',
+    300: '#d4d4d4',
+    400: '#a3a3a3',
+    500: '#737373',
+    600: '#525252',
+    700: '#404040',
+    800: '#262626',
+    900: '#171717',
+  },
+  gray: {
+    50: '#fafafa',
+    100: '#f4f4f5',
+    200: '#e4e4e7',
+    300: '#d4d4d8',
+    400: '#a1a1aa',
+    500: '#71717a',
+    600: '#52525b',
+    700: '#3f3f46',
+    800: '#27272a',
+    900: '#18181b',
+  },
+  dark: {
+    50: '#18181b',
+    100: '#27272a',
+    200: '#3f3f46',
+    300: '#52525b',
+    400: '#71717a',
+    500: '#a1a1aa',
+    600: '#d4d4d8',
+    700: '#e4e4e7',
+    800: '#f4f4f5',
+    900: '#fafafa',
+  },
+  light: {
+    50: '#f8f9fa',
+    100: '#f1f3f5',
+    200: '#e9ecef',
+    300: '#dee2e6',
+    400: '#ced4da',
+    500: '#adb5bd',
+    600: '#868e96',
+    700: '#495057',
+    800: '#343a40',
+    900: '#212529',
+  },
+  coolGray: {
+    50: '#f9fafb',
+    100: '#f3f4f6',
+    200: '#e5e7eb',
+    300: '#d1d5db',
+    400: '#9ca3af',
+    500: '#6b7280',
+    600: '#4b5563',
+    700: '#374151',
+    800: '#1f2937',
+    900: '#111827',
+  },
+  blueGray: {
+    50: '#f8fafc',
+    100: '#f1f5f9',
+    200: '#e2e8f0',
+    300: '#cbd5e1',
+    400: '#94a3b8',
+    500: '#64748b',
+    600: '#475569',
+    700: '#334155',
+    800: '#1e293b',
+    900: '#0f172a',
+  },
+};
+
+export const defaultDarkPalette: ColorPalette = {
+  whiteAlpha: {
+    50: 'rgba(255, 255, 255, 0.04)',
+    100: 'rgba(255, 255, 255, 0.06)',
+    200: 'rgba(255, 255, 255, 0.08)',
+    300: 'rgba(255, 255, 255, 0.16)',
+    400: 'rgba(255, 255, 255, 0.24)',
+    500: 'rgba(255, 255, 255, 0.36)',
+    600: 'rgba(255, 255, 255, 0.48)',
+    700: 'rgba(255, 255, 255, 0.64)',
+    800: 'rgba(255, 255, 255, 0.80)',
+    900: 'rgba(255, 255, 255, 0.92)',
+  },
+
+  blackAlpha: {
+    50: 'rgba(0, 0, 0, 0.04)',
+    100: 'rgba(0, 0, 0, 0.06)',
+    200: 'rgba(0, 0, 0, 0.08)',
+    300: 'rgba(0, 0, 0, 0.16)',
+    400: 'rgba(0, 0, 0, 0.24)',
+    500: 'rgba(0, 0, 0, 0.36)',
+    600: 'rgba(0, 0, 0, 0.48)',
+    700: 'rgba(0, 0, 0, 0.64)',
+    800: 'rgba(0, 0, 0, 0.80)',
+    900: 'rgba(0, 0, 0, 0.92)',
+  },
+
+  white: {
+    50: 'rgba(255, 255, 255, 0.04)',
+    100: 'rgba(255, 255, 255, 0.08)',
+    200: 'rgba(255, 255, 255, 0.16)',
+    300: 'rgba(255, 255, 255, 0.24)',
+    400: 'rgba(255, 255, 255, 0.36)',
+    500: 'rgba(255, 255, 255, 0.48)',
+    600: 'rgba(255, 255, 255, 0.64)',
+    700: 'rgba(255, 255, 255, 0.80)',
+    800: 'rgba(255, 255, 255, 0.92)',
+    900: 'rgba(255, 255, 255, 1)',
+  },
+
+  black: {
+    50: 'rgba(0, 0, 0, 0.04)',
+    100: 'rgba(0, 0, 0, 0.08)',
+    200: 'rgba(0, 0, 0, 0.16)',
+    300: 'rgba(0, 0, 0, 0.24)',
+    400: 'rgba(0, 0, 0, 0.36)',
+    500: 'rgba(0, 0, 0, 0.48)',
+    600: 'rgba(0, 0, 0, 0.64)',
+    700: 'rgba(0, 0, 0, 0.80)',
+    800: 'rgba(0, 0, 0, 0.92)',
+    900: 'rgba(0, 0, 0, 1)',
+  },
+
+  rose: {
+    50: '#330517',
+    100: '#4a031e',
+    200: '#6b112f',
+    300: '#9f1239',
+    400: '#c81e5b',
+    500: '#e11d48',
+    600: '#be123c',
+    700: '#9f1239',
+    800: '#7f1235',
+    900: '#581c87',
+  },
+  pink: {
+    50: '#fce7f3',
+    100: '#fbcfe8',
+    200: '#f9a8d4',
+    300: '#f472b6',
+    400: '#ec4899',
+    500: '#db2777',
+    600: '#be185d',
+    700: '#9d174d',
+    800: '#831843',
+    900: '#581c87',
+  },
+  fuchsia: {
+    50: '#c026d3',
+    100: '#a21caf',
+    200: '#86198f',
+    300: '#701a75',
+    400: '#9333ea',
+    500: '#d946ef',
+    600: '#e879f9',
+    700: '#f0abfc',
+    800: '#f5d0fe',
+    900: '#fae8ff',
+  },
+  purple: {
+    50: '#6b21a8',
+    100: '#7e22ce',
+    200: '#9333ea',
+    300: '#a855f7',
+    400: '#c084fc',
+    500: '#d8b4fe',
+    600: '#e9d5ff',
+    700: '#f3e8ff',
+    800: '#faf5ff',
+    900: '#fef4ff',
+  },
+  violet: {
+    50: '#4c1d95',
+    100: '#701a75',
+    200: '#86198f',
+    300: '#a21caf',
+    400: '#c026d3',
+    500: '#d946ef',
+    600: '#e879f9',
+    700: '#f0abfc',
+    800: '#f5d0fe',
+    900: '#fae8ff',
+  },
+  indigo: {
+    50: '#312e81',
+    100: '#3730a3',
+    200: '#1e40af',
+    300: '#1d4ed8',
+    400: '#2563eb',
+    500: '#3b82f6',
+    600: '#60a5fa',
+    700: '#93c5fd',
+    800: '#bfdbfe',
+    900: '#dbeafe',
+  },
+  blue: {
+    50: '#1e3a8a',
+    100: '#1e40af',
+    200: '#1d4ed8',
+    300: '#2563eb',
+    400: '#3b82f6',
+    500: '#60a5fa',
+    600: '#93c5fd',
+    700: '#bfdbfe',
+    800: '#dbeafe',
+    900: '#eff6ff',
+  },
+  lightBlue: {
+    50: '#0c4a6e',
+    100: '#075985',
+    200: '#0369a1',
+    300: '#0284c7',
+    400: '#0ea5e9',
+    500: '#38bdf8',
+    600: '#7dd3fc',
+    700: '#bae6fd',
+    800: '#e0f2fe',
+    900: '#f0f9ff',
+  },
+  cyan: {
+    50: '#164e63',
+    100: '#155e75',
+    200: '#0e7490',
+    300: '#0891b2',
+    400: '#22d3ee',
+    500: '#67e8f9',
+    600: '#a5f3fc',
+    700: '#cffafe',
+    800: '#ecfeff',
+    900: '#f0fefe',
+  },
+  teal: {
+    50: '#134e4a',
+    100: '#166534',
+    200: '#15803d',
+    300: '#16a34a',
+    400: '#22c55e',
+    500: '#4ade80',
+    600: '#5eead4',
+    700: '#99f6e4',
+    800: '#ccfbf1',
+    900: '#f0fdfa',
+  },
+  emerald: {
+    50: '#064e3b',
+    100: '#065f46',
+    200: '#047857',
+    300: '#059669',
+    400: '#10b981',
+    500: '#34d399',
+    600: '#6ee7b7',
+    700: '#a7f3d0',
+    800: '#d1fae5',
+    900: '#ecfdf5',
+  },
+  green: {
+    50: '#14532d',
+    100: '#166534',
+    200: '#15803d',
+    300: '#16a34a',
+    400: '#22c55e',
+    500: '#4ade80',
+    600: '#86efac',
+    700: '#bbf7d0',
+    800: '#dcfce7',
+    900: '#f0fdf4',
+  },
+  lime: {
+    50: '#365314',
+    100: '#3f6212',
+    200: '#4d7c0f',
+    300: '#65a30d',
+    400: '#84cc16',
+    500: '#a3e635',
+    600: '#bef264',
+    700: '#d9f99d',
+    800: '#ecfccb',
+    900: '#f7fee7',
+  },
+  yellow: {
+    50: '#713f12',
+    100: '#854d0e',
+    200: '#a16207',
+    300: '#ca8a04',
+    400: '#eab308',
+    500: '#facc15',
+    600: '#fde047',
+    700: '#fef08a',
+    800: '#fef9c3',
+    900: '#fefce8',
+  },
+  amber: {
+    50: '#78350f',
+    100: '#92400e',
+    200: '#b45309',
+    300: '#d97706',
+    400: '#f59e0b',
+    500: '#fbbf24',
+    600: '#fcd34d',
+    700: '#fde68a',
+    800: '#fef3c7',
+    900: '#fffbeb',
+  },
+  orange: {
+    50: '#7c2d12',
+    100: '#9a3412',
+    200: '#c2410c',
+    300: '#ea580c',
+    400: '#f97316',
+    500: '#fb923c',
+    600: '#fdba74',
+    700: '#fed7aa',
+    800: '#ffedd5',
+    900: '#fff7ed',
+  },
+  red: {
+    50: '#7f1d1d',
+    100: '#991b1b',
+    200: '#b91c1c',
+    300: '#dc2626',
+    400: '#ef4444',
+    500: '#f87171',
+    600: '#fca5a5',
+    700: '#fecaca',
+    800: '#fee2e2',
+    900: '#fef2f2',
+  },
+  warmGray: {
+    50: '#1c1917',
+    100: '#292524',
+    200: '#44403c',
+    300: '#57534e',
+    400: '#78716c',
+    500: '#a8a29e',
+    600: '#d6d3d1',
+    700: '#e7e5e4',
+    800: '#f5f5f4',
+    900: '#fafaf9',
+  },
+  trueGray: {
+    50: '#171717',
+    100: '#262626',
+    200: '#404040',
+    300: '#525252',
+    400: '#737373',
+    500: '#a3a3a3',
+    600: '#d4d4d4',
+    700: '#e5e5e5',
+    800: '#f5f5f5',
+    900: '#fafafa',
+  },
+  gray: {
+    50: '#18181b',
+    100: '#27272a',
+    200: '#3f3f46',
+    300: '#52525b',
+    400: '#71717a',
+    500: '#a1a1aa',
+    600: '#d4d4d8',
+    700: '#e4e4e7',
+    800: '#f4f4f5',
+    900: '#fafafa',
+  },
+  dark: {
+    50: '#212529',
+    100: '#343a40',
+    200: '#495057',
+    300: '#868e96',
+    400: '#adb5bd',
+    500: '#ced4da',
+    600: '#dee2e6',
+    700: '#f1f3f5',
+    800: '#f8f9fa',
+    900: '#ffffff',
+  },
+  light: {
+    50: '#fafafa',
+    100: '#f4f4f5',
+    200: '#e4e4e7',
+    300: '#d4d4d8',
+    400: '#a1a1aa',
+    500: '#71717a',
+    600: '#52525b',
+    700: '#3f3f46',
+    800: '#27272a',
+    900: '#18181b',
+  },
+  coolGray: {
+    50: '#111827',
+    100: '#1f2937',
+    200: '#374151',
+    300: '#4b5563',
+    400: '#6b7280',
+    500: '#9ca3af',
+    600: '#d1d5db',
+    700: '#e5e7eb',
+    800: '#f3f4f6',
+    900: '#f9fafb',
+  },
+  blueGray: {
+    50: '#0f172a',
+    100: '#1e293b',
+    200: '#334155',
+    300: '#475569',
+    400: '#64748b',
+    500: '#94a3b8',
+    600: '#cbd5e1',
+    700: '#e2e8f0',
+    800: '#f1f5f9',
+    900: '#f8fafc',
+  },
+};
+
+export const defaultColors: ColorConfig = {
+  white: '#FFFFFF',
+  black: '#000000',
+  red: '#FF0000',
+  green: '#00FF00',
+  blue: '#0000FF',
+  yellow: '#FFFF00',
+  cyan: '#00FFFF',
+  magenta: '#FF00FF',
+  grey: '#808080',
+  orange: '#FFA500',
+  brown: '#A52A2A',
+  purple: '#800080',
+  pink: '#FFC0CB',
+  lime: '#00FF00',
+  teal: '#008080',
+  navy: '#000080',
+  olive: '#808000',
+  maroon: '#800000',
+  gold: '#FFD700',
+  silver: '#C0C0C0',
+  indigo: '#4B0082',
+  violet: '#EE82EE',
+  beige: '#F5F5DC',
+  turquoise: '#40E0D0',
+  coral: '#FF7F50',
+  chocolate: '#D2691E',
+  skyBlue: '#87CEEB',
+  plum: '#DDA0DD',
+  darkGreen: '#006400',
+  salmon: '#FA8072',
+};
+
+export type ColorConfig = Record<string, any>;
+
+export const defaultLightColors: ColorConfig = {
+  ...defaultColors,
+  dark: '#a1a1aa',
+  white: '#FFFFFF',
+  black: '#000000',
+};
+
+export const defaultDarkColors: ColorConfig = {
+  ...defaultColors,
+  dark: '#adb5bd',
+  white: '#000000',
+  black: '#FFFFFF',
+};
+
+================
+File: utils/constants.ts
+================
+// constants.ts
+import { CSSProperties } from 'react';
+import {
+  AnimationDirection,
+  AnimationFillMode,
+  AnimationIterationCount,
+  AnimationKeyframes,
+} from '../types/style';
+
+// List of numeric properties that don't need 'px' suffix
+export const NumberProps = new Set<string>([
+  'numberOfLines',
+  'fontWeight',
+  'timeStamp',
+  'flex',
+  'flexGrow',
+  'flexShrink',
+  'order',
+  'zIndex',
+  'aspectRatio',
+  'shadowOpacity',
+  'shadowRadius',
+  'scale',
+  'opacity',
+  'min',
+  'max',
+  'now',
+]);
+
+// Keys to exclude when passing props to the component
+export const excludedKeys = new Set<string>([
+  'on',
+  'shadow',
+  'only',
+  'media',
+  'css',
+  'size',
+  'paddingHorizontal',
+  'paddingVertical',
+  'marginHorizontal',
+  'marginVertical',
+  'animate',
+  // Add more styling props here if needed
+]);
+
+// Keys to exclude when passing props to the component
+export const extraKeys = new Set<string>([
+  'on',
+  'shadow',
+  'only',
+  'media',
+  'css',
+  // Add more styling props here if needed
+]);
+
+export const includeKeys = new Set<string>(['src', 'alt', 'style', 'as']);
+
+// Type definitions for animation props
+export interface AnimationProps {
+  from?: CSSProperties | any;
+  to?: CSSProperties | any;
+  leave?: CSSProperties | any;
+  duration?: string;
+  timingFunction?:
+    | string
+    | 'linear'
+    | 'ease'
+    | 'ease-in'
+    | 'ease-out'
+    | 'ease-in-out';
+  delay?: string;
+  property?: string;
+  iterationCount?: AnimationIterationCount;
+  direction?: AnimationDirection;
+  fillMode?: AnimationFillMode;
+  playState?: AnimationPlayState;
+  keyframes?: AnimationKeyframes;
+  timeline?: string;
+  range?: string;
+  '--fill'?: any;
+  [key: string]:
+    | CSSProperties
+    | string
+    | number
+    | Record<string, string | number>
+    | undefined;
+}
+
+================
+File: utils/cssProperties.ts
+================
+// src/cssPropertyKeys.ts
+import { CSSProperties } from 'react';
+
+export const cssPropertyKeys: Array<keyof CSSProperties> = [
+  'alignContent',
+  'alignItems',
+  'alignSelf',
+  'animation',
+  'animationDelay',
+  'animationDirection',
+  'animationDuration',
+  'animationFillMode',
+  'animationIterationCount',
+  'animationName',
+  'animationPlayState',
+  'animationTimingFunction',
+  'backfaceVisibility',
+  'background',
+  'backgroundAttachment',
+  'backgroundBlendMode',
+  'backgroundClip',
+  'backgroundColor',
+  'backgroundImage',
+  'backgroundOrigin',
+  'backgroundPosition',
+  'backgroundRepeat',
+  'backgroundSize',
+  'border',
+  'borderBottom',
+  'borderBottomColor',
+  'borderBottomLeftRadius',
+  'borderBottomRightRadius',
+  'borderBottomStyle',
+  'borderBottomWidth',
+  'borderCollapse',
+  'borderColor',
+  'borderImage',
+  'borderImageOutset',
+  'borderImageRepeat',
+  'borderImageSlice',
+  'borderImageSource',
+  'borderImageWidth',
+  'borderLeft',
+  'borderLeftColor',
+  'borderLeftStyle',
+  'borderLeftWidth',
+  'borderRadius',
+  'borderRight',
+  'borderRightColor',
+  'borderRightStyle',
+  'borderRightWidth',
+  'borderSpacing',
+  'borderStyle',
+  'borderTop',
+  'borderTopColor',
+  'borderTopLeftRadius',
+  'borderTopRightRadius',
+  'borderTopStyle',
+  'borderTopWidth',
+  'borderWidth',
+  'bottom',
+  'boxShadow',
+  'boxSizing',
+  'captionSide',
+  'caretColor',
+  'clear',
+  'clip',
+  'color',
+  'columnCount',
+  'columnFill',
+  'columnGap',
+  'columnRule',
+  'columnRuleColor',
+  'columnRuleStyle',
+  'columnRuleWidth',
+  'columns',
+  'columnSpan',
+  'columnWidth',
+  'content',
+  'counterIncrement',
+  'counterReset',
+  'cursor',
+  'direction',
+  'display',
+  'emptyCells',
+  'filter',
+  'flex',
+  'flexBasis',
+  'flexDirection',
+  'flexFlow',
+  'flexGrow',
+  'flexShrink',
+  'flexWrap',
+  'float',
+  'font',
+  'fontFamily',
+  'fontSize',
+  'fontStyle',
+  'fontVariant',
+  'fontWeight',
+  'gap',
+  'grid',
+  'gridArea',
+  'gridAutoColumns',
+  'gridAutoFlow',
+  'gridAutoRows',
+  'gridColumn',
+  'gridColumnEnd',
+  'gridColumnGap',
+  'gridColumnStart',
+  'gridGap',
+  'gridRow',
+  'gridRowEnd',
+  'gridRowGap',
+  'gridRowStart',
+  'gridTemplate',
+  'gridTemplateAreas',
+  'gridTemplateColumns',
+  'gridTemplateRows',
+  'height',
+  'hyphens',
+  'imageRendering',
+  'inlineSize',
+  'isolation',
+  'justifyContent',
+  'justifyItems',
+  'justifySelf',
+  'left',
+  'letterSpacing',
+  'lineHeight',
+  'listStyle',
+  'listStyleImage',
+  'listStylePosition',
+  'listStyleType',
+  'margin',
+  'marginBlockEnd',
+  'marginBlockStart',
+  'marginBottom',
+  'marginInlineEnd',
+  'marginInlineStart',
+  'marginLeft',
+  'marginRight',
+  'marginTop',
+  'mask',
+  'maskType',
+  'maxBlockSize',
+  'maxHeight',
+  'maxInlineSize',
+  'maxWidth',
+  'minBlockSize',
+  'minHeight',
+  'minInlineSize',
+  'minWidth',
+  'mixBlendMode',
+  'objectFit',
+  'objectPosition',
+  'opacity',
+  'order',
+  'outline',
+  'outlineColor',
+  'outlineOffset',
+  'outlineStyle',
+  'outlineWidth',
+  'overflow',
+  'overflowAnchor',
+  'overflowWrap',
+  'overflowX',
+  'overflowY',
+  'padding',
+  'paddingBlockEnd',
+  'paddingBlockStart',
+  'paddingBottom',
+  'paddingInlineEnd',
+  'paddingInlineStart',
+  'paddingLeft',
+  'paddingRight',
+  'paddingTop',
+  'pageBreakAfter',
+  'pageBreakBefore',
+  'pageBreakInside',
+  'perspective',
+  'perspectiveOrigin',
+  'pointerEvents',
+  'position',
+  'quotes',
+  'resize',
+  'right',
+  'rotate',
+  'rowGap',
+  'scale',
+  'scrollBehavior',
+  'scrollMargin',
+  'scrollMarginBlock',
+  'scrollMarginBlockEnd',
+  'scrollMarginBlockStart',
+  'scrollMarginBottom',
+  'scrollMarginInline',
+  'scrollMarginInlineEnd',
+  'scrollMarginInlineStart',
+  'scrollMarginLeft',
+  'scrollMarginRight',
+  'scrollMarginTop',
+  'scrollPadding',
+  'scrollPaddingBlock',
+  'scrollPaddingBlockEnd',
+  'scrollPaddingBlockStart',
+  'scrollPaddingBottom',
+  'scrollPaddingInline',
+  'scrollPaddingInlineEnd',
+  'scrollPaddingInlineStart',
+  'scrollPaddingLeft',
+  'scrollPaddingRight',
+  'scrollPaddingTop',
+  'scrollSnapAlign',
+  'scrollSnapMargin',
+  'scrollSnapMarginBottom',
+  'scrollSnapMarginLeft',
+  'scrollSnapMarginRight',
+  'scrollSnapMarginTop',
+  'scrollSnapStop',
+  'scrollSnapType',
+  'shapeImageThreshold',
+  'shapeMargin',
+  'shapeOutside',
+  'tabSize',
+  'tableLayout',
+  'textAlign',
+  'textAlignLast',
+  'textCombineUpright',
+  'textDecoration',
+  'textDecorationColor',
+  'textDecorationLine',
+  'textDecorationStyle',
+  'textIndent',
+  'textJustify',
+  'textOverflow',
+  'textShadow',
+  'textTransform',
+  'top',
+  'transform',
+  'transformOrigin',
+  'transformStyle',
+  'transition',
+  'transitionDelay',
+  'transitionDuration',
+  'transitionProperty',
+  'transitionTimingFunction',
+  'translate',
+  'unicodeBidi',
+  'userSelect',
+  'verticalAlign',
+  'visibility',
+  'whiteSpace',
+  'widows',
+  'width',
+  'wordBreak',
+  'wordSpacing',
+  'wordWrap',
+  'writingMode',
+  'zIndex',
+  // Add any additional CSS properties as needed
+];
+
+export const numericCssProperties = new Set<string>([
+  'border-bottom-left-radius',
+  'border-bottom-right-radius',
+  'border-bottom-width',
+  'border-left-width',
+  'border-radius',
+  'border-right-width',
+  'border-spacing',
+  'border-top-left-radius',
+  'border-top-right-radius',
+  'border-top-width',
+  'border-width',
+  'bottom',
+  'column-gap',
+  'column-rule-width',
+  'column-width',
+  'font-size',
+  'gap',
+  'height',
+  'left',
+  'letter-spacing',
+  'line-height',
+  'margin',
+  'margin-bottom',
+  'margin-left',
+  'margin-right',
+  'margin-top',
+  'max-height',
+  'max-width',
+  'min-height',
+  'min-width',
+  'outline-offset',
+  'outline-width',
+  'padding',
+  'padding-bottom',
+  'padding-left',
+  'padding-right',
+  'padding-top',
+  'perspective',
+  'right',
+  'row-gap',
+  'text-indent',
+  'top',
+  'width',
+]);
+
+================
+File: utils/env.ts
+================
+/**
+ * whether in browser env
+ */
+export const isBrowser = (): boolean =>
+  typeof window !== 'undefined' &&
+  typeof window.document !== 'undefined' &&
+  typeof window.document.createElement !== 'undefined';
+
+/**
+ * get window.g_initialProps
+ */
+export const getWindowInitialProps = () =>
+  isBrowser() ? (window as any).g_initialProps : undefined;
+
+/**
+ * whether SSR success in client
+ */
+export const isSSR = !isBrowser();
+
+export function isDev() {
+  let dev = false;
+
+  if (isBrowser()) {
+    dev = !(window.location.hostname.indexOf('localhost') === -1);
+  }
+  return dev;
+}
+
+export function isProd() {
+  if (isBrowser()) {
+    if (window && window.location && window.location.hostname) {
+      return (
+        window.location.hostname.includes('localhost') ||
+        window.location.hostname.includes('develop')
+      );
+    }
+  }
+  return false;
+}
+
+export function isMobile() {
+  return navigator.userAgent.match(/(iPhone|iPod|Android|ios|iPad)/i);
+}
+
+================
+File: utils/shadow.ts
+================
+export type Shadow = {
+  shadowColor: string;
+  shadowOffset: {
+    width: number;
+    height: number;
+  };
+  shadowOpacity: number;
+  shadowRadius: number;
+};
+
+export const Shadows: Record<number, Shadow> = {
+  0: {
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 1,
+      height: 2,
+    },
+    shadowOpacity: 0.18,
+    shadowRadius: 1.0,
+  },
+  1: {
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 2,
+      height: 2,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 1.41,
+  },
+  2: {
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 3,
+      height: 3,
+    },
+    shadowOpacity: 0.22,
+    shadowRadius: 2.22,
+  },
+  3: {
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 4,
+      height: 4,
+    },
+    shadowOpacity: 0.23,
+    shadowRadius: 2.62,
+  },
+  4: {
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 5,
+      height: 5,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  5: {
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 6,
+      height: 6,
+    },
+    shadowOpacity: 0.27,
+    shadowRadius: 4.65,
+  },
+  6: {
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 7,
+      height: 7,
+    },
+    shadowOpacity: 0.29,
+    shadowRadius: 4.65,
+  },
+  7: {
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 8,
+      height: 8,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 4.65,
+  },
+  8: {
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 9,
+      height: 9,
+    },
+    shadowOpacity: 0.32,
+    shadowRadius: 5.46,
+  },
+  9: {
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 10,
+      height: 10,
+    },
+    shadowOpacity: 0.34,
+    shadowRadius: 6.27,
+  },
+};
+
+================
+File: utils/style.ts
+================
+// styleHelpers.ts
+import { extraKeys, includeKeys, NumberProps } from './constants';
+
+// Comprehensive list of CSS properties that should be converted to classes
+const cssProperties = new Set([
+  // Standard CSS properties
+  ...Object.keys(document.createElement('div').style),
+
+  // Box model
+  'margin',
+  'marginTop',
+  'marginRight',
+  'marginBottom',
+  'marginLeft',
+  'marginHorizontal',
+  'marginVertical',
+  'padding',
+  'paddingTop',
+  'paddingRight',
+  'paddingBottom',
+  'paddingLeft',
+  'paddingHorizontal',
+  'paddingVertical',
+  'width',
+  'height',
+  'minWidth',
+  'minHeight',
+  'maxWidth',
+  'maxHeight',
+
+  // Positioning
+  'position',
+  'top',
+  'right',
+  'bottom',
+  'left',
+  'zIndex',
+
+  // Flexbox
+  'flex',
+  'flexDirection',
+  'flexWrap',
+  'flexFlow',
+  'justifyContent',
+  'alignItems',
+  'alignContent',
+  'alignSelf',
+  'order',
+  'flexGrow',
+  'flexShrink',
+  'flexBasis',
+
+  // Grid
+  'gridTemplateColumns',
+  'gridTemplateRows',
+  'gridTemplate',
+  'gridAutoColumns',
+  'gridAutoRows',
+  'gridAutoFlow',
+  'gridArea',
+  'gridColumn',
+  'gridRow',
+  'gap',
+  'gridGap',
+  'rowGap',
+  'columnGap',
+
+  // Typography
+  'fontFamily',
+  'fontSize',
+  'fontWeight',
+  'lineHeight',
+  'letterSpacing',
+  'textAlign',
+  'textDecoration',
+  'textTransform',
+  'whiteSpace',
+  'wordBreak',
+  'wordSpacing',
+  'wordWrap',
+
+  // Colors and Backgrounds
+  'color',
+  'backgroundColor',
+  'background',
+  'backgroundImage',
+  'backgroundSize',
+  'backgroundPosition',
+  'backgroundRepeat',
+  'opacity',
+
+  // Borders
+  'border',
+  'borderWidth',
+  'borderStyle',
+  'borderColor',
+  'borderRadius',
+  'borderTop',
+  'borderRight',
+  'borderBottom',
+  'borderLeft',
+  'borderTopLeftRadius',
+  'borderTopRightRadius',
+  'borderBottomLeftRadius',
+  'borderBottomRightRadius',
+
+  // Effects
+  'boxShadow',
+  'textShadow',
+  'transform',
+  'transition',
+  'animation',
+  'filter',
+  'backdropFilter',
+
+  // Layout
+  'display',
+  'visibility',
+  'overflow',
+  'overflowX',
+  'overflowY',
+  'float',
+  'clear',
+  'objectFit',
+  'objectPosition',
+
+  // Interactivity
+  'cursor',
+  'pointerEvents',
+  'userSelect',
+  'resize',
+
+  // Custom properties
+  'size',
+  'shadow',
+
+  // Additional properties from cssExtraProps
+  'textJustify',
+  'lineClamp',
+  'textIndent',
+  'perspective',
+]);
+
+// Function to set the size of the element
+export const setSize = (
+  newSize: string | number,
+  styleProps: Record<string, any>
+) => {
+  styleProps.height = styleProps.width = newSize;
+};
+
+// Improved style prop detection
+export const isStyleProp = (prop: string): boolean => {
+  // Check if it's a valid CSS property or custom style prop
+  return (
+    cssProperties.has(prop) ||
+    extraKeys.has(prop) ||
+    // Check for vendor prefixes
+    /^(webkit|moz|ms|o)[A-Z]/.test(prop) ||
+    // Check for custom properties
+    prop.startsWith('--') ||
+    // Check for data attributes that should be treated as styles
+    (prop.startsWith('data-style-') && !includeKeys.has(prop))
+  );
+};
+
+// Convert style object to CSS string
+export const styleObjectToCss = (styles: Record<string, any>): string => {
+  return Object.entries(styles)
+    .filter(([key]) => isStyleProp(key))
+    .map(([key, value]) => {
+      const cssProperty = toKebabCase(key);
+      const processedValue = processStyleProperty(key, value, (color) => color);
+      return `${cssProperty}: ${processedValue};`;
+    })
+    .join(' ');
+};
+
+export const toKebabCase = (str: string): string => {
+  return str.replace(/([A-Z])/g, '-$1').toLowerCase();
+};
+
+// Process and normalize style properties
+export const processStyleProperty = (
+  property: string,
+  value: any,
+  getColor: (color: string) => string
+): string | number => {
+  // Handle null or undefined values
+  if (value == null) {
+    return '';
+  }
+
+  // Convert numbers to pixels for appropriate properties
+  if (typeof value === 'number') {
+    if (!NumberProps.has(property)) {
+      return `${value}px`;
+    }
+    return value;
+  }
+
+  // Handle color properties
+  if (
+    property.toLowerCase().indexOf('color') >= 0 ||
+    property === 'fill' ||
+    property === 'stroke'
+  ) {
+    return getColor(value);
+  }
+
+  // Handle arrays (e.g., for transforms)
+  if (Array.isArray(value)) {
+    return value.join(' ');
+  }
+
+  // Handle objects (e.g., for gradients or transforms)
+  if (typeof value === 'object') {
+    return JSON.stringify(value);
+  }
+
+  return value;
+};
+
+// Export the set of valid style properties
+export const StyleProps: string[] = Array.from(cssProperties);
+export const StyledProps: Set<string> = cssProperties;
+
+// Helper function to validate if a prop should be an attribute
+export const shouldBeAttribute = (prop: string): boolean => {
+  return (
+    !isStyleProp(prop) &&
+    !includeKeys.has(prop) &&
+    // Common non-style attributes
+    /^(id|className|role|aria-|data-(?!style-)|tabIndex|title|lang|dir)/.test(
+      prop
+    )
+  );
+};
+
+// Helper to generate class name from style prop
+export const generateClassName = (
+  property: string,
+  value: any,
+  getColor: (color: string) => string
+): string => {
+  const processedValue = processStyleProperty(property, value, getColor);
+  const normalizedValue = String(processedValue)
+    .replace(/[^a-zA-Z0-9-]/g, '-')
+    .replace(/^-+|-+$/g, '');
+
+  return `${toKebabCase(property)}-${normalizedValue}`;
+};
+
+================
+File: utils/typography.ts
+================
+export const Typography = {
+  letterSpacings: {
+    tighter: -0.08,
+    tight: -0.4,
+    normal: 0,
+    wide: 0.4,
+    wider: 0.8,
+    widest: 1.6,
+  },
+  lineHeights: {
+    xs: 10,
+    sm: 12,
+    md: 14,
+    lg: 16,
+    xl: 20,
+    '2xl': 24,
+    '3xl': 30,
+    '4xl': 36,
+    '5xl': 48,
+    '6xl': 64,
+  },
+  fontWeights: {
+    hairline: 100,
+    thin: 200,
+    light: 300,
+    normal: 400,
+    medium: 500,
+    semiBold: 600,
+    bold: 700,
+    extraBold: 800,
+    black: 900,
+  },
+  fontSizes: {
+    xs: 10,
+    sm: 12,
+    md: 14,
+    lg: 16,
+    xl: 20,
+    '2xl': 24,
+    '3xl': 30,
+    '4xl': 36,
+    '5xl': 48,
+    '6xl': 64,
+  },
+};
+
+================
+File: index.tsx
+================
+export * from './components/View';
+export * from './components/Image';
+export * from './components/Text';
+export * from './components/Form';
+export * from './element/Element';
+export * from './components/Skeleton';
+export * as Animation from './element/Animation';
+export * from './utils/typography';
+export * from './utils/shadow';
+export * from './utils/env';
+export * from './element/css';
+export * from './utils/colors';
+export * from './providers/Responsive';
+export * from './providers/Analytics';
+export * from './providers/Theme';
+export * from './hooks/useActive';
+export * from './hooks/useClickOutside';
+export * from './hooks/useFocus';
+export * from './hooks/useHover';
+export * from './hooks/useKeyPress';
+export * from './hooks/useMount';
+export * from './hooks/useOnScreen';
+export * from './hooks/useResponsive';
+export * from './hooks/useScroll';
+export * from './hooks/useWindowSize';
+export * from './hooks/useInView';
+
+
+
+================================================================
+End of Codebase
+================================================================

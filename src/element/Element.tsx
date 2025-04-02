@@ -1,5 +1,5 @@
 import React, { CSSProperties, useMemo, forwardRef } from 'react';
-import { Colors, useTheme } from '../providers/Theme';
+import { Colors, Theme, useTheme } from '../providers/Theme';
 import { useResponsiveContext } from '../providers/Responsive';
 
 import { isStyleProp } from '../utils/style';
@@ -27,6 +27,7 @@ export interface ElementProps
   size?: number | string;
   children?: React.ReactNode;
   colors?: Colors;
+  theme?: Theme;
 }
 
 export interface CssProps extends CSSProperties {
@@ -44,23 +45,26 @@ export const Element = React.memo(
         props.cursor = 'pointer';
       }
 
-      const { onPress, colors, ...rest } = props;
-      const { getColor, themeMode } = useTheme();
+      const { onPress, ...rest } = props;
+      const { getColor, theme } = useTheme();
       const { trackEvent } = useAnalytics();
       const { mediaQueries, devices } = useResponsiveContext();
 
-      const elementMode = props.themeMode ? props.themeMode : themeMode;
       const utilityClasses = useMemo(
         () =>
           extractUtilityClasses(
             rest,
             (color: string) => {
-              return getColor(color, elementMode, colors);
+              return getColor(color, {
+                colors: props.colors,
+                theme: props.theme,
+                themeMode: props.themeMode,
+              });
             },
             mediaQueries,
             devices
           ),
-        [rest, mediaQueries, devices, elementMode, colors]
+        [rest, mediaQueries, devices, theme]
       );
 
       const newProps: any = { ref };
