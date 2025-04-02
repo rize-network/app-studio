@@ -10,8 +10,6 @@ import {
   Vertical,
   Horizontal,
   Colors, // Import the Colors type
-  defaultLightPalette, // Import default palettes for reference/easy modification
-  defaultLightColors,
   Theme,
 } from '../src'; // Adjust the import path based on your structure
 
@@ -39,12 +37,10 @@ const customTheme: Theme = {
 const customComponentColors: Colors = {
   // Define main theme overrides for this component
   main: {
-    ...defaultLightColors,
     white: 'blue', // Start with defaults to avoid defining everything
   },
   // Define color palette overrides
   palette: {
-    ...defaultLightPalette, // Start with default palettes
     // Override the entire 'blue' palette with shades of purple
     blue: {
       50: '#faf5ff', // purple-50
@@ -62,7 +58,6 @@ const customComponentColors: Colors = {
     // Or override them too if needed
     green: {
       // Let's slightly tweak green too
-      ...defaultLightPalette.green, // Keep most shades
       600: '#10B981', // Make green 600 more vibrant (emerald-500)
     },
   },

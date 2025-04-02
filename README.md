@@ -125,6 +125,8 @@ The fundamental building block. Renders as a specified HTML tag (`as` prop, defa
 | `shadow`  | `boolean` or `number`                  | Applies a pre-defined box-shadow effect (levels 0-9).                                                      |
 | `...rest` | `CssProps`                             | Accepts numerous CSS properties directly as props (e.g., `backgroundColor`, `padding`, `fontSize`, etc.).    |
 
+
+
 **Example:**
 
 ```jsx
@@ -142,6 +144,49 @@ function MyStyledElement() {
       media={{ mobile: { padding: 8 } }}
     >
       This is a styled section.
+    </Element>
+  );
+}
+```
+
+In addition to global theming via `ThemeProvider`, the `Element` component offers granular control through the `themeMode`, `colors`, and `theme` props. When specified, these props locally override the context provided by `ThemeProvider` for this specific element instance and how its style props (like `backgroundColor="theme.primary"` or `color="color.blue.500"`) resolve color values. `themeMode` forces 'light' or 'dark' mode resolution, `colors` provides a custom `{ main, palette }` object, and `theme` supplies custom token mappings (e.g., `{ primary: 'color.purple.500' }`). This allows creating distinctly styled sections or components without altering the global theme, useful for sidebars, specific UI states, or component variations.
+
+**Example (Local Theme Override):**
+
+```jsx
+import { Element, Text } from 'app-studio';
+
+function LocallyThemedSection() {
+  // Assume the global theme is currently 'light' mode.
+
+  // Define a local override theme and colors for this specific section
+  const localThemeOverride = { primary: 'color.orange.500', secondary: 'color.teal.300' };
+  const localDarkColorsOverride = { 
+    main: {
+      white: '#EEE'
+    } 
+  }; // Using defaults for demonstration
+
+  return (
+    <Element
+      padding={20}
+      marginVertical={10}
+      // Force dark mode and provide specific theme/color definitions JUST for this Element
+      themeMode="dark"
+      theme={localThemeOverride}
+      colors={localDarkColorsOverride}
+      // Styles below will resolve using the LOCAL dark theme override defined above:
+      backgroundColor="theme.secondary" // Resolves to 'color.teal.300' via localThemeOverride in dark mode
+      border={`3px solid theme.primary`} // Resolves to 'color.orange.500' via localThemeOverride
+      borderRadius={8}
+    >
+      <Text color="color.white" 
+      colors={localDarkColorsOverride}> {/* 'color.white' from localDarkColorsOverride.main */}
+        This section forces dark mode with an orange primary, even if the app is light.
+      </Text>
+      <Element marginTop={8} padding={10} backgroundColor="color.gray.700"> {/* Uses local dark palette */}
+         <Text color="theme.primary">Nested Primary (Orange)</Text> {/* Still uses local override */}
+      </Element>
     </Element>
   );
 }

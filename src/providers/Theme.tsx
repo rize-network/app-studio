@@ -200,7 +200,7 @@ export const ThemeProvider = ({
           // );
 
           const keys = name.substring(THEME_PREFIX.length).split('.');
-          let value: any = { ...mergedTheme, ...override.theme }; // Theme definitions are mode-agnostic
+          let value: any = deepMerge(mergedTheme, override.theme || {});
 
           for (const key of keys) {
             if (value === undefined || value === null) break; // Stop if path breaks
@@ -233,9 +233,11 @@ export const ThemeProvider = ({
           if (keys.length === 1) {
             // e.g., "color.white"
             const colorName = keys[0];
-            const colorValue =
-              override.colors?.main?.[colorName] ||
-              colorsToUse.main?.[colorName]; // Use optional chaining
+            const main = deepMerge(
+              colorsToUse.main,
+              override.colors?.main || {}
+            );
+            const colorValue = main?.[colorName]; // Use optional chaining
             if (typeof colorValue === 'string') {
               resolvedColor = colorValue;
             } else {
@@ -246,10 +248,11 @@ export const ThemeProvider = ({
           } else if (keys.length === 2) {
             // e.g., "color.blue.500"
             const [colorName, variant] = keys;
-            const palette =
-              override.colors?.palette?.[colorName] ||
-              colorsToUse.palette?.[colorName];
-            const shadeValue = palette?.[variant as any];
+            const palette = deepMerge(
+              colorsToUse.palette,
+              override.colors?.palette || {}
+            );
+            const shadeValue = palette?.[colorName]?.[variant as any];
             if (typeof shadeValue === 'string') {
               resolvedColor = shadeValue;
             } else {
