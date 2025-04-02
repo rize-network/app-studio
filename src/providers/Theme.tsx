@@ -17,13 +17,13 @@ import {
 } from '../utils/colors';
 
 // Extend Colors to include the palette
-interface Colors {
+export interface Colors {
   main: ColorSingleton;
   palette: ColorPalette;
 }
 
 // Theme Interfaces
-interface Theme {
+export interface Theme {
   primary?: string;
   secondary?: string;
   success?: string;
@@ -34,7 +34,11 @@ interface Theme {
 }
 
 interface ThemeContextProps {
-  getColor: (color: string, themeMode?: 'light' | 'dark') => string;
+  getColor: (
+    color: string,
+    themeMode?: 'light' | 'dark',
+    colors?: Colors
+  ) => string;
   theme?: Theme;
   colors?: Colors;
   themeMode: 'light' | 'dark';
@@ -120,7 +124,7 @@ export const ThemeProvider = ({
 
   // Corrected the merging logic: light should use defaultLightColors and defaultLightPalette
   // dark should use defaultDarkColors and defaultDarkPalette
-  const colors: { light: Colors; dark: Colors } = {
+  const themeColors: { light: Colors; dark: Colors } = {
     light: deepMerge(
       { main: defaultLightColors, palette: defaultLightPalette },
       light
@@ -133,7 +137,8 @@ export const ThemeProvider = ({
 
   const getColor = (
     name: string,
-    themeMode: 'light' | 'dark' = 'light'
+    themeMode: 'light' | 'dark' = 'light',
+    optionalColors?: Colors
   ): string => {
     if (name === 'transparent') return name;
     const cacheKey = `${name}-${themeMode}`;
@@ -148,7 +153,7 @@ export const ThemeProvider = ({
           if (value === undefined) return name;
         }
         if (typeof value === 'string') {
-          const resolved = getColor(value, themeMode);
+          const resolved = getColor(value, themeMode, optionalColors);
           colorCache.set(cacheKey, resolved);
           return resolved;
         }
@@ -157,7 +162,11 @@ export const ThemeProvider = ({
         if (keys.length === 2) {
           // Example: "color.white"
           const colorName = keys[1];
-          const color = colors[themeMode].main[colorName];
+          const colors =
+            optionalColors && optionalColors.palette[colorName]
+              ? optionalColors
+              : themeColors[themeMode];
+          const color = colors.main[colorName];
           if (typeof color === 'string') {
             colorCache.set(cacheKey, color);
             return color;
@@ -168,8 +177,12 @@ export const ThemeProvider = ({
           // Example: "color.blue.500"
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const [colorName, variant] = keys.splice(1);
-          if (colors[themeMode].palette[colorName][Number(variant)]) {
-            return colors[themeMode].palette[colorName][Number(variant)];
+          const colors =
+            optionalColors && optionalColors.palette[colorName]
+              ? optionalColors
+              : themeColors[themeMode];
+          if (colors.palette[colorName][Number(variant)]) {
+            return colors.palette[colorName][Number(variant)];
           } else {
             console.warn(
               `Color "${colorName}" with shade "${variant}" not found.`
@@ -184,25 +197,25 @@ export const ThemeProvider = ({
     return name; // Return the original name if not found
   };
 
-  useEffect(() => {
-    const colors = themeMode === 'light' ? light : dark;
-    let cssString = '';
+  // useEffect(() => {
+  //   const colors = themeMode === 'light' ? light : dark;
+  //   let cssString = '';
 
-    Object.entries(colors.main).forEach(([name, value]) => {
-      cssString += `--color-${name}: ${value};`;
-    });
+  //   Object.entries(colors.main).forEach(([name, value]) => {
+  //     cssString += `--color-${name}: ${value};`;
+  //   });
 
-    Object.entries(colors.palette).forEach(([color, shades]) => {
-      if (typeof shades === 'object' && shades !== null) {
-        Object.entries(shades).forEach(([shade, value]) => {
-          cssString += `--color-${color}-${shade}: ${String(value || '')};`;
-        });
-      }
-    });
+  //   Object.entries(colors.palette).forEach(([color, shades]) => {
+  //     if (typeof shades === 'object' && shades !== null) {
+  //       Object.entries(shades).forEach(([shade, value]) => {
+  //         cssString += `--color-${color}-${shade}: ${String(value || '')};`;
+  //       });
+  //     }
+  //   });
 
-    const root = document.documentElement;
-    root.setAttribute('style', cssString);
-  }, [themeMode, light, dark]);
+  //   const root = document.documentElement;
+  //   root.setAttribute('style', cssString);
+  // }, [themeMode, light, dark]);
 
   return (
     <ThemeContext.Provider
