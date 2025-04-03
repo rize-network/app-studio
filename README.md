@@ -177,7 +177,6 @@ function LocallyThemedSection() {
       colors={localDarkColorsOverride}
       // Styles below will resolve using the LOCAL dark theme override defined above:
       backgroundColor="theme.secondary" // Resolves to 'color.teal.300' via localThemeOverride in dark mode
-      border={`3px solid theme.primary`} // Resolves to 'color.orange.500' via localThemeOverride
       borderRadius={8}
     >
       <Text color="color.white" 

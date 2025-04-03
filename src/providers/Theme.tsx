@@ -90,7 +90,7 @@ export const useTheme = () => {
 // --- Deep Merge Function (remains the same, assuming it works as intended) ---
 // Consider using a library like `lodash.merge` or `deepmerge` if complexity grows
 // or edge cases (like merging arrays) need different handling.
-const deepMerge = (target: any, source: any): any => {
+export const deepMerge = (target: any, source: any): any => {
   // (Implementation from original code)
   if (typeof source !== 'object' || source === null) {
     return target;

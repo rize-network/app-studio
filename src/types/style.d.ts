@@ -531,8 +531,8 @@ type SourceObject = {
    * `width` and `height` can be specified if known at build time, in which case
    * these will be used to set the default `<Image/>` component dimensions.
    */
-  height?: number;
-  width?: number;
+  height?: number | string;
+  width?: number | string;
 };
 
 export type ResizeMode =
