@@ -161,12 +161,7 @@ const OnScreenExample = () => {
       <View position="fixed">
         {isOnScreen ? 'Element is on screen' : 'Element is off screen'}
       </View>
-      <View
-        ref={ref}
-        marginTop="90vh"
-        backgroundColor="lightcoral"
-        size={100}
-      />
+      <View ref={ref} marginTop="90vh" backgroundColor="lightcoral" wxh={100} />
     </View>
   );
 };

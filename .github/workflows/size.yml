@@ -1,7 +1,7 @@
 name: size
 on: [pull_request]
 jobs:
-  size:
+  wxh:
     runs-on: ubuntu-latest
     env:
       CI_JOB_NUMBER: 1

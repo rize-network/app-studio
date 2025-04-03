@@ -60,7 +60,7 @@ import { useResponsive } from 'app-studio';
 const MyComponent = () => {
     const { screen, on, is } = useResponsive();
 
-    console.log('Current screen size:', screen);
+    console.log('Current screen wxh:', screen);
 
     if (on('mobile')) {
         console.log('On a mobile device');
@@ -263,7 +263,7 @@ import { useWindowSize } from 'app-studio';
 const WindowSizeComponent = () => {
     const { width, height } = useWindowSize();
 
-    return <div>Window size: {width} x {height}</div>;
+    return <div>Window wxh: {width} x {height}</div>;
 };
 ```
 

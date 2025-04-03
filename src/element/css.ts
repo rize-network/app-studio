@@ -561,7 +561,7 @@ export const extractUtilityClasses = (
     props.width !== undefined &&
     props.height === props.width
       ? props.height
-      : props.size || null;
+      : props.wxh || null;
   if (size) {
     const sizeValue = typeof size === 'number' ? `${size}px` : size;
     computedStyles.width = sizeValue;

@@ -18,8 +18,8 @@ export default {
 export const Exemple: ComponentStory<typeof Skeleton> = () => {
   return (
     <View>
-      <View size={100} backgroundColor="red"></View>
-      <Skeleton size={100} />
+      <View wxh={100} backgroundColor="red"></View>
+      <Skeleton wxh={100} />
     </View>
   );
 };

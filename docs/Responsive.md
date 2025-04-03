@@ -18,7 +18,7 @@ import { ResponsiveProvider, View } from 'app-studio';
 
 const Example = () => {
   return (
-    <View size={100} 
+    <View wxh={100} 
      media={{
         mobile: {
           backgroundColor: 'color.green',
@@ -92,7 +92,7 @@ const Example = () => {
   };
 
   return (
-    <View size={100} 
+    <View wxh={100} 
       {...responsive[screen]}       
     >
       {screen} -  mobile : {on('mobile') ? 'yes' : 'no'}

@@ -301,7 +301,7 @@ const DisplayComponentsDemo = () => {
             <Avatar 
               src="/api/placeholder/48/48" 
               fallback="JD"
-              size="lg" 
+              wxh="lg" 
             />
             <Badge 
               content="3" 
@@ -333,8 +333,8 @@ const DisplayComponentsDemo = () => {
 
         {/* Loaders */}
         <Horizontal gap={24} alignItems="center">
-          <Loader size="md" />
-          <Loader type="dotted" size="lg" color="theme.primary" />
+          <Loader wxh="md" />
+          <Loader type="dotted" wxh="lg" color="theme.primary" />
         </Horizontal>
 
         {/* Table */}

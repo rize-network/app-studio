@@ -154,7 +154,7 @@ const Card = ({ tag, title, description }) => (
 
     <View>
       <Text>{title}</Text>
-      <Text size="lg">{description}</Text>
+      <Text wxh="lg">{description}</Text>
     </View>
   </View>
 );

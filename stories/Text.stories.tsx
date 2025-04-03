@@ -36,7 +36,7 @@ export const Exemple: ComponentStory<typeof Text> = () => {
   };
 
   return (
-    <Text size={100} lineHeight={20} {...responsive[screen]}>
+    <Text wxh={100} lineHeight={20} {...responsive[screen]}>
       {screen} - {on('mobile') ? 'Mobile' : 'Not Mobile'}
     </Text>
   );

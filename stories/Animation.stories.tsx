@@ -46,7 +46,7 @@ const Template: ComponentStory<typeof View> = (args) => {
 
   return (
     <View
-      size={100}
+      wxh={100}
       backgroundColor="color.blue"
       animate={animate ? animate : undefined}
       {...rest}
@@ -79,13 +79,13 @@ const animationSequence: any = [
 
 export const SequencesAnimation: ComponentStory<typeof View> = () => (
   <View>
-    <View animate={animationSequence} backgroundColor={'red'} size={50}></View>;
+    <View animate={animationSequence} backgroundColor={'red'} wxh={50}></View>;
   </View>
 );
 
 export const TranslationAnimation: ComponentStory<typeof View> = () => (
   <View
-    size={100}
+    wxh={100}
     backgroundColor="color.blue"
     animate={Animation.bounce({
       duration: '1s',
@@ -98,7 +98,7 @@ export const TranslationAnimation: ComponentStory<typeof View> = () => (
 export const RotationOnHover: ComponentStory<typeof View> = () => (
   <View>
     <View
-      size={100}
+      wxh={100}
       backgroundColor="color.green"
       on={{
         hover: {
@@ -119,7 +119,7 @@ export const ScalingAnimation: ComponentStory<typeof View> = () => {
       </Button>
       {visible && (
         <View
-          size={100}
+          wxh={100}
           backgroundColor="color.red"
           animate={{
             from: { transform: 'scale(0)' },
@@ -136,7 +136,7 @@ export const ScalingAnimation: ComponentStory<typeof View> = () => {
 
 export const ColorChangeAnimation: ComponentStory<typeof View> = () => (
   <View
-    size={100}
+    wxh={100}
     animate={{
       from: { backgroundColor: 'yellow' },
       to: { backgroundColor: 'purple' },
@@ -148,7 +148,7 @@ export const ColorChangeAnimation: ComponentStory<typeof View> = () => (
 
 export const InfiniteRotation: ComponentStory<typeof View> = () => (
   <View
-    size={100}
+    wxh={100}
     backgroundColor="color.orange"
     animate={{
       from: { transform: 'rotate(0deg)' },
@@ -162,7 +162,7 @@ export const InfiniteRotation: ComponentStory<typeof View> = () => (
 
 export const ResponsiveAnimation: ComponentStory<typeof View> = () => (
   <View
-    size={100}
+    wxh={100}
     backgroundColor="color.pink"
     animate={{
       from: { opacity: 0 },
@@ -193,7 +193,7 @@ export const ResponsiveAnimation: ComponentStory<typeof View> = () => (
 
 export const BlinkAnimation: ComponentStory<typeof View> = () => (
   <View
-    size={100}
+    wxh={100}
     backgroundColor="color.black"
     animate={{
       from: { opacity: 0 },
@@ -209,7 +209,7 @@ export const BlinkAnimation: ComponentStory<typeof View> = () => (
 
 export const ComplexAnimation: ComponentStory<typeof View> = () => (
   <View
-    size={100}
+    wxh={100}
     backgroundColor="color.black"
     animate={{
       from: {
@@ -228,7 +228,7 @@ export const ComplexAnimation: ComponentStory<typeof View> = () => (
 
 export const CustomTiming: ComponentStory<typeof View> = () => (
   <View
-    size={100}
+    wxh={100}
     backgroundColor="color.black"
     animate={{
       from: { transform: 'translateY(0)' },
@@ -244,7 +244,7 @@ export const ClickAnimation: ComponentStory<typeof View> = () => {
 
   return (
     <View
-      size={100}
+      wxh={100}
       backgroundColor="color.cyan"
       onPress={() => setAnimate(!animate)}
       animate={
