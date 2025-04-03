@@ -28,14 +28,14 @@ export const ThemeMode: ComponentStory<typeof ThemeProvider> = () => {
           Toggle Theme
         </Button>
 
-        <View wxh={100} backgroundColor="color.white" marginTop={20}>
+        <View widthHeight={100} backgroundColor="color.white" marginTop={20}>
           <Text color="color.black">
             This text is styled using the primary color from the theme.
           </Text>
         </View>
         <View
           themeMode="dark"
-          wxh={100}
+          widthHeight={100}
           backgroundColor="color.white"
           marginTop={20}
         >

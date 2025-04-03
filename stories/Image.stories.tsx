@@ -18,7 +18,7 @@ export default {
 export const Exemple: ComponentStory<typeof Image> = () => {
   return (
     <Image
-      wxh={100}
+      widthHeight={100}
       shadow={9}
       src="https://picsum.photos/200"
       //     only={['mobile']}

@@ -113,21 +113,21 @@ const ComponentShowcase = () => {
             title="Success!"
             description="Your action was successful."
             variant="success"
-            icon={<SVGIcon name="CheckedSvg" wxh={24} color="white" />}
+            icon={<SVGIcon name="CheckedSvg" widthHeight={24} color="white" />}
             // onClose={() => setShowAlert(false)}
           />
           <Alert
             title="Warning!"
             description="Please check your input."
             variant="warning"
-            icon={<SVGIcon name="WarningSvg" wxh={24} color="yellow" />}
+            icon={<SVGIcon name="WarningSvg" widthHeight={24} color="yellow" />}
             // onClose={() => setShowAlert(false)}
           />
           <Alert
             title="Error!"
             description="Something went wrong."
             variant="error"
-            icon={<SVGIcon name="ErrorSvg" wxh={24} color="red" />}
+            icon={<SVGIcon name="ErrorSvg" widthHeight={24} color="red" />}
             // onClose={() => setShowAlert(false)}
           />
         </Vertical>
@@ -261,7 +261,7 @@ const ComponentShowcase = () => {
                       title="Form Submitted!"
                       description="Your information has been successfully submitted."
                       variant="success"
-                      icon={<SVGIcon name="CheckedSvg" wxh={24} color="white" />}
+                      icon={<SVGIcon name="CheckedSvg" widthHeight={24} color="white" />}
                     />
                   )}
                 </Vertical>
@@ -303,7 +303,7 @@ const ComponentShowcase = () => {
             <Badge content="Limited" colorScheme="theme.warning" />
           </Horizontal>
 
-          <Avatar src="/api/placeholder/64/64" wxh="lg" fallback="JD" />
+          <Avatar src="/api/placeholder/64/64" widthHeight="lg" fallback="JD" />
 
           <Table
             styles={{
@@ -369,9 +369,9 @@ const ComponentShowcase = () => {
 
           <ToggleGroup
             items={[
-              { id: 'home', value: <SVGIcon name="HomeSvg" wxh={18} /> },
-              { id: 'profile', value: <SVGIcon name="BlackProfileSvg" wxh={18} />, isActive: true },
-              { id: 'settings', value: <SVGIcon name="SettingSvg" wxh={18} /> },
+              { id: 'home', value: <SVGIcon name="HomeSvg" widthHeight={18} /> },
+              { id: 'profile', value: <SVGIcon name="BlackProfileSvg" widthHeight={18} />, isActive: true },
+              { id: 'settings', value: <SVGIcon name="SettingSvg" widthHeight={18} /> },
             ]}
             colorScheme="theme.primary"
             shape="rounded"
@@ -386,10 +386,10 @@ const ComponentShowcase = () => {
             Loaders
           </Text>
           <Horizontal gap={4} wrap="wrap" justifyContent="center">
-            <Loader type="default" wxh="md" />
-            <Loader type="dotted" wxh="lg" color="theme.secondary" />
-            <Loader type="quarter" wxh="xl" color="theme.error" />
-            <Loader type="default" wxh="sm" color="theme.success" />
+            <Loader type="default" widthHeight="md" />
+            <Loader type="dotted" widthHeight="lg" color="theme.secondary" />
+            <Loader type="quarter" widthHeight="xl" color="theme.error" />
+            <Loader type="default" widthHeight="sm" color="theme.success" />
           </Horizontal>
         </Vertical>
 

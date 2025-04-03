@@ -25,14 +25,14 @@ export const Exemple: ComponentStory<typeof View> = () => {
   return (
     <View display="flex" flexWrap="wrap" width={100} height={200}>
       <View
-        wxh={100}
+        widthHeight={100}
         shadow={4}
         display="flex"
         margin="0 20px 20px"
         backgroundColor="color.blue.200"
       />
       <View
-        wxh={'70%'}
+        widthHeight={'70%'}
         shadow={4}
         paddingHorizontal={20}
         on={{ hover: { backgroundColor: 'theme.primary' } }}
@@ -66,14 +66,14 @@ export const VerticalExemple: ComponentStory<typeof View> = () => {
   return (
     <Vertical>
       <View
-        wxh={100}
+        widthHeight={100}
         shadow={4}
         display="flex"
         margin="0 20px 20px"
         backgroundColor="color.blue"
       />
       <View
-        wxh={100}
+        widthHeight={100}
         shadow={4}
         backgroundColor="color.red"
         paddingHorizontal={20}
@@ -86,14 +86,14 @@ export const VerticalResponsiveExemple: ComponentStory<typeof View> = () => {
   return (
     <VerticalResponsive>
       <View
-        wxh={100}
+        widthHeight={100}
         shadow={4}
         display="flex"
         margin="0 20px 20px"
         backgroundColor="color.blue.300"
       />
       <View
-        wxh={100}
+        widthHeight={100}
         shadow={4}
         backgroundColor="color.red"
         paddingHorizontal={20}
@@ -106,14 +106,14 @@ export const HorizontalExemple: ComponentStory<typeof View> = () => {
   return (
     <Horizontal>
       <View
-        wxh={100}
+        widthHeight={100}
         shadow={4}
         display="flex"
         margin="0 20px 20px"
         backgroundColor="color.blue"
       />
       <View
-        wxh={100}
+        widthHeight={100}
         shadow={4}
         backgroundColor="color.red"
         paddingHorizontal={20}
@@ -126,14 +126,14 @@ export const HorizontalResponsiveExemple: ComponentStory<typeof View> = () => {
   return (
     <HorizontalResponsive>
       <View
-        wxh={100}
+        widthHeight={100}
         shadow={4}
         display="flex"
         margin="0 20px 20px"
         backgroundColor="color.blue"
       />
       <View
-        wxh={100}
+        widthHeight={100}
         shadow={4}
         backgroundColor="color.red"
         paddingHorizontal={20}

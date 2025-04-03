@@ -131,7 +131,7 @@ const cssProperties = new Set([
   'resize',
 
   // Custom properties
-  'size',
+  'widthHeight',
   'shadow',
 
   // Additional properties from cssExtraProps
@@ -141,7 +141,7 @@ const cssProperties = new Set([
   'perspective',
 ]);
 
-// Function to set the size of the element
+// Function to set the widthHeight of the element
 export const setSize = (
   newSize: string | number,
   styleProps: Record<string, any>

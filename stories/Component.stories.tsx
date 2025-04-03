@@ -27,7 +27,7 @@ export const Input: ComponentStory<typeof $Input> = () => {
 export const Form: ComponentStory<typeof $Form> = () => {
   return (
     <$Form
-      wxh={100}
+      widthHeight={100}
       shadow={9}
       target="https://google.com"
       on={{ hover: { backgroundColor: 'color.red' } }}
@@ -38,7 +38,7 @@ export const Form: ComponentStory<typeof $Form> = () => {
 export const Image: ComponentStory<typeof $Image> = () => {
   return (
     <$Image
-      wxh={100}
+      widthHeight={100}
       src="https://dummyimage.com/600x400/000/fff"
       on={{ hover: { backgroundColor: 'color.red' } }}
     />

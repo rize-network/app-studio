@@ -24,7 +24,7 @@ export interface ElementProps
   as?: keyof JSX.IntrinsicElements;
   style?: CSSProperties;
   shadow?: boolean | number | Shadow;
-  size?: number | string;
+  widthHeight?: number | string;
   children?: React.ReactNode;
   colors?: Colors;
   theme?: Theme;

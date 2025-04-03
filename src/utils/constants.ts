@@ -34,7 +34,7 @@ export const excludedKeys = new Set<string>([
   'only',
   'media',
   'css',
-  'size',
+  'widthHeight',
   'paddingHorizontal',
   'paddingVertical',
   'marginHorizontal',

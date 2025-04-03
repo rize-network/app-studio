@@ -9,7 +9,7 @@ const AnimationBlock: React.FC<{
   backgroundColor?: string;
 }> = ({ title, animate, backgroundColor = 'color.blue' }) => (
   <View
-    wxh={150}
+    widthHeight={150}
     backgroundColor={backgroundColor}
     animate={animate}
     style={{ margin: '0 auto' }}

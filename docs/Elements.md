@@ -10,7 +10,7 @@ The `Element` component is a fundamental component in the library. It is respons
 
 It is the base component for all other components in the library. The adds additional properties to helps manage better the design:
 
-- `size`: Sets both `width` and `height` to the same value. Accepts a number (in pixels) or a string (e.g., '50%', 'auto').
+- `widthHeight`: Sets both `width` and `height` to the same value. Accepts a number (in pixels) or a string (e.g., '50%', 'auto').
 - `on`: An object to define styles that apply on different CSS pseudo-class events (like `hover`, `focus`, `active`). Refer to the Events documentation for details.
 - `media`: An object to define responsive styles for different media queries (breakpoints) or devices. Refer to the Responsive Design documentation for details.
 - `shadow`: Applies a shadow effect to the element. Can be a boolean (default shadow), a number (referencing predefined shadow levels), or a `Shadow` object for custom shadow properties. See the Shadow documentation for details.

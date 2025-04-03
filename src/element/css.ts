@@ -555,17 +555,18 @@ export const extractUtilityClasses = (
   const classes: string[] = [];
   const computedStyles: Record<string, any> = {};
 
-  // Handle size
-  const size =
+  // Handle widthHeight
+  const widthHeight =
     props.height !== undefined &&
     props.width !== undefined &&
     props.height === props.width
       ? props.height
-      : props.wxh || null;
-  if (size) {
-    const sizeValue = typeof size === 'number' ? `${size}px` : size;
-    computedStyles.width = sizeValue;
-    computedStyles.height = sizeValue;
+      : props.widthHeight || null;
+  if (widthHeight) {
+    const widthHeightValue =
+      typeof widthHeight === 'number' ? `${widthHeight}px` : widthHeight;
+    computedStyles.width = widthHeightValue;
+    computedStyles.height = widthHeightValue;
   }
 
   // Handle padding and margin
