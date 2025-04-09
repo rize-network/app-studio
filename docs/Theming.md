@@ -75,7 +75,7 @@ function Example() {
        <View backgroundColor="color.blueGray.500">
         <Text color="theme.primary">Hello</Text>
        </View>
-       <Button backgroundColor="theme.button.background">Hello</Text>
+       <Button backgroundColor="theme.button.background">Hello</Button>
     </View>
   );
 }
@@ -89,7 +89,7 @@ Here's a complete example that ties it all together:
 
 ```javascript
 import React from 'react';
-import { ThemeProvider, View, Text } from 'app-studio';
+import { ThemeProvider, View, Text, Button } from 'app-studio';
 
 const theme = {
     main:{
@@ -129,7 +129,7 @@ function Example() {
          <View backgroundColor="color.blueGray.500">
             <Text color="theme.primary">Hello</Text>
          </View>
-         <Button backgroundColor="theme.button.background">Hello</Text>
+         <Button backgroundColor="theme.button.background">Hello</Button>
       </View>
     </ThemeProvider>
   );

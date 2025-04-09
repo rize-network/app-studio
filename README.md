@@ -161,10 +161,10 @@ function LocallyThemedSection() {
 
   // Define a local override theme and colors for this specific section
   const localThemeOverride = { primary: 'color.orange.500', secondary: 'color.teal.300' };
-  const localDarkColorsOverride = { 
+  const localDarkColorsOverride = {
     main: {
       white: '#EEE'
-    } 
+    }
   }; // Using defaults for demonstration
 
   return (
@@ -179,7 +179,7 @@ function LocallyThemedSection() {
       backgroundColor="theme.secondary" // Resolves to 'color.teal.300' via localThemeOverride in dark mode
       borderRadius={8}
     >
-      <Text color="color.white" 
+      <Text color="color.white"
       colors={localDarkColorsOverride}> {/* 'color.white' from localDarkColorsOverride.main */}
         This section forces dark mode with an orange primary, even if the app is light.
       </Text>
@@ -775,6 +775,23 @@ function AnimatedButton() {
   );
 }
 ```
+
+---
+
+# Documentation
+
+Explore our comprehensive documentation to learn more about App-Studio:
+
+- [Getting Started](docs/README.md) - Quick start guide and core concepts
+- [Components](docs/Components.md) - Detailed documentation of all available components
+- [Hooks](docs/Hooks.md) - Guide to the React hooks provided by App-Studio
+- [Theming](docs/Theming.md) - How to customize the look and feel of your app
+- [Animation](docs/Animation.md) - Creating animations with App-Studio
+- [Responsive Design](docs/Responsive.md) - Building responsive layouts
+- [Design System](docs/Design.md) - Understanding the design system
+- [Event Handling](docs/Events.md) - Working with events and interactions
+- [Providers](docs/Providers.md) - Context providers for global state
+- [Migration Guide](codemod/README.md) - Migrating to App-Studio
 
 ---
 

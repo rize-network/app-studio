@@ -61,7 +61,7 @@
     - **Tree shaking:**
     - Ensure your bundler (e.g., `webpack`, `Rollup`) is configured for tree shaking to remove unused code from the final bundle.
     - Use ES modules (`import`/`export`) to enable effective tree shaking.
-    - **Analyze bundle wxh:**
+    - **Analyze bundle size:**
     - Use tools like `webpack-bundle-analyzer`, `source-map-explorer`, or `bundlephobia` to identify large dependencies and potential optimization opportunities.
     - **Defer non-critical scripts:**
     - Use the `defer` attribute for scripts that are not essential for the initial rendering:
@@ -118,7 +118,7 @@
     - **Optimize event handlers:**
     - Debounce or throttle event handlers that are triggered frequently (e.g., `scroll`, `resize`).
 
-**8. Reduce DOM wxh:**
+**8. Reduce DOM size:**
     - **Simplify your HTML structure:**
     - Avoid deeply nested elements.
     - Use semantic HTML elements where appropriate.

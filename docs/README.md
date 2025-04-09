@@ -1,105 +1,92 @@
-# App-Studio
+# App-Studio Documentation
 
-App-Studio is a React library designed to streamline the development of modern web applications. It provides a comprehensive suite of reusable components, hooks, utilities, and built-in systems for theming, responsive design, animation, and analytics. Built upon a flexible `Element` base component, App-Studio empowers developers to build high-quality, efficient, and scalable projects faster.
+Welcome to the App-Studio documentation. This guide will help you get started with App-Studio and explore its features.
 
-## Key Features
+## Table of Contents
 
-*   **Core `Element` Component:** A versatile base for all UI elements, offering extensive styling via props, including responsive (`media`) and state-based (`on`) styles.
-*   **Rich Component Library:** Includes components for layout (`View`, `Horizontal`, `Vertical`, etc.), text (`Text`), images (`Image`, `ImageBackground`), forms (`Form`, `Input`, `Button`), and loading states (`Skeleton`).
-*   **Powerful Styling:** Utilizes a utility-prop system for direct styling, alongside support for standard CSS and the `css` prop.
-*   **Integrated Theming:** `ThemeProvider` and `useTheme` hook for managing light/dark modes, custom color palettes, and consistent design tokens.
-*   **Responsive Design:** `ResponsiveProvider` and `useResponsive` hook provide tools to adapt layouts and styles based on screen size and orientation.
-*   **Animation System:** A declarative `Animation` object for easily applying and sequencing CSS animations and transitions, including scroll-driven effects.
-*   **Helpful Hooks:** A collection of hooks for managing state, detecting interactions (`useHover`, `useActive`, `useFocus`), tracking viewport status (`useInView`, `useOnScreen`), handling events (`useClickOutside`, `useKeyPress`), and more.
-*   **Analytics Integration:** `AnalyticsProvider` to easily integrate event tracking.
-*   **TypeScript Support:** Fully typed for a better development experience.
+1. [Installation](#installation)
+2. [Core Concepts](#core-concepts)
+3. [Documentation Guides](#documentation-guides)
 
----
+## Installation
 
-# Installation
+### Prerequisites
 
-Get started with App-Studio by installing it via npm and setting up the necessary providers in your application root.
+- Node.js (>= 14.x)
+- React (>= 17.x)
 
-**Prerequisites**
+### Setup
 
-*   Node.js (>= 14.x recommended)
-*   React (>= 17.x recommended)
+1. Install the package:
+```bash
+npm install --save app-studio
+# or
+yarn add app-studio
+```
 
-**Installation Steps**
+2. Set up providers:
+```jsx
+import {
+  ThemeProvider,
+  ResponsiveProvider,
+  AnalyticsProvider,
+  WindowSizeProvider
+} from 'app-studio';
 
-1.  Install the package using npm or yarn:
+function App() {
+  return (
+    <ThemeProvider>
+      <ResponsiveProvider>
+        <WindowSizeProvider>
+          <AnalyticsProvider>
+            {/* Your app content */}
+          </AnalyticsProvider>
+        </WindowSizeProvider>
+      </ResponsiveProvider>
+    </ThemeProvider>
+  );
+}
+```
 
-    ```bash
-    npm install --save app-studio
-    # or
-    yarn add app-studio
-    ```
+## Core Concepts
 
-2.  Wrap your application with the core providers. Typically, you'll need `ThemeProvider`, `ResponsiveProvider`, and potentially `AnalyticsProvider` and `WindowSizeProvider`.
+### Element Component
 
-    ```jsx
-    import React from 'react';
-    import {
-      ThemeProvider,
-      ResponsiveProvider,
-      AnalyticsProvider,
-      WindowSizeProvider
-    } from 'app-studio';
+The `Element` component is the foundation of App-Studio. It provides:
+- Direct styling via props
+- Responsive styles through `media` prop
+- State-based styling via `on` prop
+- Animation support
 
-    // Example analytics tracking function
-    const trackMyAppEvent = ({ type, target, ...event }) => {
-      console.log('Tracking Event:', { type, target, ...event });
-      // Replace with your actual analytics service call, e.g.,
-      // YourAnalyticsService.track(`${type}_${target || 'element'}`, event);
-    };
+### Component Categories
 
-    function App() {
-      return (
-        <ThemeProvider> {/* Manages theming (colors, modes) */}
-          <ResponsiveProvider> {/* Manages responsive breakpoints and device info */}
-            <WindowSizeProvider> {/* Tracks window dimensions */}
-              <AnalyticsProvider trackEvent={trackMyAppEvent}> {/* Optional: Enables analytics tracking */}
-                {/* Your application components go here */}
-                {/* e.g., <YourMainAppComponent /> */}
-              </AnalyticsProvider>
-            </WindowSizeProvider>
-          </ResponsiveProvider>
-        </ThemeProvider>
-      );
-    }
+- **Layout:** `View`, `Horizontal`, `Vertical`, `Scroll`, `SafeArea`
+- **Typography:** `Text`, `Heading`
+- **Media:** `Image`, `ImageBackground`
+- **Forms:** `Form`, `Input`, `Button`
+- **Feedback:** `Skeleton`, `Spinner`
 
-    export default App;
-    ```
+### Style System
 
----
+App-Studio uses a utility-prop system that:
+- Converts props to CSS
+- Supports responsive values
+- Handles pseudo-states
+- Manages animations
 
-# Core Concepts
+## Documentation Guides
 
-## Element Component
+Explore these guides to learn more about App-Studio:
 
-The `Element` component is the cornerstone of App-Studio. Most other components extend `Element`. It acts as a highly configurable primitive that renders an HTML tag (defaulting to `div`, configurable via the `as` prop) and accepts a wide range of props for styling.
-
-*   **Direct Styling Props:** Apply CSS styles directly (e.g., `backgroundColor="blue"`, `padding={10}`).
-*   **Responsive Styles:** Use the `media` prop to define styles for specific breakpoints (e.g., `media={{ mobile: { padding: 8 }, desktop: { padding: 16 } }}`).
-*   **State-Based Styles:** Use the `on` prop to apply styles based on interaction states like hover, focus, or active (e.g., `on={{ hover: { backgroundColor: 'lightgray' } }}`).
-*   **Animation:** Integrates with the animation system via the `animate` prop.
-*   **Theming:** Automatically resolves theme colors (e.g., `color="theme.primary"`).
-
-## Utility-First Styling
-
-App-Studio generates CSS utility classes based on the props you provide to `Element` and its derived components. This approach keeps styles co-located with the component logic and optimizes performance by reusing generated classes.
-
-## Theming
-
-Use `ThemeProvider` to define global theme settings, including light/dark mode colors and custom theme tokens (e.g., `primary`, `secondary`). The `useTheme` hook provides access to the current theme mode (`themeMode`), theme configuration (`theme`), a function to switch modes (`setThemeMode`), and the essential `getColor` function to resolve color strings (like `color.blue.500` or `theme.primary`) into actual CSS color values for the current mode.
-
-## Responsiveness
-
-Wrap your app in `ResponsiveProvider` (optionally configuring custom `breakpoints` and `devices`). Use the `useResponsive` hook to access the current breakpoint (`screen`), device type (`currentDevice`), orientation, and helper functions (`on`, `is`) to conditionally render components or apply styles. You can also use the `media` prop on `Element` components for responsive styling.
-
-## Animation System
-
-App-Studio includes a powerful animation system accessible via the `Animation` object. Apply pre-defined animations (`Animation.fadeIn`, `Animation.slideInLeft`, etc.) or create custom keyframe animations using the `animate` prop on any `Element`-based component. Animations can be sequenced, triggered by events (`on` prop), or applied responsively (`media` prop).
+- [Components](Components.md) - Detailed documentation of all available components
+- [Hooks](Hooks.md) - Guide to the React hooks provided by App-Studio
+- [Theming](Theming.md) - How to customize the look and feel of your app
+- [Animation](Animation.md) - Creating animations with App-Studio
+- [Responsive Design](Responsive.md) - Building responsive layouts
+- [Design System](Design.md) - Understanding the design system
+- [Event Handling](Events.md) - Working with events and interactions
+- [Providers](Providers.md) - Context providers for global state
+- [Migration Guide](../codemod/README.md) - Migrating to App-Studio
 
 ---
 
