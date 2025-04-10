@@ -208,6 +208,27 @@ export const processStyleProperty = (
     return getColor(value);
   }
 
+  // Handle border properties that might contain color values
+  if (
+    typeof value === 'string' &&
+    value.length > 7 &&
+    (value.indexOf('color.') >= 0 || value.indexOf('theme.') >= 0)
+  ) {
+    // Parse border property to extract color
+    // Format could be like: "1px solid red" or "1px solid color.red.500"
+    const parts = value.split(' ');
+    if (parts.length >= 3) {
+      // The color is typically the last part
+      const colorIndex = parts.length - 1;
+      const colorValue = parts[colorIndex];
+      // Process the color part through getColor
+      const processedColor = getColor(colorValue);
+      // Replace the color part and reconstruct the border value
+      parts[colorIndex] = processedColor;
+      return parts.join(' ');
+    }
+  }
+
   // Handle arrays (e.g., for transforms)
   if (Array.isArray(value)) {
     return value.join(' ');
