@@ -29,6 +29,7 @@ export const NumberProps = new Set<string>([
 
 // Keys to exclude when passing props to the component
 export const excludedKeys = new Set<string>([
+  // Standard styling props
   'on',
   'shadow',
   'only',
@@ -40,6 +41,31 @@ export const excludedKeys = new Set<string>([
   'marginHorizontal',
   'marginVertical',
   'animate',
+
+  // Underscore-prefixed event props
+  '_hover',
+  '_active',
+  '_focus',
+  '_visited',
+  '_disabled',
+  '_enabled',
+  '_checked',
+  '_unchecked',
+  '_invalid',
+  '_valid',
+  '_required',
+  '_optional',
+  '_selected',
+  '_target',
+  '_firstChild',
+  '_lastChild',
+  '_onlyChild',
+  '_firstOfType',
+  '_lastOfType',
+  '_empty',
+  '_focusVisible',
+  '_focusWithin',
+  '_placeholder',
   // Add more styling props here if needed
 ]);
 

@@ -481,14 +481,41 @@ class UtilityClassManager {
 }
 
 /**
- * WeakMaps a React event to a CSS pseudo-class.
+ * Maps a React event to a CSS pseudo-class.
  */
 const mapEventToPseudo = (event: string): string | null => {
   const eventWeakMap: Record<string, string> = {
+    // Basic interaction states
     hover: 'hover',
     active: 'active',
     focus: 'focus',
     visited: 'visited',
+    // Form states
+    disabled: 'disabled',
+    enabled: 'enabled',
+    checked: 'checked',
+    unchecked: 'not(:checked)',
+    invalid: 'invalid',
+    valid: 'valid',
+    required: 'required',
+    optional: 'optional',
+    // Selection states
+    selected: 'selected',
+    // Target states
+    target: 'target',
+    // Child states
+    firstChild: 'first-child',
+    lastChild: 'last-child',
+    onlyChild: 'only-child',
+    firstOfType: 'first-of-type',
+    lastOfType: 'last-of-type',
+    // Other states
+    empty: 'empty',
+    // Focus states
+    focusVisible: 'focus-visible',
+    focusWithin: 'focus-within',
+    // Placeholder
+    placeholder: 'placeholder-shown',
   };
   return eventWeakMap[event] || null;
 };
@@ -738,11 +765,22 @@ export const extractUtilityClasses = (
 
   generateUtilityClasses(computedStyles, 'base');
 
+  // Process underscore-prefixed properties (e.g., _hover, _active)
+  // and collect them into a pseudo-'on' object
+  const underscoreProps: Record<string, any> = {};
+  Object.keys(props).forEach((property) => {
+    if (property.startsWith('_') && property.length > 1) {
+      const eventName = property.substring(1); // Remove the underscore
+      underscoreProps[eventName] = (props as any)[property];
+    }
+  });
+
   // Iterate over remaining style props
   Object.keys(props).forEach((property) => {
     if (
       property !== 'style' &&
       property !== 'css' &&
+      !property.startsWith('_') && // Skip underscore props as we handle them separately
       (isStyleProp(property) || ['on', 'media'].includes(property))
     ) {
       const value = (props as any)[property];
@@ -833,6 +871,72 @@ export const extractUtilityClasses = (
       utilityClassManager.injectRule(`.${uniqueClassName} { ${props.css} }`);
       classes.push(uniqueClassName);
     }
+  }
+
+  // Process the underscore-prefixed properties we collected earlier
+  if (Object.keys(underscoreProps).length > 0) {
+    Object.keys(underscoreProps).forEach((event) => {
+      const eventStyles = underscoreProps[event];
+      // Handle both object and non-object values
+      if (typeof eventStyles === 'object' && eventStyles !== null) {
+        const { animate, ...otherEventStyles } = eventStyles;
+        if (animate) {
+          const animations = Array.isArray(animate) ? animate : [animate];
+          const animationNames: string[] = [];
+          const animationDurations: string[] = [];
+          const animationTimingFunctions: string[] = [];
+          const animationDelays: string[] = [];
+          const animationIterationCounts: string[] = [];
+          const animationDirections: string[] = [];
+          const animationFillModes: string[] = [];
+          const animationPlayStates: string[] = [];
+          animations.forEach((animation) => {
+            const { keyframesName, keyframes } = generateKeyframes(animation);
+            if (keyframes && typeof document !== 'undefined') {
+              utilityClassManager.injectRule(keyframes);
+            }
+            animationNames.push(keyframesName);
+            animationDurations.push(animation.duration || '0s');
+            animationTimingFunctions.push(animation.timingFunction || 'ease');
+            animationDelays.push(animation.delay || '0s');
+            animationIterationCounts.push(
+              animation.iterationCount !== undefined
+                ? `${animation.iterationCount}`
+                : '1'
+            );
+            animationDirections.push(animation.direction || 'normal');
+            animationFillModes.push(animation.fillMode || 'none');
+            animationPlayStates.push(animation.playState || 'running');
+          });
+          const animationStyles = {
+            animationName: animationNames.join(', '),
+            animationDuration: animationDurations.join(', '),
+            animationTimingFunction: animationTimingFunctions.join(', '),
+            animationDelay: animationDelays.join(', '),
+            animationIterationCount: animationIterationCounts.join(', '),
+            animationDirection: animationDirections.join(', '),
+            animationFillMode: animationFillModes.join(', '),
+            animationPlayState: animationPlayStates.join(', '),
+          };
+          Object.assign(otherEventStyles, animationStyles);
+        }
+        if (Object.keys(otherEventStyles).length > 0) {
+          const pseudo = mapEventToPseudo(event);
+          if (pseudo) {
+            generateUtilityClasses(otherEventStyles, 'pseudo', pseudo);
+          }
+        }
+      } else {
+        // For non-object values, create a simple style object with a default property
+        // This allows syntax like _hover="color.blue" to work
+        const defaultProperty = 'color'; // You can change this or make it configurable
+        const styleObj = { [defaultProperty]: eventStyles };
+        const pseudo = mapEventToPseudo(event);
+        if (pseudo) {
+          generateUtilityClasses(styleObj, 'pseudo', pseudo);
+        }
+      }
+    });
   }
 
   return classes;

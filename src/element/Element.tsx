@@ -13,6 +13,7 @@ export interface ElementProps
   extends CssProps,
     Omit<ViewStyleProps, 'children' | 'style' | 'pointerEvents' | 'onClick'> {
   [key: string]: any;
+  // Event handling props
   on?: Record<string, CssProps> | undefined;
   media?: Record<string, CssProps> | undefined;
   only?: string[] | undefined;
@@ -28,6 +29,31 @@ export interface ElementProps
   children?: React.ReactNode;
   colors?: Colors;
   theme?: Theme;
+
+  // Underscore-prefixed event props (alternative to using the 'on' prop)
+  _hover?: CssProps | string;
+  _active?: CssProps | string;
+  _focus?: CssProps | string;
+  _visited?: CssProps | string;
+  _disabled?: CssProps | string;
+  _enabled?: CssProps | string;
+  _checked?: CssProps | string;
+  _unchecked?: CssProps | string;
+  _invalid?: CssProps | string;
+  _valid?: CssProps | string;
+  _required?: CssProps | string;
+  _optional?: CssProps | string;
+  _selected?: CssProps | string;
+  _target?: CssProps | string;
+  _firstChild?: CssProps | string;
+  _lastChild?: CssProps | string;
+  _onlyChild?: CssProps | string;
+  _firstOfType?: CssProps | string;
+  _lastOfType?: CssProps | string;
+  _empty?: CssProps | string;
+  _focusVisible?: CssProps | string;
+  _focusWithin?: CssProps | string;
+  _placeholder?: CssProps | string;
 }
 
 export interface CssProps extends CSSProperties {
