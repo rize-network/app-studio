@@ -33,6 +33,23 @@ export const Horizontal = React.forwardRef<
     React.RefAttributes<HTMLElement>
 >;
 
+export const Center = React.forwardRef<
+  HTMLElement,
+  React.ComponentPropsWithRef<typeof Element> & ViewProps
+>((props, ref) => (
+  <Element
+    display="flex"
+    justifyContent="center"
+    alignItems="center"
+    {...props}
+    ref={ref}
+  />
+)) as unknown as React.ForwardRefExoticComponent<
+  React.ComponentPropsWithRef<typeof Element> &
+    ViewProps &
+    React.RefAttributes<HTMLElement>
+>;
+
 export const Vertical = React.forwardRef<
   HTMLElement,
   React.ComponentPropsWithRef<typeof Element> & ViewProps
