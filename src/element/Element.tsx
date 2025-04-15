@@ -14,9 +14,9 @@ export interface ElementProps
     Omit<ViewStyleProps, 'children' | 'style' | 'pointerEvents' | 'onClick'> {
   [key: string]: any;
   // Event handling props
-  on?: Record<string, CssProps> | undefined;
-  media?: Record<string, CssProps> | undefined;
-  only?: string[] | undefined;
+  on?: Record<string, CssProps>;
+  media?: Record<string, CssProps>;
+  only?: string[];
   css?: CSSProperties | any;
   onPress?: any;
   onClick?: any;
@@ -24,7 +24,6 @@ export interface ElementProps
   themeMode?: 'light' | 'dark';
   as?: keyof JSX.IntrinsicElements;
   style?: CSSProperties;
-  shadow?: boolean | number | Shadow;
   widthHeight?: number | string;
   children?: React.ReactNode;
   colors?: Colors;
@@ -62,6 +61,7 @@ export interface CssProps extends CSSProperties {
   paddingVertical?: number | string;
   marginVertical?: number | string;
   animate?: AnimationProps[] | AnimationProps;
+  shadow?: boolean | number | Shadow;
 }
 
 export const Element = React.memo(
