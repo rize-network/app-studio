@@ -653,16 +653,40 @@ function processEventStyles(
   getColor: (color: string) => string
 ): string[] {
   const classes: string[] = [];
-  const { animate = undefined, ...otherEventStyles } =
-    typeof eventStyles === 'object' && eventStyles !== null
-      ? eventStyles
-      : { color: eventStyles };
+  const {
+    animate = undefined,
+    shadow = undefined,
+    ...otherEventStyles
+  } = typeof eventStyles === 'object' && eventStyles !== null
+    ? eventStyles
+    : { color: eventStyles };
 
   // Process animations if present
   if (animate) {
     const animations = Array.isArray(animate) ? animate : [animate];
     const animationStyles = AnimationUtils.processAnimations(animations);
     Object.assign(otherEventStyles, animationStyles);
+  }
+
+  // Process shadow if present
+  if (shadow !== undefined) {
+    let shadowValue: number;
+
+    if (typeof shadow === 'number' && Shadows[shadow] !== undefined) {
+      shadowValue = shadow;
+    } else if (typeof shadow === 'boolean') {
+      shadowValue = shadow ? 2 : 0;
+    } else {
+      shadowValue = 2;
+    }
+
+    if (Shadows[shadowValue]) {
+      const { shadowColor, shadowOpacity, shadowOffset, shadowRadius } =
+        Shadows[shadowValue];
+      const rgb = Color.hex.rgb(shadowColor);
+      const rgbaColor = `rgba(${rgb.join(',')}, ${shadowOpacity})`;
+      otherEventStyles.boxShadow = `${shadowOffset.height}px ${shadowOffset.width}px ${shadowRadius}px ${rgbaColor}`;
+    }
   }
 
   // Apply styles if we have a valid pseudo-class

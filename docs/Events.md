@@ -146,15 +146,17 @@ This example achieves the same result as the previous one but uses the more conc
   padding={10}
   borderRadius={4}
   on={{
-    hover: { backgroundColor: 'color.blue.600' },
-    active: { backgroundColor: 'color.blue.700', transform: 'scale(0.98)' },
+    hover: { backgroundColor: 'color.blue.600', shadow: 3 },
+    active: { backgroundColor: 'color.blue.700', transform: 'scale(0.98)', shadow: 1 },
     focus: { boxShadow: '0 0 0 3px rgba(66, 153, 225, 0.5)' },
-    disabled: { opacity: 0.6, cursor: 'not-allowed' }
+    disabled: { opacity: 0.6, cursor: 'not-allowed', shadow: 0 }
   }}
 >
   Click Me
 </Button>
 ```
+
+> **Note:** You can use the `shadow` property inside the `on` prop to change the shadow level based on interaction state. The shadow property accepts numbers from 0-9, with higher numbers creating more pronounced shadows.
 
 This button changes its appearance based on different interaction states, providing visual feedback to users.
 
@@ -166,10 +168,10 @@ This button changes its appearance based on different interaction states, provid
   color="white"
   padding={10}
   borderRadius={4}
-  _hover={{ backgroundColor: 'color.blue.600' }}
-  _active={{ backgroundColor: 'color.blue.700', transform: 'scale(0.98)' }}
+  _hover={{ backgroundColor: 'color.blue.600', shadow: 3 }}
+  _active={{ backgroundColor: 'color.blue.700', transform: 'scale(0.98)', shadow: 1 }}
   _focus={{ boxShadow: '0 0 0 3px rgba(66, 153, 225, 0.5)' }}
-  _disabled={{ opacity: 0.6, cursor: 'not-allowed' }}
+  _disabled={{ opacity: 0.6, cursor: 'not-allowed', shadow: 0 }}
 >
   Click Me
 </Button>
