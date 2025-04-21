@@ -76,7 +76,13 @@ const defaultDarkColorConfig: Colors = {
 };
 
 // --- Create Theme Context ---
-export const ThemeContext = createContext<ThemeContextProps>(null!);
+export const ThemeContext = createContext<ThemeContextProps>({
+  getColor: () => '',
+  theme: {},
+  colors: { main: defaultLightColors, palette: defaultLightPalette },
+  themeMode: 'light',
+  setThemeMode: () => {},
+});
 
 // --- Custom Hook ---
 export const useTheme = () => {
@@ -168,14 +174,14 @@ export const ThemeProvider = ({
 
   // --- Memoized getColor function - Revised for Robustness ---
   const getColor = useCallback(
-    (name: string, override: Override = {}): string => {
+    (name: string, override?: Override): string => {
       if (!name || typeof name !== 'string') return String(name); // Handle invalid input
       if (name === TRANSPARENT) return name;
 
       // 1. Determine the effective mode for this specific lookup
-      const effectiveMode = override.themeMode ?? themeMode;
+      const effectiveMode = override?.themeMode ?? themeMode;
 
-      const needCache = Object.keys(override).length === 0;
+      const needCache = override && Object.keys(override).length === 0;
       // 2. Create a cache key based on the name and the *effective* mode
       const cacheKey = `${name}-${effectiveMode}`;
       if (colorCache.has(cacheKey) && needCache) {
@@ -200,7 +206,7 @@ export const ThemeProvider = ({
           // );
 
           const keys = name.substring(THEME_PREFIX.length).split('.');
-          let value: any = deepMerge(mergedTheme, override.theme || {});
+          let value: any = deepMerge(mergedTheme, override?.theme || {});
 
           for (const key of keys) {
             if (value === undefined || value === null) break; // Stop if path breaks
@@ -235,7 +241,7 @@ export const ThemeProvider = ({
             const colorName = keys[0];
             const main = deepMerge(
               colorsToUse.main,
-              override.colors?.main || {}
+              override?.colors?.main || {}
             );
             const colorValue = main?.[colorName]; // Use optional chaining
             if (typeof colorValue === 'string') {
@@ -250,7 +256,7 @@ export const ThemeProvider = ({
             const [colorName, variant] = keys;
             const palette = deepMerge(
               colorsToUse.palette,
-              override.colors?.palette || {}
+              override?.colors?.palette || {}
             );
             const shadeValue = palette?.[colorName]?.[variant as any];
             if (typeof shadeValue === 'string') {
