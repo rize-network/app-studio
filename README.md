@@ -93,6 +93,8 @@ App-Studio generates CSS utility classes based on the props you provide to `Elem
 
 Use `ThemeProvider` to define global theme settings, including light/dark mode colors and custom theme tokens (e.g., `primary`, `secondary`). The `useTheme` hook provides access to the current theme mode (`themeMode`), theme configuration (`theme`), a function to switch modes (`setThemeMode`), and the essential `getColor` function to resolve color strings (like `color.blue.500` or `theme.primary`) into actual CSS color values for the current mode.
 
+You can also directly access specific theme mode colors using the `light.` or `dark.` prefix (e.g., `light.white` or `dark.red.200`), which will always use that specific theme mode's color regardless of the current theme setting.
+
 ## Responsiveness
 
 Wrap your app in `ResponsiveProvider` (optionally configuring custom `breakpoints` and `devices`). Use the `useResponsive` hook to access the current breakpoint (`screen`), device type (`currentDevice`), orientation, and helper functions (`on`, `is`) to conditionally render components or apply styles. You can also use the `media` prop on `Element` components for responsive styling.

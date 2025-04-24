@@ -83,6 +83,30 @@ function Example() {
 
 Notice how the `backgroundColor` and `color` props use values defined in the theme object.
 
+### Accessing Specific Theme Mode Colors
+
+You can directly access colors from a specific theme mode regardless of the current theme mode using the `light.` or `dark.` prefix:
+
+```javascript
+import { View, Text } from 'app-studio';
+
+function Example() {
+  return (
+    <View>
+      {/* Always use light mode white color regardless of current theme mode */}
+      <Text color="light.white">Always light mode white</Text>
+
+      {/* Always use dark mode red.200 color regardless of current theme mode */}
+      <View backgroundColor="dark.red.200">
+        <Text>Always dark mode red.200 background</Text>
+      </View>
+    </View>
+  );
+}
+```
+
+This is useful when you need to access a specific theme mode's color regardless of the current theme setting.
+
 ## Complete Example
 
 Here's a complete example that ties it all together:

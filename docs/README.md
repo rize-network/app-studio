@@ -558,7 +558,7 @@ Manages the application's theme, including color palettes, light/dark modes, and
 
 **Context Values (via `useTheme`)**
 
-*   `getColor(colorName, mode?)`: Resolves a color string (e.g., `color.blue.500`, `theme.primary`, `blackAlpha.500`) to its CSS value for the specified or current theme mode.
+*   `getColor(colorName, mode?)`: Resolves a color string (e.g., `color.blue.500`, `theme.primary`, `blackAlpha.500`) to its CSS value for the specified or current theme mode. You can also directly access specific theme mode colors using the `light.` or `dark.` prefix (e.g., `light.white` or `dark.red.200`), which will always use that specific theme mode's color regardless of the current theme setting.
 *   `theme`: The merged theme configuration object.
 *   `themeMode`: The current mode ('light' or 'dark').
 *   `setThemeMode(mode)`: Function to change the theme mode.
@@ -625,7 +625,7 @@ Defines the default color palettes (`defaultLightPalette`, `defaultDarkPalette`)
 
 ```jsx
 import { useTheme } from 'app-studio';
-import { View } from './components/View';
+import { View, Text } from './components/Components';
 
 function ThemedComponent() {
   const { getColor } = useTheme();
@@ -634,10 +634,29 @@ function ThemedComponent() {
     <View
       backgroundColor={getColor('theme.primary')} // Get theme color
       color={getColor('color.white')}            // Get singleton color
-      borderColor={getColor('color.blue.300')}     // Get palette color
+      borderRadius={8}
       padding={10}
     >
-      My Themed Content
+      <Text>My Themed Content</Text>
+
+      {/* Direct access to specific theme mode colors */}
+      <View
+        marginTop={10}
+        padding={8}
+        backgroundColor={getColor('light.blue.200')} // Always light mode blue
+        borderColor={getColor('dark.red.500')}       // Always dark mode red
+        borderWidth={2}
+        borderStyle="solid"
+        borderRadius={4}
+      >
+        <Text>Mixed theme mode colors</Text>
+      </View>
+
+      {/* Direct usage in component props without getColor */}
+      <View marginTop={10} padding={8}>
+        <Text color="light.white">Always light mode white text</Text>
+        <Text color="dark.blue.700" marginTop={4}>Always dark mode blue text</Text>
+      </View>
     </View>
   );
 }

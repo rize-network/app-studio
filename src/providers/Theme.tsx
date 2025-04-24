@@ -21,6 +21,8 @@ import {
 // --- Constants ---
 const THEME_PREFIX = 'theme.';
 const COLOR_PREFIX = 'color.';
+const LIGHT_PREFIX = 'light.';
+const DARK_PREFIX = 'dark.';
 const TRANSPARENT = 'transparent';
 
 // --- Interfaces ---
@@ -228,6 +230,29 @@ export const ThemeProvider = ({
           }
           // If value === name, it resolved to itself, keep fallback
 
+          // --- Resolve "light.*" or "dark.*" paths directly ---
+        } else if (
+          name.startsWith(LIGHT_PREFIX) ||
+          name.startsWith(DARK_PREFIX)
+        ) {
+          // Determine which mode to use based on the prefix
+          const specificMode: 'light' | 'dark' = name.startsWith(LIGHT_PREFIX)
+            ? 'light'
+            : 'dark';
+          const prefixLength = name.startsWith(LIGHT_PREFIX)
+            ? LIGHT_PREFIX.length
+            : DARK_PREFIX.length;
+
+          // Create a modified name with the color prefix instead
+          const modifiedName = `${COLOR_PREFIX}${name.substring(prefixLength)}`;
+
+          // Call getColor with the modified name and force the specific mode
+          const specificOverride: Override = {
+            ...override,
+            themeMode: specificMode,
+          };
+          resolvedColor = getColor(modifiedName, specificOverride);
+
           // --- Resolve "color.*" paths ---
         } else if (name.startsWith(COLOR_PREFIX)) {
           // console.log(
@@ -273,7 +298,7 @@ export const ThemeProvider = ({
           }
         }
         // --- Direct Color Value ---
-        // If it's not theme.* or color.*, assume it's a direct value ('red', '#fff').
+        // If it's not theme.*, light.*, dark.*, or color.*, assume it's a direct value ('red', '#fff').
         // resolvedColor remains 'name', which is correct.
       } catch (e) {
         console.error(
