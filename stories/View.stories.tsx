@@ -58,6 +58,22 @@ export const Exemple: ComponentStory<typeof View> = () => {
         onPress={() => alert('ok')}
         //     only={['mobile']}
       />
+      <View
+        as="span"
+        widthHeight={100}
+        display="inline"
+        textShadow="none"
+        color="transparent"
+        shadow={4}
+        margin="0 20px 20px"
+        backgroundColor="color.green.200"
+        webkitTextStroke="1px #000000"
+        webkitTextFillColor="transparent"
+        textStroke="1px #000000"
+        textFillColor="transparent"
+      >
+        text
+      </View>
     </View>
   );
 };

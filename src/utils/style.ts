@@ -9,17 +9,20 @@ import { extraKeys, includeKeys, NumberProps } from './constants';
  */
 export function propertyToKebabCase(property: string): string {
   // Handle special webkit, moz, ms prefixed properties
-  if (/^(webkit|moz|ms|o)[A-Z]/.test(property)) {
-    const prefix = property.match(/^(webkit|moz|ms|o)/)![0];
-    const restOfProperty = property.slice(prefix.length);
+  // Check for both lowercase and uppercase vendor prefixes
+  const vendorPrefixRegex = /^(webkit|moz|ms|o)([A-Z])/i;
+  if (vendorPrefixRegex.test(property)) {
+    const match = property.match(/^(webkit|moz|ms|o)/i);
+    if (match) {
+      // First convert the entire property to kebab case
+      let kebabProperty = property.replace(/([A-Z])/g, '-$1').toLowerCase();
 
-    // Convert the rest of the property to kebab case
-    const kebabProperty = restOfProperty
-      .replace(/([A-Z])/g, '-$1')
-      .toLowerCase();
+      // Then ensure the vendor prefix is correctly formatted
+      // This replaces patterns like "webkit-" with "-webkit-"
+      kebabProperty = kebabProperty.replace(/^(webkit|moz|ms|o)-/, '-$1-');
 
-    // Return with proper vendor prefix format
-    return `-${prefix}-${kebabProperty}`;
+      return kebabProperty;
+    }
   }
 
   // Standard property conversion to kebab-case
@@ -180,8 +183,8 @@ export const isStyleProp = (prop: string): boolean => {
   return (
     cssProperties.has(prop) ||
     extraKeys.has(prop) ||
-    // Check for vendor prefixes
-    /^(webkit|moz|ms|o)[A-Z]/.test(prop) ||
+    // Check for vendor prefixes (both uppercase and lowercase)
+    /^(webkit|moz|ms|o)([A-Z])/i.test(prop) ||
     // Check for custom properties
     prop.startsWith('--') ||
     // Check for data attributes that should be treated as styles
