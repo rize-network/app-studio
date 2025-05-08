@@ -32,6 +32,19 @@ export const vendorPrefixToKebabCase = (property: string): string => {
       .toLowerCase()}`;
   }
 
+  // Handle special case for properties like webkitbackgroundclip (all lowercase)
+  if (/^(webkit|moz|ms|o)/.test(property)) {
+    const prefix = property.match(/^(webkit|moz|ms|o)/)?.[0] || '';
+    const restOfProperty = property.slice(prefix.length);
+
+    // Convert the rest of the property to kebab case
+    const kebabRestOfProperty = restOfProperty
+      .replace(/([A-Z])/g, '-$1')
+      .toLowerCase();
+
+    return `-${prefix}-${kebabRestOfProperty}`;
+  }
+
   // Regular camelCase to kebab-case
   return property.replace(/([A-Z])/g, '-$1').toLowerCase();
 };

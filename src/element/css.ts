@@ -260,6 +260,25 @@ const ValueUtils = {
       return `var-${value.substring(2)}`;
     }
 
+    // Handle vendor-prefixed values
+    if (typeof value === 'string' && value.startsWith('-webkit-')) {
+      // For webkit values, preserve the prefix but normalize the rest
+      const prefix = '-webkit-';
+      const rest = value.substring(prefix.length);
+
+      const normalizedRest = rest
+        .replace(/\./g, 'p')
+        .replace(/\s+/g, '-')
+        .replace(/[^a-zA-Z0-9\-]/g, '')
+        .replace(/%/g, 'pct')
+        .replace(/vw/g, 'vw')
+        .replace(/vh/g, 'vh')
+        .replace(/em/g, 'em')
+        .replace(/rem/g, 'rem');
+
+      return `webkit-${normalizedRest}`;
+    }
+
     return value
       .toString()
       .replace(/\./g, 'p')
@@ -442,6 +461,17 @@ class UtilityClassManager {
     let shorthand =
       this.propertyShorthand[property] ||
       (property.startsWith('--') ? property : toKebabCase(property));
+
+    // Special handling for vendor-prefixed properties to avoid double hyphens
+    if (shorthand.startsWith('-webkit-')) {
+      shorthand = 'webkit' + shorthand.substring(8); // Remove the extra hyphen
+    } else if (shorthand.startsWith('-moz-')) {
+      shorthand = 'moz' + shorthand.substring(5);
+    } else if (shorthand.startsWith('-ms-')) {
+      shorthand = 'ms' + shorthand.substring(4);
+    } else if (shorthand.startsWith('-o-')) {
+      shorthand = 'o' + shorthand.substring(3);
+    }
 
     // Normalize the value for class name generation
     let normalizedValue = ValueUtils.normalizeCssValue(formattedValue);

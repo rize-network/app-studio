@@ -5,9 +5,9 @@ const LowercaseVendorPrefixTest = () => {
   return (
     <Element padding={20}>
       <h1>Lowercase Vendor Prefix Test</h1>
-      
+
       {/* Test lowercase webkit properties */}
-      <Element 
+      <Element
         webkitBackgroundClip="text"
         webkitTextFillColor="transparent"
         background="linear-gradient(45deg, #ff0000, #0000ff)"
@@ -17,9 +17,9 @@ const LowercaseVendorPrefixTest = () => {
       >
         This text should have a gradient effect with transparent text fill
       </Element>
-      
+
       {/* Test more lowercase webkit properties */}
-      <Element 
+      <Element
         webkitUserSelect="none"
         webkitAppearance="none"
         webkitBoxShadow="0 0 10px rgba(0,0,0,0.5)"
@@ -29,11 +29,11 @@ const LowercaseVendorPrefixTest = () => {
       >
         This element has lowercase webkit properties applied
       </Element>
-      
+
       {/* Test CSS Variables with lowercase webkit properties */}
-      <Element 
+      <Element
         style={{
-          "--gradient-colors": "linear-gradient(90deg, purple, orange)"
+          '--gradient-colors': 'linear-gradient(90deg, purple, orange)',
         }}
         marginBottom={20}
       >
