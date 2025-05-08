@@ -275,6 +275,7 @@ export const ThemeProvider = ({
               console.warn(
                 `Singleton color "${name}" not found in ${effectiveMode} mode.`
               );
+              resolvedColor = name; // Fallback on unexpected error
             }
           } else if (keys.length === 2) {
             // e.g., "color.blue.500"
@@ -290,11 +291,14 @@ export const ThemeProvider = ({
               console.warn(
                 `Palette color "${name}" not found in ${effectiveMode} mode.`
               );
+              resolvedColor = name; // Fallback on unexpected error
             }
           } else {
             console.warn(
               `Invalid color format: "${name}". Expected 'color.name' or 'color.name.shade'.`
             );
+
+            resolvedColor = name; // Fallback on unexpected error
           }
         }
         // --- Direct Color Value ---

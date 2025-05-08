@@ -209,23 +209,19 @@ const ValueUtils = {
     }
 
     // Handle border properties that might contain color values
-    if (
-      typeof value === 'string' &&
-      value.length > 3 &&
-      (value.indexOf('color.') >= 0 || value.indexOf('theme.') >= 0)
-    ) {
+    if (typeof value === 'string' && value.length > 3) {
       // Parse border property to extract color
       const parts = value.split(' ');
-      if (parts.length >= 2) {
-        // The color is typically the last part
-        const colorIndex = parts.length - 1;
-        const colorValue = parts[colorIndex];
-        // Process the color part through getColor
-        const processedColor = getColor(colorValue);
-        // Replace the color part and reconstruct the border value
-        parts[colorIndex] = processedColor;
-        processedValue = parts.join(' ');
-      }
+      // Check each part to see if it starts with 'color.' or 'theme.'
+      const processedParts = parts.map((part) => {
+        if (part.startsWith('color.') || part.startsWith('theme.')) {
+          // Process the color part through getColor
+          return getColor(part);
+        }
+        return part;
+      });
+      // Reconstruct the value with processed parts
+      processedValue = processedParts.join(' ');
     }
 
     // Handle numeric values
