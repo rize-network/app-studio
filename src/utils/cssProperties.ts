@@ -1,7 +1,55 @@
 // src/cssPropertyKeys.ts
 import { CSSProperties } from 'react';
 
-export const cssPropertyKeys: Array<keyof CSSProperties> = [
+// Define a type that includes both standard CSS properties and custom vendor-prefixed properties
+type ExtendedCSSProperties = CSSProperties & {
+  [key: string]: any; // Allow any string key for custom properties
+};
+
+// Helper function to convert camelCase vendor-prefixed properties to kebab-case
+export const vendorPrefixToKebabCase = (property: string): string => {
+  // Handle custom properties (CSS variables)
+  if (property.startsWith('--')) {
+    return property;
+  }
+
+  // Handle webkit, moz, ms prefixes with uppercase first letter after prefix (WebkitTextFillColor)
+  if (/^(Webkit|Moz|Ms|O)[A-Z]/.test(property)) {
+    const prefix =
+      property.match(/^(Webkit|Moz|Ms|O)/)?.[0]?.toLowerCase() || '';
+    const restOfProperty = property.slice(prefix.length);
+    return `-${prefix}-${restOfProperty
+      .replace(/([A-Z])/g, '-$1')
+      .toLowerCase()}`;
+  }
+
+  // Handle webkit, moz, ms prefixes with lowercase first letter (webkitTextFillColor)
+  if (/^(webkit|moz|ms|o)[A-Z]/.test(property)) {
+    const prefix = property.match(/^(webkit|moz|ms|o)/)?.[0] || '';
+    const restOfProperty = property.slice(prefix.length);
+    return `-${prefix}-${restOfProperty
+      .replace(/([A-Z])/g, '-$1')
+      .toLowerCase()}`;
+  }
+
+  // Handle special case for properties like webkitbackgroundclip (all lowercase)
+  if (/^(webkit|moz|ms|o)/.test(property)) {
+    const prefix = property.match(/^(webkit|moz|ms|o)/)?.[0] || '';
+    const restOfProperty = property.slice(prefix.length);
+
+    // Convert the rest of the property to kebab case
+    const kebabRestOfProperty = restOfProperty
+      .replace(/([A-Z])/g, '-$1')
+      .toLowerCase();
+
+    return `-${prefix}-${kebabRestOfProperty}`;
+  }
+
+  // Regular camelCase to kebab-case
+  return property.replace(/([A-Z])/g, '-$1').toLowerCase();
+};
+
+export const cssPropertyKeys: Array<keyof ExtendedCSSProperties> = [
   'alignContent',
   'alignItems',
   'alignSelf',
@@ -258,6 +306,183 @@ export const cssPropertyKeys: Array<keyof CSSProperties> = [
   'wordWrap',
   'writingMode',
   'zIndex',
+
+  // Vendor-prefixed properties (uppercase first letter)
+  'WebkitAppearance',
+  'WebkitBackfaceVisibility',
+  'WebkitBorderImage',
+  'WebkitBoxShadow',
+  'WebkitBoxSizing',
+  'WebkitColumnCount',
+  'WebkitColumnRule',
+  'WebkitColumnWidth',
+  'WebkitColumns',
+  'WebkitFlex',
+  'WebkitFlexBasis',
+  'WebkitFlexDirection',
+  'WebkitFlexFlow',
+  'WebkitFlexGrow',
+  'WebkitFlexShrink',
+  'WebkitFlexWrap',
+  'WebkitFontFeatureSettings',
+  'WebkitFontSmoothing',
+  'WebkitHyphens',
+  'WebkitJustifyContent',
+  'WebkitLineClamp',
+  'WebkitMask',
+  'WebkitOverflowScrolling',
+  'WebkitPerspective',
+  'WebkitPerspectiveOrigin',
+  'WebkitTapHighlightColor',
+  'WebkitTextFillColor',
+  'WebkitTextSizeAdjust',
+  'WebkitTextStroke',
+  'WebkitTextStrokeColor',
+  'WebkitTextStrokeWidth',
+  'WebkitTransform',
+  'WebkitTransformOrigin',
+  'WebkitTransformStyle',
+  'WebkitTransition',
+  'WebkitTransitionDelay',
+  'WebkitTransitionDuration',
+  'WebkitTransitionProperty',
+  'WebkitTransitionTimingFunction',
+  'WebkitUserSelect',
+  'WebkitBackgroundClip',
+
+  // Vendor-prefixed properties (lowercase first letter)
+  'webkitAppearance',
+  'webkitBackfaceVisibility',
+  'webkitBorderImage',
+  'webkitBoxShadow',
+  'webkitBoxSizing',
+  'webkitColumnCount',
+  'webkitColumnRule',
+  'webkitColumnWidth',
+  'webkitColumns',
+  'webkitFlex',
+  'webkitFlexBasis',
+  'webkitFlexDirection',
+  'webkitFlexFlow',
+  'webkitFlexGrow',
+  'webkitFlexShrink',
+  'webkitFlexWrap',
+  'webkitFontFeatureSettings',
+  'webkitFontSmoothing',
+  'webkitHyphens',
+  'webkitJustifyContent',
+  'webkitLineClamp',
+  'webkitMask',
+  'webkitOverflowScrolling',
+  'webkitPerspective',
+  'webkitPerspectiveOrigin',
+  'webkitTapHighlightColor',
+  'webkitTextFillColor',
+  'webkitTextSizeAdjust',
+  'webkitTextStroke',
+  'webkitTextStrokeColor',
+  'webkitTextStrokeWidth',
+  'webkitTransform',
+  'webkitTransformOrigin',
+  'webkitTransformStyle',
+  'webkitTransition',
+  'webkitTransitionDelay',
+  'webkitTransitionDuration',
+  'webkitTransitionProperty',
+  'webkitTransitionTimingFunction',
+  'webkitUserSelect',
+  'webkitBackgroundClip',
+
+  // Mozilla-specific properties
+  'MozAppearance',
+  'MozBackfaceVisibility',
+  'MozBorderImage',
+  'MozBoxShadow',
+  'MozBoxSizing',
+  'MozColumnCount',
+  // 'MozColumnGap',
+  'MozColumnRule',
+  'MozColumnWidth',
+  'MozColumns',
+  'MozFontFeatureSettings',
+  'MozHyphens',
+  'MozOsxFontSmoothing',
+  'MozPerspective',
+  'MozPerspectiveOrigin',
+  'MozTextSizeAdjust',
+  // 'MozTransform',
+  'MozTransformOrigin',
+  'MozTransformStyle',
+  'MozTransition',
+  'MozTransitionDelay',
+  'MozTransitionDuration',
+  'MozTransitionProperty',
+  'MozTransitionTimingFunction',
+  'MozUserSelect',
+
+  // Microsoft-specific properties
+  // 'msFlexAlign',
+  'msFlexDirection',
+  // 'msFlexFlow',
+  // 'msFlexItemAlign',
+  // 'msFlexLinePack',
+  // 'msFlexNegative',
+  // 'msFlexOrder',
+  // 'msFlexPack',
+  'msFlexPositive',
+  // 'msFlexPreferredSize',
+  // 'msFlexWrap',
+  // 'msGridColumn',
+  // 'msGridColumnAlign',
+  // 'msGridColumnSpan',
+  'msGridColumns',
+  // 'msGridRow',
+  // 'msGridRowAlign',
+  // 'msGridRowSpan',
+  'msGridRows',
+  'msHighContrastAdjust',
+  'msHyphens',
+  'msOverflowStyle',
+  'msScrollbar3dlightColor',
+  'msScrollbarArrowColor',
+  'msScrollbarBaseColor',
+  'msScrollbarDarkshadowColor',
+  'msScrollbarFaceColor',
+  'msScrollbarHighlightColor',
+  'msScrollbarShadowColor',
+  'msScrollbarTrackColor',
+  // 'msTextSizeAdjust',
+  'msTransform',
+  'msTransformOrigin',
+  'msTransition',
+  'msTransitionDelay',
+  'msTransitionDuration',
+  'msTransitionProperty',
+  'msTransitionTimingFunction',
+  'msUserSelect',
+
+  // Opera-specific properties
+  'OAnimation',
+  'OAnimationDelay',
+  'OAnimationDirection',
+  'OAnimationDuration',
+  'OAnimationFillMode',
+  'OAnimationIterationCount',
+  'OAnimationName',
+  'OAnimationPlayState',
+  'OAnimationTimingFunction',
+  'OBackgroundSize',
+  'OBorderImage',
+  'OObjectFit',
+  'OObjectPosition',
+  'OTransform',
+  'OTransformOrigin',
+  'OTransition',
+  'OTransitionDelay',
+  'OTransitionDuration',
+  'OTransitionProperty',
+  'OTransitionTimingFunction',
+
   // Add any additional CSS properties as needed
 ];
 
@@ -305,4 +530,53 @@ export const numericCssProperties = new Set<string>([
   'text-indent',
   'top',
   'width',
+
+  // Vendor-prefixed properties that need pixel values
+  '-webkit-border-radius',
+  '-webkit-border-bottom-left-radius',
+  '-webkit-border-bottom-right-radius',
+  '-webkit-border-top-left-radius',
+  '-webkit-border-top-right-radius',
+  '-webkit-column-gap',
+  '-webkit-column-width',
+  '-webkit-margin-bottom',
+  '-webkit-margin-left',
+  '-webkit-margin-right',
+  '-webkit-margin-top',
+  '-webkit-padding-bottom',
+  '-webkit-padding-left',
+  '-webkit-padding-right',
+  '-webkit-padding-top',
+  '-webkit-perspective',
+  '-webkit-text-indent',
+
+  '-moz-border-radius',
+  '-moz-border-bottom-left-radius',
+  '-moz-border-bottom-right-radius',
+  '-moz-border-top-left-radius',
+  '-moz-border-top-right-radius',
+  '-moz-column-gap',
+  '-moz-column-width',
+  '-moz-margin-bottom',
+  '-moz-margin-left',
+  '-moz-margin-right',
+  '-moz-margin-top',
+  '-moz-padding-bottom',
+  '-moz-padding-left',
+  '-moz-padding-right',
+  '-moz-padding-top',
+  '-moz-perspective',
+  '-moz-text-indent',
+
+  '-ms-column-gap',
+  '-ms-column-width',
+  '-ms-margin-bottom',
+  '-ms-margin-left',
+  '-ms-margin-right',
+  '-ms-margin-top',
+  '-ms-padding-bottom',
+  '-ms-padding-left',
+  '-ms-padding-right',
+  '-ms-padding-top',
+  '-ms-text-indent',
 ]);

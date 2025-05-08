@@ -1,5 +1,6 @@
 // styleHelpers.ts
 import { extraKeys, includeKeys, NumberProps } from './constants';
+import { vendorPrefixToKebabCase, numericCssProperties } from './cssProperties';
 
 /**
  * Converts a camelCase property to kebab-case with proper vendor prefix handling
@@ -185,6 +186,7 @@ export const isStyleProp = (prop: string): boolean => {
     extraKeys.has(prop) ||
     // Check for vendor prefixes (both uppercase and lowercase)
     /^(webkit|moz|ms|o)([A-Z])/i.test(prop) ||
+   
     // Check for custom properties
     prop.startsWith('--') ||
     // Check for data attributes that should be treated as styles
@@ -214,7 +216,7 @@ export function styleObjectToCss(styleObject: Record<string, any>): string {
 }
 
 export const toKebabCase = (str: string): string => {
-  return str.replace(/([A-Z])/g, '-$1').toLowerCase();
+  return vendorPrefixToKebabCase(str);
 };
 
 // Process and normalize style properties
@@ -228,9 +230,30 @@ export const processStyleProperty = (
     return '';
   }
 
+  // Handle custom CSS properties (variables)
+  if (property.startsWith('--')) {
+    // For CSS variables, we pass the value as is
+    return value;
+  }
+
+  // Convert kebab-case property to check against numericCssProperties
+  const kebabProperty = toKebabCase(property);
+
   // Convert numbers to pixels for appropriate properties
   if (typeof value === 'number') {
-    if (!NumberProps.has(property)) {
+    // Check if this is a property that should have px units
+    // First check the property as is, then check with vendor prefixes removed
+    const shouldAddPx =
+      !NumberProps.has(property) &&
+      (numericCssProperties.has(kebabProperty) ||
+        // Check if it's a vendor-prefixed property that needs px
+        ((/^-(webkit|moz|ms|o)-/.test(kebabProperty) ||
+          /^-(Webkit|Moz|Ms|O)-/.test(kebabProperty)) &&
+          numericCssProperties.has(
+            kebabProperty.replace(/^-(webkit|moz|ms|o|Webkit|Moz|Ms|O)-/, '')
+          )));
+
+    if (shouldAddPx) {
       return `${value}px`;
     }
     return value;
