@@ -3,7 +3,7 @@
 import { Shadows } from '../utils/shadow';
 import Color from 'color-convert';
 import { generateKeyframes } from './utils';
-import { isStyleProp, StyleProps } from '../utils/style';
+import { isStyleProp, StyleProps, toKebabCase } from '../utils/style';
 import { ElementProps } from './Element';
 import { numericCssProperties } from '../utils/cssProperties';
 
@@ -203,6 +203,12 @@ const ValueUtils = {
   ): any {
     let processedValue = value;
 
+    // Handle custom CSS properties (variables)
+    if (property.startsWith('--')) {
+      // For CSS variables, we pass the value as is
+      return value;
+    }
+
     // If the property is a color, convert it
     if (property.toLowerCase().includes('color')) {
       processedValue = getColor(value);
@@ -226,7 +232,20 @@ const ValueUtils = {
 
     // Handle numeric values
     if (typeof processedValue === 'number') {
-      if (numericCssProperties.has(property)) {
+      // Convert property to kebab-case to check against numericCssProperties
+      const kebabProperty = toKebabCase(property);
+
+      // Check if this is a property that should have px units
+      // First check the property as is, then check with vendor prefixes removed
+      const shouldAddPx =
+        numericCssProperties.has(kebabProperty) ||
+        // Check if it's a vendor-prefixed property that needs px
+        (/^-(webkit|moz|ms|o)-/.test(kebabProperty) &&
+          numericCssProperties.has(
+            kebabProperty.replace(/^-(webkit|moz|ms|o)-/, '')
+          ));
+
+      if (shouldAddPx) {
         processedValue = `${processedValue}px`;
       }
     }
@@ -235,6 +254,12 @@ const ValueUtils = {
   },
 
   normalizeCssValue(value: any): string {
+    // Handle CSS variables in values
+    if (typeof value === 'string' && value.startsWith('--')) {
+      // For CSS variable values, use a special prefix to avoid conflicts
+      return `var-${value.substring(2)}`;
+    }
+
     return value
       .toString()
       .replace(/\./g, 'p')
@@ -416,7 +441,7 @@ class UtilityClassManager {
     // Get property shorthand
     let shorthand =
       this.propertyShorthand[property] ||
-      property.replace(/([A-Z])/g, '-$1').toLowerCase();
+      (property.startsWith('--') ? property : toKebabCase(property));
 
     // Normalize the value for class name generation
     let normalizedValue = ValueUtils.normalizeCssValue(formattedValue);
@@ -427,7 +452,9 @@ class UtilityClassManager {
     let rules: Array<{ rule: string; context: StyleContext }> = [];
 
     // Format CSS property name
-    const cssProperty = property.replace(/([A-Z])/g, '-$1').toLowerCase();
+    const cssProperty = property.startsWith('--')
+      ? property
+      : toKebabCase(property);
     let valueForCss = processedValue;
 
     // Handle numeric values for CSS
