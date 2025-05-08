@@ -3,7 +3,12 @@
 import { Shadows } from '../utils/shadow';
 import Color from 'color-convert';
 import { generateKeyframes } from './utils';
-import { isStyleProp, StyleProps, propertyToKebabCase,toKebabCase } from '../utils/style';
+import {
+  isStyleProp,
+  StyleProps,
+  propertyToKebabCase,
+  toKebabCase,
+} from '../utils/style';
 import { ElementProps } from './Element';
 import { numericCssProperties } from '../utils/cssProperties';
 
@@ -482,11 +487,11 @@ class UtilityClassManager {
     let rules: Array<{ rule: string; context: StyleContext }> = [];
 
     // Format CSS property name with proper vendor prefix handling
-    // const cssProperty = propertyToKebabCase(property);
+    const cssProperty = propertyToKebabCase(property);
     // Format CSS property name
-    const cssProperty = property.startsWith('--')
-      ? property
-      : toKebabCase(property);
+    // const cssProperty = property.startsWith('--')
+    //   ? property
+    //   : toKebabCase(property);
     let valueForCss = processedValue;
 
     // Handle numeric values for CSS

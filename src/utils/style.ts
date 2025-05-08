@@ -186,7 +186,6 @@ export const isStyleProp = (prop: string): boolean => {
     extraKeys.has(prop) ||
     // Check for vendor prefixes (both uppercase and lowercase)
     /^(webkit|moz|ms|o)([A-Z])/i.test(prop) ||
-   
     // Check for custom properties
     prop.startsWith('--') ||
     // Check for data attributes that should be treated as styles

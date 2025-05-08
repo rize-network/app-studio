@@ -5,9 +5,9 @@ const WebkitTextStrokeTest = () => {
   return (
     <Element padding={20}>
       <h1>WebKit Text Stroke Test</h1>
-      
+
       {/* Test WebKit text stroke property */}
-      <Element 
+      <Element
         WebkitTextStroke="1px #000000"
         fontSize={36}
         fontWeight="bold"
@@ -16,9 +16,9 @@ const WebkitTextStrokeTest = () => {
       >
         This text should have a 1px black stroke
       </Element>
-      
+
       {/* Test lowercase webkit text stroke property */}
-      <Element 
+      <Element
         webkitTextStroke="2px #ff0000"
         fontSize={36}
         fontWeight="bold"
@@ -27,9 +27,9 @@ const WebkitTextStrokeTest = () => {
       >
         This text should have a 2px red stroke
       </Element>
-      
+
       {/* Test with separate width and color properties */}
-      <Element 
+      <Element
         WebkitTextStrokeWidth="3px"
         WebkitTextStrokeColor="#0000ff"
         fontSize={36}
@@ -39,9 +39,9 @@ const WebkitTextStrokeTest = () => {
       >
         This text should have a 3px blue stroke
       </Element>
-      
+
       {/* Test with lowercase separate width and color properties */}
-      <Element 
+      <Element
         webkitTextStrokeWidth="3px"
         webkitTextStrokeColor="#00ff00"
         fontSize={36}
