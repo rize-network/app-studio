@@ -1,6 +1,31 @@
 // styleHelpers.ts
 import { extraKeys, includeKeys, NumberProps } from './constants';
 
+/**
+ * Converts a camelCase property to kebab-case with proper vendor prefix handling
+ *
+ * @param property The property name in camelCase
+ * @returns The property name in kebab-case with appropriate vendor prefixes
+ */
+export function propertyToKebabCase(property: string): string {
+  // Handle special webkit, moz, ms prefixed properties
+  if (/^(webkit|moz|ms|o)[A-Z]/.test(property)) {
+    const prefix = property.match(/^(webkit|moz|ms|o)/)![0];
+    const restOfProperty = property.slice(prefix.length);
+
+    // Convert the rest of the property to kebab case
+    const kebabProperty = restOfProperty
+      .replace(/([A-Z])/g, '-$1')
+      .toLowerCase();
+
+    // Return with proper vendor prefix format
+    return `-${prefix}-${kebabProperty}`;
+  }
+
+  // Standard property conversion to kebab-case
+  return property.replace(/([A-Z])/g, '-$1').toLowerCase();
+}
+
 // Comprehensive list of CSS properties that should be converted to classes
 const cssProperties = new Set([
   // Standard CSS properties
@@ -164,17 +189,26 @@ export const isStyleProp = (prop: string): boolean => {
   );
 };
 
-// Convert style object to CSS string
-export const styleObjectToCss = (styles: Record<string, any>): string => {
-  return Object.entries(styles)
-    .filter(([key]) => isStyleProp(key))
-    .map(([key, value]) => {
-      const cssProperty = toKebabCase(key);
-      const processedValue = processStyleProperty(key, value, (color) => color);
-      return `${cssProperty}: ${processedValue};`;
+/**
+ * Enhances styleObjectToCss to handle vendor prefixed properties
+ *
+ * @param styleObject The style object with camelCase properties
+ * @returns A CSS string with properly formatted properties
+ */
+export function styleObjectToCss(styleObject: Record<string, any>): string {
+  return Object.entries(styleObject)
+    .map(([property, value]) => {
+      if (value === undefined || value === null) return '';
+
+      // Convert property to kebab-case with vendor prefix handling
+      const cssProperty = propertyToKebabCase(property);
+
+      // Return formatted CSS declaration
+      return `${cssProperty}: ${value};`;
     })
+    .filter(Boolean)
     .join(' ');
-};
+}
 
 export const toKebabCase = (str: string): string => {
   return str.replace(/([A-Z])/g, '-$1').toLowerCase();
