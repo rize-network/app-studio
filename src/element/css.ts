@@ -211,12 +211,12 @@ const ValueUtils = {
     // Handle border properties that might contain color values
     if (
       typeof value === 'string' &&
-      value.length > 7 &&
+      value.length > 3 &&
       (value.indexOf('color.') >= 0 || value.indexOf('theme.') >= 0)
     ) {
       // Parse border property to extract color
       const parts = value.split(' ');
-      if (parts.length >= 3) {
+      if (parts.length >= 2) {
         // The color is typically the last part
         const colorIndex = parts.length - 1;
         const colorValue = parts[colorIndex];
