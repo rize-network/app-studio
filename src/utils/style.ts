@@ -156,8 +156,9 @@ export const isStyleProp = (prop: string): boolean => {
   return (
     cssProperties.has(prop) ||
     extraKeys.has(prop) ||
-    // Check for vendor prefixes
+    // Check for vendor prefixes (both uppercase and lowercase first letter after prefix)
     /^(webkit|moz|ms|o)[A-Z]/.test(prop) ||
+    /^(Webkit|Moz|Ms|O)[A-Z]/.test(prop) ||
     // Check for custom properties
     prop.startsWith('--') ||
     // Check for data attributes that should be treated as styles
@@ -209,9 +210,10 @@ export const processStyleProperty = (
       !NumberProps.has(property) &&
       (numericCssProperties.has(kebabProperty) ||
         // Check if it's a vendor-prefixed property that needs px
-        (/^-(webkit|moz|ms|o)-/.test(kebabProperty) &&
+        ((/^-(webkit|moz|ms|o)-/.test(kebabProperty) ||
+          /^-(Webkit|Moz|Ms|O)-/.test(kebabProperty)) &&
           numericCssProperties.has(
-            kebabProperty.replace(/^-(webkit|moz|ms|o)-/, '')
+            kebabProperty.replace(/^-(webkit|moz|ms|o|Webkit|Moz|Ms|O)-/, '')
           )));
 
     if (shouldAddPx) {

@@ -5,13 +5,13 @@ const CssVariablesTest = () => {
   return (
     <Element padding={20}>
       <h1>CSS Variables Test</h1>
-      
+
       {/* Test CSS Variables with direct style prop */}
-      <Element 
+      <Element
         style={{
-          "--primary-color": "blue",
-          "--primary-bg": "lightblue",
-          "--spacing": "15px"
+          '--primary-color': 'blue',
+          '--primary-bg': 'lightblue',
+          '--spacing': '15px',
         }}
         marginBottom={20}
         padding={20}
@@ -22,13 +22,13 @@ const CssVariablesTest = () => {
           This element uses CSS variables from parent's style prop
         </Element>
       </Element>
-      
+
       {/* Test CSS Variables with css prop */}
       <Element
         css={{
-          "--secondary-color": "green",
-          "--secondary-bg": "lightgreen",
-          "--border-radius": "8px"
+          '--secondary-color': 'green',
+          '--secondary-bg': 'lightgreen',
+          '--border-radius': '8px',
         }}
         marginBottom={20}
         padding={20}

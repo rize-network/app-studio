@@ -1,9 +1,29 @@
 // src/cssPropertyKeys.ts
 import { CSSProperties } from 'react';
 
+// Define a type that includes both standard CSS properties and custom vendor-prefixed properties
+type ExtendedCSSProperties = CSSProperties & {
+  [key: string]: any; // Allow any string key for custom properties
+};
+
 // Helper function to convert camelCase vendor-prefixed properties to kebab-case
 export const vendorPrefixToKebabCase = (property: string): string => {
-  // Handle webkit, moz, ms prefixes
+  // Handle custom properties (CSS variables)
+  if (property.startsWith('--')) {
+    return property;
+  }
+
+  // Handle webkit, moz, ms prefixes with uppercase first letter after prefix (WebkitTextFillColor)
+  if (/^(Webkit|Moz|Ms|O)[A-Z]/.test(property)) {
+    const prefix =
+      property.match(/^(Webkit|Moz|Ms|O)/)?.[0]?.toLowerCase() || '';
+    const restOfProperty = property.slice(prefix.length);
+    return `-${prefix}-${restOfProperty
+      .replace(/([A-Z])/g, '-$1')
+      .toLowerCase()}`;
+  }
+
+  // Handle webkit, moz, ms prefixes with lowercase first letter (webkitTextFillColor)
   if (/^(webkit|moz|ms|o)[A-Z]/.test(property)) {
     const prefix = property.match(/^(webkit|moz|ms|o)/)?.[0] || '';
     const restOfProperty = property.slice(prefix.length);
@@ -12,16 +32,11 @@ export const vendorPrefixToKebabCase = (property: string): string => {
       .toLowerCase()}`;
   }
 
-  // Handle custom properties (CSS variables)
-  if (property.startsWith('--')) {
-    return property;
-  }
-
   // Regular camelCase to kebab-case
   return property.replace(/([A-Z])/g, '-$1').toLowerCase();
 };
 
-export const cssPropertyKeys: Array<keyof CSSProperties> = [
+export const cssPropertyKeys: Array<keyof ExtendedCSSProperties> = [
   'alignContent',
   'alignItems',
   'alignSelf',
@@ -279,7 +294,7 @@ export const cssPropertyKeys: Array<keyof CSSProperties> = [
   'writingMode',
   'zIndex',
 
-  // Vendor-prefixed properties
+  // Vendor-prefixed properties (uppercase first letter)
   'WebkitAppearance',
   'WebkitBackfaceVisibility',
   'WebkitBorderImage',
@@ -320,6 +335,50 @@ export const cssPropertyKeys: Array<keyof CSSProperties> = [
   'WebkitTransitionProperty',
   'WebkitTransitionTimingFunction',
   'WebkitUserSelect',
+  'WebkitBackgroundClip',
+
+  // Vendor-prefixed properties (lowercase first letter)
+  'webkitAppearance',
+  'webkitBackfaceVisibility',
+  'webkitBorderImage',
+  'webkitBoxShadow',
+  'webkitBoxSizing',
+  'webkitColumnCount',
+  'webkitColumnRule',
+  'webkitColumnWidth',
+  'webkitColumns',
+  'webkitFlex',
+  'webkitFlexBasis',
+  'webkitFlexDirection',
+  'webkitFlexFlow',
+  'webkitFlexGrow',
+  'webkitFlexShrink',
+  'webkitFlexWrap',
+  'webkitFontFeatureSettings',
+  'webkitFontSmoothing',
+  'webkitHyphens',
+  'webkitJustifyContent',
+  'webkitLineClamp',
+  'webkitMask',
+  'webkitOverflowScrolling',
+  'webkitPerspective',
+  'webkitPerspectiveOrigin',
+  'webkitTapHighlightColor',
+  'webkitTextFillColor',
+  'webkitTextSizeAdjust',
+  'webkitTextStroke',
+  'webkitTextStrokeColor',
+  'webkitTextStrokeWidth',
+  'webkitTransform',
+  'webkitTransformOrigin',
+  'webkitTransformStyle',
+  'webkitTransition',
+  'webkitTransitionDelay',
+  'webkitTransitionDuration',
+  'webkitTransitionProperty',
+  'webkitTransitionTimingFunction',
+  'webkitUserSelect',
+  'webkitBackgroundClip',
 
   // Mozilla-specific properties
   'MozAppearance',
