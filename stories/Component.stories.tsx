@@ -41,6 +41,7 @@ export const Image: ComponentStory<typeof $Image> = () => {
       widthHeight={100}
       src="https://dummyimage.com/600x400/000/fff"
       on={{ hover: { backgroundColor: 'color.red' } }}
+      onClick={() => console.log('click')}
     />
   );
 };

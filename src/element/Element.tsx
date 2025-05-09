@@ -102,6 +102,7 @@ export const Element = React.memo(
         newProps.className = utilityClasses.join(' ');
       }
 
+      // Handle event tracking for onClick
       if (trackEvent && props.onClick) {
         let componentName: string;
         if (typeof as === 'string') {
@@ -126,9 +127,25 @@ export const Element = React.memo(
             props.onClick(event);
           }
         };
+      } else if (props.onClick && !onPress) {
+        // If onClick is provided and not already handled by onPress, pass it directly
+        newProps.onClick = props.onClick;
       }
 
       const { style, children, ...otherProps } = rest;
+
+      // First, add all event handlers (they start with "on" and have a capital letter after)
+      Object.keys(otherProps).forEach((key) => {
+        if (
+          key.startsWith('on') &&
+          key.length > 2 &&
+          key[2] === key[2].toUpperCase()
+        ) {
+          newProps[key] = (otherProps as any)[key];
+        }
+      });
+
+      // Then add all other non-style props
       Object.keys(otherProps).forEach((key) => {
         if (
           (!excludedKeys.has(key) && !isStyleProp(key)) ||

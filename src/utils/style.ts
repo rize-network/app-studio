@@ -178,8 +178,39 @@ export const setSize = (
   styleProps.height = styleProps.width = newSize;
 };
 
+// Common React event handlers that should not be treated as style props
+const commonEventHandlers = new Set([
+  'onClick',
+  'onChange',
+  'onSubmit',
+  'onFocus',
+  'onBlur',
+  'onKeyDown',
+  'onKeyUp',
+  'onKeyPress',
+  'onMouseDown',
+  'onMouseUp',
+  'onMouseMove',
+  'onMouseEnter',
+  'onMouseLeave',
+  'onTouchStart',
+  'onTouchEnd',
+  'onTouchMove',
+  'onScroll',
+  'onWheel',
+  'onDrag',
+  'onDragStart',
+  'onDragEnd',
+  'onDrop',
+]);
+
 // Improved style prop detection
 export const isStyleProp = (prop: string): boolean => {
+  // First check if it's a common event handler (these should never be treated as style props)
+  if (commonEventHandlers.has(prop)) {
+    return false;
+  }
+
   // Check if it's a valid CSS property or custom style prop
   return (
     cssProperties.has(prop) ||
@@ -201,6 +232,7 @@ export const isStyleProp = (prop: string): boolean => {
  */
 export function styleObjectToCss(styleObject: Record<string, any>): string {
   return Object.entries(styleObject)
+    .filter(([key]) => isStyleProp(key))
     .map(([property, value]) => {
       if (value === undefined || value === null) return '';
 
