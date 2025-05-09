@@ -219,20 +219,48 @@ const ValueUtils = {
       processedValue = getColor(value);
     }
 
-    // Handle border properties that might contain color values
+    // Handle properties that might contain color values (borders, gradients, etc.)
     if (typeof value === 'string' && value.length > 3) {
-      // Parse border property to extract color
-      const parts = value.split(' ');
-      // Check each part to see if it starts with 'color.' or 'theme.'
-      const processedParts = parts.map((part) => {
-        if (part.startsWith('color.') || part.startsWith('theme.')) {
-          // Process the color part through getColor
-          return getColor(part);
+      // Check if the value contains any color tokens
+      if (value.includes('color.') || value.includes('theme.')) {
+        // For gradients and complex values, we need to process color tokens within the string
+        // This handles cases like: "linear-gradient(135deg, color.blue.500, color.red.500)"
+        let processedString = value;
+
+        // Find all color tokens in the string
+        const colorTokenRegex = /(color\.[a-zA-Z0-9.]+|theme\.[a-zA-Z0-9.]+)/g;
+        const colorTokens = value.match(colorTokenRegex);
+
+        if (colorTokens) {
+          // Replace each color token with its processed value
+          colorTokens.forEach((token) => {
+            const processedColor = getColor(token);
+            // Use a global replace to catch all instances of this token
+            // Escape all special regex characters in the token
+            const escapedToken = token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            processedString = processedString.replace(
+              new RegExp(escapedToken, 'g'),
+              processedColor
+            );
+          });
+
+          processedValue = processedString;
+        } else {
+          // Fallback to the old method for simpler cases (like borders)
+          // Parse property to extract color
+          const parts = value.split(' ');
+          // Check each part to see if it starts with 'color.' or 'theme.'
+          const processedParts = parts.map((part) => {
+            if (part.startsWith('color.') || part.startsWith('theme.')) {
+              // Process the color part through getColor
+              return getColor(part);
+            }
+            return part;
+          });
+          // Reconstruct the value with processed parts
+          processedValue = processedParts.join(' ');
         }
-        return part;
-      });
-      // Reconstruct the value with processed parts
-      processedValue = processedParts.join(' ');
+      }
     }
 
     // Handle numeric values
