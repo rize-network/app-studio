@@ -11,10 +11,6 @@ import {
 } from '../utils/style';
 import { ElementProps } from './Element';
 import { numericCssProperties } from '../utils/cssProperties';
-import {
-  needsVendorPrefix,
-  getVendorPrefixedProperties,
-} from '../utils/vendorPrefixes';
 
 type StyleContext = 'base' | 'pseudo' | 'media' | 'modifier';
 
@@ -520,6 +516,10 @@ class UtilityClassManager {
 
     // Format CSS property name with proper vendor prefix handling
     const cssProperty = propertyToKebabCase(property);
+    // Format CSS property name
+    // const cssProperty = property.startsWith('--')
+    //   ? property
+    //   : toKebabCase(property);
     let valueForCss = processedValue;
 
     // Handle numeric values for CSS
@@ -530,24 +530,14 @@ class UtilityClassManager {
       valueForCss = `${valueForCss}px`;
     }
 
-    // Check if this property needs vendor prefixes
-    const needsPrefixes = needsVendorPrefix(property);
-    const cssProperties = needsPrefixes
-      ? getVendorPrefixedProperties(property)
-      : [cssProperty];
-
     // Generate CSS rules based on context
     if (context === 'pseudo' && modifier) {
       const pseudoClassName = `${baseClassName}--${modifier}`;
       classNames = [pseudoClassName];
       const escapedClassName = this.escapeClassName(pseudoClassName);
-
-      // Add rules for all necessary vendor prefixes
-      cssProperties.forEach((prefixedProperty) => {
-        rules.push({
-          rule: `.${escapedClassName}:${modifier} { ${prefixedProperty}: ${valueForCss}; }`,
-          context: 'pseudo',
-        });
+      rules.push({
+        rule: `.${escapedClassName}:${modifier} { ${cssProperty}: ${valueForCss}; }`,
+        context: 'pseudo',
       });
     } else if (context === 'media' && modifier) {
       const mediaClassName = `${modifier}--${baseClassName}`;
@@ -555,23 +545,16 @@ class UtilityClassManager {
       const escapedClassName = this.escapeClassName(mediaClassName);
 
       mediaQueries.forEach((mq) => {
-        // Add media query rules for all necessary vendor prefixes
-        cssProperties.forEach((prefixedProperty) => {
-          rules.push({
-            rule: `@media ${mq} { .${escapedClassName} { ${prefixedProperty}: ${valueForCss}; } }`,
-            context: 'media',
-          });
+        rules.push({
+          rule: `@media ${mq} { .${escapedClassName} { ${cssProperty}: ${valueForCss}; } }`,
+          context: 'media',
         });
       });
     } else {
       const escapedClassName = this.escapeClassName(baseClassName);
-
-      // Add rules for all necessary vendor prefixes
-      cssProperties.forEach((prefixedProperty) => {
-        rules.push({
-          rule: `.${escapedClassName} { ${prefixedProperty}: ${valueForCss}; }`,
-          context: 'base',
-        });
+      rules.push({
+        rule: `.${escapedClassName} { ${cssProperty}: ${valueForCss}; }`,
+        context: 'base',
       });
     }
 

@@ -13,46 +13,36 @@ export const vendorPrefixToKebabCase = (property: string): string => {
     return property;
   }
 
-  // Comprehensive regex to match all vendor prefix patterns
-  // This handles:
-  // 1. Uppercase vendor prefixes (WebkitTransform)
-  // 2. Lowercase vendor prefixes (webkitTransform)
-  // 3. Mixed case vendor prefixes (webkitbackgroundClip)
-  // 4. All lowercase vendor prefixes (webkitbackgroundclip)
-  const vendorPrefixRegex = /^(webkit|moz|ms|o|Webkit|Moz|Ms|O)([A-Za-z])/;
+  // Handle webkit, moz, ms prefixes with uppercase first letter after prefix (WebkitTextFillColor)
+  if (/^(Webkit|Moz|Ms|O)[A-Z]/.test(property)) {
+    const prefix =
+      property.match(/^(Webkit|Moz|Ms|O)/)?.[0]?.toLowerCase() || '';
+    const restOfProperty = property.slice(prefix.length);
+    return `-${prefix}-${restOfProperty
+      .replace(/([A-Z])/g, '-$1')
+      .toLowerCase()}`;
+  }
 
-  if (vendorPrefixRegex.test(property)) {
-    // Extract the prefix and normalize it to lowercase
-    const prefixMatch = property.match(/^(webkit|moz|ms|o|Webkit|Moz|Ms|O)/i);
-    if (prefixMatch) {
-      const prefix = prefixMatch[0].toLowerCase();
-      const restOfProperty = property.slice(prefix.length);
+  // Handle webkit, moz, ms prefixes with lowercase first letter (webkitTextFillColor)
+  if (/^(webkit|moz|ms|o)[A-Z]/.test(property)) {
+    const prefix = property.match(/^(webkit|moz|ms|o)/)?.[0] || '';
+    const restOfProperty = property.slice(prefix.length);
+    return `-${prefix}-${restOfProperty
+      .replace(/([A-Z])/g, '-$1')
+      .toLowerCase()}`;
+  }
 
-      // Convert the rest of the property to kebab case
-      let kebabRestOfProperty = restOfProperty;
+  // Handle special case for properties like webkitbackgroundclip (all lowercase)
+  if (/^(webkit|moz|ms|o)/.test(property)) {
+    const prefix = property.match(/^(webkit|moz|ms|o)/)?.[0] || '';
+    const restOfProperty = property.slice(prefix.length);
 
-      // If the rest starts with an uppercase letter or has uppercase letters, convert to kebab case
-      if (/[A-Z]/.test(restOfProperty)) {
-        kebabRestOfProperty = restOfProperty
-          .replace(/([A-Z])/g, '-$1')
-          .toLowerCase();
-      } else if (
-        restOfProperty &&
-        restOfProperty[0] === restOfProperty[0].toLowerCase()
-      ) {
-        // If the rest starts with a lowercase letter, ensure proper kebab case
-        // This handles cases like webkitbackgroundclip
-        kebabRestOfProperty = restOfProperty
-          .replace(/([A-Z])/g, '-$1')
-          .toLowerCase();
-      }
+    // Convert the rest of the property to kebab case
+    const kebabRestOfProperty = restOfProperty
+      .replace(/([A-Z])/g, '-$1')
+      .toLowerCase();
 
-      // Ensure we don't have double hyphens
-      kebabRestOfProperty = kebabRestOfProperty.replace(/^-/, '');
-
-      // Return the properly formatted vendor-prefixed property
-      return `-${prefix}-${kebabRestOfProperty}`;
-    }
+    return `-${prefix}-${kebabRestOfProperty}`;
   }
 
   // Regular camelCase to kebab-case
