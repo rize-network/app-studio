@@ -66,6 +66,14 @@ export const excludedKeys = new Set<string>([
   '_focusVisible',
   '_focusWithin',
   '_placeholder',
+  // Pseudo-element props
+  '_before',
+  '_after',
+  '_firstLetter',
+  '_firstLine',
+  '_selection',
+  '_backdrop',
+  '_marker',
   // Add more styling props here if needed
 ]);
 

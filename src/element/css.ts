@@ -115,7 +115,15 @@ const EVENT_TO_PSEUDO: Record<string, string> = {
   focusVisible: 'focus-visible',
   focusWithin: 'focus-within',
   // Placeholder
-  placeholder: 'placeholder-shown',
+  placeholder: 'placeholder',
+  // Pseudo-elements
+  before: 'before',
+  after: 'after',
+  firstLetter: 'first-letter',
+  firstLine: 'first-line',
+  selection: 'selection',
+  backdrop: 'backdrop',
+  marker: 'marker',
 };
 
 /**
@@ -749,6 +757,58 @@ function processStyles(
   return classes;
 }
 
+// Add a function to handle nested pseudo-classes
+function processPseudoStyles(
+  styles: Record<string, any>,
+  parentPseudo: string = '',
+  getColor: (color: string) => string
+): string[] {
+  const classes: string[] = [];
+
+  // Process each property in the styles object
+  Object.keys(styles).forEach((key) => {
+    const value = styles[key];
+
+    // Check if this is a nested pseudo selector (starts with underscore)
+    if (key.startsWith('_') && typeof value === 'object') {
+      const pseudoName = key.substring(1);
+      const pseudo = EVENT_TO_PSEUDO[pseudoName];
+
+      if (pseudo) {
+        // Construct the combined pseudo selector
+        const combinedPseudo = parentPseudo
+          ? `${parentPseudo}::${pseudo}`
+          : `${pseudo}`;
+
+        // Process the nested styles with the combined pseudo
+        classes.push(...processPseudoStyles(value, combinedPseudo, getColor));
+      }
+    } else if (typeof value !== 'object' || value === null) {
+      // This is a regular CSS property
+      if (parentPseudo) {
+        // Generate class for the pseudo element/class
+        const pseudoClassName = `${key}-${ValueUtils.normalizeCssValue(
+          value
+        )}-${parentPseudo.replace(/:/g, '-')}`;
+        const escapedClassName = pseudoClassName.replace(/[^\w-]/g, '-');
+
+        // Format the value
+        const processedValue = ValueUtils.formatValue(value, key, getColor);
+
+        // Create and inject the rule
+        const rule = `.${escapedClassName}::${parentPseudo} { ${propertyToKebabCase(
+          key
+        )}: ${processedValue}; }`;
+        utilityClassManager.injectRule(rule, 'pseudo');
+
+        classes.push(escapedClassName);
+      }
+    }
+  });
+
+  return classes;
+}
+
 /**
  * Process event-based styles (hover, focus, etc.)
  */
@@ -758,13 +818,22 @@ function processEventStyles(
   getColor: (color: string) => string
 ): string[] {
   const classes: string[] = [];
+
+  // Handle string shorthand (e.g., _hover: "color.red.500")
+  if (typeof eventStyles === 'string') {
+    eventStyles = { color: eventStyles };
+  }
+
+  // Ensure eventStyles is an object
+  if (typeof eventStyles !== 'object' || eventStyles === null) {
+    return classes;
+  }
+
   const {
     animate = undefined,
     shadow = undefined,
     ...otherEventStyles
-  } = typeof eventStyles === 'object' && eventStyles !== null
-    ? eventStyles
-    : { color: eventStyles };
+  } = eventStyles;
 
   // Process animations if present
   if (animate) {
@@ -794,7 +863,39 @@ function processEventStyles(
     }
   }
 
-  // Apply styles if we have a valid pseudo-class
+  // Check for nested pseudo selectors
+  const nestedPseudos = Object.keys(otherEventStyles).filter(
+    (key) => key.startsWith('_') && typeof otherEventStyles[key] === 'object'
+  );
+
+  if (nestedPseudos.length > 0) {
+    // Handle nested pseudo selectors
+    const pseudo = EVENT_TO_PSEUDO[eventName];
+    if (pseudo) {
+      nestedPseudos.forEach((nestedKey) => {
+        const nestedPseudoName = nestedKey.substring(1);
+        const nestedPseudo = EVENT_TO_PSEUDO[nestedPseudoName];
+
+        if (nestedPseudo) {
+          const combinedPseudo = `${pseudo}::${nestedPseudo}`;
+          classes.push(
+            ...processPseudoStyles(
+              otherEventStyles[nestedKey],
+              combinedPseudo,
+              getColor
+            )
+          );
+        }
+      });
+
+      // Remove processed nested pseudos
+      nestedPseudos.forEach((key) => {
+        delete otherEventStyles[key];
+      });
+    }
+  }
+
+  // Apply remaining styles if we have a valid pseudo-class
   if (Object.keys(otherEventStyles).length > 0) {
     const pseudo = EVENT_TO_PSEUDO[eventName];
     if (pseudo) {
