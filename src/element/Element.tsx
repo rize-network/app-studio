@@ -53,6 +53,15 @@ export interface ElementProps
   _focusVisible?: CssProps | string;
   _focusWithin?: CssProps | string;
   _placeholder?: CssProps | string;
+
+  // Pseudo-element props
+  _before?: CssProps;
+  _after?: CssProps;
+  _firstLetter?: CssProps;
+  _firstLine?: CssProps;
+  _selection?: CssProps;
+  _backdrop?: CssProps;
+  _marker?: CssProps;
 }
 
 export interface CssProps extends CSSProperties {
@@ -62,6 +71,40 @@ export interface CssProps extends CSSProperties {
   marginVertical?: number | string;
   animate?: AnimationProps[] | AnimationProps;
   shadow?: boolean | number | Shadow;
+
+  // Underscore-prefixed event props (alternative to using the 'on' prop)
+  _hover?: CSSProperties | string;
+  _active?: CSSProperties | string;
+  _focus?: CSSProperties | string;
+  _visited?: CSSProperties | string;
+  _disabled?: CSSProperties | string;
+  _enabled?: CSSProperties | string;
+  _checked?: CSSProperties | string;
+  _unchecked?: CSSProperties | string;
+  _invalid?: CSSProperties | string;
+  _valid?: CSSProperties | string;
+  _required?: CSSProperties | string;
+  _optional?: CSSProperties | string;
+  _selected?: CSSProperties | string;
+  _target?: CSSProperties | string;
+  _firstChild?: CSSProperties | string;
+  _lastChild?: CSSProperties | string;
+  _onlyChild?: CSSProperties | string;
+  _firstOfType?: CSSProperties | string;
+  _lastOfType?: CSSProperties | string;
+  _empty?: CSSProperties | string;
+  _focusVisible?: CSSProperties | string;
+  _focusWithin?: CSSProperties | string;
+  _placeholder?: CSSProperties | string;
+
+  // Pseudo-element props
+  _before?: CSSProperties;
+  _after?: CSSProperties;
+  _firstLetter?: CSSProperties;
+  _firstLine?: CSSProperties;
+  _selection?: CSSProperties;
+  _backdrop?: CSSProperties;
+  _marker?: CSSProperties;
 }
 
 export const Element = React.memo(
