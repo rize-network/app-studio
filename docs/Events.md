@@ -30,7 +30,19 @@ You can also use string values for simple color changes:
 _hover="color.blue.500"
 ```
 
-Both approaches achieve the same result, so you can choose the syntax that best fits your coding style.
+Underscore-prefixed properties support all the same events as the `on` prop, but with a more direct syntax. For example, instead of writing:
+
+```jsx
+on={{ hover: { backgroundColor: 'blue.100' } }}
+```
+
+You can simply write:
+
+```jsx
+_hover={{ backgroundColor: 'blue.100' }}
+```
+
+Both approaches achieve the same result, so you can choose the syntax that best fits your coding style. The underscore-prefixed approach is particularly useful when you want to apply styles to multiple different states without nesting them all within a single `on` prop object.
 
 ---
 

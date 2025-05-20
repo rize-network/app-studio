@@ -107,6 +107,43 @@ function Example() {
 
 This is useful when you need to access a specific theme mode's color regardless of the current theme setting.
 
+### Direct Theme Color Access
+
+App-Studio allows you to directly call theme colors using a simple dot notation format. This makes your code more readable and maintainable:
+
+```javascript
+import { View, Text } from 'app-studio';
+
+function Example() {
+  return (
+    <View>
+      {/* Access light theme colors directly */}
+      <Text color="light.white">White text in light mode</Text>
+      <View backgroundColor="light.blue.500">
+        <Text>Light blue background</Text>
+      </View>
+
+      {/* Access dark theme colors directly */}
+      <Text color="dark.white">White text in dark mode</Text>
+      <View backgroundColor="dark.red.200">
+        <Text>Dark red background</Text>
+      </View>
+
+      {/* Mix and match in the same component */}
+      <View
+        backgroundColor="light.gray.100"
+        borderColor="dark.gray.800"
+        borderWidth={1}
+      >
+        <Text>Mixed theme colors</Text>
+      </View>
+    </View>
+  );
+}
+```
+
+This direct access syntax works with all color-related properties and can be used with both singleton colors (like `white`, `black`) and palette colors (like `red.200`, `blue.500`). It provides a convenient way to reference specific theme colors without having to use the `getColor` function from the `useTheme` hook.
+
 ## Complete Example
 
 Here's a complete example that ties it all together:

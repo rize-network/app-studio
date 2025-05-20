@@ -7,8 +7,8 @@ The `app-studio` library provides a set of design props that simplify styling an
 Here is an example:
 
 ```jsx
-<View 
-  backgroundColor="theme.primary" 
+<View
+  backgroundColor="theme.primary"
   padding={20}
   margin={10}
   width={200}
@@ -31,3 +31,91 @@ Here is an example:
 ```
 
 In this example, the `shadow={6}` applies the 6th predefined shadow level from your theme to the `View` component.
+
+## CSS Custom Properties (Variables)
+
+App-Studio supports CSS custom properties (CSS variables) that start with `--`. You can define and use these variables in your components for more flexible styling:
+
+```jsx
+<View
+  style={{
+    '--primary-color': 'blue',
+    '--primary-bg': 'lightblue',
+    '--spacing': '15px',
+  }}
+  backgroundColor="var(--primary-bg)"
+  color="var(--primary-color)"
+  padding="var(--spacing)"
+>
+  This component uses CSS variables
+</View>
+```
+
+You can also define CSS variables using the `css` prop:
+
+```jsx
+<View
+  css={{
+    '--secondary-color': 'green',
+    '--secondary-bg': 'lightgreen',
+    '--border-radius': '8px',
+  }}
+  backgroundColor="var(--secondary-bg)"
+  borderRadius="var(--border-radius)"
+>
+  <Text color="var(--secondary-color)">
+    This text uses a CSS variable for its color
+  </Text>
+</View>
+```
+
+CSS variables are particularly useful for:
+- Creating theme variations within components
+- Sharing values between different CSS properties
+- Enabling dynamic styling through JavaScript
+
+## Vendor-Prefixed Properties
+
+App-Studio handles vendor-prefixed CSS properties to ensure cross-browser compatibility. You can use both camelCase and lowercase formats for vendor prefixes:
+
+### Camel Case Format (Recommended)
+
+```jsx
+<View
+  WebkitUserSelect="none"
+  MozUserSelect="none"
+  msFlexAlign="center"
+>
+  This element has vendor-prefixed properties
+</View>
+```
+
+### Lowercase Format
+
+```jsx
+<View
+  webkitBackgroundClip="text"
+  webkitTextFillColor="transparent"
+  background="linear-gradient(45deg, #ff0000, #0000ff)"
+>
+  This text should have a gradient effect
+</View>
+```
+
+You can also use the `css` prop for more complex vendor-prefixed styles:
+
+```jsx
+<View
+  css={{
+    background: "linear-gradient(45deg, #ff0000, #00ff00, #0000ff)",
+    webkitBackgroundClip: "text",
+    color: "transparent",
+    fontSize: "24px",
+    fontWeight: "bold"
+  }}
+>
+  This text should have a gradient background
+</View>
+```
+
+App-Studio automatically converts JavaScript-style vendor-prefixed properties (like `webkitBackgroundClip`) to their CSS equivalents with hyphens (e.g., `-webkit-background-clip`), ensuring proper rendering across different browsers.
