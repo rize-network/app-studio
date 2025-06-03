@@ -15,6 +15,7 @@ export * from './providers/Analytics';
 export * from './providers/Theme';
 export * from './hooks/useActive';
 export * from './hooks/useClickOutside';
+export * from './hooks/useElementPosition';
 export * from './hooks/useFocus';
 export * from './hooks/useHover';
 export * from './hooks/useKeyPress';

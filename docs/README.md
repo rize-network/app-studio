@@ -745,7 +745,7 @@ function AnimatedButton() {
 *   **Core:** `Element`
 *   **Components:** `View`, `Horizontal`, `Vertical`, `HorizontalResponsive`, `VerticalResponsive`, `Scroll`, `SafeArea`, `Div`, `Span`, `Text`, `Image`, `ImageBackground`, `Form`, `Input`, `Button`, `Skeleton`.
 *   **Animation:** `Animation` object with functions like `fadeIn`, `slideInLeft`, `pulse`, etc.
-*   **Hooks:** `useActive`, `useClickOutside`, `useFocus`, `useHover`, `useInView`, `useKeyPress`, `useMount`, `useOnScreen`, `useResponsive`, `useScroll`, `useWindowSize`.
+*   **Hooks:** `useActive`, `useClickOutside`, `useElementPosition`, `useFocus`, `useHover`, `useInView`, `useKeyPress`, `useMount`, `useOnScreen`, `useResponsive`, `useScroll`, `useWindowSize`.
 *   **Providers:** `ThemeProvider`, `ResponsiveProvider`, `AnalyticsProvider`, `WindowSizeProvider`.
 *   **Context Hooks:** `useTheme`, `useResponsiveContext`, `useAnalytics`, `useWindowSize`.
 *   **Utilities:** `colors`, `Typography`, `Shadows`.
