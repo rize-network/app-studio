@@ -13,10 +13,16 @@ export interface ElementPosition {
 
 // Options for the hook
 export interface UseElementPositionOptions {
-  /** Whether to track changes automatically on scroll/resize. Default: true */
+  /** Whether to track changes automatically. Default: true */
   trackChanges?: boolean;
-  /** Throttle delay in milliseconds for updates during scroll/resize. Default: 100 */
+  /** Throttle delay in milliseconds for updates. Default: 100 */
   throttleMs?: number;
+  /** Whether to track on hover events. Default: true */
+  trackOnHover?: boolean;
+  /** Whether to track on scroll events. Default: false */
+  trackOnScroll?: boolean;
+  /** Whether to track on resize events. Default: false */
+  trackOnResize?: boolean;
 }
 
 // Return type of the hook
@@ -39,7 +45,13 @@ export interface UseElementPositionReturn {
 export function useElementPosition<T extends HTMLElement = HTMLElement>(
   options: UseElementPositionOptions = {}
 ): UseElementPositionReturn {
-  const { trackChanges = true, throttleMs = 100 } = options;
+  const {
+    trackChanges = true,
+    throttleMs = 500,
+    trackOnHover = true,
+    trackOnScroll = false,
+    trackOnResize = false,
+  } = options;
 
   const elementRef = useRef<T>(null);
   const [relation, setRelation] = useState<ElementPosition | null>(null);
@@ -114,18 +126,55 @@ export function useElementPosition<T extends HTMLElement = HTMLElement>(
       return;
     }
 
+    const element = elementRef.current;
+    if (!element) return;
+
     const handler = throttledUpdate;
-    window.addEventListener('resize', handler);
-    window.addEventListener('scroll', handler, { passive: true });
+    const immediateHandler = calculateRelation;
+
+    // Add event listeners based on configuration
+    const cleanupFunctions: (() => void)[] = [];
+
+    // Hover events (mouseenter/mouseleave) - immediate calculation for better UX
+    if (trackOnHover) {
+      element.addEventListener('mouseenter', immediateHandler);
+      element.addEventListener('mouseleave', immediateHandler);
+      cleanupFunctions.push(() => {
+        element.removeEventListener('mouseenter', immediateHandler);
+        element.removeEventListener('mouseleave', immediateHandler);
+      });
+    }
+
+    // Scroll events - throttled
+    if (trackOnScroll) {
+      window.addEventListener('scroll', handler, { passive: true });
+      cleanupFunctions.push(() => {
+        window.removeEventListener('scroll', handler);
+      });
+    }
+
+    // Resize events - throttled
+    if (trackOnResize) {
+      window.addEventListener('resize', handler);
+      cleanupFunctions.push(() => {
+        window.removeEventListener('resize', handler);
+      });
+    }
 
     return () => {
       if (throttleTimerRef.current) {
         clearTimeout(throttleTimerRef.current);
       }
-      window.removeEventListener('resize', handler);
-      window.removeEventListener('scroll', handler);
+      cleanupFunctions.forEach((cleanup) => cleanup());
     };
-  }, [trackChanges, throttledUpdate, calculateRelation]); // calculateRelation is stable
+  }, [
+    trackChanges,
+    trackOnHover,
+    trackOnScroll,
+    trackOnResize,
+    throttledUpdate,
+    calculateRelation,
+  ]);
 
   const manualUpdateRelation = useCallback(() => {
     calculateRelation();

@@ -409,7 +409,7 @@ const BasicElementPositionExample = () => {
         marginBottom={16}
         color="color.gray.700"
       >
-        Basic useElementPosition Example
+        Basic useElementPosition Example (Hover Enabled)
       </View>
 
       <View
@@ -430,11 +430,15 @@ const BasicElementPositionExample = () => {
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
+          transition: 'background-color 0.2s ease',
         }}
         onClick={updateRelation}
+        _hover={{
+          backgroundColor: 'color.blue.600',
+        }}
       >
         <View fontSize="sm" fontWeight="bold" marginBottom={8}>
-          Click to Update Position
+          Hover or Click Me
         </View>
         {relation ? (
           <View fontSize="xs" textAlign="center">
@@ -463,7 +467,165 @@ const BasicElementPositionExample = () => {
         border="1px solid"
         borderColor="color.gray.200"
       >
-        Try scrolling the page or resizing the window to see position updates
+        Hover tracking enabled by default. Position updates on hover
+        automatically.
+      </View>
+    </View>
+  );
+};
+
+// Example with configurable events
+const ConfigurableEventsExample = () => {
+  const hoverOnly = useElementPosition(); // Default: hover only
+  const allEvents = useElementPosition({
+    trackOnHover: true,
+    trackOnScroll: true,
+    trackOnResize: true,
+    throttleMs: 50,
+  });
+  const noEvents = useElementPosition({
+    trackChanges: false, // Manual only
+  });
+
+  return (
+    <View
+      height="400px"
+      width="100%"
+      backgroundColor="color.gray.50"
+      padding={20}
+    >
+      <View
+        fontSize="lg"
+        fontWeight="bold"
+        marginBottom={16}
+        color="color.gray.700"
+      >
+        Configurable Events Demo
+      </View>
+
+      <View display="flex" gap={20} flexWrap="wrap">
+        {/* Hover only (default) */}
+        <View flex={1} minWidth={200}>
+          <View fontSize="sm" fontWeight="bold" marginBottom={8}>
+            Hover Only (Default)
+          </View>
+          <View
+            ref={hoverOnly.ref}
+            height={100}
+            backgroundColor="color.blue.500"
+            color="color.white"
+            borderRadius={8}
+            padding={12}
+            cursor="pointer"
+            css={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <View fontSize="xs" textAlign="center">
+              {hoverOnly.relation ? (
+                <>
+                  <div>
+                    Pos: {hoverOnly.relation.position.vertical}-
+                    {hoverOnly.relation.position.horizontal}
+                  </div>
+                  <div>
+                    Space: {hoverOnly.relation.space.vertical}-
+                    {hoverOnly.relation.space.horizontal}
+                  </div>
+                </>
+              ) : (
+                'Hover me!'
+              )}
+            </View>
+          </View>
+        </View>
+
+        {/* All events */}
+        <View flex={1} minWidth={200}>
+          <View fontSize="sm" fontWeight="bold" marginBottom={8}>
+            All Events (Hover + Scroll + Resize)
+          </View>
+          <View
+            ref={allEvents.ref}
+            height={100}
+            backgroundColor="color.green.500"
+            color="color.white"
+            borderRadius={8}
+            padding={12}
+            cursor="pointer"
+            css={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <View fontSize="xs" textAlign="center">
+              {allEvents.relation ? (
+                <>
+                  <div>
+                    Pos: {allEvents.relation.position.vertical}-
+                    {allEvents.relation.position.horizontal}
+                  </div>
+                  <div>
+                    Space: {allEvents.relation.space.vertical}-
+                    {allEvents.relation.space.horizontal}
+                  </div>
+                </>
+              ) : (
+                'Hover, scroll, or resize!'
+              )}
+            </View>
+          </View>
+        </View>
+
+        {/* Manual only */}
+        <View flex={1} minWidth={200}>
+          <View fontSize="sm" fontWeight="bold" marginBottom={8}>
+            Manual Only
+          </View>
+          <View
+            ref={noEvents.ref}
+            height={100}
+            backgroundColor="color.orange.500"
+            color="color.white"
+            borderRadius={8}
+            padding={12}
+            cursor="pointer"
+            css={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+            onClick={noEvents.updateRelation}
+          >
+            <View fontSize="xs" textAlign="center">
+              {noEvents.relation ? (
+                <>
+                  <div>
+                    Pos: {noEvents.relation.position.vertical}-
+                    {noEvents.relation.position.horizontal}
+                  </div>
+                  <div>
+                    Space: {noEvents.relation.space.vertical}-
+                    {noEvents.relation.space.horizontal}
+                  </div>
+                </>
+              ) : (
+                'Click to update!'
+              )}
+            </View>
+          </View>
+        </View>
+      </View>
+
+      <View fontSize="xs" color="color.gray.500" marginTop={12}>
+        Blue: Hover tracking only (default) | Green: All events enabled |
+        Orange: Manual updates only
       </View>
     </View>
   );
@@ -600,6 +762,9 @@ export const ActiveHook: Story = () => <ActiveExample />;
 export const ClickOutsideHook: Story = () => <ClickOutsideExample />;
 export const ElementPositionBasicHook: Story = () => (
   <BasicElementPositionExample />
+);
+export const ElementPositionConfigurableHook: Story = () => (
+  <ConfigurableEventsExample />
 );
 export const ElementPositionHook: Story = () => <ElementPositionExample />;
 export const FocusHook: Story = () => <FocusExample />;

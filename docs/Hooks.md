@@ -286,6 +286,8 @@ function WindowSizeComponent() {
 
 Determines an element's relative position within the viewport and calculates where the most available space is around it. This hook is useful for understanding element positioning and making decisions about where to place overlays, tooltips, or other positioned content.
 
+**Performance Optimized:** By default, only hover events are tracked for optimal performance. You can optionally enable scroll and resize tracking as needed.
+
 ```tsx
 import { useElementPosition } from 'app-studio';
 
@@ -377,11 +379,37 @@ function ManualUpdateExample() {
     </View>
   );
 }
+
+// Example with custom event configuration
+function CustomEventsExample() {
+  const { ref, relation } = useElementPosition({
+    trackOnHover: true,    // Track on hover (default: true)
+    trackOnScroll: true,   // Also track on scroll (default: false)
+    trackOnResize: true,   // Also track on resize (default: false)
+    throttleMs: 50,        // Faster throttling for scroll/resize
+  });
+
+  return (
+    <View ref={ref} padding={20} backgroundColor="green.100">
+      Hover, scroll, or resize to see updates
+      {relation && (
+        <Text fontSize="sm" marginTop={8}>
+          Position: {relation.position.vertical}-{relation.position.horizontal}
+          <br />
+          More space: {relation.space.vertical}-{relation.space.horizontal}
+        </Text>
+      )}
+    </View>
+  );
+}
 ```
 
 **Options:**
-- `trackChanges` (boolean): Whether to automatically track position changes on scroll/resize (default: true)
+- `trackChanges` (boolean): Whether to automatically track position changes (default: true)
 - `throttleMs` (number): Throttle delay for position updates in milliseconds (default: 100)
+- `trackOnHover` (boolean): Whether to track on hover events (default: true)
+- `trackOnScroll` (boolean): Whether to track on scroll events (default: false)
+- `trackOnResize` (boolean): Whether to track on resize events (default: false)
 
 **Returns:**
 - `ref`: React ref to attach to the target element
@@ -396,9 +424,12 @@ function ManualUpdateExample() {
 - Automatically tracks element position relative to viewport
 - Calculates available space on all sides of the element
 - Provides optimal placement suggestions for overlays
-- Throttled updates during scroll/resize for performance
+- Configurable event tracking (hover, scroll, resize) for performance optimization
+- Hover events trigger immediate updates for better UX
+- Scroll/resize events are throttled for performance
 - Works within scrollable containers (tracks relative to window viewport)
 - Lightweight and focused on viewport relationship data
+- Hover-only tracking by default for optimal performance
 
 ## Utility Hooks
 
