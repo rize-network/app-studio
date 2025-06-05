@@ -284,118 +284,95 @@ function WindowSizeComponent() {
 
 ### useElementPosition
 
-Tracks the position and dimensions of an element relative to the window, providing intelligent helper methods for positioning overlays like context menus, tooltips, and dropdowns. The hook automatically calculates available space on all sides and chooses the optimal placement to prevent overflow.
+Determines an element's relative position within the viewport and calculates where the most available space is around it. This hook is useful for understanding element positioning and making decisions about where to place overlays, tooltips, or other positioned content.
 
 ```tsx
 import { useElementPosition } from 'app-studio';
 
-function ContextMenuComponent() {
-  const { ref, position, helpers } = useElementPosition();
-  const [showMenu, setShowMenu] = useState(false);
+function PositionAwareComponent() {
+  const { ref, relation, updateRelation } = useElementPosition();
+  const [showTooltip, setShowTooltip] = useState(false);
 
-  const handleRightClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    setShowMenu(true);
+  const handleMouseEnter = () => {
+    setShowTooltip(true);
   };
 
-  const menuPosition = helpers.getContextMenuPosition(200, 150);
+  const handleMouseLeave = () => {
+    setShowTooltip(false);
+  };
+
+  // Determine tooltip placement based on available space
+  const getTooltipStyle = () => {
+    if (!relation) return {};
+
+    const baseStyle = { position: 'absolute' as const };
+
+    // Place tooltip where there's more space
+    if (relation.space.vertical === 'top') {
+      return { ...baseStyle, bottom: '100%', marginBottom: '8px' };
+    } else {
+      return { ...baseStyle, top: '100%', marginTop: '8px' };
+    }
+  };
 
   return (
-    <>
+    <View position="relative">
       <View
         ref={ref}
-        onContextMenu={handleRightClick}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
         padding={20}
         backgroundColor="gray.100"
+        borderRadius={8}
       >
-        Right-click me for context menu
-        {position && (
-          <div>Position: {Math.round(position.x)}, {Math.round(position.y)}</div>
+        Hover me for tooltip
+        {relation && (
+          <Text fontSize="sm" color="gray.600">
+            Position: {relation.position.vertical}-{relation.position.horizontal}
+            <br />
+            More space: {relation.space.vertical}-{relation.space.horizontal}
+          </Text>
         )}
       </View>
 
-      {showMenu && (
+      {showTooltip && (
         <View
-          position="fixed"
-          left={menuPosition.x}
-          top={menuPosition.y}
-          width={200}
-          height={150}
-          backgroundColor="white"
-          boxShadow="md"
-          borderRadius={8}
+          style={getTooltipStyle()}
+          padding={8}
+          backgroundColor="black"
+          color="white"
+          borderRadius={4}
+          fontSize="sm"
+          whiteSpace="nowrap"
         >
-          Context Menu ({menuPosition.placement})
+          Tooltip positioned optimally!
         </View>
       )}
-    </>
+    </View>
   );
 }
 
-// Advanced example with scrollable container
-function ScrollableContainerDemo() {
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-
-  const { ref, position, helpers } = useElementPosition({
-    scrollContainer: scrollContainerRef,
-    useFixedPositioning: false, // Position relative to container
+// Example with manual updates
+function ManualUpdateExample() {
+  const { ref, relation, updateRelation } = useElementPosition({
+    trackChanges: false, // Disable automatic tracking
   });
 
-  const [showMenu, setShowMenu] = useState(false);
-  const menuPosition = helpers.getContextMenuPosition(180, 100);
+  const handleClick = () => {
+    updateRelation(); // Manually trigger position calculation
+  };
 
   return (
-    <View height="400px" display="flex" gap={20}>
-      {/* Scrollable container */}
-      <View
-        ref={scrollContainerRef}
-        flex={1}
-        height="100%"
-        css={{ overflow: 'auto' }}
-        backgroundColor="gray.50"
-        borderRadius={8}
-      >
-        {/* Large content area */}
-        <View width="800px" height="800px" position="relative">
-          <View
-            ref={ref}
-            position="absolute"
-            top={200}
-            left={300}
-            width={120}
-            height={80}
-            backgroundColor="blue.500"
-            color="white"
-            borderRadius={8}
-            padding={12}
-            cursor="pointer"
-            onClick={() => setShowMenu(!showMenu)}
-          >
-            Click me for menu
-            {position && (
-              <div>Pos: {Math.round(position.x)}, {Math.round(position.y)}</div>
-            )}
-          </View>
-
-          {/* Context menu positioned within scrollable container */}
-          {showMenu && (
-            <View
-              position="absolute"
-              left={menuPosition.x}
-              top={menuPosition.y}
-              width={180}
-              height={100}
-              backgroundColor="white"
-              boxShadow="lg"
-              borderRadius={8}
-              padding={12}
-            >
-              Menu ({menuPosition.placement})
-              <br />
-              Stays within scroll bounds
-            </View>
-          )}
-        </View>
+    <View>
+      <Button onClick={handleClick}>Update Position</Button>
+      {relation && (
+        <Text>
+          Element is in {relation.position.vertical}-{relation.position.horizontal} of viewport.
+          More space available on {relation.space.vertical} and {relation.space.horizontal}.
+        </Text>
+      )}
+      <View ref={ref} padding={20} backgroundColor="blue.100" marginTop={20}>
+        Target Element
       </View>
     </View>
   );
@@ -403,36 +380,25 @@ function ScrollableContainerDemo() {
 ```
 
 **Options:**
-- `trackChanges` (boolean): Whether to automatically track position changes (default: true)
-- `throttleMs` (number): Throttle delay for position updates in milliseconds (default: 16)
-- `includeScroll` (boolean): Whether to include scroll events (default: true)
-- `includeResize` (boolean): Whether to include resize events (default: true)
-- `offset` (object): Custom offset for calculations (default: { x: 0, y: 0 })
-- `scrollContainer` (RefObject): Reference to scrollable container (default: null, uses window)
-- `useFixedPositioning` (boolean): Use fixed positioning relative to viewport (default: false)
+- `trackChanges` (boolean): Whether to automatically track position changes on scroll/resize (default: true)
+- `throttleMs` (number): Throttle delay for position updates in milliseconds (default: 100)
 
 **Returns:**
-- `ref`: React ref to attach to the element
-- `position`: Current position data (x, y, width, height, top, left, right, bottom)
-- `helpers`: Helper methods for positioning overlays
-- `updatePosition`: Manual position update function
+- `ref`: React ref to attach to the target element
+- `relation`: Object containing position and space information, or null if not calculated
+  - `position.vertical`: 'top' | 'bottom' - Element's general location in viewport
+  - `position.horizontal`: 'left' | 'right' - Element's general location in viewport
+  - `space.vertical`: 'top' | 'bottom' - Where more space exists vertically
+  - `space.horizontal`: 'left' | 'right' - Where more space exists horizontally
+- `updateRelation`: Function to manually trigger position recalculation
 
-**Helper Methods:**
-- `getAvailableSpace()`: Returns available space on all sides (top, right, bottom, left)
-- `getOptimalPosition(width, height, offset?)`: Calculates optimal placement based on available space
-- `getContextMenuPosition(width, height)`: Optimal position for context menus (uses getOptimalPosition)
-- `getTooltipPosition(width, height, offset?)`: Optimal position for tooltips (uses getOptimalPosition)
-- `getDropdownPosition(width, height)`: Optimal position for dropdowns (uses getOptimalPosition)
-- `isInViewport()`: Check if element is visible in viewport
-- `getViewportOverflow()`: Get overflow amounts for each side
-
-**Intelligent Positioning:**
-The hook automatically:
-1. Calculates available space on all four sides (top, right, bottom, left)
-2. Determines which placements can fit the overlay completely
-3. If multiple placements fit, chooses the one with the most space
-4. If no placement fits completely, chooses the side with the most available space
-5. Works correctly within scrollable containers and with fixed positioning
+**Key Features:**
+- Automatically tracks element position relative to viewport
+- Calculates available space on all sides of the element
+- Provides optimal placement suggestions for overlays
+- Throttled updates during scroll/resize for performance
+- Works within scrollable containers (tracks relative to window viewport)
+- Lightweight and focused on viewport relationship data
 
 ## Utility Hooks
 

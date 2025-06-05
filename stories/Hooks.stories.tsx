@@ -204,16 +204,50 @@ const CornerElement = ({
   corner: string;
   style: React.CSSProperties;
 }) => {
-  const { ref, position, helpers } = useElementPosition();
-  const [activeOverlay, setActiveOverlay] = React.useState<string | null>(null);
+  const { ref, relation, updateRelation } = useElementPosition();
+  const [showTooltip, setShowTooltip] = React.useState(false);
 
-  const handleInteraction = (type: string) => {
-    setActiveOverlay(activeOverlay === type ? null : type);
+  const handleMouseEnter = () => {
+    setShowTooltip(true);
   };
 
-  const contextMenuPosition = helpers.getContextMenuPosition(180, 100);
-  const tooltipPosition = helpers.getTooltipPosition(120, 32);
-  const dropdownPosition = helpers.getDropdownPosition(160, 80);
+  const handleMouseLeave = () => {
+    setShowTooltip(false);
+  };
+
+  const handleClick = () => {
+    updateRelation(); // Manually update position
+  };
+
+  // Determine tooltip placement based on available space
+  const getTooltipStyle = (): React.CSSProperties => {
+    if (!relation) return { display: 'none' };
+
+    const baseStyle: React.CSSProperties = {
+      position: 'fixed',
+      zIndex: 1000,
+      pointerEvents: 'none',
+    };
+
+    // Place tooltip where there's more space
+    if (relation.space.vertical === 'top') {
+      return {
+        ...baseStyle,
+        bottom: '100%',
+        marginBottom: '8px',
+        left: '50%',
+        transform: 'translateX(-50%)',
+      };
+    } else {
+      return {
+        ...baseStyle,
+        top: '100%',
+        marginTop: '8px',
+        left: '50%',
+        transform: 'translateX(-50%)',
+      };
+    }
+  };
 
   return (
     <>
@@ -237,125 +271,56 @@ const CornerElement = ({
           fontSize: '12px',
           fontWeight: 'bold',
         }}
-        onClick={() => handleInteraction('dropdown')}
-        onContextMenu={(e: React.MouseEvent) => {
-          e.preventDefault();
-          handleInteraction('context');
-        }}
-        onMouseEnter={() => handleInteraction('tooltip')}
-        onMouseLeave={() => setActiveOverlay(null)}
+        onClick={handleClick}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
       >
         <div>{corner}</div>
         <div style={{ fontSize: '10px', marginTop: '4px', opacity: 0.8 }}>
-          {position
-            ? `${Math.round(position.x)}, ${Math.round(position.y)}`
+          {relation
+            ? `${relation.position.vertical}-${relation.position.horizontal}`
             : 'Loading...'}
+        </div>
+        <div style={{ fontSize: '9px', marginTop: '2px', opacity: 0.6 }}>
+          {relation
+            ? `Space: ${relation.space.vertical}-${relation.space.horizontal}`
+            : ''}
         </div>
       </View>
 
-      {/* Context Menu */}
-      {activeOverlay === 'context' && (
-        <View
-          position="fixed"
-          left={contextMenuPosition.x}
-          top={contextMenuPosition.y}
-          width={180}
-          height={100}
-          backgroundColor="color.white"
-          boxShadow="xl"
-          borderRadius={8}
-          padding={12}
-          zIndex={1000}
-          border="1px solid"
-          borderColor="color.gray.300"
-        >
-          <View fontSize="sm" fontWeight="bold" marginBottom={4}>
-            Context Menu
-          </View>
-          <View fontSize="xs" color="color.gray.600" marginBottom={2}>
-            Placement: {contextMenuPosition.placement}
-          </View>
-          <View fontSize="xs" color="color.blue.600">
-            Auto-positioned to stay in viewport
-          </View>
-        </View>
-      )}
-
       {/* Tooltip */}
-      {activeOverlay === 'tooltip' && (
+      {showTooltip && relation && (
         <View
-          position="fixed"
-          left={tooltipPosition.x}
-          top={tooltipPosition.y}
-          width={120}
-          height={32}
+          style={getTooltipStyle()}
           backgroundColor="color.gray.900"
           color="color.white"
           borderRadius={4}
           padding={6}
           fontSize="xs"
-          zIndex={1000}
-          css={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
+          whiteSpace="nowrap"
         >
-          {tooltipPosition.placement} tooltip
-        </View>
-      )}
-
-      {/* Dropdown */}
-      {activeOverlay === 'dropdown' && (
-        <View
-          position="fixed"
-          left={dropdownPosition.x}
-          top={dropdownPosition.y}
-          width={160}
-          height={80}
-          backgroundColor="color.white"
-          boxShadow="lg"
-          borderRadius={8}
-          padding={8}
-          zIndex={1000}
-          border="1px solid"
-          borderColor="color.gray.200"
-        >
-          <View fontSize="sm" fontWeight="bold" marginBottom={4}>
-            Dropdown ({dropdownPosition.placement})
-          </View>
-          <View fontSize="xs" color="color.gray.600">
-            Smart positioning prevents overflow
-          </View>
+          More space: {relation.space.vertical}-{relation.space.horizontal}
         </View>
       )}
     </>
   );
 };
 
-// Scrollable container element
+// Simple element for scrollable container demo
 const ScrollableElement = ({
   label,
   style,
-  scrollContainerRef,
 }: {
   label: string;
   style: React.CSSProperties;
-  scrollContainerRef: React.RefObject<HTMLDivElement>;
 }) => {
-  const { ref, position, helpers } = useElementPosition({
-    scrollContainer: scrollContainerRef,
-    useFixedPositioning: false, // Use absolute positioning within container
-  });
-  const [activeOverlay, setActiveOverlay] = React.useState<string | null>(null);
+  const { ref, relation, updateRelation } = useElementPosition();
+  const [showInfo, setShowInfo] = React.useState(false);
 
-  const handleInteraction = (type: string) => {
-    setActiveOverlay(activeOverlay === type ? null : type);
+  const handleClick = () => {
+    updateRelation();
+    setShowInfo(!showInfo);
   };
-
-  const contextMenuPosition = helpers.getContextMenuPosition(160, 80);
-  const tooltipPosition = helpers.getTooltipPosition(100, 28);
-  const availableSpace = helpers.getAvailableSpace();
 
   return (
     <>
@@ -379,85 +344,132 @@ const ScrollableElement = ({
           fontSize: '10px',
           fontWeight: 'bold',
         }}
-        onClick={() => handleInteraction('context')}
-        onMouseEnter={() => handleInteraction('tooltip')}
-        onMouseLeave={() => setActiveOverlay(null)}
+        onClick={handleClick}
       >
         <div>{label}</div>
         <div style={{ fontSize: '8px', marginTop: '2px', opacity: 0.8 }}>
-          {position
-            ? `${Math.round(position.x)}, ${Math.round(position.y)}`
+          {relation
+            ? `${relation.position.vertical}-${relation.position.horizontal}`
             : 'Loading...'}
         </div>
         <div style={{ fontSize: '7px', marginTop: '1px', opacity: 0.6 }}>
-          Space: T{Math.round(availableSpace.top)} R
-          {Math.round(availableSpace.right)} B
-          {Math.round(availableSpace.bottom)} L{Math.round(availableSpace.left)}
+          {relation
+            ? `Space: ${relation.space.vertical}-${relation.space.horizontal}`
+            : ''}
         </div>
       </View>
 
-      {/* Context Menu */}
-      {activeOverlay === 'context' && (
+      {/* Info popup */}
+      {showInfo && relation && (
         <View
-          position="absolute"
-          left={contextMenuPosition.x}
-          top={contextMenuPosition.y}
-          width={160}
-          height={80}
+          position="fixed"
+          left="50%"
+          top="50%"
+          css={{ transform: 'translate(-50%, -50%)' }}
+          width={200}
           backgroundColor="color.white"
-          boxShadow="lg"
-          borderRadius={6}
-          padding={8}
+          boxShadow="xl"
+          borderRadius={8}
+          padding={12}
           zIndex={1000}
           border="1px solid"
           borderColor="color.gray.300"
         >
-          <View fontSize="xs" fontWeight="bold" marginBottom={2}>
-            Menu ({contextMenuPosition.placement})
+          <View fontSize="sm" fontWeight="bold" marginBottom={4}>
+            {label} Position Info
           </View>
-          <View fontSize="xs" color="color.gray.600" marginBottom={1}>
-            Optimal placement based on space
+          <View fontSize="xs" color="color.gray.600" marginBottom={2}>
+            Position: {relation.position.vertical}-
+            {relation.position.horizontal}
           </View>
-          <View fontSize="xs" color="color.gray.500">
-            Available:{' '}
-            {Math.round(
-              contextMenuPosition.availableSpace[contextMenuPosition.placement]
-            )}
-            px
+          <View fontSize="xs" color="color.gray.600">
+            More space: {relation.space.vertical}-{relation.space.horizontal}
           </View>
-        </View>
-      )}
-
-      {/* Tooltip */}
-      {activeOverlay === 'tooltip' && (
-        <View
-          position="absolute"
-          left={tooltipPosition.x}
-          top={tooltipPosition.y}
-          width={100}
-          height={28}
-          backgroundColor="color.gray.900"
-          color="color.white"
-          borderRadius={4}
-          padding={4}
-          fontSize="xs"
-          zIndex={1000}
-          css={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          {tooltipPosition.placement}
         </View>
       )}
     </>
   );
 };
 
-const ElementPositionExample = () => {
-  const scrollContainerRef = React.useRef<HTMLDivElement>(null);
+// Simple basic example
+const BasicElementPositionExample = () => {
+  const { ref, relation, updateRelation } = useElementPosition();
 
+  return (
+    <View
+      height="300px"
+      width="100%"
+      backgroundColor="color.gray.50"
+      padding={20}
+      position="relative"
+    >
+      <View
+        fontSize="lg"
+        fontWeight="bold"
+        marginBottom={16}
+        color="color.gray.700"
+      >
+        Basic useElementPosition Example
+      </View>
+
+      <View
+        ref={ref}
+        width={200}
+        height={100}
+        backgroundColor="color.blue.500"
+        color="color.white"
+        borderRadius={8}
+        padding={16}
+        cursor="pointer"
+        position="absolute"
+        top="50%"
+        left="50%"
+        css={{
+          transform: 'translate(-50%, -50%)',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+        onClick={updateRelation}
+      >
+        <View fontSize="sm" fontWeight="bold" marginBottom={8}>
+          Click to Update Position
+        </View>
+        {relation ? (
+          <View fontSize="xs" textAlign="center">
+            <div>
+              Position: {relation.position.vertical}-
+              {relation.position.horizontal}
+            </div>
+            <div>
+              More space: {relation.space.vertical}-{relation.space.horizontal}
+            </div>
+          </View>
+        ) : (
+          <View fontSize="xs">Loading...</View>
+        )}
+      </View>
+
+      <View
+        position="absolute"
+        bottom={10}
+        left={10}
+        fontSize="xs"
+        color="color.gray.600"
+        backgroundColor="color.white"
+        padding={8}
+        borderRadius={4}
+        border="1px solid"
+        borderColor="color.gray.200"
+      >
+        Try scrolling the page or resizing the window to see position updates
+      </View>
+    </View>
+  );
+};
+
+const ElementPositionExample = () => {
   return (
     <View
       height="500px"
@@ -471,11 +483,11 @@ const ElementPositionExample = () => {
         marginBottom={16}
         color="color.gray.700"
       >
-        useElementPosition Demo - Scrollable Container
+        useElementPosition Demo - Viewport Relation Detection
       </View>
 
       <View display="flex" gap={20} height="400px">
-        {/* Fixed viewport demo */}
+        {/* Viewport positioning demo */}
         <View flex={1}>
           <View
             fontSize="sm"
@@ -483,7 +495,7 @@ const ElementPositionExample = () => {
             marginBottom={8}
             color="color.gray.600"
           >
-            Fixed Viewport Positioning
+            Viewport Position Detection
           </View>
           <View
             height="300px"
@@ -514,10 +526,9 @@ const ElementPositionExample = () => {
             marginBottom={8}
             color="color.gray.600"
           >
-            Scrollable Container Positioning
+            Scrollable Content Demo
           </View>
           <View
-            ref={scrollContainerRef}
             height="300px"
             position="relative"
             backgroundColor="color.green.50"
@@ -533,27 +544,22 @@ const ElementPositionExample = () => {
               <ScrollableElement
                 label="TOP LEFT"
                 style={{ top: 20, left: 20 }}
-                scrollContainerRef={scrollContainerRef}
               />
               <ScrollableElement
                 label="TOP RIGHT"
                 style={{ top: 20, right: 20 }}
-                scrollContainerRef={scrollContainerRef}
               />
               <ScrollableElement
                 label="CENTER"
                 style={{ top: 200, left: 250 }}
-                scrollContainerRef={scrollContainerRef}
               />
               <ScrollableElement
                 label="BOTTOM LEFT"
                 style={{ bottom: 20, left: 20 }}
-                scrollContainerRef={scrollContainerRef}
               />
               <ScrollableElement
                 label="BOTTOM RIGHT"
                 style={{ bottom: 20, right: 20 }}
-                scrollContainerRef={scrollContainerRef}
               />
 
               {/* Scroll indicator */}
@@ -567,10 +573,10 @@ const ElementPositionExample = () => {
                 }}
               >
                 <View fontSize="sm" color="color.gray.500" marginBottom={4}>
-                  Scroll to see positioning in action
+                  Scroll to see position updates
                 </View>
                 <View fontSize="xs" color="color.gray.400">
-                  Click elements for context menus
+                  Click elements for position info
                 </View>
               </View>
             </View>
@@ -579,8 +585,8 @@ const ElementPositionExample = () => {
       </View>
 
       <View fontSize="xs" color="color.gray.500" marginTop={12}>
-        Left: Fixed viewport positioning | Right: Container-relative positioning
-        with scroll support
+        Left: Hover for tooltips, click to update | Right: Click elements for
+        position details
       </View>
     </View>
   );
@@ -592,6 +598,9 @@ const meta: Meta = {
 
 export const ActiveHook: Story = () => <ActiveExample />;
 export const ClickOutsideHook: Story = () => <ClickOutsideExample />;
+export const ElementPositionBasicHook: Story = () => (
+  <BasicElementPositionExample />
+);
 export const ElementPositionHook: Story = () => <ElementPositionExample />;
 export const FocusHook: Story = () => <FocusExample />;
 export const HoverHook: Story = () => <HoverExample />;
