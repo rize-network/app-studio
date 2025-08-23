@@ -1,10 +1,17 @@
-import React, { CSSProperties, useMemo, forwardRef } from 'react';
+import React, {
+  CSSProperties,
+  useMemo,
+  forwardRef,
+  useEffect,
+  useRef,
+  useCallback,
+} from 'react';
 import { Colors, Theme, useTheme } from '../providers/Theme';
 import { useResponsiveContext } from '../providers/Responsive';
 
 import { isStyleProp } from '../utils/style';
 import { AnimationProps, excludedKeys, includeKeys } from '../utils/constants';
-import { extractUtilityClasses } from './css';
+import { extractUtilityClasses, AnimationUtils } from './css';
 import { Shadow } from '../utils/shadow';
 import { useAnalytics } from '../providers/Analytics';
 import { ViewStyleProps } from '../types/style';
@@ -70,6 +77,8 @@ export interface CssProps extends CSSProperties {
   paddingVertical?: number | string;
   marginVertical?: number | string;
   animate?: AnimationProps[] | AnimationProps;
+  animateIn?: AnimationProps[] | AnimationProps;
+  animateOut?: AnimationProps[] | AnimationProps;
   shadow?: boolean | number | Shadow;
 
   // Underscore-prefixed event props (alternative to using the 'on' prop)
@@ -109,15 +118,48 @@ export interface CssProps extends CSSProperties {
 
 export const Element = React.memo(
   forwardRef<HTMLElement, ElementProps>(
-    ({ as = 'div', ...props }: ElementProps, ref) => {
+    ({ as = 'div', animateIn, animateOut, ...props }: ElementProps, ref) => {
       if ((props.onClick || props.onPress) && props.cursor == undefined) {
         props.cursor = 'pointer';
       }
 
       const { onPress, ...rest } = props;
+      const elementRef = useRef<HTMLElement | null>(null);
+      const setRef = useCallback(
+        (node: HTMLElement | null) => {
+          elementRef.current = node;
+          if (typeof ref === 'function') {
+            ref(node);
+          } else if (ref) {
+            (ref as React.MutableRefObject<HTMLElement | null>).current = node;
+          }
+        },
+        [ref]
+      );
       const { getColor, theme } = useTheme();
       const { trackEvent } = useAnalytics();
       const { mediaQueries, devices } = useResponsiveContext();
+
+      useEffect(() => {
+        if (animateIn && elementRef.current) {
+          const animations = Array.isArray(animateIn) ? animateIn : [animateIn];
+          const styles = AnimationUtils.processAnimations(animations);
+          Object.assign(elementRef.current.style, styles);
+        }
+      }, [animateIn]);
+
+      useEffect(() => {
+        const node = elementRef.current;
+        return () => {
+          if (animateOut && node) {
+            const animations = Array.isArray(animateOut)
+              ? animateOut
+              : [animateOut];
+            const styles = AnimationUtils.processAnimations(animations);
+            Object.assign(node.style, styles);
+          }
+        };
+      }, [animateOut]);
 
       const utilityClasses = useMemo(
         () =>
@@ -136,7 +178,7 @@ export const Element = React.memo(
         [rest, mediaQueries, devices, theme]
       );
 
-      const newProps: any = { ref };
+      const newProps: any = { ref: setRef };
       if (onPress) {
         newProps.onClick = onPress;
       }

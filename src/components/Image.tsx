@@ -16,6 +16,8 @@ export interface ImageProps
       | 'target'
       | 'border'
       | 'animate'
+      | 'animateIn'
+      | 'animateOut'
       | 'draggable'
       | 'style'
     >,

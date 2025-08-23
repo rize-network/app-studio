@@ -129,7 +129,7 @@ const EVENT_TO_PSEUDO: Record<string, string> = {
 /**
  * Utility functions for animation handling
  */
-const AnimationUtils = {
+export const AnimationUtils = {
   parseDuration(duration: string): number {
     const match = duration.match(/^([\d.]+)(ms|s)$/);
     if (!match) return 0;

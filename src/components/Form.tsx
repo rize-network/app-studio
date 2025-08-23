@@ -34,6 +34,8 @@ export interface ButtonProps
       | 'type'
       | 'border'
       | 'animate'
+      | 'animateIn'
+      | 'animateOut'
       | 'style'
       | 'draggable'
     >,
@@ -54,6 +56,8 @@ export interface InputProps
       | 'width'
       | 'height'
       | 'animate'
+      | 'animateIn'
+      | 'animateOut'
       | 'size'
     > {}
 
