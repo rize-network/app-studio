@@ -41,6 +41,8 @@ export const excludedKeys = new Set<string>([
   'marginHorizontal',
   'marginVertical',
   'animate',
+  'animateIn',
+  'animateOut',
 
   // Underscore-prefixed event props
   '_hover',
