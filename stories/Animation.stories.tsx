@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ComponentStory, ComponentMeta } from '@storybook/react';
 import { View, Button, Animation } from '../src/index';
 
@@ -270,5 +270,77 @@ export const ClickAnimation: ComponentStory<typeof View> = () => {
             }
       }
     />
+  );
+};
+
+export const AnimateInExample: ComponentStory<typeof View> = () => {
+  const [visible, setVisible] = useState(false);
+  const [render, setRender] = useState(false);
+
+  useEffect(() => {
+    if (visible) {
+      setRender(true);
+    } else {
+      const timer = setTimeout(() => {
+        setRender(false);
+      }, 500); // Match the duration of animateIn
+      return () => clearTimeout(timer);
+    }
+  }, [visible]);
+
+  return (
+    <>
+      <Button onPress={() => setVisible(!visible)}>
+        {visible ? 'Hide' : 'Show'} Component (Animate In)
+      </Button>
+      {render && (
+        <View
+          widthHeight={100}
+          backgroundColor="color.blue"
+          animateIn={{
+            from: { opacity: 0, transform: 'translateY(-50px)' },
+            to: { opacity: 1, transform: 'translateY(0)' },
+            duration: '0.5s',
+            timingFunction: 'ease-out',
+          }}
+        />
+      )}
+    </>
+  );
+};
+
+export const AnimateOutExample: ComponentStory<typeof View> = () => {
+  const [visible, setVisible] = useState(true);
+  const [render, setRender] = useState(true);
+
+  useEffect(() => {
+    if (visible) {
+      setRender(true);
+    } else {
+      const timer = setTimeout(() => {
+        setRender(false);
+      }, 500); // Match the duration of animateOut
+      return () => clearTimeout(timer);
+    }
+  }, [visible]);
+
+  return (
+    <>
+      <Button onPress={() => setVisible(!visible)}>
+        {visible ? 'Hide' : 'Show'} Component (Animate Out)
+      </Button>
+      {render && (
+        <View
+          widthHeight={100}
+          backgroundColor="color.green"
+          animateOut={{
+            from: { opacity: 1, transform: 'translateX(0)' },
+            to: { opacity: 0, transform: 'translateX(50px)' },
+            duration: '0.5s',
+            timingFunction: 'ease-in',
+          }}
+        />
+      )}
+    </>
   );
 };
