@@ -25,8 +25,7 @@ interface Props extends TextProps {
   bgColor?: string;
 }
 
-interface ContentProps
-  extends Omit<TextProps, 'translate' | 'rel'> {
+interface ContentProps extends Omit<TextProps, 'translate' | 'rel'> {
   isSub?: boolean;
   isSup?: boolean;
   views?: {
@@ -46,38 +45,38 @@ interface TruncateTextProps
 /**
  * Renders text content with support for subscript and superscript
  */
-const TextContent: React.FC<ContentProps>  = ({
+const TextContent: React.FC<ContentProps> = ({
   children,
   isSub,
   isSup,
   views,
   ...props
-}) => 
-    isSub ? (
-      <View
-        as="sub"
-        {...views?.sup}
-        fontSize="75%"
-        lineHeight="0"
-        position="relative"
-        bottom="-0.25em"
-      >
-        {children}
-      </View>
-    ) : isSup ? (
-      <View
-        as="sup"
-        {...views?.sup}
-        fontSize="75%"
-        lineHeight="0"
-        position="relative"
-        top="-0.5em"
-      >
-        {children}
-      </View>
-    ) : (<Element {...props}>{children}</Element>
-
-);
+}) =>
+  isSub ? (
+    <View
+      as="sub"
+      {...views?.sup}
+      fontSize="75%"
+      lineHeight="0"
+      position="relative"
+      bottom="-0.25em"
+    >
+      {children}
+    </View>
+  ) : isSup ? (
+    <View
+      as="sup"
+      {...views?.sup}
+      fontSize="75%"
+      lineHeight="0"
+      position="relative"
+      top="-0.5em"
+    >
+      {children}
+    </View>
+  ) : (
+    <Element {...props}>{children}</Element>
+  );
 
 /**
  * Renders text with truncation after a specified number of lines (JS calculation)
@@ -279,11 +278,7 @@ const TextView: React.FC<Props> = ({
       maxLines={maxLines}
     />
   ) : (
-    <TextContent
-      isSub={isSub}
-      isSup={isSup}
-      {...commonProps}
-    >
+    <TextContent isSub={isSub} isSup={isSup} {...commonProps}>
       {children}
     </TextContent>
   );
