@@ -3,6 +3,7 @@ import React from 'react';
 import { TextProps } from './Text/Text.props';
 import TextView from './Text/Text.view';
 
+
 const TextComponent: React.FC<TextProps & any> = (props) => {
   return <TextView {...props} />;
 };
