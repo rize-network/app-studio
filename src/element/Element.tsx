@@ -28,6 +28,7 @@ export interface ElementProps
   onPress?: any;
   onClick?: any;
   className?: string;
+  blend?: boolean;
   themeMode?: 'light' | 'dark';
   as?: keyof JSX.IntrinsicElements;
   style?: CSSProperties;
@@ -80,6 +81,7 @@ export interface CssProps extends CSSProperties {
   animateIn?: AnimationProps[] | AnimationProps;
   animateOut?: AnimationProps[] | AnimationProps;
   shadow?: boolean | number | Shadow;
+  blend?: boolean;
 
   // Underscore-prefixed event props (alternative to using the 'on' prop)
   _hover?: CSSProperties | string;
@@ -105,7 +107,6 @@ export interface CssProps extends CSSProperties {
   _focusVisible?: CSSProperties | string;
   _focusWithin?: CSSProperties | string;
   _placeholder?: CSSProperties | string;
-
   // Pseudo-element props
   _before?: CSSProperties;
   _after?: CSSProperties;
@@ -123,7 +124,7 @@ export const Element = React.memo(
         props.cursor = 'pointer';
       }
 
-      const { onPress, ...rest } = props;
+      const { onPress, blend, ...rest } = props;
       const elementRef = useRef<HTMLElement | null>(null);
       const setRef = useCallback(
         (node: HTMLElement | null) => {
@@ -161,22 +162,33 @@ export const Element = React.memo(
         };
       }, [animateOut]);
 
-      const utilityClasses = useMemo(
-        () =>
-          extractUtilityClasses(
-            rest,
-            (color: string) => {
-              return getColor(color, {
-                colors: props.colors,
-                theme: props.theme,
-                themeMode: props.themeMode,
-              });
-            },
-            mediaQueries,
-            devices
-          ),
-        [rest, mediaQueries, devices, theme]
-      );
+      const utilityClasses = useMemo(() => {
+        const propsToProcess = { ...rest };
+        if (blend) {
+          if (propsToProcess.bgColor) {
+            propsToProcess.mixBlendMode = 'exclusion';
+            propsToProcess.color = getColor(propsToProcess.bgColor);
+          } else if (propsToProcess.backgroundColor) {
+            propsToProcess.mixBlendMode = 'exclusion';
+            propsToProcess.color = getColor(propsToProcess.backgroundColor);
+          } else {
+            propsToProcess.mixBlendMode = 'difference';
+            propsToProcess.color = 'white';
+          }
+        }
+        return extractUtilityClasses(
+          propsToProcess,
+          (color: string) => {
+            return getColor(color, {
+              colors: props.colors,
+              theme: props.theme,
+              themeMode: props.themeMode,
+            });
+          },
+          mediaQueries,
+          devices
+        );
+      }, [rest, blend, mediaQueries, devices, theme]);
 
       const newProps: any = { ref: setRef };
       if (onPress) {

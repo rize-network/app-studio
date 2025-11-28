@@ -110,6 +110,7 @@ The fundamental building block. Renders as a specified HTML tag (`as` prop, defa
 | `animate` | `AnimationProps` or `AnimationProps[]` | Applies one or more animations from the `Animation` system.                                                |
 | `size`    | `number` or `string`                   | Sets equal `width` and `height`.                                                                           |
 | `shadow`  | `boolean` or `number`                  | Applies a pre-defined box-shadow effect (levels 0-9).                                                      |
+| `blend`   | `boolean`                              | Explicitly applies `mix-blend-mode: difference`. **Default:** Active if `color` is undefined.              |
 | `...rest` | `CssProps`                             | Accepts numerous CSS properties directly as props (e.g., `backgroundColor`, `padding`, `fontSize`, etc.).    |
 
 **Example:**

@@ -144,6 +144,59 @@ function Example() {
 
 This direct access syntax works with all color-related properties and can be used with both singleton colors (like `white`, `black`) and palette colors (like `red.200`, `blue.500`). It provides a convenient way to reference specific theme colors without having to use the `getColor` function from the `useTheme` hook.
 
+### Smart Text Contrast
+
+For text that needs to be visible on any background color (light, dark, or dynamic gradients), App-Studio provides a smart contrast feature.
+
+**Default Behavior:** If you do **not** specify a `color` prop on a `Text` or `Element` component, it automatically applies `mix-blend-mode: difference` and sets the color to `white`. This intelligently inverts the text color based on the background behind it, ensuring visibility.
+
+**Explicit Control:** You can also force this behavior by explicitly setting the `blend` prop to `true`, even if a color is specified (though the color will be overridden to white for the blend calculation).
+
+This is particularly useful for:
+- Text over images or videos
+- Components that need to work in both light and dark modes without specific color overrides
+- Text over gradients where the background lightness varies
+
+```javascript
+import { View, Text } from 'app-studio';
+
+function SmartTextExample() {
+  return (
+    <View>
+      {/* Automatically becomes white on black background (no color specified) */}
+      <View backgroundColor="black" padding={20}>
+        <Text>Visible on Black</Text>
+      </View>
+
+      {/* Automatically becomes black on white background (no color specified) */}
+      <View backgroundColor="white" padding={20}>
+        <Text>Visible on White</Text>
+      </View>
+
+      {/* Works on colored backgrounds too */}
+      <View backgroundColor="red" padding={20}>
+        <Text>Visible on Red</Text>
+      </View>
+      
+      {/* And gradients! */}
+       <View 
+        style={{ background: 'linear-gradient(90deg, #ffffff 0%, #000000 100%)' }} 
+        padding={20}
+      >
+        <Text fontWeight="bold">
+          Smart Text Across Gradient
+        </Text>
+      </View>
+
+      {/* Explicitly disabling it by setting a color */}
+      <View backgroundColor="white" padding={20}>
+        <Text color="black">Standard Black Text (No Blend)</Text>
+      </View>
+    </View>
+  );
+}
+```
+
 ## Complete Example
 
 Here's a complete example that ties it all together:

@@ -1,41 +1,13 @@
 import React from 'react';
-import { Element, ElementProps } from '../element/Element';
-import { TextStyleProps } from '../types/style';
 
-export interface TextProps
-  extends Omit<
-      TextStyleProps,
-      | 'children'
-      | 'style'
-      | 'onPress'
-      | 'pointerEvents'
-      | 'onClick'
-      | 'accessibilityRole'
-      | 'accessibilityState'
-    >,
-    ElementProps {
-  toUpperCase?: boolean;
-}
+import { TextProps } from './Text/Text.props';
+import TextView from './Text/Text.view';
 
-export const Text = React.forwardRef<
-  HTMLElement,
-  React.ComponentPropsWithRef<typeof Element> & TextProps
->((props, ref) => {
-  const { toUpperCase, children, ...rest } = props;
+const TextComponent: React.FC<TextProps & any> = (props) => {
+  return <TextView {...props} />;
+};
 
-  // Convertir le texte en majuscules si toUpperCase est activé
-  const content =
-    toUpperCase && typeof children === 'string'
-      ? children.toUpperCase()
-      : children;
-
-  return (
-    <Element as="span" {...rest} ref={ref}>
-      {content}
-    </Element>
-  );
-}) as unknown as React.ForwardRefExoticComponent<
-  React.ComponentPropsWithRef<typeof Element> &
-    TextProps &
-    React.RefAttributes<HTMLElement>
->;
+/**
+ * The Text component is a simple component that renders a text string or paragraphs as a DOM element in the UI. It is a <p> tag by default.
+ */
+export const Text = TextComponent;
