@@ -18,7 +18,6 @@ import { View, ViewProps } from '../View';
 
 import { Element } from '../../element/Element';
 
-
 interface Props extends TextProps {
   views?: {
     container?: ViewProps;
@@ -175,7 +174,8 @@ const TruncateText: React.FC<TruncateTextProps> = ({
   }, [text, maxLines]);
 
   return (
-    <Element as="span"
+    <Element
+      as="span"
       ref={containerRef}
       overflow="hidden" // Crucial for final display state
       {...views?.truncateText}

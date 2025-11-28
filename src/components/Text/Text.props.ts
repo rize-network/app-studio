@@ -2,15 +2,18 @@ import { Headings, Size, TextWeights } from './Text.type';
 import { TextStyleProps } from '../../types/style';
 import { ElementProps } from '../../element/Element';
 
-
 export interface TextProps
-  extends Omit<TextStyleProps,   | 'children'
+  extends Omit<
+      TextStyleProps,
+      | 'children'
       | 'style'
       | 'onPress'
       | 'pointerEvents'
       | 'onClick'
       | 'accessibilityRole'
-      | 'accessibilityState'>, ElementProps {
+      | 'accessibilityState'
+    >,
+    ElementProps {
   children?: React.ReactNode;
   backgroundColor?: string;
   toUpperCase?: boolean;
