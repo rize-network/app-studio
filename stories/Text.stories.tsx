@@ -251,3 +251,50 @@ export const DesignSystemText = () => (
   </Vertical>
   </View>
 );
+
+export const BlendModes: ComponentStory<typeof Text> = () => {
+  return (
+    <Vertical gap={20} padding={20} backgroundColor="#888">
+      <Text heading="h3" color="white">Blend Mode Tests</Text>
+      
+      {/* Basic Blend */}
+      <View backgroundColor="black" padding={20}>
+        <Text >Blend on Black (Should be White)</Text>
+      </View>
+      <View backgroundColor="white" padding={20}>
+        <Text >Blend on White (Should be Black)</Text>
+      </View>
+      
+      {/* Truncated Text with Blend */}
+      <View backgroundColor="blue" padding={20} width={200}>
+        <Text maxLines={2}>
+          Truncated Blend Text on Blue - This should be truncated and visible
+        </Text>
+      </View>
+
+      {/* Sub/Sup with Blend */}
+      <View backgroundColor="darkred" padding={50}>
+        <Text >
+          Normal <Text isSup blend>Superscript</Text> and <Text isSub blend>Subscript</Text>
+        </Text>
+      </View>
+
+      {/* Explicit Colors with Blend */}
+      <View backgroundColor="green" padding={20}>
+        <Text  color="red">
+          Blend with explicit Red color (Should be overridden by blend logic?)
+        </Text>
+      </View>
+      
+       {/* Complex Background */}
+       <View 
+         style={{ background: 'linear-gradient(45deg, red, blue)' }} 
+         padding={20}
+       >
+         <Text  fontSize={24} fontWeight="bold">
+           Blend on Gradient
+         </Text>
+       </View>
+    </Vertical>
+  );
+};

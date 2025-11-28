@@ -25,7 +25,8 @@ interface Props extends TextProps {
   bgColor?: string;
 }
 
-interface ContentProps extends React.HTMLAttributes<HTMLElement> {
+interface ContentProps
+  extends Omit<TextProps, 'translate' | 'rel'> {
   isSub?: boolean;
   isSup?: boolean;
   views?: {
@@ -33,7 +34,8 @@ interface ContentProps extends React.HTMLAttributes<HTMLElement> {
   };
 }
 
-interface TruncateTextProps extends React.HTMLAttributes<HTMLDivElement> {
+interface TruncateTextProps
+  extends Omit<React.HTMLAttributes<HTMLDivElement>, 'translate' | 'rel'> {
   text: string;
   maxLines?: number;
   views?: {
@@ -44,57 +46,38 @@ interface TruncateTextProps extends React.HTMLAttributes<HTMLDivElement> {
 /**
  * Renders text content with support for subscript and superscript
  */
-const TextContent: React.FC<ContentProps & TextProps> = ({
+const TextContent: React.FC<ContentProps>  = ({
   children,
   isSub,
   isSup,
   views,
   ...props
-}) =>
-  typeof children === 'string' ? (
-    <Element as="span">
-      {isSub && (
-        <View
-          as="sub"
-          fontSize="75%"
-          lineHeight="0"
-          position="relative"
-          bottom="-0.25em"
-          {...props}
-          {...views?.sup}
-        >
-          {children}
-        </View>
-      )}
-      {isSup && (
-        <View
-          as="sup"
-          fontSize="75%"
-          lineHeight="0"
-          position="relative"
-          top="-0.5em"
-          {...props}
-          {...views?.sup}
-        >
-          {children}
-        </View>
-      )}
-      {!isSub && !isSup && <Element {...props}>{children}</Element>}
-    </Element>
-  ) : (
-    <Element as="span" {...props}>
-      {children}
-    </Element>
-  );
+}) => 
+    isSub ? (
+      <View
+        as="sub"
+        {...views?.sup}
+        fontSize="75%"
+        lineHeight="0"
+        position="relative"
+        bottom="-0.25em"
+      >
+        {children}
+      </View>
+    ) : isSup ? (
+      <View
+        as="sup"
+        {...views?.sup}
+        fontSize="75%"
+        lineHeight="0"
+        position="relative"
+        top="-0.5em"
+      >
+        {children}
+      </View>
+    ) : (<Element {...props}>{children}</Element>
 
-// Keep the interface
-interface TruncateTextProps extends React.HTMLAttributes<HTMLDivElement> {
-  text: string;
-  maxLines?: number;
-  views?: {
-    truncateText?: ViewProps;
-  };
-}
+);
 
 /**
  * Renders text with truncation after a specified number of lines (JS calculation)
@@ -103,6 +86,8 @@ const TruncateText: React.FC<TruncateTextProps & TextProps> = ({
   text,
   maxLines = 1,
   views,
+  isSub,
+  isSup,
   ...rest // Pass down other HTML attributes
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -174,13 +159,32 @@ const TruncateText: React.FC<TruncateTextProps & TextProps> = ({
     }
   }, [text, maxLines]);
 
+  const subSupProps = isSub
+    ? {
+        as: 'sub' as const,
+        fontSize: '75%',
+        lineHeight: '0',
+        position: 'relative',
+        bottom: '-0.25em',
+      }
+    : isSup
+    ? {
+        as: 'sup' as const,
+        fontSize: '75%',
+        lineHeight: '0',
+        position: 'relative',
+        top: '-0.5em',
+      }
+    : {};
+
   return (
     <Element
       as="span"
       ref={containerRef}
       overflow="hidden" // Crucial for final display state
-      {...views?.truncateText}
       {...rest} // Spread remaining props
+      {...subSupProps}
+      {...views?.truncateText}
       // Add title attribute for accessibility/hover to see full text
       title={isTruncated ? text : undefined}
     >
@@ -267,9 +271,19 @@ const TextView: React.FC<Props> = ({
       : children;
 
   return maxLines && typeof children === 'string' ? (
-    <TruncateText text={children} {...commonProps} />
+    <TruncateText
+      isSub={isSub}
+      isSup={isSup}
+      {...commonProps}
+      text={children as string}
+      maxLines={maxLines}
+    />
   ) : (
-    <TextContent isSub={isSub} isSup={isSup} {...commonProps}>
+    <TextContent
+      isSub={isSub}
+      isSup={isSup}
+      {...commonProps}
+    >
       {children}
     </TextContent>
   );

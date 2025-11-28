@@ -13,7 +13,7 @@ export interface TextProps
       | 'accessibilityRole'
       | 'accessibilityState'
     >,
-    ElementProps {
+    Omit<ElementProps, 'maxLines'> {
   children?: React.ReactNode;
   backgroundColor?: string;
   toUpperCase?: boolean;

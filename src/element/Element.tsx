@@ -164,15 +164,11 @@ export const Element = React.memo(
 
       const utilityClasses = useMemo(() => {
         const propsToProcess = { ...rest };
-        console.log({
-          blend: blend !== false,
-          color: propsToProcess.color === undefined,
-          children: rest.text,
-          as,
-        });
+
         if (
-          (blend !== false || propsToProcess.color === undefined) &&
-          typeof rest.text === 'string'
+          blend !== false &&
+          propsToProcess.color === undefined &&
+          typeof rest.children === 'string'
         ) {
           if (propsToProcess.bgColor) {
             propsToProcess.mixBlendMode = 'exclusion';
