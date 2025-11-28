@@ -1,4 +1,4 @@
-import { Headings, Size, TextWeights } from './Text.type';
+import { TextHeadings, TextSize, TextWeights } from './Text.type';
 import { TextStyleProps } from '../../types/style';
 import { ElementProps } from '../../element/Element';
 
@@ -21,14 +21,14 @@ export interface TextProps
    * Background color used to automatically compute a readable text color
    */
   bgColor?: string;
-  heading?: Headings;
+  heading?: TextHeadings;
   isItalic?: boolean;
   isStriked?: boolean;
   isUnderlined?: boolean;
   isSub?: boolean;
   isSup?: boolean;
   maxLines?: number;
-  size?: Size;
+  size?: TextSize;
   weight?: TextWeights;
 }
 export interface ContentProps {

@@ -9,6 +9,6 @@ export type TextWeights =
   | 'extraBold'
   | 'black';
 
-export type Size = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+export type TextSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
-export type Headings = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
+export type TextHeadings = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';

@@ -8,13 +8,13 @@
  */
 
 import { ViewProps } from '../View';
-import { Headings, Size, TextWeights } from './Text.type';
+import { TextHeadings, TextSize, TextWeights } from './Text.type';
 
 /**
  * Heading sizes following typography guidelines
  * Matching shadcn/ui typography patterns
  */
-export const HeadingSizes: Record<Headings, ViewProps> = {
+export const HeadingSizes: Record<TextHeadings, ViewProps> = {
   h1: {
     fontSize: '36px', // 2.25rem
     lineHeight: '40px', // 2.5rem
@@ -68,7 +68,7 @@ export const HeadingSizes: Record<Headings, ViewProps> = {
 /**
  * Font sizes following typography guidelines
  */
-export const FontSizes: Record<Size, string> = {
+export const FontSizes: Record<TextSize, string> = {
   xs: '10px', // Harmonized font size
   sm: '12px', // Harmonized font size
   md: '14px', // Harmonized font size
@@ -79,7 +79,7 @@ export const FontSizes: Record<Size, string> = {
 /**
  * Line heights following typography guidelines
  */
-export const LineHeights: Record<Size, string> = {
+export const LineHeights: Record<TextSize, string> = {
   xs: '14px', // Adjusted for 10px font
   sm: '16px', // Adjusted for 12px font
   md: '20px', // Adjusted for 14px font
