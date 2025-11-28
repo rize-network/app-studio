@@ -46,13 +46,13 @@ export const blend: ComponentStory<typeof Text> = () => {
   return (
     <View>
       <View backgroundColor="black" padding={20}>
-        <Text blend>Visible on Black</Text>
+        <Text>Visible on Black</Text>
       </View>
       <View backgroundColor="white" padding={20}>
-        <Text blend>Visible on White</Text>
+        <Text>Visible on White</Text>
       </View>
       <View backgroundColor="red" padding={20}>
-        <Text blend>Visible on Red</Text>
+        <Text>Visible on Red</Text>
       </View>
     </View>
   );
@@ -66,7 +66,7 @@ export const DarkLightMode: ComponentStory<typeof Text> = () => {
           Light Mode Container
         </Text>
         <View backgroundColor="#ffffff" padding={40}>
-          <Text blend fontSize={30} fontWeight="bold">
+          <Text fontSize={30} fontWeight="bold">
             Smart Text (Blend)
           </Text>
           <Text color="black" marginTop={10}>
@@ -80,7 +80,7 @@ export const DarkLightMode: ComponentStory<typeof Text> = () => {
           Dark Mode Container
         </Text>
         <View backgroundColor="#000000" padding={40}>
-          <Text blend fontSize={30} fontWeight="bold">
+          <Text fontSize={30} fontWeight="bold">
             Smart Text (Blend)
           </Text>
           <Text color="white" marginTop={10}>
@@ -99,7 +99,7 @@ export const DarkLightMode: ComponentStory<typeof Text> = () => {
           }}
           padding={40}
         >
-          <Text blend fontSize={30} fontWeight="bold">
+          <Text  fontSize={30} fontWeight="bold">
             Smart Text Across Gradient
           </Text>
         </View>
@@ -117,7 +117,8 @@ export const DarkLightMode: ComponentStory<typeof Text> = () => {
  * - Colors: Neutral palette with semantic colors
  */
 export const DesignSystemText = () => (
-  <Vertical gap={32}>
+  <View backgroundColor="white" padding={32}>
+    <Vertical gap={32}>
     {/* Headings */}
     <View>
       <Text marginBottom={8} fontWeight="600">
@@ -248,4 +249,5 @@ export const DesignSystemText = () => (
       </Vertical>
     </View>
   </Vertical>
+  </View>
 );

@@ -141,6 +141,7 @@ const cssProperties = new Set([
   'animation',
   'filter',
   'backdropFilter',
+  'mixBlendMode',
 
   // Layout
   'display',

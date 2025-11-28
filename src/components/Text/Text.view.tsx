@@ -26,7 +26,6 @@ interface Props extends TextProps {
 }
 
 interface ContentProps extends React.HTMLAttributes<HTMLElement> {
-  children: React.ReactNode;
   isSub?: boolean;
   isSup?: boolean;
   views?: {
@@ -45,46 +44,48 @@ interface TruncateTextProps extends React.HTMLAttributes<HTMLDivElement> {
 /**
  * Renders text content with support for subscript and superscript
  */
-const TextContent: React.FC<ContentProps> = ({
+const TextContent: React.FC<ContentProps & TextProps> = ({
   children,
   isSub,
   isSup,
   views,
-}) => (
-  <>
-    {typeof children === 'string' ? (
-      <>
-        {isSub && (
-          <View
-            as="sub"
-            fontSize="75%"
-            lineHeight="0"
-            position="relative"
-            bottom="-0.25em"
-            {...views?.sup}
-          >
-            {children}
-          </View>
-        )}
-        {isSup && (
-          <View
-            as="sup"
-            fontSize="75%"
-            lineHeight="0"
-            position="relative"
-            top="-0.5em"
-            {...views?.sup}
-          >
-            {children}
-          </View>
-        )}
-        {!isSub && !isSup && <>{children}</>}
-      </>
-    ) : (
-      children
-    )}
-  </>
-);
+  ...props
+}) =>
+  typeof children === 'string' ? (
+    <Element as="span">
+      {isSub && (
+        <View
+          as="sub"
+          fontSize="75%"
+          lineHeight="0"
+          position="relative"
+          bottom="-0.25em"
+          {...props}
+          {...views?.sup}
+        >
+          {children}
+        </View>
+      )}
+      {isSup && (
+        <View
+          as="sup"
+          fontSize="75%"
+          lineHeight="0"
+          position="relative"
+          top="-0.5em"
+          {...props}
+          {...views?.sup}
+        >
+          {children}
+        </View>
+      )}
+      {!isSub && !isSup && <Element {...props}>{children}</Element>}
+    </Element>
+  ) : (
+    <Element as="span" {...props}>
+      {children}
+    </Element>
+  );
 
 // Keep the interface
 interface TruncateTextProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -98,7 +99,7 @@ interface TruncateTextProps extends React.HTMLAttributes<HTMLDivElement> {
 /**
  * Renders text with truncation after a specified number of lines (JS calculation)
  */
-const TruncateText: React.FC<TruncateTextProps> = ({
+const TruncateText: React.FC<TruncateTextProps & TextProps> = ({
   text,
   maxLines = 1,
   views,
@@ -208,6 +209,7 @@ const TextView: React.FC<Props> = ({
   backgroundColor: backgroundColorProp,
   color,
   views,
+  blend,
   ...props
 }) => {
   // Apply heading styles if a heading is specified
@@ -237,36 +239,39 @@ const TextView: React.FC<Props> = ({
       ? children.toUpperCase()
       : children;
 
-  return (
-    <Element
-      // Apply typography styles according to design guidelines
-      fontSize={fontSize}
-      lineHeight={lineHeight}
-      fontStyle={isItalic ? 'italic' : 'normal'}
-      fontWeight={fontWeight}
-      letterSpacing="-0.01em"
-      textDecoration={
-        isStriked ? 'line-through' : isUnderlined ? 'underline' : 'none'
-      }
-      color={computedColor}
-      backgroundColor={effectiveBackgroundColor}
-      // Apply layout styles
-      {...noLineBreak}
-      // Apply heading styles if specified
-      {...headingStyles}
-      // Apply any custom props
-      {...props}
-      // Apply custom container styles
-      {...views?.container}
-    >
-      {maxLines && typeof children === 'string' ? (
-        <TruncateText text={children} maxLines={maxLines} />
-      ) : (
-        <TextContent isSub={isSub} isSup={isSup}>
-          {children}
-        </TextContent>
-      )}
-    </Element>
+  // Common props for both TruncateText and standard Element
+  const commonProps = {
+    as: 'span' as const,
+    fontSize,
+    lineHeight,
+    fontStyle: isItalic ? 'italic' : 'normal',
+    fontWeight,
+    textDecoration: isStriked
+      ? 'line-through'
+      : isUnderlined
+      ? 'underline'
+      : 'none',
+    color: computedColor,
+    maxLines,
+    blend,
+    backgroundColor: effectiveBackgroundColor,
+    ...noLineBreak,
+    ...headingStyles,
+    ...props,
+    ...views?.container,
+  };
+
+  children =
+    toUpperCase && typeof children === 'string'
+      ? children.toUpperCase()
+      : children;
+
+  return maxLines && typeof children === 'string' ? (
+    <TruncateText text={children} {...commonProps} />
+  ) : (
+    <TextContent isSub={isSub} isSup={isSup} {...commonProps}>
+      {children}
+    </TextContent>
   );
 };
 
