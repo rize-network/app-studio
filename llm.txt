@@ -1,0 +1,473 @@
+# App Studio
+
+A responsive and themeable React framework to build cross-platform applications. Built with TypeScript and React, App Studio provides a utility-prop system for styling, comprehensive theming support with light/dark modes, responsive design utilities, and a powerful animation system. The framework is open source (MIT license) and optimized for AI-assisted development.
+
+## Overview
+
+App Studio is built on a flexible Element base component that powers all UI elements through extensive prop-based styling. Key features include responsive styling via media queries, state-based styling through pseudo-classes, integrated theming with color palettes, and declarative CSS animations.
+
+### Core Documentation
+
+- **Introduction**: Core principles based on the Element component, utility-prop system, and composable design patterns
+- **Installation**: NPM/Yarn installation with provider setup for theme, responsive, analytics, and window size management
+- **Configuration**: Provider-based configuration for breakpoints, devices, theme tokens, and color palettes
+- **Theming Guide**: Light/dark mode support, custom color palettes, theme tokens, and smart text contrast
+- **Responsive Design**: Media prop for CSS-based responsiveness and useResponsive hook for JavaScript-based responsive logic
+- **Animation System**: Declarative animations with 50+ pre-built effects, scroll-driven animations, and event-based triggers
+
+## Installation
+
+### Requirements
+
+- Node.js >= 14.x
+- React >= 17.x
+- React DOM >= 17.x
+
+### Package Installation
+
+```bash
+npm install --save app-studio
+# or
+yarn add app-studio
+```
+
+### Provider Setup
+
+```jsx
+import {
+  ThemeProvider,
+  ResponsiveProvider,
+  AnalyticsProvider,
+  WindowSizeProvider
+} from 'app-studio';
+
+function App() {
+  return (
+    <ThemeProvider>
+      <ResponsiveProvider>
+        <WindowSizeProvider>
+          <AnalyticsProvider trackEvent={(event) => console.log(event)}>
+            {/* Your app content */}
+          </AnalyticsProvider>
+        </WindowSizeProvider>
+      </ResponsiveProvider>
+    </ThemeProvider>
+  );
+}
+```
+
+### Manual Installation
+
+App Studio can be installed manually by downloading the package from the GitHub repository at https://github.com/rize-network/app-studio and importing the source files directly into your project.
+
+## Components
+
+### Core Components
+
+**Element** - The foundational building block for all App Studio components. Renders as any HTML tag with extensive styling props, responsive media queries, state-based styling, animation support, and theme integration.
+[Documentation: docs/Components.md]
+
+**View** - Versatile container component for layouts, extends Element with div default. Ideal for structuring UI with Flexbox or Grid layouts.
+[Documentation: docs/Components.md]
+
+### Layout Components
+
+**Horizontal** - Flex container with row direction for horizontal layouts.
+[Documentation: docs/Components.md]
+
+**Vertical** - Flex container with column direction for vertical stacking.
+[Documentation: docs/Components.md]
+
+**HorizontalResponsive** - Switches from row to column layout on mobile devices.
+[Documentation: docs/Components.md]
+
+**VerticalResponsive** - Switches from column to row layout on mobile devices.
+[Documentation: docs/Components.md]
+
+**Scroll** - Basic scrollable view component with overflow handling.
+[Documentation: docs/Components.md]
+
+**SafeArea** - View with overflow auto for safe scrollable areas.
+[Documentation: docs/Components.md]
+
+**Div** - Alias for Element rendering a div tag.
+[Documentation: docs/Components.md]
+
+**Span** - Alias for Element rendering a span tag.
+[Documentation: docs/Components.md]
+
+### Typography Components
+
+**Text** - Component for rendering text content with typography styling, extends Element with span default. Supports fontSize, fontWeight, lineHeight, textAlign, and toUpperCase transformation.
+[Documentation: docs/Components.md]
+
+### Media Components
+
+**Image** - Optimized image component extending Element, renders img tag. Supports standard src/alt attributes, lazy loading, and responsive sizing.
+[Documentation: docs/Components.md]
+
+**ImageBackground** - Renders a View with background image using cover and no-repeat positioning.
+[Documentation: docs/Components.md]
+
+### Form Components
+
+**Form** - Form container component extending Element, renders form tag. Handles submission via onSubmit prop.
+[Documentation: docs/Components.md]
+
+**Input** - Input field component extending Element, renders input tag. Accepts standard input attributes and styling props.
+[Documentation: docs/Components.md]
+
+**Button** - Interactive button component with built-in state styling. Extends Element and renders button tag.
+[Documentation: docs/Components.md]
+
+### Feedback Components
+
+**Skeleton** - Loading placeholder component with optional shimmer animation. Configurable width, height, duration, and timing function.
+[Documentation: docs/Components.md]
+
+## Theming
+
+### ThemeProvider
+
+Manages application theme including color palettes, light/dark modes, and custom theme tokens. Provides context for all child components to access theme configuration.
+[Documentation: docs/Theming.md]
+
+**Props:**
+- `theme`: Custom theme tokens mapping names to color strings (e.g., primary: 'color.blue.500')
+- `mode`: Initial theme mode ('light' or 'dark')
+- `dark`: Dark mode color configuration with main colors and palette
+- `light`: Light mode color configuration with main colors and palette
+
+**Hook: useTheme**
+- `getColor(colorName, mode?)`: Resolves color strings to CSS values
+- `theme`: Current theme configuration
+- `themeMode`: Current mode ('light' or 'dark')
+- `setThemeMode(mode)`: Function to change theme mode
+
+### Color System
+
+**Color Palettes**: Pre-defined color scales for gray, red, orange, yellow, green, teal, blue, cyan, purple, pink with shades 50-900.
+[Documentation: docs/Theming.md]
+
+**Theme Tokens**: Custom mappable tokens (primary, secondary, accent, etc.) that reference palette colors.
+[Documentation: docs/Theming.md]
+
+**Direct Access**: Use light.* or dark.* prefix to access specific theme mode colors regardless of current theme.
+[Documentation: docs/Theming.md]
+
+**Smart Contrast**: Automatic mix-blend-mode for text visibility on any background when color prop is undefined.
+[Documentation: docs/Theming.md]
+
+## Responsive Design
+
+### ResponsiveProvider
+
+Provides responsive context with breakpoint and device detection. Configurable breakpoints and device mappings.
+[Documentation: docs/Responsive.md]
+
+**Props:**
+- `breakpoints`: Object mapping breakpoint names to minimum width values (e.g., xs: 0, sm: 340, md: 560, lg: 1080, xl: 1300)
+- `devices`: Object mapping device names to arrays of breakpoints (e.g., mobile: ['xs', 'sm'], tablet: ['md', 'lg'])
+
+**Hook: useResponsive**
+- `screen`: Current active breakpoint name
+- `currentDevice`: Current device type based on breakpoint
+- `orientation`: Screen orientation ('landscape' or 'portrait')
+- `on(name)`: Function to check if current screen matches breakpoint or device
+- `is(name)`: Alias for on() function
+
+### Media Prop
+
+Apply styles based on breakpoints without component re-renders using CSS media queries. Accepts object with breakpoint or device keys.
+[Documentation: docs/Responsive.md]
+
+## Animation
+
+### Animation System
+
+Declarative animation system with 50+ pre-built effects. Supports keyframe animations, scroll-driven animations, event-based triggers, and animation sequences.
+[Documentation: docs/Animation.md]
+
+**Fade Animations**: fadeIn, fadeOut, fadeInDown, fadeInUp, fadeInScroll, fadeBlurScroll
+[Documentation: docs/Animation.md]
+
+**Slide Animations**: slideInLeft, slideInRight, slideInUp, slideInDown, slideOutLeft, slideOutRight, slideInLeftScroll
+[Documentation: docs/Animation.md]
+
+**Zoom Animations**: zoomIn, zoomOut, zoomInDown, zoomOutUp
+[Documentation: docs/Animation.md]
+
+**Bounce Animations**: bounce, bounceIn, bounceOut
+[Documentation: docs/Animation.md]
+
+**Rotation Animations**: rotate, flip, flipInX, flipInY
+[Documentation: docs/Animation.md]
+
+**Attention Seekers**: pulse, shake, swing, tada, jello, heartBeat, headShake, wobble, flash, rubberBand
+[Documentation: docs/Animation.md]
+
+**Special Effects**: shimmer, lightSpeedIn, lightSpeedOut, hinge, jackInTheBox, rollIn, rollOut
+[Documentation: docs/Animation.md]
+
+**Scroll-Driven**: fadeInScroll, slideInLeftScroll, scaleDownScroll, fillTextScroll, ctaCollapseScroll, handWaveScroll, fadeBlurScroll, unclipScroll, scaleDownArticleScroll, listItemScaleScroll
+[Documentation: docs/Animation.md]
+
+**Utility Animations**: progress, typewriter, blinkCursor
+[Documentation: docs/Animation.md]
+
+### Animation Properties
+
+Each animation accepts options: duration, timingFunction, delay, iterationCount, direction, fillMode, playState, timeline (for scroll-driven), range (for scroll-driven).
+[Documentation: docs/Animation.md]
+
+## Hooks
+
+### Interaction Hooks
+
+**useHover** - Detects hover state on elements, returns [ref, isHovered].
+[Documentation: docs/Hooks.md]
+
+**useFocus** - Tracks focus state of elements, returns [ref, isFocused].
+[Documentation: docs/Hooks.md]
+
+**useActive** - Detects active/pressed state, returns [ref, isActive].
+[Documentation: docs/Hooks.md]
+
+**useClickOutside** - Detects clicks outside referenced element, returns [ref, clickedOutside].
+[Documentation: docs/Hooks.md]
+
+**useKeyPress** - Detects specific key press, returns boolean.
+[Documentation: docs/Hooks.md]
+
+### Viewport Hooks
+
+**useInView** - Tracks element visibility in viewport using Intersection Observer, returns {ref, inView} with triggerOnce option.
+[Documentation: docs/Hooks.md]
+
+**useOnScreen** - Similar to useInView, detects if element is on screen, returns [ref, isOnScreen].
+[Documentation: docs/Hooks.md]
+
+**useWindowSize** - Tracks current window width and height, returns {width, height}.
+[Documentation: docs/Hooks.md]
+
+**useElementPosition** - Determines element position in viewport and available space, returns {ref, relation, updateRelation}. Configurable tracking on hover, scroll, and resize events.
+[Documentation: docs/Hooks.md]
+
+### Scroll Hooks
+
+**useScroll** - Tracks scroll position and progress, returns {x, y, xProgress, yProgress}. Configurable container, offset, and throttle.
+[Documentation: docs/Hooks.md]
+
+**useScrollDirection** - Detects scroll direction with threshold, returns direction string.
+[Documentation: docs/Hooks.md]
+
+**useSmoothScroll** - Provides smooth scrolling functionality to elements, returns scrollTo function.
+[Documentation: docs/Hooks.md]
+
+**useScrollAnimation** - Creates scroll-linked animations with Intersection Observer, returns {isInView, progress}.
+[Documentation: docs/Hooks.md]
+
+**useInfiniteScroll** - Implements infinite scroll functionality, returns {sentinelRef}.
+[Documentation: docs/Hooks.md]
+
+### Utility Hooks
+
+**useMount** - Executes callback on component mount, supports cleanup function.
+[Documentation: docs/Hooks.md]
+
+**useTheme** - Accesses and modifies theme settings, returns {themeMode, setThemeMode, getColor, theme}.
+[Documentation: docs/Hooks.md]
+
+**useResponsive** - Accesses responsive breakpoints and utilities, returns {screen, currentDevice, orientation, on, is}.
+[Documentation: docs/Hooks.md]
+
+## Providers
+
+### ThemeProvider
+
+Manages theme context including colors, dark/light mode, and design tokens. Supports custom theme configuration and color palettes for both light and dark modes.
+[Documentation: docs/Providers.md]
+
+### ResponsiveProvider
+
+Manages responsive breakpoints and media queries. Configurable breakpoints and device mappings for different screen sizes.
+[Documentation: docs/Providers.md]
+
+### AnalyticsProvider
+
+Provides analytics tracking capabilities throughout the app. Automatically tracks click events on components with onClick handlers.
+[Documentation: docs/Providers.md]
+
+**Props:**
+- `trackEvent`: Callback function receiving event data {type, target, text, ...}
+
+### WindowSizeProvider
+
+Provides current window dimensions via useWindowSize hook. Tracks width and height changes in real-time.
+[Documentation: docs/Providers.md]
+
+## Event Handling
+
+### On Prop
+
+Define styles for CSS pseudo-class events (hover, focus, active, etc.) using the `on` prop. Supports all standard CSS pseudo-classes including form states, selection states, and child position states.
+[Documentation: docs/Events.md]
+
+### Underscore-Prefixed Properties
+
+Alternative syntax for event-based styling using underscore prefix (_hover, _focus, _active, etc.). More concise than the `on` prop for single-state styling.
+[Documentation: docs/Events.md]
+
+**Supported Events**: hover, active, focus, visited, disabled, enabled, checked, unchecked, invalid, valid, required, optional, placeholder, selected, target, firstChild, lastChild, onlyChild, firstOfType, lastOfType, empty, focusVisible, focusWithin
+[Documentation: docs/Events.md]
+
+## Design System
+
+### Styling Props
+
+Direct CSS property props on all components (backgroundColor, padding, margin, fontSize, etc.). Supports responsive values via media prop and state-based values via on prop.
+[Documentation: docs/Design.md]
+
+### Shadow System
+
+Pre-defined shadow levels 0-9 accessible via shadow prop. Higher numbers create more pronounced shadows.
+[Documentation: docs/Design.md]
+
+### CSS Variables
+
+Support for CSS custom properties with -- prefix. Define variables in style or css prop and reference with var().
+[Documentation: docs/Design.md]
+
+### Vendor Prefixes
+
+Automatic handling of vendor-prefixed properties in both camelCase and lowercase formats (WebkitUserSelect, webkitBackgroundClip, etc.).
+[Documentation: docs/Design.md]
+
+### Typography
+
+Pre-defined scales for letterSpacings, lineHeights, fontWeights, and fontSizes. Accessible via Typography utility object.
+[Documentation: docs/Design.md]
+
+## Utilities
+
+**Colors** - Default color palettes and singleton colors for light and dark modes (defaultLightPalette, defaultDarkPalette, defaultLightColors, defaultDarkColors)
+
+**Typography** - Pre-defined typography scales for letterSpacings, lineHeights, fontWeights, fontSizes
+
+**Shadows** - Shadow configurations mapping numbers 0-9 to box-shadow values
+
+**Constants** - Internal configuration constants used by the library
+
+## Links
+
+- GitHub Repository: https://github.com/rize-network/app-studio
+- NPM Package: https://www.npmjs.com/package/app-studio
+- Documentation: https://github.com/rize-network/app-studio/tree/main/docs
+- Issue Tracker: https://github.com/rize-network/app-studio/issues
+- License: MIT
+
+## Examples
+
+### Basic Component
+
+```jsx
+import { View, Text, Button } from 'app-studio';
+
+function Card() {
+  return (
+    <View padding={20} backgroundColor="color.white" borderRadius={8} shadow={2}>
+      <Text fontSize="xl" fontWeight="bold" marginBottom={8}>
+        Card Title
+      </Text>
+      <Text color="color.gray.600" marginBottom={16}>
+        Card description text goes here.
+      </Text>
+      <Button
+        backgroundColor="color.blue.500"
+        color="color.white"
+        padding={10}
+        borderRadius={4}
+        on={{
+          hover: { backgroundColor: 'color.blue.600' }
+        }}
+      >
+        Click Me
+      </Button>
+    </View>
+  );
+}
+```
+
+### Responsive Layout
+
+```jsx
+import { View, Text, useResponsive } from 'app-studio';
+
+function ResponsiveCard() {
+  const { on } = useResponsive();
+
+  return (
+    <View
+      flexDirection={on('mobile') ? 'column' : 'row'}
+      padding={16}
+      backgroundColor="color.white"
+      borderRadius={8}
+      shadow={2}
+      media={{
+        mobile: { padding: 8 },
+        desktop: { padding: 24 }
+      }}
+    >
+      <View flex={1}>
+        <Text fontWeight="bold" fontSize="lg">Title</Text>
+        <Text color="color.gray.600">Content</Text>
+      </View>
+    </View>
+  );
+}
+```
+
+### Animated Component
+
+```jsx
+import { View, Animation } from 'app-studio';
+
+function AnimatedBox() {
+  return (
+    <View
+      animate={Animation.fadeIn({ duration: '0.5s' })}
+      padding={20}
+      backgroundColor="color.blue.200"
+      on={{
+        hover: {
+          backgroundColor: 'color.blue.300',
+          animate: Animation.pulse({ duration: '1s', iterationCount: 'infinite' })
+        }
+      }}
+    >
+      Hover to animate
+    </View>
+  );
+}
+```
+
+### Themed Component
+
+```jsx
+import { View, Text, useTheme } from 'app-studio';
+
+function ThemedComponent() {
+  const { themeMode, setThemeMode, getColor } = useTheme();
+
+  return (
+    <View backgroundColor="theme.primary" padding={20} borderRadius={8}>
+      <Text color={getColor('color.white')} marginBottom={12}>
+        Current theme: {themeMode}
+      </Text>
+      <Button onClick={() => setThemeMode(themeMode === 'light' ? 'dark' : 'light')}>
+        Toggle Theme
+      </Button>
+    </View>
+  );
+}
+```
