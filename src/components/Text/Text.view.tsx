@@ -7,12 +7,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 
 import { TextProps } from './Text.props';
-import {
-  HeadingSizes,
-  FontSizes,
-  LineHeights,
-  FontWeights,
-} from './Text.style';
+
 import { getTextColor } from './Text.utils';
 import { View, ViewProps } from '../View';
 
@@ -198,7 +193,6 @@ const TruncateText: React.FC<TruncateTextProps & TextProps> = ({
  */
 const TextView: React.FC<Props> = ({
   children,
-  heading,
   maxLines,
   isItalic = false,
   isUnderlined = false,
@@ -206,8 +200,6 @@ const TextView: React.FC<Props> = ({
   isSub = false,
   isSup = false,
   isStriked = false,
-  weight = 'normal',
-  size = 'md',
   bgColor,
   backgroundColor: backgroundColorProp,
   color,
@@ -215,16 +207,8 @@ const TextView: React.FC<Props> = ({
   blend,
   ...props
 }) => {
-  // Apply heading styles if a heading is specified
-  const headingStyles = heading ? HeadingSizes[heading] : {};
-
   // For sub/sup text, use inline display
   const noLineBreak = isSub || isSup ? { display: 'inline' } : {};
-
-  // Get font size, line height, and weight from our design system
-  const fontSize = FontSizes[size];
-  const lineHeight = LineHeights[size];
-  const fontWeight = FontWeights[weight];
 
   const containerBackgroundColor = views?.container?.backgroundColor as
     | string
@@ -245,10 +229,7 @@ const TextView: React.FC<Props> = ({
   // Common props for both TruncateText and standard Element
   const commonProps = {
     as: 'span' as const,
-    fontSize,
-    lineHeight,
     fontStyle: isItalic ? 'italic' : 'normal',
-    fontWeight,
     textDecoration: isStriked
       ? 'line-through'
       : isUnderlined
@@ -259,7 +240,6 @@ const TextView: React.FC<Props> = ({
     blend,
     backgroundColor: effectiveBackgroundColor,
     ...noLineBreak,
-    ...headingStyles,
     ...props,
     ...views?.container,
   };
