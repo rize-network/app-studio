@@ -28,7 +28,7 @@ export interface TextProps
   maxLines?: number;
 }
 export interface ContentProps {
-  children: React.ReactNode | string;
+  children?: React.ReactNode;
   isSub?: boolean;
   isSup?: boolean;
 }
