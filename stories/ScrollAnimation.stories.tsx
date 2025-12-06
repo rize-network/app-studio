@@ -29,7 +29,8 @@ const RootContainer = ({ children }: any) => (
       --underline-transition: 5s;
       --finish-fill: hsl(0 0% 100%);
       --accent: hsl(0 0% 100%);
-      --fill: hsl(0 0% 50%);
+      --fill-color: hsl(0 0% 50%);
+      --underline-width: 100%;
 
       background-color: var(--bg);
       color: var(--color);
@@ -66,10 +67,10 @@ const FillTextDemo: React.FC = () => (
             outlineColor="hsl(10 80% 50%)"
             outlineOffset="1ch"
             color="var(--color)"
-            text-decoration="none"
+            textDecoration="none"
             backgroundImage="
               linear-gradient(90deg, transparent calc(100% - 1ch), var(--accent) calc(100%  - 1ch)),
-              linear-gradient(90deg, var(--fill), var(--fill)),
+              linear-gradient(90deg, var(--fill-color), var(--fill-color)),
               linear-gradient(90deg, var(--underline-color), var(--underline-color))"
             backgroundSize="
               var(--underline-block-width) var(--underline-width),

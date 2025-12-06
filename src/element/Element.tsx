@@ -5,6 +5,7 @@ import React, {
   useEffect,
   useRef,
   useCallback,
+  useState,
 } from 'react';
 import { Colors, Theme, useTheme } from '../providers/Theme';
 import { useResponsiveContext } from '../providers/Responsive';
@@ -140,14 +141,46 @@ export const Element = React.memo(
       const { getColor, theme } = useTheme();
       const { trackEvent } = useAnalytics();
       const { mediaQueries, devices } = useResponsiveContext();
+      const [isVisible, setIsVisible] = useState(false);
 
       useEffect(() => {
-        if (animateIn && elementRef.current) {
+        if (!animateIn) {
+          setIsVisible(true);
+          return;
+        }
+
+        if (
+          typeof IntersectionObserver === 'undefined' ||
+          !elementRef.current
+        ) {
+          setIsVisible(true);
+          return;
+        }
+
+        const observer = new IntersectionObserver(
+          ([entry]) => {
+            if (entry.isIntersecting) {
+              setIsVisible(true);
+              observer.disconnect();
+            }
+          },
+          { threshold: 0.1 }
+        );
+
+        observer.observe(elementRef.current);
+
+        return () => {
+          observer.disconnect();
+        };
+      }, [animateIn]);
+
+      useEffect(() => {
+        if (animateIn && elementRef.current && isVisible) {
           const animations = Array.isArray(animateIn) ? animateIn : [animateIn];
           const styles = AnimationUtils.processAnimations(animations);
           Object.assign(elementRef.current.style, styles);
         }
-      }, [animateIn]);
+      }, [animateIn, isVisible]);
 
       useEffect(() => {
         const node = elementRef.current;
@@ -259,6 +292,13 @@ export const Element = React.memo(
 
       if (style) {
         newProps.style = style;
+      }
+
+      if (animateIn && !isVisible) {
+        newProps.style = {
+          ...newProps.style,
+          opacity: 0,
+        };
       }
 
       const Component = as;

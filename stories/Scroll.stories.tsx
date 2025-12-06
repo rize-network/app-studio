@@ -1,9 +1,10 @@
 // Button.stories.ts|tsx
 
 import { ComponentStory, ComponentMeta } from '@storybook/react';
+import { createPortal } from 'react-dom';
 
 import { Input as $Input, Button, Text, Vertical, View } from '../src/index';
-import React, { useRef } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import {
   useScroll,
   useScrollDirection,
@@ -134,7 +135,15 @@ export const AnimatedComponent: React.FC = () => {
   );
 };
 
-const Card = ({ tag, title, description }) => (
+const Card = ({
+  tag,
+  title,
+  description,
+}: {
+  tag: any;
+  title: any;
+  description: any;
+}) => (
   <View
     backgroundColor="color.gray.800"
     borderRadius={16}
@@ -201,4 +210,94 @@ export default {
 
 export const Scroll: ComponentStory<typeof $Input> = () => {
   return <ScrollExample />;
+};
+
+const IframeContent = () => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const scroll = useScroll({ container: containerRef });
+
+  return (
+    <div
+      ref={containerRef}
+      style={{
+        height: '100vh',
+        overflowY: 'scroll',
+        backgroundColor: '#f5f5f5',
+      }}
+    >
+      <div style={{ height: '300vh', padding: 20 }}>
+        <h1 style={{ fontFamily: 'sans-serif' }}>Iframe Content</h1>
+        <div
+          style={{
+            position: 'sticky',
+            top: 10,
+            background: 'white',
+            padding: 10,
+            border: '1px solid #ddd',
+            borderRadius: 4,
+          }}
+        >
+          <p style={{ margin: 0, fontFamily: 'monospace' }}>
+            Scroll Y: {scroll.y}
+          </p>
+          <p style={{ margin: 0, fontFamily: 'monospace' }}>
+            Progress: {(scroll.yProgress * 100).toFixed(0)}%
+          </p>
+        </div>
+        <div
+          style={{
+            marginTop: '50vh',
+            height: '20vh',
+            background: 'lightblue',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          Mid Section
+        </div>
+        <div
+          style={{
+            marginTop: '80vh',
+            height: '20vh',
+            background: 'lightgreen',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          Bottom Section
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export const IframeScroll: ComponentStory<typeof $Input> = () => {
+  const [frameRef, setFrameRef] = useState<HTMLIFrameElement | null>(null);
+  const [mountNode, setMountNode] = useState<HTMLElement | null>(null);
+
+  useEffect(() => {
+    if (frameRef?.contentWindow?.document?.body) {
+      setMountNode(frameRef.contentWindow.document.body);
+      const doc = frameRef.contentWindow.document;
+      doc.body.style.margin = '0';
+    }
+  }, [frameRef]);
+
+  return (
+    <View style={{ padding: 20 }}>
+      <Text style={{ marginBottom: 10, display: 'block' }}>
+        Scroll inside the iframe below. The values should update properly,
+        demonstrating that useScroll creates listeners on the iframe's
+        window/document rather than the main window.
+      </Text>
+      <iframe
+        ref={setFrameRef}
+        style={{ width: '100%', height: '400px', border: '2px solid #ccc' }}
+        title="Scroll Test Iframe"
+      />
+      {mountNode && createPortal(<IframeContent />, mountNode)}
+    </View>
+  );
 };

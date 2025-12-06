@@ -344,3 +344,41 @@ export const AnimateOutExample: ComponentStory<typeof View> = () => {
     </>
   );
 };
+
+export const VisibleAnimation: ComponentStory<typeof View> = () => (
+  <View
+    style={{
+      width: '100%',
+      minHeight: '100vh',
+      display: 'flex',
+      flexDirection: 'column',
+    }}
+  >
+    <View
+      style={{
+        width: '100%',
+        height: '110vh',
+        backgroundColor: '#f0f0f0',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}
+    >
+      <div style={{ fontSize: '24px', fontWeight: 'bold' }}>Scroll Down ↓</div>
+    </View>
+    <View
+      widthHeight={200}
+      backgroundColor="color.purple"
+      style={{ margin: '50px auto' }}
+      animateIn={{
+        from: { opacity: 0, transform: 'scale(0.5) translateY(100px)' },
+        to: { opacity: 1, transform: 'scale(1) translateY(0)' },
+        duration: '1s',
+        timingFunction: 'ease-out',
+      }}
+    />
+    <View
+      style={{ width: '100%', height: '50vh', backgroundColor: '#e0e0e0' }}
+    />
+  </View>
+);

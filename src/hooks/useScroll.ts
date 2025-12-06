@@ -41,19 +41,24 @@ interface ScrollDimensions {
   scrollLeft: number;
 }
 
+// Helper to check if element is a Window object (works across iframes)
+const isWindow = (obj: any): obj is Window => {
+  return obj && obj.window === obj;
+};
+
 // Memoized function to get scroll dimensions
 const getScrollDimensions = (
   element: HTMLElement | Window
 ): ScrollDimensions => {
-  if (element instanceof Window) {
-    const doc = document.documentElement;
+  if (isWindow(element)) {
+    const doc = element.document.documentElement;
     return {
       scrollHeight: Math.max(doc.scrollHeight, doc.offsetHeight),
       scrollWidth: Math.max(doc.scrollWidth, doc.offsetWidth),
-      clientHeight: window.innerHeight,
-      clientWidth: window.innerWidth,
-      scrollTop: window.scrollY,
-      scrollLeft: window.scrollX,
+      clientHeight: element.innerHeight,
+      clientWidth: element.innerWidth,
+      scrollTop: element.scrollY,
+      scrollLeft: element.scrollX,
     };
   }
 
@@ -124,15 +129,19 @@ export const useScroll = ({
     if (disabled) return;
 
     const target = container && container.current ? container.current : window;
+    const targetWindow = isWindow(target)
+      ? target
+      : target.ownerDocument?.defaultView ?? window;
+
     handleScroll();
 
     const options = { passive: true };
     target.addEventListener('scroll', handleScroll, options);
-    window.addEventListener('resize', handleScroll, options);
+    targetWindow.addEventListener('resize', handleScroll, options);
 
     return () => {
       target.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('resize', handleScroll);
+      targetWindow.removeEventListener('resize', handleScroll);
       if (frameRef.current) {
         cancelAnimationFrame(frameRef.current);
       }
