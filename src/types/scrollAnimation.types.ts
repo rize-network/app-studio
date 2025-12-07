@@ -5,14 +5,11 @@
 
 /** Animation range when element enters/exits viewport */
 export type ViewAnimationRange =
-  | 'entry' // Animate as element enters viewport
-  | 'exit' // Animate as element exits viewport
-  | 'cover' // Animate while element covers viewport
-  | 'contain' // Animate while element is fully contained
-  | `entry ${string}` // Custom entry range (e.g., 'entry 0% entry 100%')
-  | `exit ${string}` // Custom exit range
-  | `cover ${string}` // Custom cover range
-  | string; // Any custom range
+  | 'entry'
+  | 'exit'
+  | 'cover'
+  | 'contain'
+  | string;
 
 /** Timing function options */
 export type ViewAnimationTimingFunction =

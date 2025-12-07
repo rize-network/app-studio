@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { ComponentStory, ComponentMeta } from '@storybook/react';
 import { View, Button, Animation } from '../src/index';
 
+// Create a typed map for Animation functions to allow string indexing
+const AnimationMap = Animation as Record<string, (...args: any[]) => any>;
+
 export default {
   title: 'Animation/Selectable',
   component: View,
@@ -37,7 +40,7 @@ const Template: ComponentStory<typeof View> = (args) => {
   }: any = args;
 
   // Récupérer la fonction d'animation correspondante
-  const animationFunc = Animation[animationName as string];
+  const animationFunc = AnimationMap[animationName as string];
 
   // Construire l'objet d'animation en passant les paramètres
   const animate = animationFunc

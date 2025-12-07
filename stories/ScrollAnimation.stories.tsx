@@ -9,6 +9,7 @@ import {
   useScrollAnimation,
 } from '../src/hooks/useScroll';
 import * as ScrollAnimations from '../src/element/Animation';
+import * as Animations from '../src/element/Animation';
 
 const AnimationBlock: React.FC<{
   title: string;
@@ -204,6 +205,282 @@ export const FillTextScrollStory: ComponentStory<typeof FillTextDemo> = () => (
       backgroundColor="khaki"
     />
     <View height={200} />
+  </View>
+);
+
+/**
+ * CSS View Timeline Animations - Pure CSS, no JavaScript state!
+ * These animations now work by default with animate prop (animateOn="Both" is default).
+ */
+export const ViewTimelineAnimations: ComponentStory<typeof View> = () => (
+  <View padding={20} minHeight="400vh">
+    <View
+      position="sticky"
+      top={0}
+      backgroundColor="white"
+      padding={20}
+      zIndex={10}
+      marginBottom={20}
+      boxShadow="0 2px 10px rgba(0,0,0,0.1)"
+    >
+      <Text fontSize={24} fontWeight="bold" marginBottom={8}>
+        🚀 Default View Timeline Animations
+      </Text>
+      <Text color="#666">
+        Just use animate prop - animates on mount AND scroll (animateOn="Both"
+        is default)
+      </Text>
+    </View>
+
+    <View height="30vh" />
+
+    {/* Fade animations */}
+    <Text fontSize={20} fontWeight="bold" marginBottom={16}>
+      Fade Animations
+    </Text>
+
+    <View
+      animate={Animations.fadeIn()}
+      backgroundColor="color.blue.500"
+      padding={30}
+      borderRadius={12}
+      marginBottom={40}
+    >
+      <Text color="white" fontWeight="bold">
+        Animation.fadeIn()
+      </Text>
+      <Text color="white" opacity={0.9}>
+        Fades in when entering viewport (default behavior)
+      </Text>
+    </View>
+
+    <View
+      animate={Animations.fadeIn({
+        duration: '1.5s',
+        timingFunction: 'ease-out',
+      })}
+      backgroundColor="color.blue.600"
+      padding={30}
+      borderRadius={12}
+      marginBottom={60}
+    >
+      <Text color="white" fontWeight="bold">
+        Animation.fadeIn({'{ duration: "1.5s" }'})
+      </Text>
+      <Text color="white" opacity={0.9}>
+        Custom duration
+      </Text>
+    </View>
+
+    {/* Slide animations */}
+    <Text fontSize={20} fontWeight="bold" marginBottom={16}>
+      Slide Animations
+    </Text>
+
+    <View
+      animate={Animations.slideInUp({})}
+      backgroundColor="color.green.500"
+      padding={30}
+      borderRadius={12}
+      marginBottom={40}
+    >
+      <Text color="white" fontWeight="bold">
+        Animation.slideInUp()
+      </Text>
+      <Text color="white" opacity={0.9}>
+        Slides up while fading in
+      </Text>
+    </View>
+
+    <View
+      animate={Animations.slideInLeft({ duration: '0.8s' })}
+      backgroundColor="color.teal.500"
+      padding={30}
+      borderRadius={12}
+      marginBottom={40}
+    >
+      <Text color="white" fontWeight="bold">
+        Animation.slideInLeft()
+      </Text>
+      <Text color="white" opacity={0.9}>
+        Slides from left
+      </Text>
+    </View>
+
+    <View
+      animate={Animations.slideInRight()}
+      backgroundColor="color.cyan.500"
+      padding={30}
+      borderRadius={12}
+      marginBottom={60}
+    >
+      <Text color="white" fontWeight="bold">
+        Animation.slideInRight()
+      </Text>
+      <Text color="white" opacity={0.9}>
+        Slides from right
+      </Text>
+    </View>
+
+    {/* Scale & Effects */}
+    <Text fontSize={20} fontWeight="bold" marginBottom={16}>
+      Scale & Special Effects
+    </Text>
+
+    <View
+      animate={Animations.scale({ duration: '0.8s' })}
+      backgroundColor="color.purple.500"
+      padding={30}
+      borderRadius={12}
+      marginBottom={40}
+    >
+      <Text color="white" fontWeight="bold">
+        Animation.scale()
+      </Text>
+      <Text color="white" opacity={0.9}>
+        Scales up on scroll
+      </Text>
+    </View>
+
+    <View
+      animate={Animations.rotate({ duration: '0.8s' })}
+      backgroundColor="color.red.500"
+      padding={30}
+      borderRadius={12}
+      marginBottom={40}
+    >
+      <Text color="white" fontWeight="bold">
+        Animation.rotate()
+      </Text>
+      <Text color="white" opacity={0.9}>
+        Rotates on scroll
+      </Text>
+    </View>
+
+    <View
+      animate={Animations.bounce({ duration: '1s' })}
+      backgroundColor="color.pink.500"
+      padding={30}
+      borderRadius={12}
+      marginBottom={60}
+    >
+      <Text color="white" fontWeight="bold">
+        Animation.bounce()
+      </Text>
+      <Text color="white" opacity={0.9}>
+        Bounces on scroll
+      </Text>
+    </View>
+
+    {/* Staggered */}
+    <Text fontSize={20} fontWeight="bold" marginBottom={16}>
+      Staggered Animations
+    </Text>
+
+    <View display="flex" gap={16} flexWrap="wrap" marginBottom={60}>
+      {[0, 1, 2, 3, 4].map((i) => (
+        <View
+          key={i}
+          flex="1"
+          minWidth={120}
+          animate={Animations.slideInUp({ delay: `${i * 0.1}s` })}
+          backgroundColor="color.violet.500"
+          padding={20}
+          borderRadius={8}
+          textAlign="center"
+        >
+          <Text color="white" fontSize={24} fontWeight="bold">
+            {i + 1}
+          </Text>
+          <Text color="white" opacity={0.8} fontSize={12}>
+            delay: {i * 0.1}s
+          </Text>
+        </View>
+      ))}
+    </View>
+
+    <View height="100vh" />
+  </View>
+);
+
+/**
+ * Entry + Exit animations combined
+ */
+export const EntryExitAnimations: ComponentStory<typeof View> = () => (
+  <View padding={20} minHeight="300vh">
+    <View
+      position="sticky"
+      top={0}
+      backgroundColor="white"
+      padding={20}
+      zIndex={10}
+      marginBottom={20}
+    >
+      <Text fontSize={24} fontWeight="bold" marginBottom={8}>
+        🔄 Entry &amp; Exit Animations
+      </Text>
+      <Text color="#666">
+        Elements animate both when entering AND exiting the viewport
+      </Text>
+    </View>
+
+    <View height="40vh" />
+
+    <View
+      animate={[
+        Animations.fadeIn({ range: 'entry' }),
+        Animations.fadeOut({ range: 'exit' }),
+      ]}
+      backgroundColor="color.blue.500"
+      padding={40}
+      borderRadius={12}
+      marginBottom={100}
+    >
+      <Text color="white" fontWeight="bold" fontSize={18}>
+        Fade In / Fade Out
+      </Text>
+      <Text color="white" opacity={0.9}>
+        Fades in on entry, fades out on exit
+      </Text>
+    </View>
+
+    <View
+      animate={[
+        Animations.slideInUp({ range: 'entry' }),
+        Animations.slideInDown({ range: 'exit' }),
+      ]}
+      backgroundColor="color.green.500"
+      padding={40}
+      borderRadius={12}
+      marginBottom={100}
+    >
+      <Text color="white" fontWeight="bold" fontSize={18}>
+        Slide Up / Slide Down
+      </Text>
+      <Text color="white" opacity={0.9}>
+        Slides up on entry, slides down on exit
+      </Text>
+    </View>
+
+    <View
+      animate={[
+        Animations.scale({ range: 'entry' }),
+        Animations.fadeOut({ range: 'exit' }),
+      ]}
+      backgroundColor="color.purple.500"
+      padding={40}
+      borderRadius={12}
+      marginBottom={100}
+    >
+      <Text color="white" fontWeight="bold" fontSize={18}>
+        Scale / Fade Out
+      </Text>
+      <Text color="white" opacity={0.9}>
+        Scales on entry, fades on exit
+      </Text>
+    </View>
+
+    <View height="100vh" />
   </View>
 );
 

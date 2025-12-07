@@ -38,6 +38,7 @@ export interface ElementProps
   children?: React.ReactNode;
   colors?: Colors;
   theme?: Theme;
+  animateOn?: 'View' | 'Mount' | 'Both';
 
   // Underscore-prefixed event props (alternative to using the 'on' prop)
   _hover?: CssProps | string;
@@ -82,6 +83,7 @@ export interface CssProps extends CSSProperties {
   animate?: AnimationProps[] | AnimationProps;
   animateIn?: AnimationProps[] | AnimationProps;
   animateOut?: AnimationProps[] | AnimationProps;
+  animateOn?: 'View' | 'Mount' | 'Both';
   shadow?: boolean | number | Shadow;
   blend?: boolean;
 
@@ -126,7 +128,7 @@ export const Element = React.memo(
         props.cursor = 'pointer';
       }
 
-      const { onPress, blend, ...rest } = props;
+      const { onPress, blend, animateOn = 'Both', ...rest } = props;
       const elementRef = useRef<HTMLElement | null>(null);
       const setRef = useCallback(
         (node: HTMLElement | null) => {
@@ -203,6 +205,26 @@ export const Element = React.memo(
           theme: props.theme || theme,
         };
 
+        // Apply view() timeline ONLY if animateOn='View' (not Both or Mount)
+        if (animateOn === 'View' && propsToProcess.animate) {
+          const animations = Array.isArray(propsToProcess.animate)
+            ? propsToProcess.animate
+            : [propsToProcess.animate];
+
+          propsToProcess.animate = animations.map((anim) => {
+            // Only add timeline if not already specified
+            if (!anim.timeline) {
+              return {
+                ...anim,
+                timeline: 'view()',
+                range: anim.range || 'entry',
+                fillMode: anim.fillMode || 'both',
+              };
+            }
+            return anim;
+          });
+        }
+
         return extractUtilityClasses(
           propsToProcess,
           (color: string) => {
@@ -215,7 +237,7 @@ export const Element = React.memo(
           mediaQueries,
           devices
         );
-      }, [rest, blend, mediaQueries, devices, theme]);
+      }, [rest, blend, animateOn, mediaQueries, devices, theme]);
 
       const newProps: any = { ref: setRef };
       if (onPress) {
