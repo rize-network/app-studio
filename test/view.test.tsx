@@ -1,6 +1,6 @@
 import React from 'react';
 import * as ReactDOM from 'react-dom';
-import { Default as View } from '../stories/View.stories';
+import { View } from '../src';
 
 describe('View', () => {
   it('renders without crashing', () => {

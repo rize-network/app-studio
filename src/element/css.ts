@@ -983,6 +983,34 @@ export const extractUtilityClasses = (
     Object.assign(computedStyles, AnimationUtils.processAnimations(animations));
   }
 
+  // Handle default blend
+  if (
+    props.blend !== false &&
+    props.color === undefined &&
+    typeof props.children === 'string'
+  ) {
+    const blendConfig = props.theme?.blend || {
+      mode: 'difference',
+      color: 'white',
+      modeWithBg: 'exclusion',
+    };
+
+    if (props.bgColor || props.backgroundColor) {
+      computedStyles.mixBlendMode = blendConfig.modeWithBg;
+      computedStyles.color =
+        props.bgColor || (props.backgroundColor as string) || 'white'; // Use logic to get color from bg?
+      // Note: original logic had getColor(bgColor). But here in computedStyles we assign the color NAME/Value.
+      // processStyles -> getColor will be called later on these values.
+      // BUT mixBlendMode is not a color.
+      // And we need to assign the color *value* (which should be resolved color from bg).
+      // Wait, if I assign `computedStyles.color = props.bgColor`, then `processStyles` will see `color: props.bgColor` and call `getColor(props.bgColor)`.
+      // This matches the original logic: `propsToProcess.color = getColor(propsToProcess.bgColor)`.
+    } else {
+      computedStyles.mixBlendMode = blendConfig.mode;
+      computedStyles.color = blendConfig.color;
+    }
+  }
+
   // Process base styles
   classes.push(...processStyles(computedStyles, 'base', '', getColor));
 

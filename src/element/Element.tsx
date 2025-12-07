@@ -18,7 +18,8 @@ import { useAnalytics } from '../providers/Analytics';
 import { ViewStyleProps } from '../types/style';
 
 export interface ElementProps
-  extends CssProps,
+  extends
+    CssProps,
     Omit<ViewStyleProps, 'children' | 'style' | 'pointerEvents' | 'onClick'> {
   [key: string]: any;
   // Event handling props
@@ -196,24 +197,12 @@ export const Element = React.memo(
       }, [animateOut]);
 
       const utilityClasses = useMemo(() => {
-        const propsToProcess = { ...rest };
+        const propsToProcess = {
+          ...rest,
+          blend,
+          theme: props.theme || theme,
+        };
 
-        if (
-          blend !== false &&
-          propsToProcess.color === undefined &&
-          typeof rest.children === 'string'
-        ) {
-          if (propsToProcess.bgColor) {
-            propsToProcess.mixBlendMode = 'exclusion';
-            propsToProcess.color = getColor(propsToProcess.bgColor);
-          } else if (propsToProcess.backgroundColor) {
-            propsToProcess.mixBlendMode = 'exclusion';
-            propsToProcess.color = getColor(propsToProcess.backgroundColor);
-          } else {
-            propsToProcess.mixBlendMode = 'difference';
-            propsToProcess.color = 'white';
-          }
-        }
         return extractUtilityClasses(
           propsToProcess,
           (color: string) => {

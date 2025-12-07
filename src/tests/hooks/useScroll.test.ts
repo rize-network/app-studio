@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react';
+import { renderHook } from '@testing-library/react-hooks';
 import {
   useScroll,
   useScrollAnimation,
@@ -28,7 +28,7 @@ describe('useScroll', () => {
     expect(() => {
       renderHook(() =>
         useScroll({
-          container: null,
+          container: undefined,
           offset: [0, 0],
           throttleMs: 100,
           disabled: false,

@@ -4,12 +4,14 @@ import { ViewStyleProps } from '../types/style';
 
 // Common props pour éviter la répétition
 interface CommonProps
-  extends ElementProps,
+  extends
+    ElementProps,
     Omit<ViewStyleProps, 'children' | 'style' | 'pointerEvents' | 'onClick'> {}
 
 // Props pour le composant Form
 export interface FormProps
-  extends CommonProps,
+  extends
+    CommonProps,
     Omit<
       Partial<HTMLFormElement>,
       | 'width'
@@ -24,7 +26,8 @@ export interface FormProps
 
 // Props pour le composant Button
 export interface ButtonProps
-  extends CommonProps,
+  extends
+    CommonProps,
     Omit<
       Partial<HTMLButtonElement>,
       | 'width'
@@ -46,7 +49,8 @@ export interface ButtonProps
 
 // Props pour le composant Input
 export interface InputProps
-  extends ElementProps,
+  extends
+    ElementProps,
     CommonProps,
     Omit<
       Partial<HTMLInputElement>,

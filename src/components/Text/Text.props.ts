@@ -2,7 +2,8 @@ import { TextStyleProps } from '../../types/style';
 import { ElementProps } from '../../element/Element';
 
 export interface TextProps
-  extends Omit<
+  extends
+    Omit<
       TextStyleProps,
       | 'children'
       | 'style'

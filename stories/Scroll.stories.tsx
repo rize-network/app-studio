@@ -111,30 +111,6 @@ const ScrollExample = () => {
   );
 };
 
-export const AnimatedComponent: React.FC = () => {
-  const elementRef = useRef<HTMLDivElement>(null);
-  const { progress } = useScrollAnimation(elementRef, {
-    threshold: [0, 0.25, 0.5, 0.75, 1], // Get more granular progress updates
-  });
-
-  return (
-    <View>
-      <View
-        ref={elementRef}
-        style={{
-          opacity: progress, // Directly tie opacity to scroll progress
-          transition: 'opacity 0.5s ease-out', // Add a smooth transition
-        }}
-        backgroundColor="color.blue"
-        color="color.white"
-      >
-        This content will fade in as you scroll.
-      </View>
-      <View height={'200vh'} />
-    </View>
-  );
-};
-
 const Card = ({
   tag,
   title,

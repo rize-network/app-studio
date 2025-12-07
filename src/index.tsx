@@ -32,3 +32,5 @@ export * from './hooks/useResponsive';
 export * from './hooks/useScroll';
 export * from './hooks/useWindowSize';
 export * from './hooks/useInView';
+export * from './utils/viewAnimation';
+export * from './types/scrollAnimation.types';

@@ -3,7 +3,8 @@ import { Element, ElementProps } from '../element/Element';
 import { ImageStyleProps } from '../types/style';
 
 export interface ImageProps
-  extends Omit<
+  extends
+    Omit<
       ImageStyleProps,
       'children' | 'style' | 'pointerEvents' | 'onClick' | 'onLayout'
     >,
@@ -20,6 +21,8 @@ export interface ImageProps
       | 'animateOut'
       | 'draggable'
       | 'style'
+      | 'x'
+      | 'y'
     >,
     ElementProps {}
 

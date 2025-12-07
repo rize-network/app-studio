@@ -1,6 +1,13 @@
 import React from 'react';
 import { ComponentStory, ComponentMeta } from '@storybook/react';
-import { View } from '../src/index';
+import { View, Text } from '../src/index';
+import { useRef, useState, useEffect } from 'react';
+import {
+  useScroll,
+  useScrollDirection,
+  useSmoothScroll,
+  useScrollAnimation,
+} from '../src/hooks/useScroll';
 import * as ScrollAnimations from '../src/element/Animation';
 
 const AnimationBlock: React.FC<{
@@ -199,3 +206,171 @@ export const FillTextScrollStory: ComponentStory<typeof FillTextDemo> = () => (
     <View height={200} />
   </View>
 );
+
+export const AnimatedComponent: React.FC = () => {
+  const fadeRef = useRef<HTMLDivElement>(null);
+  const slideRef = useRef<HTMLDivElement>(null);
+  const scaleRef = useRef<HTMLDivElement>(null);
+  const rotateRef = useRef<HTMLDivElement>(null);
+
+  const { progress: fadeProgress } = useScrollAnimation(fadeRef, {
+    threshold: [0, 0.25, 0.5, 0.75, 1],
+  });
+
+  const { progress: slideProgress } = useScrollAnimation(slideRef, {
+    threshold: [0, 0.25, 0.5, 0.75, 1],
+  });
+
+  const { progress: scaleProgress } = useScrollAnimation(scaleRef, {
+    threshold: [0, 0.25, 0.5, 0.75, 1],
+  });
+
+  const { progress: rotateProgress } = useScrollAnimation(rotateRef, {
+    threshold: [0, 0.25, 0.5, 0.75, 1],
+  });
+
+  return (
+    <View style={{ paddingBottom: '100vh' }}>
+      <Text
+        style={{ fontSize: '24px', marginBottom: '20px', display: 'block' }}
+      >
+        Scroll Animation Examples
+      </Text>
+      <Text style={{ marginBottom: '40px', display: 'block', color: '#666' }}>
+        Scroll down to see the elements animate as they enter the viewport.
+      </Text>
+
+      {/* Spacer */}
+      <View style={{ height: '50vh' }} />
+
+      {/* Fade In Example */}
+      <View
+        style={{
+          marginBottom: '100px',
+          padding: '20px',
+          border: '1px solid #eee',
+        }}
+      >
+        <Text
+          style={{ marginBottom: '10px', display: 'block', fontWeight: 'bold' }}
+        >
+          1. Fade In
+        </Text>
+        <View
+          ref={fadeRef}
+          style={{
+            opacity: fadeProgress,
+            transition: 'opacity 0.3s ease-out',
+            height: '150px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderRadius: '8px',
+          }}
+          backgroundColor="color.blue.500"
+          color="color.white"
+        >
+          I fade in (Opacity: {fadeProgress.toFixed(2)})
+        </View>
+      </View>
+
+      {/* Slide In Example */}
+      <View
+        style={{
+          marginBottom: '100px',
+          padding: '20px',
+          border: '1px solid #eee',
+        }}
+      >
+        <Text
+          style={{ marginBottom: '10px', display: 'block', fontWeight: 'bold' }}
+        >
+          2. Slide In from Left
+        </Text>
+        <View
+          ref={slideRef}
+          style={{
+            transform: `translateX(${(1 - slideProgress) * -100}%)`,
+            opacity: slideProgress,
+            transition: 'transform 0.3s ease-out, opacity 0.3s ease-out',
+            height: '150px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderRadius: '8px',
+          }}
+          backgroundColor="color.green.500"
+          color="color.white"
+        >
+          I slide in
+        </View>
+      </View>
+
+      {/* Scale Up Example */}
+      <View
+        style={{
+          marginBottom: '100px',
+          padding: '20px',
+          border: '1px solid #eee',
+        }}
+      >
+        <Text
+          style={{ marginBottom: '10px', display: 'block', fontWeight: 'bold' }}
+        >
+          3. Scale Up
+        </Text>
+        <View
+          ref={scaleRef}
+          style={{
+            transform: `scale(${0.5 + scaleProgress * 0.5})`,
+            opacity: scaleProgress,
+            transition: 'transform 0.3s ease-out, opacity 0.3s ease-out',
+            height: '150px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderRadius: '8px',
+          }}
+          backgroundColor="color.purple.500"
+          color="color.white"
+        >
+          I scale up
+        </View>
+      </View>
+
+      {/* Rotate Example */}
+      <View
+        style={{
+          marginBottom: '100px',
+          padding: '20px',
+          border: '1px solid #eee',
+        }}
+      >
+        <Text
+          style={{ marginBottom: '10px', display: 'block', fontWeight: 'bold' }}
+        >
+          4. Rotate In
+        </Text>
+        <View
+          ref={rotateRef}
+          style={{
+            transform: `rotate(${
+              (1 - rotateProgress) * -180
+            }deg) scale(${rotateProgress})`,
+            opacity: rotateProgress,
+            transition: 'transform 0.5s ease-out, opacity 0.5s ease-out',
+            height: '150px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderRadius: '8px',
+          }}
+          backgroundColor="color.orange.500"
+          color="color.white"
+        >
+          I rotate & scale
+        </View>
+      </View>
+    </View>
+  );
+};

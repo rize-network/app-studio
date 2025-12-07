@@ -9,7 +9,6 @@ import React, {
   useCallback,
 } from 'react';
 import {
-  ColorConfig,
   ColorPalette,
   ColorSingleton,
   defaultDarkColors,
@@ -40,6 +39,11 @@ export interface Theme {
   warning?: string;
   disabled?: string;
   loading?: string;
+  blend?: {
+    mode: string;
+    color: string;
+    modeWithBg: string;
+  };
 }
 
 interface Override {
@@ -58,7 +62,7 @@ interface ThemeContextProps {
 }
 
 // --- Default Configuration ---
-export const defaultThemeMain: ColorConfig = {
+export const defaultThemeMain: Theme = {
   primary: `${COLOR_PREFIX}black`,
   secondary: `${COLOR_PREFIX}blue`,
   success: `${COLOR_PREFIX}green.500`,
@@ -66,6 +70,11 @@ export const defaultThemeMain: ColorConfig = {
   warning: `${COLOR_PREFIX}orange.500`,
   disabled: `${COLOR_PREFIX}gray.500`,
   loading: `${COLOR_PREFIX}dark.500`,
+  blend: {
+    mode: 'difference',
+    color: 'white',
+    modeWithBg: 'exclusion',
+  },
 };
 
 const defaultLightColorConfig: Colors = {

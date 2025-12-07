@@ -13,9 +13,9 @@ describe('CSS Properties', () => {
 
     it('should convert camelCase to kebab-case', () => {
       expect(vendorPrefixToKebabCase('backgroundColor')).toBe(
-        '-background-color'
+        'background-color'
       );
-      expect(vendorPrefixToKebabCase('fontSize')).toBe('-font-size');
+      expect(vendorPrefixToKebabCase('fontSize')).toBe('font-size');
     });
 
     it('should handle webkit prefix (lowercase)', () => {
@@ -57,8 +57,8 @@ describe('CSS Properties', () => {
     });
 
     it('should not process properties without vendor prefix', () => {
-      expect(vendorPrefixToKebabCase('display')).toBe('-display');
-      expect(vendorPrefixToKebabCase('color')).toBe('-color');
+      expect(vendorPrefixToKebabCase('display')).toBe('display');
+      expect(vendorPrefixToKebabCase('color')).toBe('color');
     });
   });
 

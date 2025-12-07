@@ -3,7 +3,8 @@ import { Element, ElementProps } from '../element/Element';
 import { ViewStyleProps } from '../types/style';
 
 export interface ViewProps
-  extends Omit<
+  extends
+    Omit<
       ViewStyleProps,
       'children' | 'translate' | 'style' | 'pointerEvents' | 'onClick'
     >,

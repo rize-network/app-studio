@@ -1,6 +1,6 @@
 // tsconfig.json
 {
-  "include": ["src", "types"],
+  "include": ["src", "types", "stories", ".storybook"],
   "compilerOptions": {
     "module": "esnext",
     // ----- ENSURE THIS IS ES2020 or newer -----
@@ -10,13 +10,13 @@
     "importHelpers": true,
     "declaration": true,
     "sourceMap": false,
-    "rootDir": "./src",
+    "rootDir": ".",
     "strict": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "jsx": "react",
     "esModuleInterop": true,
     "skipLibCheck": true,

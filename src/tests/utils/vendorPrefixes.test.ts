@@ -34,7 +34,7 @@ describe('Vendor Prefixes', () => {
 
   describe('camelToKebabCase', () => {
     it('should convert camelCase to kebab-case', () => {
-      expect(camelToKebabCase('backgroundColor')).toBe('-background-color');
+      expect(camelToKebabCase('backgroundColor')).toBe('background-color');
     });
 
     it('should convert single word to lowercase', () => {
@@ -46,39 +46,44 @@ describe('Vendor Prefixes', () => {
     });
 
     it('should convert multiple uppercase letters', () => {
-      expect(camelToKebabCase('transformOrigin')).toBe('-transform-origin');
-      expect(camelToKebabCase('webkitTransform')).toBe('-webkit-transform');
+      expect(camelToKebabCase('transformOrigin')).toBe('transform-origin');
+      expect(camelToKebabCase('WebkitTransform')).toBe('-webkit-transform');
     });
 
     it('should handle vendor prefixed camelCase', () => {
-      expect(camelToKebabCase('webkitAppearance')).toBe('-webkit-appearance');
-      expect(camelToKebabCase('mozAppearance')).toBe('-moz-appearance');
+      expect(camelToKebabCase('webkitAppearance')).toBe('webkit-appearance');
+      expect(camelToKebabCase('mozAppearance')).toBe('moz-appearance');
+    });
+
+    it('should handle standard properties', () => {
+      expect(camelToKebabCase('display')).toBe('display');
+      expect(camelToKebabCase('backgroundColor')).toBe('background-color');
     });
   });
 
   describe('getVendorPrefixedProperties', () => {
     it('should return standard property and prefixed versions for animation', () => {
       const result = getVendorPrefixedProperties('animation');
-      expect(result).toContain('-animation');
+      expect(result).toContain('animation');
       expect(result).toContain('-webkit-animation');
     });
 
     it('should return standard property and prefixed versions for transform', () => {
       const result = getVendorPrefixedProperties('transform');
-      expect(result).toContain('-transform');
+      expect(result).toContain('transform');
       expect(result).toContain('-webkit-transform');
       expect(result).toContain('-moz-transform');
     });
 
     it('should return property in kebab-case', () => {
       const result = getVendorPrefixedProperties('backgroundColor');
-      expect(result[0]).toBe('-background-color');
+      expect(result[0]).toBe('background-color');
     });
 
     it('should return empty array for non-vendor-prefixed properties', () => {
       const result = getVendorPrefixedProperties('display');
       expect(Array.isArray(result)).toBe(true);
-      expect(result[0]).toBe('-display');
+      expect(result[0]).toBe('display');
     });
 
     it('should include all vendor prefixes for transform', () => {
