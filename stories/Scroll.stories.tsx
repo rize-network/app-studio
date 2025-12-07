@@ -277,3 +277,91 @@ export const IframeScroll: ComponentStory<typeof $Input> = () => {
     </View>
   );
 };
+
+const IframeWindowContent = () => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  // Use trackWindowScroll: true to track the iframe's window scroll
+  // even though we pass a container ref (which is used for context)
+  const scroll = useScroll({
+    container: containerRef,
+    trackWindowScroll: true,
+  });
+
+  return (
+    <div
+      ref={containerRef}
+      style={{
+        // No fixed height or overflow here, we want the window (body) to scroll
+        backgroundColor: '#fff0f0',
+      }}
+    >
+      <div style={{ height: '300vh', padding: 20 }}>
+        <h1 style={{ fontFamily: 'sans-serif' }}>Iframe Window Scroll</h1>
+        <div
+          style={{
+            position: 'fixed',
+            top: 10,
+            left: 10,
+            background: 'white',
+            padding: 10,
+            border: '1px solid #ddd',
+            borderRadius: 4,
+            zIndex: 1000,
+          }}
+        >
+          <p style={{ margin: 0, fontFamily: 'monospace' }}>
+            Window Scroll Y: {scroll.y}
+          </p>
+          <p style={{ margin: 0, fontFamily: 'monospace' }}>
+            Progress: {(scroll.yProgress * 100).toFixed(0)}%
+          </p>
+        </div>
+        <div
+          style={{
+            marginTop: '50vh',
+            height: '20vh',
+            background: 'lightcoral',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'white',
+          }}
+        >
+          Mid Section (Window Scroll)
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export const IframeWindowScroll: ComponentStory<typeof $Input> = () => {
+  const [frameRef, setFrameRef] = useState<HTMLIFrameElement | null>(null);
+  const [mountNode, setMountNode] = useState<HTMLElement | null>(null);
+
+  useEffect(() => {
+    if (frameRef?.contentWindow?.document?.body) {
+      setMountNode(frameRef.contentWindow.document.body);
+      const doc = frameRef.contentWindow.document;
+      doc.body.style.margin = '0';
+      // Ensure the body behaves normally
+      doc.body.style.overflow = 'auto';
+    }
+  }, [frameRef]);
+
+  return (
+    <View style={{ padding: 20 }}>
+      <Text style={{ marginBottom: 10, display: 'block' }}>
+        This iframe tracks the <b>Window Scroll</b> (main document of the
+        iframe). The content flows naturally and scrolls the entire iframe
+        window. Use <code>trackWindowScroll: true</code> to achieve this when
+        passing a container ref.
+      </Text>
+      <iframe
+        ref={setFrameRef}
+        style={{ width: '100%', height: '400px', border: '2px solid #ccc' }}
+        title="Window Scroll Test Iframe"
+      />
+      {mountNode && createPortal(<IframeWindowContent />, mountNode)}
+    </View>
+  );
+};

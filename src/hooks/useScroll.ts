@@ -46,6 +46,10 @@ const isWindow = (obj: any): obj is Window => {
   return obj && obj.window === obj;
 };
 
+const isElementScrollable = (el: HTMLElement) => {
+  return el.scrollHeight > el.clientHeight || el.scrollWidth > el.clientWidth;
+};
+
 // Memoized function to get scroll dimensions
 const getScrollDimensions = (
   element: HTMLElement | Window
@@ -89,22 +93,37 @@ export const useScroll = ({
   const lastUpdateRef = useRef<number>(0);
   const frameRef = useRef<number>();
 
-  // Get the correct window context (iframe or main window)
-  // The container ref is used to find the correct window context, not as the scroll target
-  const getTargetWindow = useCallback((): Window | null => {
-    if (container?.current) {
-      // Get the window from the container's document (works in iframes)
-      return container.current.ownerDocument?.defaultView ?? null;
+  // Resolve the window/document context. If the container is an iframe element, use its contentWindow.
+  const getContext = useCallback(() => {
+    const targetEl = container?.current ?? null;
+
+    if (targetEl && targetEl instanceof HTMLIFrameElement) {
+      const frameWindow = targetEl.contentWindow ?? null;
+      const frameDoc =
+        targetEl.contentDocument ?? frameWindow?.document ?? null;
+      return {
+        targetEl,
+        targetWindow: frameWindow,
+        targetDocument: frameDoc,
+      } as const;
     }
-    return typeof window !== 'undefined' ? window : null;
+
+    const targetDocument = targetEl?.ownerDocument ?? null;
+    const targetWindow =
+      targetDocument?.defaultView ??
+      (typeof window !== 'undefined' ? window : null);
+
+    return { targetEl, targetWindow, targetDocument } as const;
   }, [container]);
 
   const handleScroll = useCallback(() => {
     if (disabled) return;
 
-    const targetEl = container?.current;
-    const targetWindow = getTargetWindow();
-    const scrollTarget = targetEl || targetWindow;
+    const { targetEl, targetWindow } = getContext();
+    const hasScrollableElement = targetEl && isElementScrollable(targetEl);
+    const scrollTarget = hasScrollableElement
+      ? targetEl
+      : targetWindow || targetEl;
 
     if (!scrollTarget) return;
 
@@ -138,48 +157,48 @@ export const useScroll = ({
       }
       return prev;
     });
-  }, [offset, throttleMs, disabled, getTargetWindow, container]);
+  }, [offset, throttleMs, disabled, getContext]);
 
   useEffect(() => {
     if (disabled) return;
 
-    const targetEl = container?.current;
-    const targetWin = getTargetWindow();
-    const scrollTarget = targetEl || targetWin;
+    const { targetEl, targetWindow, targetDocument } = getContext();
+    const hasScrollableElement = targetEl && isElementScrollable(targetEl);
+    const scrollTarget = hasScrollableElement
+      ? targetEl
+      : targetWindow || targetEl;
 
     if (!scrollTarget) return;
 
     // Initial scroll position
     handleScroll();
 
-    const options = { passive: true };
+    const options = { passive: true } as const;
 
-    // Listen on the specific target
     scrollTarget.addEventListener('scroll', handleScroll, options);
 
-    // Always listen to resize on window for responsiveness
-    if (targetWin) {
-      targetWin.addEventListener('resize', handleScroll, options);
+    if (targetWindow) {
+      targetWindow.addEventListener('resize', handleScroll, options);
     }
 
-    // Also listen on document for scroll if target is window (browser compatibility)
-    if (isWindow(scrollTarget) && scrollTarget.document) {
-      scrollTarget.document.addEventListener('scroll', handleScroll, options);
+    // If we are using a window (main or iframe), also listen to its document
+    if (targetWindow && targetDocument) {
+      targetDocument.addEventListener('scroll', handleScroll, options);
     }
 
     return () => {
       scrollTarget.removeEventListener('scroll', handleScroll);
-      if (targetWin) {
-        targetWin.removeEventListener('resize', handleScroll);
+      if (targetWindow) {
+        targetWindow.removeEventListener('resize', handleScroll);
       }
-      if (isWindow(scrollTarget) && scrollTarget.document) {
-        scrollTarget.document.removeEventListener('scroll', handleScroll);
+      if (targetWindow && targetDocument) {
+        targetDocument.removeEventListener('scroll', handleScroll);
       }
       if (frameRef.current) {
         cancelAnimationFrame(frameRef.current);
       }
     };
-  }, [handleScroll, disabled, getTargetWindow, container]);
+  }, [handleScroll, disabled, getContext]);
 
   return scrollPosition;
 };
