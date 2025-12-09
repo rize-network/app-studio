@@ -997,7 +997,9 @@ export const extractUtilityClasses = (
 
     if (props.bgColor || props.backgroundColor) {
       computedStyles.mixBlendMode = blendConfig.modeWithBg;
-      computedStyles.color = 'white'; // Use logic to get color from bg?
+      const bg = props.bgColor || (props.backgroundColor as string);
+      computedStyles.color =
+        !bg || bg === ' transparent' ? 'white' : getColor(bg);
       // Note: original logic had getColor(bgColor). But here in computedStyles we assign the color NAME/Value.
       // processStyles -> getColor will be called later on these values.
       // BUT mixBlendMode is not a color.

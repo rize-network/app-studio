@@ -16,7 +16,6 @@ import {
   defaultLightColors,
   defaultLightPalette,
 } from '../utils/colors'; // Assuming this path is correct
-import { View } from '../components/View';
 
 // --- Constants ---
 const THEME_PREFIX = 'theme.';
@@ -344,9 +343,11 @@ export const ThemeProvider = ({
 
   return (
     <ThemeContext.Provider value={contextValue}>
-      <View backgroundColor={themeMode === 'dark' ? 'black' : 'white'}>
+      <div
+        style={{ backgroundColor: themeMode === 'dark' ? 'black' : 'white' }}
+      >
         {children}
-      </View>
+      </div>
     </ThemeContext.Provider>
   );
 };
