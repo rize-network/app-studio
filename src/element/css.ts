@@ -992,8 +992,7 @@ export const extractUtilityClasses = (
   const setBlend = (props: any, style: any) => {
     if (props.bgColor || props.backgroundColor) {
       style.mixBlendMode = blendConfig.modeWithBg;
-      const bg = props.bgColor || (props.backgroundColor as string);
-      style.color = !bg || bg === 'transparent' ? 'white' : getColor(bg);
+      style.color = 'white';
     } else {
       style.mixBlendMode = blendConfig.mode;
       style.color = blendConfig.color;
