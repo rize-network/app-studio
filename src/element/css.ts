@@ -983,8 +983,8 @@ export const extractUtilityClasses = (
     Object.assign(computedStyles, AnimationUtils.processAnimations(animations));
   }
 
-  const needBlend = (style: any) => {
-    return style.color !== undefined && typeof props.children === 'string';
+  const needBlend = (props: any) => {
+    return props.blend !== false && props.color !== undefined;
   };
 
   const blendConfig = props.theme?.blend || {
@@ -1004,12 +1004,17 @@ export const extractUtilityClasses = (
     }
   };
   // Handle default blend
-  if (props.blend !== false && needBlend(props)) {
+  if (needBlend(props) && typeof props.children === 'string') {
     setBlend(props, computedStyles);
   }
 
   Object.keys(props).forEach((property) => {
-    if (property.startsWith('_') && property.length > 1) {
+    if (
+      needBlend((props as any)[property]) &&
+      typeof props.children === 'string' &&
+      property.startsWith('_') &&
+      property.length > 1
+    ) {
       setBlend((props as any)[property], (props as any)[property]);
     }
   });
