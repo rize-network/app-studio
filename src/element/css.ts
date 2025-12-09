@@ -983,35 +983,36 @@ export const extractUtilityClasses = (
     Object.assign(computedStyles, AnimationUtils.processAnimations(animations));
   }
 
-  // Handle default blend
-  if (
-    props.blend !== false &&
-    props.color === undefined &&
-    computedStyles.color == undefined &&
-    typeof props.children === 'string'
-  ) {
-    const blendConfig = props.theme?.blend || {
-      mode: 'difference',
-      color: 'white',
-      modeWithBg: 'exclusion',
-    };
+  const needBlend = (style: any) => {
+    return style.color !== undefined && typeof props.children === 'string';
+  };
 
+  const blendConfig = props.theme?.blend || {
+    mode: 'difference',
+    color: 'white',
+    modeWithBg: 'exclusion',
+  };
+
+  const setBlend = (props: any, style: any) => {
     if (props.bgColor || props.backgroundColor) {
-      computedStyles.mixBlendMode = blendConfig.modeWithBg;
+      style.mixBlendMode = blendConfig.modeWithBg;
       const bg = props.bgColor || (props.backgroundColor as string);
-      computedStyles.color =
-        !bg || bg === 'transparent' ? 'white' : getColor(bg);
-      // Note: original logic had getColor(bgColor). But here in computedStyles we assign the color NAME/Value.
-      // processStyles -> getColor will be called later on these values.
-      // BUT mixBlendMode is not a color.
-      // And we need to assign the color *value* (which should be resolved color from bg).
-      // Wait, if I assign `computedStyles.color = props.bgColor`, then `processStyles` will see `color: props.bgColor` and call `getColor(props.bgColor)`.
-      // This matches the original logic: `propsToProcess.color = getColor(propsToProcess.bgColor)`.
+      style.color = !bg || bg === 'transparent' ? 'white' : getColor(bg);
     } else {
-      computedStyles.mixBlendMode = blendConfig.mode;
-      computedStyles.color = blendConfig.color;
+      style.mixBlendMode = blendConfig.mode;
+      style.color = blendConfig.color;
     }
+  };
+  // Handle default blend
+  if (props.blend !== false && needBlend(props)) {
+    setBlend(props, computedStyles);
   }
+
+  Object.keys(props).forEach((property) => {
+    if (property.startsWith('_') && property.length > 1) {
+      setBlend((props as any)[property], (props as any)[property]);
+    }
+  });
 
   // Process base styles
   classes.push(...processStyles(computedStyles, 'base', '', getColor));
