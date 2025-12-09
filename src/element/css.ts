@@ -986,7 +986,7 @@ export const extractUtilityClasses = (
   const blendConfig = props?.theme?.blend || {
     mode: 'difference',
     color: 'white',
-    modeWithBg: 'exclusion',
+    modeWithBg: 'overlay',
   };
 
   const setBlend = (props: any, style: any) => {

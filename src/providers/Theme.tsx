@@ -343,11 +343,7 @@ export const ThemeProvider = ({
 
   return (
     <ThemeContext.Provider value={contextValue}>
-      <div
-        style={{ backgroundColor: themeMode === 'dark' ? 'black' : 'white' }}
-      >
-        {children}
-      </div>
+      <div style={{ backgroundColor: 'white' }}>{children}</div>
     </ThemeContext.Provider>
   );
 };
