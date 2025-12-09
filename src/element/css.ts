@@ -987,6 +987,7 @@ export const extractUtilityClasses = (
   if (
     props.blend !== false &&
     props.color === undefined &&
+    computedStyles.color == undefined &&
     typeof props.children === 'string'
   ) {
     const blendConfig = props.theme?.blend || {
