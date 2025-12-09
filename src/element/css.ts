@@ -983,11 +983,7 @@ export const extractUtilityClasses = (
     Object.assign(computedStyles, AnimationUtils.processAnimations(animations));
   }
 
-  const needBlend = (props: any) => {
-    return props.blend !== false && props.color !== undefined;
-  };
-
-  const blendConfig = props.theme?.blend || {
+  const blendConfig = props?.theme?.blend || {
     mode: 'difference',
     color: 'white',
     modeWithBg: 'exclusion',
@@ -1004,20 +1000,24 @@ export const extractUtilityClasses = (
     }
   };
   // Handle default blend
-  if (needBlend(props) && typeof props.children === 'string') {
+  if (
+    props.blend !== false &&
+    props.color === undefined &&
+    computedStyles.color === undefined &&
+    typeof props.children === 'string'
+  ) {
     setBlend(props, computedStyles);
-  }
 
-  Object.keys(props).forEach((property) => {
-    if (
-      needBlend((props as any)[property]) &&
-      typeof props.children === 'string' &&
-      property.startsWith('_') &&
-      property.length > 1
-    ) {
-      setBlend((props as any)[property], (props as any)[property]);
-    }
-  });
+    Object.keys(props).forEach((property) => {
+      if (
+        (props as any)[property]?.color === undefined &&
+        property.startsWith('_') &&
+        property.length > 1
+      ) {
+        setBlend((props as any)[property], (props as any)[property]);
+      }
+    });
+  }
 
   // Process base styles
   classes.push(...processStyles(computedStyles, 'base', '', getColor));

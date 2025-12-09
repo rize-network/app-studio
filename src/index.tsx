@@ -2,11 +2,6 @@ export * from './components/View';
 export * from './components/Image';
 export * from './components/Text';
 export { TextProps } from './components/Text/Text.props';
-export {
-  TextHeadings,
-  TextSize,
-  TextWeights,
-} from './components/Text/Text.type';
 
 export * from './components/Form';
 export * from './element/Element';
