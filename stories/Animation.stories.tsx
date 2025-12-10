@@ -1,6 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { ComponentStory, ComponentMeta } from '@storybook/react';
-import { View, Button, Animation } from '../src/index';
+import {
+  View,
+  Button,
+  Animation,
+  Text,
+  fadeInOnView,
+  slideUpOnView,
+  revealOnView,
+  scaleUpOnView,
+  blurInOnView,
+} from '../src/index';
 
 // Create a typed map for Animation functions to allow string indexing
 const AnimationMap = Animation as Record<string, (...args: any[]) => any>;
@@ -39,19 +49,19 @@ const Template: ComponentStory<typeof View> = (args) => {
     ...rest
   }: any = args;
 
-  // Récupérer la fonction d'animation correspondante
+  // Retrieve the corresponding animation function
   const animationFunc = AnimationMap[animationName as string];
 
-  // Construire l'objet d'animation en passant les paramètres
+  // Build the animation object passing parameters
   const animate = animationFunc
-    ? animationFunc(duration, timingFunction, iterationCount)
+    ? animationFunc({ duration, timingFunction, iterationCount })
     : undefined;
 
   return (
     <View
       widthHeight={100}
-      backgroundColor="color.blue"
-      animate={animate ? animate : undefined}
+      backgroundColor="color.blue.500"
+      animate={animate}
       {...rest}
     />
   );
@@ -87,7 +97,6 @@ export const SequencesAnimation: ComponentStory<typeof View> = () => (
       backgroundColor={'red'}
       widthHeight={50}
     ></View>
-    ;
   </View>
 );
 
@@ -123,7 +132,7 @@ export const ScalingAnimation: ComponentStory<typeof View> = () => {
   return (
     <>
       <Button onPress={() => setVisible(!visible)}>
-        {visible ? 'Masquer' : 'Afficher'} le composant
+        {visible ? 'Hide' : 'Show'} Component
       </Button>
       {visible && (
         <View
@@ -383,5 +392,177 @@ export const VisibleAnimation: ComponentStory<typeof View> = () => (
     <View
       style={{ width: '100%', height: '50vh', backgroundColor: '#e0e0e0' }}
     />
+  </View>
+);
+
+/**
+ * Special Use Cases: Scroll-Driven Animations using Scroll Timeline
+ * These animations progress as the user scrolls, rather than just triggering on view.
+ */
+export const ScrollDrivenAnimations: ComponentStory<typeof View> = () => (
+  <View width="100%" height="300vh" padding={20}>
+    <View
+      position="sticky"
+      top={20}
+      zIndex={10}
+      backgroundColor="white"
+      padding={20}
+      boxShadow="0 4px 6px rgba(0,0,0,0.1)"
+      borderRadius={8}
+      marginBottom={60}
+    >
+      <Text fontSize={24} fontWeight="bold" marginBottom={10}>
+        Scroll-Linked Animations
+      </Text>
+      <Text color="#555">
+        These elements animate based on your scroll position.
+        The animation effect is tied to the scroll progress.
+      </Text>
+    </View>
+    <View height="20vh" />
+
+    {/* Text Fill Scroll */}
+    <View marginBottom={100}>
+      <Text fontSize={18} fontWeight="bold" marginBottom={10}>
+        1. Text Fill Effect
+      </Text>
+      <Text
+        fontSize={48}
+        fontWeight="800"
+        animate={Animation.fillTextScroll()}
+        style={{
+          // @ts-ignore - CSS variables for this specific effect
+          '--fill': '0',
+          '--finish-fill': '#2563eb', // Blue-600
+          background: 'linear-gradient(90deg, #2563eb var(--fill), #e5e7eb var(--fill))',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          color: 'transparent', // Fallback
+        }}
+      >
+        Scroll to fill this text...
+      </Text>
+    </View>
+
+    {/* Scroll Fader */}
+    <View marginBottom={100}>
+      <Text fontSize={18} fontWeight="bold" marginBottom={10}>
+        2. Opacity Linked to Scroll
+      </Text>
+      <View
+        width={200}
+        height={200}
+        backgroundColor="color.red.500"
+        borderRadius={20}
+        animate={Animation.fadeInScroll()}
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+      >
+        <Text color="white" fontWeight="bold">I fade in as you scroll</Text>
+      </View>
+    </View>
+
+    {/* Scale Down Scroll */}
+    <View marginBottom={100}>
+      <Text fontSize={18} fontWeight="bold" marginBottom={10}>
+        3. Scale Linked to Scroll
+      </Text>
+      <View
+        width={200}
+        height={200}
+        backgroundColor="color.blue.500"
+        borderRadius="50%"
+        animate={Animation.scaleDownScroll()}
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+      >
+        <Text color="white" fontWeight="bold" textAlign="center">I shrink as you scroll</Text>
+      </View>
+    </View>
+    
+    <View height="50vh" />
+  </View>
+);
+
+/**
+ * Special Use Cases: View Timeline Presets
+ * Performant, pure-CSS animations that trigger when elements enter the viewport.
+ */
+export const ViewDrivenPresets: ComponentStory<typeof View> = () => (
+  <View width="100%" minHeight="300vh" padding={20}>
+    <View
+      position="sticky"
+      top={20}
+      zIndex={10}
+      backgroundColor="white"
+      padding={20}
+      boxShadow="0 4px 6px rgba(0,0,0,0.1)"
+      borderRadius={8}
+      marginBottom={60}
+    >
+      <Text fontSize={24} fontWeight="bold" marginBottom={10}>
+        View Timeline Presets
+      </Text>
+      <Text color="#555">
+        These use optimized CSS View Timelines (`view()`) for smooth entry animations.
+        Scroll down to see them trigger.
+      </Text>
+    </View>
+
+    <View height="30vh" />
+
+    <View
+      animate={fadeInOnView()}
+      padding={30}
+      backgroundColor="color.indigo.100"
+      marginBottom={40}
+      borderRadius={12}
+    >
+      <Text fontSize={20} fontWeight="bold">Fade In On View</Text>
+    </View>
+
+    <View
+      animate={slideUpOnView()}
+      padding={30}
+      backgroundColor="color.pink.100"
+      marginBottom={40}
+      borderRadius={12}
+    >
+      <Text fontSize={20} fontWeight="bold">Slide Up On View</Text>
+    </View>
+
+    <View
+      animate={scaleUpOnView()}
+      padding={30}
+      backgroundColor="color.amber.100"
+      marginBottom={40}
+      borderRadius={12}
+    >
+      <Text fontSize={20} fontWeight="bold">Scale Up On View</Text>
+    </View>
+
+    <View
+      animate={revealOnView()}
+      padding={30}
+      backgroundColor="color.emerald.100"
+      marginBottom={40}
+      borderRadius={12}
+    >
+      <Text fontSize={20} fontWeight="bold">Clip Path Reveal On View</Text>
+    </View>
+
+    <View
+      animate={blurInOnView()}
+      padding={30}
+      backgroundColor="color.cyan.100"
+      marginBottom={40}
+      borderRadius={12}
+    >
+      <Text fontSize={20} fontWeight="bold">Blur In On View</Text>
+    </View>
+
+    <View height="50vh" />
   </View>
 );

@@ -361,3 +361,48 @@ export const MixedTriggers: ComponentStory<typeof View> = () => (
     <View height="40vh" />
   </View>
 );
+
+/**
+ * Special Case: Timeline Override
+ * If you provide an explicit timeline (e.g. scroll()), it is respected even if animateOn="View" is set.
+ */
+export const TimelineOverride: ComponentStory<typeof View> = () => (
+  <View padding={20} minHeight="300vh">
+     <View
+      position="sticky"
+      top={0}
+      backgroundColor="white"
+      padding={20}
+      marginBottom={20}
+      boxShadow="0 2px 8px rgba(0,0,0,0.1)"
+      zIndex={10}
+    >
+      <Text fontSize={24} fontWeight="bold" marginBottom={8}>
+        Timeline Priority
+      </Text>
+      <Text color="#666">
+        Explicit timelines in the animation object take precedence over animateOn helper logic.
+      </Text>
+    </View>
+
+    <View height="40vh" />
+
+    <View
+      animate={Animations.scaleDownScroll()}
+      animateOn="View"
+      backgroundColor="color.teal.500"
+      width={200}
+      height={200}
+      borderRadius="50%"
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+    >
+      <Text color="white" textAlign="center" fontWeight="bold">
+        I use scroll() timeline <br/> (Explicit)
+      </Text>
+    </View>
+    
+    <View height="100vh" />
+  </View>
+);

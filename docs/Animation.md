@@ -2,16 +2,23 @@
 
 ## 1. Introduction
 
-App-Studio provides a powerful animation system through the `Animation` object. This system allows you to easily add dynamic and engaging animations to any component that extends from `Element`. The animations are based on CSS animations and can be customized with various properties.
+App-Studio provides a powerful animation system through the `Animation` object and the `Element` component. This system allows you to easily add dynamic and engaging animations, including:
 
-## 2. Usage
+- **Standard CSS Animations**: Immediate animations on mount or loop.
+- **Scroll-Triggered Animations** (`view()`): Animations that play when elements enter the viewport.
+- **Scroll-Linked Animations** (`scroll()`): Animations driven by the scroll progress (e.g., parallax, reading progress).
+- **Interactive Animations**: Triggered by events like hover, click, or focus.
 
-### Basic Usage
+## 2. Basic Usage
+
+### Standard Animations
+
+Use the `Animation` object to access standard animation presets.
 
 ```jsx
 import { View, Animation } from 'app-studio';
 
-// Simple animation
+// Simple animation running immediately on mount
 <View 
   animate={Animation.fadeIn({
     duration: '1s',
@@ -27,349 +34,208 @@ Each animation function accepts an options object with these properties:
 
 ```typescript
 type AnimationOptions = {
-  duration?: string;        // e.g., '1s', '500ms'
-  timingFunction?: string;  // e.g., 'ease', 'linear', 'ease-in-out'
+  duration?: string;          // e.g., '1s', '500ms'
+  timingFunction?: string;    // e.g., 'ease', 'linear', 'cubic-bezier(...)'
   iterationCount?: string | number; // e.g., '1', 'infinite'
+  delay?: string;             // e.g., '0.5s'
+  direction?: string;         // e.g., 'normal', 'reverse', 'alternate'
+  fillMode?: string;          // e.g., 'forwards', 'both'
+  playState?: string;         // e.g., 'running', 'paused'
 }
 ```
 
-## 3. Animation Types
+## 3. Element Props for Animation
 
-### Transition Animations
+The `Element` component (and components extending it like `View`, `Text`, `Image`) supports several props to control animations:
 
-Animations that involve changes in opacity or position:
+### `animate`
+The main property to apply animations. Accepts a single animation object or an array of animations.
 
 ```jsx
-// Fade animations (change opacity)
-Animation.fadeIn()
-Animation.fadeOut()
-
-// Slide animations (move elements)
-Animation.slideInLeft()
-Animation.slideInRight()
-Animation.slideOutLeft()
-Animation.slideOutRight()
-Animation.slideInUp()
-Animation.slideOutDown()
+<View animate={Animation.bounce()} />
+<View animate={[Animation.fadeIn(), Animation.slideInUp()]} />
 ```
 
-### Transform Animations
+### `animateIn` & `animateOut`
+Useful for mounting and unmounting transitions, or conditional rendering effects.
+- `animateIn`: Applied when the component mounts or becomes visible (if `IntersectionObserver` is used internally).
+- `animateOut`: Applied during unmount cleanup (requires immediate re-render or external handling to be visible).
 
-Animations that modify the element's transformation:
+### `animateOn`
+Controls *when* the animation defined in `animate` starts.
+
+- `'Mount'` (default): Animation starts immediately when the component is added to the DOM.
+- `'View'`: Animation is converted to a CSS `view()` timeline animation. It plays as the element enters the viewport. **No JavaScript required.**
+- `'Both'`: Technically same as Mount for most cases, ensuring visibility.
 
 ```jsx
-// Rotate
-Animation.rotate()
-
-// Scale
-Animation.scale()
-
-// Translate
-Animation.translate()
+// Trigger animation only when user scrolls it into view
+<View animate={Animation.slideInUp()} animateOn="View" />
 ```
 
-### Effect Animations
+## 4. Animation Presets
 
-Animations that create special effects:
+App-Studio comes with a comprehensive library of ready-to-use animations available under the `Animation` namespace.
 
-```jsx
-// Attention seekers
-Animation.bounce()
-Animation.pulse()
-Animation.shake()
-Animation.flash()
+### Fades
+- `Animation.fadeIn()`
+- `Animation.fadeOut()`
+- `Animation.fadeInDown()`
+- `Animation.fadeInUp()`
+- `Animation.fadeInScroll()` - Scroll-progress driven fade
 
-// Special effects
-Animation.flip()
-Animation.rubberBand()
-Animation.heartBeat()
-```
+### Slides
+- `Animation.slideInLeft()`
+- `Animation.slideInRight()`
+- `Animation.slideInDown()`
+- `Animation.slideInUp()`
+- `Animation.slideOutLeft()`
+- `Animation.slideOutRight()`
+- `Animation.slideInLeftScroll()` - Scroll-progress driven slide
 
-## 4. Event-Based Animations
+### Zooms & Scales
+- `Animation.zoomIn()`
+- `Animation.zoomOut()`
+- `Animation.zoomInDown()`
+- `Animation.zoomOutUp()`
+- `Animation.scale()` - Pulse scale effect
+- `Animation.scaleDownScroll()`
+- `Animation.listItemScaleScroll()`
 
-Animations can be triggered by various events using the `on` prop:
+### Bounces
+- `Animation.bounce()`
+- `Animation.bounceIn()`
+- `Animation.bounceOut()`
 
-```jsx
-<View
-  on={{
-    // Animation on hover
-    hover: {
-      backgroundColor: 'lightblue', // Example: change background color on hover
-      animate: Animation.pulse({
-        duration: "1s",
-        iterationCount: "infinite",
-      }),
-    },
-    
-    // Animation on click
-    click: {
-      animate: Animation.flash({ duration: '0.5s' })
-    }
-  }}
-/>
-```
+### Flips & Rotations
+- `Animation.rotate()`
+- `Animation.flip()`
+- `Animation.flipInX()`
+- `Animation.flipInY()`
+- `Animation.rollIn()`
+- `Animation.rollOut()`
+- `Animation.swing()`
 
-## 5. Responsive Animations
+### Attention Seekers & Effects
+- `Animation.pulse()`
+- `Animation.flash()`
+- `Animation.shake()`
+- `Animation.headShake()`
+- `Animation.rubberBand()`
+- `Animation.wobble()`
+- `Animation.heartBeat()`
+- `Animation.tada()`
+- `Animation.jello()`
 
-You can define different animations for different screen sizes using the `media` prop:
+### Extrances & Exits
+- `Animation.lightSpeedIn()`
+- `Animation.lightSpeedOut()`
+- `Animation.jackInTheBox()`
+- `Animation.hinge()`
+- `Animation.backInDown()`
+- `Animation.backOutUp()`
 
-```jsx
-<View
-  media={{
-    mobile: {
-      animate: Animation.fadeIn({ duration: '1s' })
-    },
-    tablet: {
-      animate: Animation.slideInLeft({ duration: '0.5s' })
-    },
-    desktop: {
-      animate: Animation.bounce({ duration: '2s' })
-    }
-  }}
-/>
-```
+### Special / Scroll-Driven
+- `Animation.shimmer()` - Loading shimmer effect
+- `Animation.typewriter()` - Typing effect
+- `Animation.blinkCursor()`
+- `Animation.handWaveScroll()`
+- `Animation.ctaCollapseScroll()`
+- `Animation.fillTextScroll()`
 
-## 6. Custom Animation Sequences
+## 5. View Timeline Animations (Scroll-Driven)
 
-You can create complex animation sequences by defining an array of animation states. Each state in the sequence is an object with `from` and `to` properties that define the CSS styles at the start and end of that animation segment.
+There are two ways to create animations that trigger on scroll into view:
 
-Here's a simple example:
-
-```jsx
-const simpleSequence = [
-  {
-    from: { opacity: 0 }, // Start fully transparent
-    to: { opacity: 1 }, // End fully opaque
-    duration: "1s",
-    timingFunction: "ease-in",
-  },
-];
-
-<View animate={simpleSequence} />
-```
-
-And here's a more complex example:
+### 1. Using `animateOn="View"`
+This works with any standard animation.
 
 ```jsx
-const complexSequence = [
-  {
-    from: { opacity: 0, transform: "translateY(-100px)" },
-    to: { opacity: 1, transform: "translateY(0)" },
-    duration: "2s",
-    timingFunction: "ease-in",
-  },
-  {
-    from: { opacity: 1, transform: "translateY(100px)" },
-    to: { opacity: 0, transform: "translateY(0)" },
-    duration: "2s",
-    timingFunction: "ease-out",
-  },
-];
-
-<View animate={complexSequence} />
-```
-
-## 7. Animation Trigger Control
-
-By default, animations trigger when elements are mounted (immediate animation). You can control this behavior with the `animateOn` prop.
-
-### animateOn Prop
-
-```jsx
-// Default: Animations trigger on mount (immediate)
-<View animate={Animation.fadeIn()} />
-
-// Explicitly set to trigger on mount (same as default)
-<View animate={Animation.fadeIn()} animateOn="Both" />
-<View animate={Animation.fadeIn()} animateOn="Mount" />
-
-// Trigger only when scrolling into viewport
 <View animate={Animation.fadeIn()} animateOn="View" />
 ```
 
-### Benefits of Each Mode
-
-**Both / Mount (Default)**
-- ✅ **Immediate feedback** - Animates as soon as element appears
-- ✅ **Familiar behavior** - Works like traditional CSS animations
-- ✅ **No dependencies** - Works in all browsers
-- 📌 **Best for**: Hero sections, immediately visible content
-
-**View**
-- ✅ **Better performance** - Pure CSS, no JavaScript state
-- ✅ **No re-renders** - Browser handles visibility detection  
-- ✅ **Scroll-triggered** - Animates when user scrolls to it
-- 📌 **Best for**: Content below the fold that should animate on scroll
-
-### When to Use Each Mode
+### 2. Using `*OnView` Helper Functions
+These are performant, pure CSS animations explicitly designed for entry/exit effects. Imported directly from `app-studio`.
 
 ```jsx
-// Hero section - animate immediately
-<View animate={Animation.fadeIn()} animateOn="Mount">
-  <Text>Welcome!</Text>
-</View>
+import { 
+  fadeInOnView, 
+  slideUpOnView, 
+  scaleUpOnView,
+  blurInOnView,
+  rotateInOnView,
+  revealOnView,
+  flipXOnView,
+  flipYOnView
+} from 'app-studio';
 
-// Content card - animate on scroll into view
-<View animate={Animation.slideUp()} animateOn="View">
-  <Text>This card animates when scrolled into view</Text>
-</View>
-```
-
-## 8. View Timeline Animations (CSS Scroll-Driven)
-
-
-App-Studio provides performant scroll-driven animations using CSS `animation-timeline: view()`. These animations trigger when elements enter/exit the viewport **without any JavaScript state or IntersectionObserver**.
-
-### Benefits
-
-- ✅ **No JavaScript state** - Pure CSS, no `useState` or re-renders
-- ✅ **No IntersectionObserver** - Browser handles visibility detection
-- ✅ **Compositor thread** - Smooth 60fps animations
-- ✅ **JSON configurable** - Define animations as data
-
-### Basic Usage
-
-```jsx
-import { fadeInOnView, slideUpOnView, scaleUpOnView } from 'app-studio';
-
-// Elements animate when scrolling into view
 <View animate={fadeInOnView()} />
 <View animate={slideUpOnView({ distance: '50px' })} />
-<View animate={scaleUpOnView({ scale: 0.8 })} />
+<View animate={revealOnView()} /> // Clip-path reveal
 ```
 
-### Available Presets
+## 6. Scroll Progress Animations
 
-| Function | Effect | Default Range |
-|----------|--------|---------------|
-| `fadeInOnView()` | Fade in | entry |
-| `fadeOutOnView()` | Fade out | exit |
-| `slideUpOnView()` | Slide up + fade | entry |
-| `slideDownOnView()` | Slide down + fade | entry |
-| `slideLeftOnView()` | Slide from left | entry |
-| `slideRightOnView()` | Slide from right | entry |
-| `scaleUpOnView()` | Scale up (0.9→1) | entry |
-| `scaleDownOnView()` | Scale down | entry |
-| `blurInOnView()` | Blur in | entry |
-| `blurOutOnView()` | Blur out | exit |
-| `rotateInOnView()` | Rotate + scale | entry |
-| `revealOnView()` | Clip-path reveal | entry |
-| `flipXOnView()` | 3D flip X | entry |
-| `flipYOnView()` | 3D flip Y | entry |
-
-### Custom Options
+These animations are linked to the scroll position associated with a timeline (usually the nearest scroller). As you scroll active range, the animation progresses.
 
 ```jsx
-// All presets accept customization options
-<View animate={fadeInOnView({
-  duration: '1s',
-  timingFunction: 'ease-out',
-  delay: '0.2s',
-  range: 'entry 0% entry 80%'
-})} />
+// Text that fills efficiently as you scroll (requires CSS variable support)
+<View animate={Animation.fillTextScroll()} />
 
-<View animate={slideUpOnView({ distance: '60px' })} />
-<View animate={blurInOnView({ blur: '20px' })} />
-<View animate={scaleUpOnView({ scale: 0.7 })} />
+// Image that unclips/expands as you scroll
+<View animate={Animation.unclipScroll()} />
+
+// Item that fades in based on scroll progress
+<View animate={Animation.fadeInScroll()} />
 ```
 
-### Custom JSON Configuration
+## 7. Event-Based Animations
+
+You can trigger animations on interactions like hover, click, or focus using the `on` prop or underscore props (`_hover`, `_active`).
 
 ```jsx
-import { animateOnView } from 'app-studio';
-
-<View animate={animateOnView({
-  keyframes: {
-    from: { opacity: 0, transform: 'rotate(-10deg) scale(0.9)' },
-    to: { opacity: 1, transform: 'rotate(0) scale(1)' }
-  },
-  timing: {
-    duration: '0.8s',
-    timingFunction: 'ease-out'
-  },
-  range: 'entry'
-})} />
+<View
+  _hover={{
+    // Pulse animation while hovering
+    animate: Animation.pulse({ duration: '0.5s' }),
+    scale: 1.05
+  }}
+  
+  on={{
+    click: {
+      animate: Animation.flash()
+    }
+  }}
+>
+  <Text>Hover or Click Me</Text>
+</View>
 ```
 
-### Entry and Exit Animations
+## 8. Custom Animation Sequences
+
+You can create complex animation sequences by configuring keyframes directly.
 
 ```jsx
-// Combine entry and exit animations
-<View animate={[
-  fadeInOnView({ range: 'entry' }),
-  fadeOutOnView({ range: 'exit' })
-]} />
+const customTwist = {
+  from: { transform: 'rotate(0deg) scale(1)' },
+  '50%': { transform: 'rotate(180deg) scale(1.5)' },
+  to: { transform: 'rotate(360deg) scale(1)' },
+  duration: '2s',
+  iterationCount: 'infinite'
+};
 
-<View animate={[
-  slideUpOnView({ range: 'entry' }),
-  blurOutOnView({ range: 'exit' })
-]} />
+<View animate={customTwist} />
 ```
-
-### Staggered Animations
-
-```jsx
-// Create staggered effects with delay
-{items.map((item, index) => (
-  <View
-    key={item.id}
-    animate={slideUpOnView({ delay: `${index * 0.1}s` })}
-  >
-    {item.content}
-  </View>
-))}
-```
-
-### Using Preset Configurations
-
-```jsx
-import { viewAnimationPresets, createViewAnimation } from 'app-studio';
-
-// Use predefined JSON configs
-<View animate={createViewAnimation(viewAnimationPresets.fadeIn)} />
-<View animate={createViewAnimation(viewAnimationPresets.slideUp)} />
-<View animate={createViewAnimation(viewAnimationPresets.reveal)} />
-```
-
-### Browser Support
-
-| Browser | Support |
-|---------|---------|
-| Chrome 115+ | ✅ Full |
-| Edge 115+ | ✅ Full |
-| Safari 17.4+ | ✅ Full |
-| Firefox 110+ | ⚠️ Partial |
-
-> **Note:** In unsupported browsers, elements appear without animation (graceful degradation).
 
 ## 9. Best Practices
 
-
-1. **Performance**
-   - Use view timeline animations (`fadeInOnView`, etc.) for scroll-triggered effects
-   - Prefer transform and opacity animations for better performance
-   - Avoid animating layout properties (width, height, margin)
-
-2. **User Experience**
-   - Keep animations short and subtle
-   - Use appropriate timing functions for natural movement
-   - Consider `prefers-reduced-motion` for accessibility
-
-3. **Code Organization**
-   - Define reusable animation configurations as JSON
-   - Use meaningful names for custom sequences
-   - Keep animation logic separate from component logic:
-     ```jsx
-     const myAnimation = fadeInOnView({ duration: '1s' });
-     <View animate={myAnimation} />
-     ```
-
-4. **Responsive Design**
-   - Adjust animation duration for different screen sizes
-   - Consider disabling complex animations on mobile
-   - Test animations on real devices
-
-5. **View Timeline Animations**
-   - Use for on-scroll reveal effects instead of `animateIn`
-   - Combine entry and exit animations for complete interactions
-   - Use staggered delays for list animations
+1.  **Performance**: Prefer standard transforms (`translate`, `scale`, `rotate`) and `opacity`. Avoid animating layout properties like `width` or `margin`.
+2.  **Scroll Animations**: Use `animateOn="View"` or `*OnView` helpers for "reveal" effects, as they run on the compositor thread and don't require JavaScript listeners.
+3.  **Accessibility**: Respect user motion preferences.
+4.  **Composability**: You can mix standard styles with animations.
+    ```jsx
+    <View 
+      style={{ opacity: 0 }} // Initial state
+      animate={Animation.fadeIn({ delay: '0.5s', fillMode: 'forwards' })} 
+    />
+    ```
