@@ -5,16 +5,16 @@
     "addUntrackedFiles": true,
     "requireCleanWorkingDir": false,
     "commit": true,
-    "tag": false,
+    "tag": true,
     "push": true
-   },
-    "github": {
-      "release": false,
-      "releaseName": "Release ${version}",
-      "releaseNotes": null,
-      "autoGenerate": false
-    },
+  },
+  "github": {
+    "release": false,
+    "releaseName": "Release ${version}",
+    "releaseNotes": null,
+    "autoGenerate": false
+  },
   "npm": {
-    "publish": true
+    "publish": false
   }
 }

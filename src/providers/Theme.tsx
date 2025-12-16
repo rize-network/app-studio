@@ -45,54 +45,114 @@ interface Override {
   themeMode?: 'light' | 'dark';
 }
 
-// --- CSS Variables Type ---
-type CSSVariables = Record<string, string>;
-
-// --- Helper to generate CSS variables from colors ---
-const generateColorVariables = (colors: Colors): CSSVariables => {
-  const vars: CSSVariables = {};
-
-  // Process main colors (e.g., --color-white, --color-black)
-  Object.entries(colors.main).forEach(([key, value]) => {
-    vars[`--color-${key}`] = value;
-  });
-
-  // Process palette colors (e.g., --color-blue-500)
-  Object.entries(colors.palette).forEach(([colorName, shades]) => {
-    Object.entries(shades).forEach(([shade, value]) => {
-      vars[`--color-${colorName}-${shade}`] = value as string;
-    });
-  });
-
-  return vars;
-};
-
-// --- Helper to generate theme variables ---
-const generateThemeVariables = (
+// --- CSS Variable Injection Helper ---
+const generateCSSVariables = (
   theme: Theme,
-  getColorValue: (token: string) => string
-): CSSVariables => {
-  const vars: CSSVariables = {};
-
-  const processThemeObject = (obj: any, prefix: string) => {
-    Object.entries(obj).forEach(([key, value]) => {
-      const varName = `--${prefix}-${key}`;
-
+  lightColors: Colors,
+  darkColors: Colors
+) => {
+  const variables: string[] = [];
+  const lightVariables: string[] = [];
+  const darkVariables: string[] = [];
+  const themeVariables: string[] = [];
+  // Helper to process object and generate variables
+  const processObject = (obj: any, prefix: string, targetArray: string[]) => {
+    Object.keys(obj).forEach((key) => {
+      const value = obj[key];
+      const variableName = `${prefix}-${key}`.replace(/\./g, '-');
       if (typeof value === 'object' && value !== null) {
-        processThemeObject(value, `${prefix}-${key}`);
+        processObject(value, variableName, targetArray);
+      } else if (typeof value === 'string' || typeof value === 'number') {
+        targetArray.push(`--${variableName}: ${value};`);
+      }
+    });
+  };
+  // 1. Generate ALL primitive variables (light and dark)
+  // We prefix them with --light-color-... and --dark-color-...
+  processObject(lightColors.main, 'color', variables);
+  processObject(lightColors.palette, 'color', variables);
+
+  processObject(lightColors.main, 'light-color', lightVariables);
+  processObject(lightColors.palette, 'light-color', lightVariables);
+
+  processObject(darkColors.main, 'dark-color', darkVariables);
+  processObject(darkColors.palette, 'dark-color', darkVariables);
+
+  // We collect the names that need mapping
+  const genericColorVars: string[] = [];
+  const collectGenericNames = (obj: any, prefix: string) => {
+    Object.keys(obj).forEach((key) => {
+      const value = obj[key];
+      const variableName = `${prefix}-${key}`.replace(/\./g, '-');
+      if (typeof value === 'object' && value !== null) {
+        collectGenericNames(value, variableName);
+      } else {
+        genericColorVars.push(variableName);
+      }
+    });
+  };
+
+  collectGenericNames(lightColors.main, 'color');
+  collectGenericNames(lightColors.palette, 'color');
+  // 3. Process Theme variables (references)
+  const processTheme = (obj: any, prefix: string) => {
+    Object.keys(obj).forEach((key) => {
+      const value = obj[key];
+      const variableName = `${prefix}-${key}`.replace(/\./g, '-');
+      if (typeof value === 'object' && value !== null) {
+        processTheme(value, variableName);
       } else if (typeof value === 'string') {
-        // Resolve color.* and theme.* references to actual values
-        if (value.startsWith(COLOR_PREFIX) || value.startsWith(THEME_PREFIX)) {
-          vars[varName] = getColorValue(value);
+        if (value.startsWith(COLOR_PREFIX)) {
+          // Convert 'color.blue.500' -> 'var(--color-blue-500)'
+          // The underlying --color-blue-500 will change based on scope!
+          const refVar = value.replace(/\./g, '-');
+          themeVariables.push(`--${variableName}: var(--${refVar});`);
+        } else if (value.startsWith(THEME_PREFIX)) {
+          const refVar = value.replace(/\./g, '-');
+          themeVariables.push(`--${variableName}: var(--${refVar});`);
         } else {
-          vars[varName] = value;
+          themeVariables.push(`--${variableName}: ${value};`);
         }
       }
     });
   };
 
-  processThemeObject(theme, 'theme');
-  return vars;
+  processTheme(theme, 'theme');
+  // 4. Construct CSS
+  // :root has all primitives
+  // [data-theme='light'] maps color vars to light primitives
+  // [data-theme='dark'] maps color vars to dark primitives
+
+  const lightMappings = genericColorVars
+    .map((name) => `--${name}: var(--light-${name});`)
+    .join('\n    ');
+  const darkMappings = genericColorVars
+    .map((name) => `--${name}: var(--dark-${name});`)
+    .join('\n    ');
+  const css = `
+    :root {
+      /* Primitives */
+      ${variables.join('\n      ')}
+      ${lightVariables.join('\n      ')}
+      ${darkVariables.join('\n      ')}
+      
+      /* Theme Variables (Structural) */
+      ${themeVariables.join('\n      ')}
+
+      width: 100%;
+      height: 100%;
+      transition: background-color 0.2s, color 0.2s;
+    }
+  
+    [data-theme='light'] {
+      ${lightMappings}
+    }
+    
+    [data-theme='dark'] {
+      ${darkMappings}
+    }
+  `;
+  return css;
 };
 
 interface ThemeContextProps {
@@ -242,7 +302,6 @@ export const ThemeProvider = ({
 }: ThemeProviderProps): React.ReactElement => {
   const [themeMode, setThemeMode] = useState<'light' | 'dark'>(initialMode);
   const colorCache = useRef(new Map<string, string>()).current;
-  const containerRef = useRef<HTMLDivElement>(null);
 
   // Sync state with prop changes
   useEffect(() => {
@@ -319,21 +378,6 @@ export const ThemeProvider = ({
     },
     [currentColors, mergedTheme]
   );
-
-  // --- Generate CSS variables for current theme mode ---
-  const cssVariables = useMemo<CSSVariables>(() => {
-    const vars: CSSVariables = {};
-
-    // Add color variables for current mode
-    const colorVars = generateColorVariables(currentColors);
-    Object.assign(vars, colorVars);
-
-    // Add theme variables (resolved to actual color values)
-    const themeVars = generateThemeVariables(mergedTheme, resolveColorToken);
-    Object.assign(vars, themeVars);
-
-    return vars;
-  }, [currentColors, mergedTheme, resolveColorToken]);
 
   // The mode is now handled by the data-attribute on the container
 
@@ -451,8 +495,6 @@ export const ThemeProvider = ({
     [mergedTheme, themeColors, themeMode, colorCache, strict]
   );
 
-  // Update getColor to use the context mode for alpha lookups if needed.
-
   // --- Memoize Context Value ---
   const contextValue = useMemo(
     () => ({
@@ -467,14 +509,10 @@ export const ThemeProvider = ({
 
   return (
     <ThemeContext.Provider value={contextValue}>
-      <div
-        ref={containerRef}
-        className="app-studio-theme-root"
-        data-theme={themeMode}
-        style={cssVariables as React.CSSProperties}
-      >
-        {children}
-      </div>
+      <style data-theme={themeMode}>
+        {generateCSSVariables(mergedTheme, themeColors.light, themeColors.dark)}
+      </style>
+      {children}
     </ThemeContext.Provider>
   );
 };
