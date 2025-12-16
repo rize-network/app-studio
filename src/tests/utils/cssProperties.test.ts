@@ -18,15 +18,6 @@ describe('CSS Properties', () => {
       expect(vendorPrefixToKebabCase('fontSize')).toBe('font-size');
     });
 
-    it('should handle webkit prefix (lowercase)', () => {
-      expect(vendorPrefixToKebabCase('webkitTransform')).toBe(
-        '-webkit-transform'
-      );
-      expect(vendorPrefixToKebabCase('webkitAppearance')).toBe(
-        '-webkit-appearance'
-      );
-    });
-
     it('should handle webkit prefix (uppercase)', () => {
       expect(vendorPrefixToKebabCase('WebkitTransform')).toBe(
         '-webkit-transform'
@@ -37,7 +28,6 @@ describe('CSS Properties', () => {
     });
 
     it('should handle moz prefix', () => {
-      expect(vendorPrefixToKebabCase('mozUserSelect')).toBe('-moz-user-select');
       expect(vendorPrefixToKebabCase('MozUserSelect')).toBe('-moz-user-select');
     });
 
@@ -47,7 +37,6 @@ describe('CSS Properties', () => {
     });
 
     it('should handle o prefix', () => {
-      expect(vendorPrefixToKebabCase('oTransform')).toBe('-o-transform');
       expect(vendorPrefixToKebabCase('OTransform')).toBe('-o-transform');
     });
 
@@ -109,7 +98,6 @@ describe('CSS Properties', () => {
 
     it('should contain vendor-prefixed properties', () => {
       expect(cssPropertyKeys).toContain('WebkitTransform');
-      expect(cssPropertyKeys).toContain('webkitTransform');
       expect(cssPropertyKeys).toContain('MozAppearance');
       expect(cssPropertyKeys).toContain('msTransform');
     });

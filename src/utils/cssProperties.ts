@@ -6,57 +6,15 @@ type ExtendedCSSProperties = CSSProperties & {
   [key: string]: any; // Allow any string key for custom properties
 };
 
+import hyphenate from 'hyphenate-style-name';
+
 // Helper function to convert camelCase vendor-prefixed properties to kebab-case
 export const vendorPrefixToKebabCase = (property: string): string => {
   // Handle custom properties (CSS variables)
   if (property.startsWith('--')) {
     return property;
   }
-
-  // Comprehensive regex to match all vendor prefix patterns
-  // This handles:
-  // 1. Uppercase vendor prefixes (WebkitTransform)
-  // 2. Lowercase vendor prefixes (webkitTransform)
-  // 3. Mixed case vendor prefixes (webkitbackgroundClip)
-  // 4. All lowercase vendor prefixes (webkitbackgroundclip)
-  const vendorPrefixRegex = /^(webkit|moz|ms|o|Webkit|Moz|Ms|O)([A-Za-z])/;
-
-  if (vendorPrefixRegex.test(property)) {
-    // Extract the prefix and normalize it to lowercase
-    const prefixMatch = property.match(/^(webkit|moz|ms|o|Webkit|Moz|Ms|O)/i);
-    if (prefixMatch) {
-      const prefix = prefixMatch[0].toLowerCase();
-      const restOfProperty = property.slice(prefix.length);
-
-      // Convert the rest of the property to kebab case
-      let kebabRestOfProperty = restOfProperty;
-
-      // If the rest starts with an uppercase letter or has uppercase letters, convert to kebab case
-      if (/[A-Z]/.test(restOfProperty)) {
-        kebabRestOfProperty = restOfProperty
-          .replace(/([A-Z])/g, '-$1')
-          .toLowerCase();
-      } else if (
-        restOfProperty &&
-        restOfProperty[0] === restOfProperty[0].toLowerCase()
-      ) {
-        // If the rest starts with a lowercase letter, ensure proper kebab case
-        // This handles cases like webkitbackgroundclip
-        kebabRestOfProperty = restOfProperty
-          .replace(/([A-Z])/g, '-$1')
-          .toLowerCase();
-      }
-
-      // Ensure we don't have double hyphens
-      kebabRestOfProperty = kebabRestOfProperty.replace(/^-/, '');
-
-      // Return the properly formatted vendor-prefixed property
-      return `-${prefix}-${kebabRestOfProperty}`;
-    }
-  }
-
-  // Regular camelCase to kebab-case
-  return property.replace(/([A-Z])/g, '-$1').toLowerCase();
+  return hyphenate(property);
 };
 
 export const cssPropertyKeys: Array<keyof ExtendedCSSProperties> = [

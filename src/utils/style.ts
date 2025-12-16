@@ -1,6 +1,7 @@
 // styleHelpers.ts
 import { extraKeys, includeKeys, NumberProps } from './constants';
 import { vendorPrefixToKebabCase, numericCssProperties } from './cssProperties';
+import { hasColorToken, replaceColorTokens } from './colors';
 
 /**
  * Converts a camelCase property to kebab-case with proper vendor prefix handling
@@ -9,25 +10,7 @@ import { vendorPrefixToKebabCase, numericCssProperties } from './cssProperties';
  * @returns The property name in kebab-case with appropriate vendor prefixes
  */
 export function propertyToKebabCase(property: string): string {
-  // Handle special webkit, moz, ms prefixed properties
-  // Check for both lowercase and uppercase vendor prefixes
-  const vendorPrefixRegex = /^(webkit|moz|ms|o)([A-Z])/i;
-  if (vendorPrefixRegex.test(property)) {
-    const match = property.match(/^(webkit|moz|ms|o)/i);
-    if (match) {
-      // First convert the entire property to kebab case
-      let kebabProperty = property.replace(/([A-Z])/g, '-$1').toLowerCase();
-
-      // Then ensure the vendor prefix is correctly formatted
-      // This replaces patterns like "webkit-" with "-webkit-"
-      kebabProperty = kebabProperty.replace(/^(webkit|moz|ms|o)-/, '-$1-');
-
-      return kebabProperty;
-    }
-  }
-
-  // Standard property conversion to kebab-case
-  return property.replace(/([A-Z])/g, '-$1').toLowerCase();
+  return vendorPrefixToKebabCase(property);
 }
 
 // Comprehensive list of CSS properties that should be converted to classes
@@ -213,16 +196,26 @@ export const isStyleProp = (prop: string): boolean => {
   }
 
   // Check if it's a valid CSS property or custom style prop
-  return (
+  if (
     cssProperties.has(prop) ||
     extraKeys.has(prop) ||
-    // Check for vendor prefixes (both uppercase and lowercase)
-    /^(webkit|moz|ms|o)([A-Z])/i.test(prop) ||
-    // Check for custom properties
     prop.startsWith('--') ||
-    // Check for data attributes that should be treated as styles
     (prop.startsWith('data-style-') && !includeKeys.has(prop))
-  );
+  ) {
+    return true;
+  }
+
+  // Check if it's a valid CSS property using CSS.supports (browser environment)
+  if (typeof CSS !== 'undefined' && CSS.supports) {
+    try {
+      const kebabProp = vendorPrefixToKebabCase(prop);
+      return CSS.supports(kebabProp, 'inherit');
+    } catch {
+      return false;
+    }
+  }
+
+  return false;
 };
 
 /**
@@ -291,7 +284,7 @@ export const processStyleProperty = (
     return value;
   }
 
-  // Handle color properties
+  // Handle color properties directly
   if (
     property.toLowerCase().indexOf('color') >= 0 ||
     property === 'fill' ||
@@ -300,24 +293,10 @@ export const processStyleProperty = (
     return getColor(value);
   }
 
-  // Handle border properties that might contain color values
-  if (
-    typeof value === 'string' &&
-    value.length > 7 &&
-    (value.indexOf('color.') >= 0 || value.indexOf('theme.') >= 0)
-  ) {
-    // Parse border property to extract color
-    // Format could be like: "1px solid red" or "1px solid color.red.500"
-    const parts = value.split(' ');
-    if (parts.length >= 3) {
-      // The color is typically the last part
-      const colorIndex = parts.length - 1;
-      const colorValue = parts[colorIndex];
-      // Process the color part through getColor
-      const processedColor = getColor(colorValue);
-      // Replace the color part and reconstruct the border value
-      parts[colorIndex] = processedColor;
-      return parts.join(' ');
+  // Handle properties that might contain color values (borders, gradients, shadows, etc.)
+  if (typeof value === 'string' && value.length > 3) {
+    if (hasColorToken(value)) {
+      return replaceColorTokens(value, (token) => getColor(token));
     }
   }
 

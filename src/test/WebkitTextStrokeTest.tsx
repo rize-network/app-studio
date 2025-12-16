@@ -19,7 +19,9 @@ const WebkitTextStrokeTest = () => {
 
       {/* Test lowercase webkit text stroke property */}
       <Element
-        webkitTextStroke="2px #ff0000"
+        {...({
+          webkitTextStroke: '2px #ff0000',
+        } as any)}
         fontSize={36}
         fontWeight="bold"
         color="transparent"
@@ -42,8 +44,10 @@ const WebkitTextStrokeTest = () => {
 
       {/* Test with lowercase separate width and color properties */}
       <Element
-        webkitTextStrokeWidth="3px"
-        webkitTextStrokeColor="#00ff00"
+        {...({
+          webkitTextStrokeWidth: '3px',
+          webkitTextStrokeColor: '#00ff00',
+        } as any)}
         fontSize={36}
         fontWeight="bold"
         color="transparent"

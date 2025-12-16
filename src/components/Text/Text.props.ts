@@ -3,16 +3,7 @@ import { ElementProps } from '../../element/Element';
 
 export interface TextProps
   extends
-    Omit<
-      TextStyleProps,
-      | 'children'
-      | 'style'
-      | 'onPress'
-      | 'pointerEvents'
-      | 'onClick'
-      | 'accessibilityRole'
-      | 'accessibilityState'
-    >,
+    Omit<TextStyleProps, keyof ElementProps>,
     Omit<ElementProps, 'maxLines'> {
   children?: React.ReactNode;
   backgroundColor?: string;

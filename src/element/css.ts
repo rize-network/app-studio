@@ -8,6 +8,7 @@ import {
   StyleProps,
   propertyToKebabCase,
   toKebabCase,
+  processStyleProperty,
 } from '../utils/style';
 import { ElementProps } from './Element';
 import { numericCssProperties } from '../utils/cssProperties';
@@ -145,7 +146,7 @@ export const AnimationUtils = {
     return `${ms}ms`;
   },
 
-  processAnimations(animations: any[]) {
+  processAnimations(animations: any[], manager?: UtilityClassManager) {
     const result = {
       names: [] as string[],
       durations: [] as string[],
@@ -163,8 +164,9 @@ export const AnimationUtils = {
 
     animations.forEach((animation) => {
       const { keyframesName, keyframes } = generateKeyframes(animation);
-      if (keyframes && typeof document !== 'undefined') {
-        utilityClassManager.injectRule(keyframes);
+      if (keyframes) {
+        // Use provided manager or fall back to global
+        (manager || utilityClassManager).injectRule(keyframes);
       }
 
       result.names.push(keyframesName);
@@ -218,84 +220,8 @@ const ValueUtils = {
     property: string,
     getColor: (color: string) => string
   ): any {
-    let processedValue = value;
-
-    // Handle custom CSS properties (variables)
-    if (property.startsWith('--')) {
-      // For CSS variables, we pass the value as is
-      return value;
-    }
-
-    // If the property is a color, convert it
-    if (property.toLowerCase().includes('color')) {
-      processedValue = getColor(value);
-    }
-
-    // Handle properties that might contain color values (borders, gradients, etc.)
-    if (typeof value === 'string' && value.length > 3) {
-      // Check if the value contains any color tokens
-      if (value.includes('color.') || value.includes('theme.')) {
-        // For gradients and complex values, we need to process color tokens within the string
-        // This handles cases like: "linear-gradient(135deg, color.blue.500, color.red.500)"
-        let processedString = value;
-
-        // Find all color tokens in the string
-        const colorTokenRegex = /(color\.[a-zA-Z0-9.]+|theme\.[a-zA-Z0-9.]+)/g;
-        const colorTokens = value.match(colorTokenRegex);
-
-        if (colorTokens) {
-          // Replace each color token with its processed value
-          colorTokens.forEach((token) => {
-            const processedColor = getColor(token);
-            // Use a global replace to catch all instances of this token
-            // Escape all special regex characters in the token
-            const escapedToken = token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-            processedString = processedString.replace(
-              new RegExp(escapedToken, 'g'),
-              processedColor
-            );
-          });
-
-          processedValue = processedString;
-        } else {
-          // Fallback to the old method for simpler cases (like borders)
-          // Parse property to extract color
-          const parts = value.split(' ');
-          // Check each part to see if it starts with 'color.' or 'theme.'
-          const processedParts = parts.map((part) => {
-            if (part.startsWith('color.') || part.startsWith('theme.')) {
-              // Process the color part through getColor
-              return getColor(part);
-            }
-            return part;
-          });
-          // Reconstruct the value with processed parts
-          processedValue = processedParts.join(' ');
-        }
-      }
-    }
-
-    // Handle numeric values
-    if (typeof processedValue === 'number') {
-      // Convert property to kebab-case to check against numericCssProperties
-      const kebabProperty = toKebabCase(property);
-
-      // Check if this is a property that should have px units
-      // First check the property as is, then check with vendor prefixes removed
-      const shouldAddPx =
-        numericCssProperties.has(kebabProperty) ||
-        // Check if it's a vendor-prefixed property that needs px
-        (/^-(webkit|moz|ms|o)-/.test(kebabProperty) &&
-          numericCssProperties.has(
-            kebabProperty.replace(/^-(webkit|moz|ms|o)-/, '')
-          ));
-
-      if (shouldAddPx) {
-        processedValue = `${processedValue}px`;
-      }
-    }
-
-    return processedValue;
+    // Use the shared processStyleProperty function which now contains the robust regex logic
+    return processStyleProperty(property, value, getColor);
   },
 
   normalizeCssValue(value: any): string {
@@ -453,10 +379,17 @@ class UtilityClassManager {
     return className.replace(/:/g, '\\:');
   }
 
+  private serverRules: Map<StyleContext, string[]> = new Map();
+
   public injectRule(cssRule: string, context: StyleContext = 'base') {
-    // Inject to main document
+    // Inject to main document or cache for server
     if (this.mainDocument) {
       this.injectRuleToDocument(cssRule, context, this.mainDocument);
+    } else {
+      if (!this.serverRules.has(context)) {
+        this.serverRules.set(context, []);
+      }
+      this.serverRules.get(context)?.push(cssRule);
     }
 
     // Inject to all other documents
@@ -465,6 +398,20 @@ class UtilityClassManager {
         this.injectRuleToDocument(cssRule, context, document);
       }
     }
+  }
+
+  public getServerStyles(): string {
+    const contexts: StyleContext[] = ['base', 'pseudo', 'media', 'modifier'];
+    let css = '';
+    
+    contexts.forEach(context => {
+        const rules = this.serverRules.get(context);
+        if (rules) {
+            css += rules.join('\n') + '\n';
+        }
+    });
+
+    return css;
   }
 
   private getAllRegisteredDocuments(): Document[] {
@@ -723,7 +670,8 @@ function processStyles(
   modifier: string = '',
   getColor: (color: string) => string,
   mediaQueries: Record<string, string> = {},
-  devices: Record<string, string[]> = {}
+  devices: Record<string, string[]> = {},
+  manager?: UtilityClassManager
 ): string[] {
   const classes: string[] = [];
 
@@ -742,7 +690,7 @@ function processStyles(
     }
 
     if (value !== undefined && value !== '') {
-      const classNames = utilityClassManager.getClassNames(
+      const classNames = (manager || utilityClassManager).getClassNames(
         property,
         value,
         context,
@@ -983,7 +931,7 @@ export const extractUtilityClasses = (
     Object.assign(computedStyles, AnimationUtils.processAnimations(animations));
   }
 
-  const blendConfig = props?.theme?.blend || {
+  const blendConfig = {
     mode: 'difference',
     color: 'white',
     modeWithBg: 'overlay',
@@ -999,12 +947,7 @@ export const extractUtilityClasses = (
     }
   };
   // Handle default blend
-  if (
-    props.blend !== false &&
-    props.color === undefined &&
-    computedStyles.color === undefined &&
-    typeof props.children === 'string'
-  ) {
+  if (props.blend === true) {
     setBlend(props, computedStyles);
 
     Object.keys(props).forEach((property) => {

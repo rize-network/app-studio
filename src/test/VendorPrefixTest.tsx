@@ -28,17 +28,19 @@ const VendorPrefixTest = () => {
       </Element>
 
       {/* Test Microsoft properties */}
-      <Element msUserSelect="none" msFlexAlign="center" marginBottom={20}>
+      <Element msUserSelect="none" marginBottom={20}>
         This element has Microsoft vendor prefixes applied
       </Element>
 
       {/* Test CSS Variables */}
       <Element
-        style={{
-          '--custom-color': 'purple',
-          '--custom-padding': '15px',
-          '--custom-border': '2px solid blue',
-        }}
+        style={
+          {
+            '--custom-color': 'purple',
+            '--custom-padding': '15px',
+            '--custom-border': '2px solid blue',
+          } as React.CSSProperties
+        }
         marginBottom={20}
       >
         <Element
@@ -52,10 +54,12 @@ const VendorPrefixTest = () => {
 
       {/* Test CSS Variables as direct props */}
       <Element
-        css={{
-          '--test-color': 'green',
-          '--test-margin': '25px',
-        }}
+        css={
+          {
+            '--test-color': 'green',
+            '--test-margin': '25px',
+          } as any
+        }
         marginBottom={20}
       >
         <Element color="var(--test-color)" margin="var(--test-margin)">

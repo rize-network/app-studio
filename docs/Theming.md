@@ -68,6 +68,58 @@ dark.*            → Always use dark mode colors
   └─ dark.red.200
 ```
 
+### 5. Alpha Transparency (4th Parameter)
+
+Add dynamic transparency to any palette color using a 4th parameter. The alpha value ranges from 0-1000, which maps to CSS opacity percentages (0%-100%).
+
+**Syntax**: `color.{palette}.{shade}.{alpha}`
+
+**Alpha Value Range**: 
+- `0` = fully transparent (0% opacity)
+- `500` = semi-transparent (50% opacity)
+- `1000` = fully opaque (100% opacity)
+
+**How It Works**:
+Instead of computing RGBA values in JavaScript, App-Studio uses the modern CSS `color-mix()` function. This keeps colors as CSS variables, making them:
+- **Theme-aware**: Automatically adapts when switching between light/dark modes
+- **Performant**: No JavaScript computation needed
+- **Standards-based**: Uses native CSS color functions
+
+**Examples**:
+- `color.black.900.200` → `color-mix(in srgb, var(--color-black-900) 20%, transparent)` - Black with 20% opacity
+- `color.blue.500.500` → `color-mix(in srgb, var(--color-blue-500) 50%, transparent)` - Blue.500 with 50% opacity
+- `color.red.600.800` → `color-mix(in srgb, var(--color-red-600) 80%, transparent)` - Red.600 with 80% opacity
+
+**Use Cases**:
+- Create semi-transparent overlays without defining new alpha color palettes
+- Apply dynamic transparency to any existing color
+- Build glassmorphism effects with precise opacity control
+- Use in gradients with CSS variable-based colors
+
+```javascript
+// Semi-transparent overlay
+<View backgroundColor="color.black.900.300" padding={20}>
+  <Text color="color.white">30% opacity black overlay</Text>
+</View>
+
+// Glassmorphism card
+<View 
+  backgroundColor="color.gray.100.200" 
+  backdropFilter="blur(10px)"
+  padding={20}
+>
+  <Text>Glass effect card</Text>
+</View>
+
+// Gradient with alpha colors (CSS variables!)
+<View 
+  background="linear-gradient(135deg, color.red.500.200 0%, color.blue.500.1000 100%)"
+  padding={20}
+>
+  <Text>Gradient with variable-based alpha colors</Text>
+</View>
+```
+
 ## Setting up the Theme Object
 
 First, define a theme object that contains the properties you'd like to customize, such as colors and palettes. This object can be as simple or as complex as your needs require.
@@ -106,6 +158,58 @@ const colors = {
     }
 };
 ```
+
+## How ThemeProvider Works
+
+App-Studio's `ThemeProvider` uses a modern, React-idiomatic approach to theming with CSS variables.
+
+### CSS Variables via Style Prop
+
+Instead of imperatively injecting a `<style>` tag into the DOM, the `ThemeProvider` generates CSS variables and passes them directly to the wrapper element's `style` prop:
+
+```tsx
+// Under the hood, ThemeProvider does this:
+<div 
+  data-theme={themeMode}
+  style={{
+    '--color-white': '#FFFFFF',
+    '--color-black': '#000000',
+    '--color-blue-500': '#3b82f6',
+    '--theme-primary': 'var(--color-black)',
+    // ... hundreds more CSS variables
+    width: '100%',
+    height: '100%',
+  }}
+>
+  {children}
+</div>
+```
+
+### Benefits of This Approach
+
+1. **React-Managed**: Fully declarative, no imperative DOM manipulation
+2. **SSR-Friendly**: Works in server-side rendering without requiring `document`
+3. **Auto-Cleanup**: CSS variables are automatically removed when the component unmounts
+4. **Performance**: Variables are memoized and only regenerated when theme configuration changes
+5. **Type-Safe**: TypeScript-friendly with proper typing for all variables
+
+### Theme Mode Switching
+
+When you switch theme modes (light ↔ dark), React automatically updates all CSS variables:
+
+```tsx
+const { setThemeMode } = useTheme();
+
+// This triggers a re-render with new CSS variable values
+setThemeMode('dark');
+// All --color-* variables now point to dark mode values
+```
+
+The transition is smooth because:
+- CSS variables update instantly
+- You can add CSS transitions for smooth color changes
+- No DOM manipulation or style tag injection needed
+
 
 ## Using `ThemeProvider`
 
@@ -182,10 +286,14 @@ Each palette below has shades: 50, 100, 200, 300, 400, 500, 600, 700, 800, 900
 - `color.white.{shade}` - White to light gray scale
 - `color.black.{shade}` - Black to dark gray scale
 - `color.gray.{shade}` - True gray scale
+- `color.slate.{shade}` - Cool gray with blue undertones
+- `color.zinc.{shade}` - Neutral gray scale
+- `color.neutral.{shade}` - True neutral gray
+- `color.stone.{shade}` - Warm gray with brown undertones
 - `color.dark.{shade}` - Dark neutral scale
 - `color.light.{shade}` - Light neutral scale
 - `color.warmGray.{shade}` - Warm gray tones
-- `color.trueGray.{shade}` - True neutral gray
+- `color.trueGray.{shade}` - True neutral gray (legacy)
 - `color.coolGray.{shade}` - Cool gray tones
 - `color.blueGray.{shade}` - Blue-tinted gray
 
@@ -444,6 +552,11 @@ When working with colors in App-Studio, use these patterns:
 "color.rose.200"        // → "#fecdd3" (light) or "#6b112f" (dark)
 "color.gray.800"        // → "#27272a" (light) or "#f4f4f5" (dark)
 
+// Pattern: color.{palette}.{shade}.{alpha} (CSS color-mix!)
+"color.black.900.200"   // → "color-mix(in srgb, var(--color-black-900) 20%, transparent)"
+"color.blue.500.500"    // → "color-mix(in srgb, var(--color-blue-500) 50%, transparent)"
+"color.red.600.800"     // → "color-mix(in srgb, var(--color-red-600) 80%, transparent)"
+
 // Pattern: theme.{path}
 "theme.primary"         // → Resolves to your theme's primary color
 "theme.button.background" // → Resolves to nested theme path
@@ -470,16 +583,18 @@ indigo, violet, beige, turquoise, coral, chocolate, skyBlue, plum,
 darkGreen, salmon
 ```
 
-### Available Color Palettes (30 total)
+### Available Color Palettes (34 total)
 ```
 whiteAlpha, blackAlpha, white, black, rose, pink, fuchsia, purple,
 violet, indigo, blue, lightBlue, cyan, teal, emerald, green, lime,
 yellow, amber, orange, red, warmGray, trueGray, gray, dark, light,
-coolGray, blueGray
+coolGray, blueGray, slate, zinc, neutral, stone
 ```
 
 ### Shades Available
 Each palette has these shades: `50, 100, 200, 300, 400, 500, 600, 700, 800, 900`
+
+**Note**: For a `1000` shade (fully opaque), use the alpha parameter: `color.{palette}.900.1000`
 
 ### Theme Mode Behavior
 - **Light Mode**: Uses `defaultLightPalette` and `defaultLightColors`

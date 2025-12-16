@@ -8,8 +8,10 @@ const LowercaseVendorPrefixTest = () => {
 
       {/* Test lowercase webkit properties */}
       <Element
-        webkitBackgroundClip="text"
-        webkitTextFillColor="transparent"
+        {...({
+          webkitBackgroundClip: 'text',
+          webkitTextFillColor: 'transparent',
+        } as any)}
         background="linear-gradient(45deg, #ff0000, #0000ff)"
         fontSize={24}
         fontWeight="bold"
@@ -20,9 +22,11 @@ const LowercaseVendorPrefixTest = () => {
 
       {/* Test more lowercase webkit properties */}
       <Element
-        webkitUserSelect="none"
-        webkitAppearance="none"
-        webkitBoxShadow="0 0 10px rgba(0,0,0,0.5)"
+        {...({
+          webkitUserSelect: 'none',
+          webkitAppearance: 'none',
+          webkitBoxShadow: '0 0 10px rgba(0,0,0,0.5)',
+        } as any)}
         padding={15}
         backgroundColor="#f5f5f5"
         marginBottom={20}
@@ -32,14 +36,18 @@ const LowercaseVendorPrefixTest = () => {
 
       {/* Test CSS Variables with lowercase webkit properties */}
       <Element
-        style={{
-          '--gradient-colors': 'linear-gradient(90deg, purple, orange)',
-        }}
+        style={
+          {
+            '--gradient-colors': 'linear-gradient(90deg, purple, orange)',
+          } as React.CSSProperties
+        }
         marginBottom={20}
       >
         <Element
-          webkitBackgroundClip="text"
-          webkitTextFillColor="transparent"
+          {...({
+            webkitBackgroundClip: 'text',
+            webkitTextFillColor: 'transparent',
+          } as any)}
           background="var(--gradient-colors)"
           fontSize={20}
           fontWeight="bold"

@@ -1,5 +1,6 @@
 import React, {
   CSSProperties,
+  HTMLAttributes,
   useMemo,
   forwardRef,
   useEffect,
@@ -7,7 +8,7 @@ import React, {
   useCallback,
   useState,
 } from 'react';
-import { Colors, Theme, useTheme } from '../providers/Theme';
+import { useTheme } from '../providers/Theme';
 import { useResponsiveContext } from '../providers/Responsive';
 
 import { isStyleProp } from '../utils/style';
@@ -20,8 +21,14 @@ import { ViewStyleProps } from '../types/style';
 export interface ElementProps
   extends
     CssProps,
-    Omit<ViewStyleProps, 'children' | 'style' | 'pointerEvents' | 'onClick'> {
-  [key: string]: any;
+    Omit<
+      ViewStyleProps,
+      keyof HTMLAttributes<HTMLElement> | 'children' | 'style' | 'pointerEvents'
+    >,
+    Omit<
+      HTMLAttributes<HTMLElement>,
+      'color' | 'style' | 'content' | 'translate'
+    > {
   // Event handling props
   on?: Record<string, CssProps>;
   media?: Record<string, CssProps>;
@@ -31,13 +38,15 @@ export interface ElementProps
   onClick?: any;
   className?: string;
   blend?: boolean;
-  themeMode?: 'light' | 'dark';
+  type?: string;
+
   as?: keyof JSX.IntrinsicElements;
   style?: CSSProperties;
   widthHeight?: number | string;
   children?: React.ReactNode;
-  colors?: Colors;
-  theme?: Theme;
+  before?: React.ReactNode;
+  after?: React.ReactNode;
+
   animateOn?: 'View' | 'Mount' | 'Both';
 
   // Underscore-prefixed event props (alternative to using the 'on' prop)
@@ -128,7 +137,17 @@ export const Element = React.memo(
         props.cursor = 'pointer';
       }
 
-      const { onPress, blend, animateOn = 'Both', ...rest } = props;
+      const { onPress, blend: initialBlend, animateOn = 'Both', ...rest } = props;
+      let blend = initialBlend;
+
+      if (
+        blend !== false &&
+        props.color === undefined &&
+        typeof props.children === 'string' &&
+        (as === 'span' || as === 'div' || blend === true)
+      ) {
+        blend = true;
+      }
       const elementRef = useRef<HTMLElement | null>(null);
       const setRef = useCallback(
         (node: HTMLElement | null) => {
@@ -202,7 +221,6 @@ export const Element = React.memo(
         const propsToProcess = {
           ...rest,
           blend,
-          theme: props.theme || theme,
         };
 
         // Apply view() timeline ONLY if animateOn='View' (not Both or Mount)
@@ -228,11 +246,7 @@ export const Element = React.memo(
         return extractUtilityClasses(
           propsToProcess,
           (color: string) => {
-            return getColor(color, {
-              colors: props.colors,
-              theme: props.theme,
-              themeMode: props.themeMode,
-            });
+            return getColor(color);
           },
           mediaQueries,
           devices
@@ -278,7 +292,7 @@ export const Element = React.memo(
         newProps.onClick = props.onClick;
       }
 
-      const { style, children, ...otherProps } = rest;
+      const { style, children, before, after, ...otherProps } = rest;
 
       // First, add all event handlers (they start with "on" and have a capital letter after)
       Object.keys(otherProps).forEach((key) => {
@@ -313,7 +327,15 @@ export const Element = React.memo(
       }
 
       const Component = as;
-      return <Component {...newProps}>{children}</Component>;
+      return children ? (
+        <Component {...newProps}>
+          {before}
+          {children}
+          {after}
+        </Component>
+      ) : (
+        <Component {...newProps} />
+      );
     }
   )
 );

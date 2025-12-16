@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { TextProps } from './Text/Text.props';
+import type { TextProps } from './Text/Text.props';
 import TextView from './Text/Text.view';
 const TextComponent = React.forwardRef<HTMLElement, TextProps & any>(
   (props, ref) => {

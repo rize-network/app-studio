@@ -8,11 +8,13 @@ const CssVariablesTest = () => {
 
       {/* Test CSS Variables with direct style prop */}
       <Element
-        style={{
-          '--primary-color': 'blue',
-          '--primary-bg': 'lightblue',
-          '--spacing': '15px',
-        }}
+        style={
+          {
+            '--primary-color': 'blue',
+            '--primary-bg': 'lightblue',
+            '--spacing': '15px',
+          } as React.CSSProperties
+        }
         marginBottom={20}
         padding={20}
         backgroundColor="var(--primary-bg)"

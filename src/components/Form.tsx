@@ -4,45 +4,18 @@ import { ViewStyleProps } from '../types/style';
 
 // Common props pour éviter la répétition
 interface CommonProps
-  extends
-    ElementProps,
-    Omit<ViewStyleProps, 'children' | 'style' | 'pointerEvents' | 'onClick'> {}
+  extends ElementProps, Omit<ViewStyleProps, keyof ElementProps> {}
 
 // Props pour le composant Form
 export interface FormProps
   extends
     CommonProps,
-    Omit<
-      Partial<HTMLFormElement>,
-      | 'width'
-      | 'height'
-      | 'children'
-      | 'translate'
-      | 'target'
-      | 'border'
-      | 'draggable'
-    >,
+    Omit<Partial<HTMLFormElement>, keyof ElementProps>,
     ElementProps {}
 
 // Props pour le composant Button
 export interface ButtonProps
-  extends
-    CommonProps,
-    Omit<
-      Partial<HTMLButtonElement>,
-      | 'width'
-      | 'height'
-      | 'children'
-      | 'translate'
-      | 'type'
-      | 'border'
-      | 'animate'
-      | 'animateIn'
-      | 'animateOut'
-      | 'style'
-      | 'draggable'
-    >,
-    ElementProps {
+  extends CommonProps, Omit<Partial<HTMLButtonElement>, keyof CommonProps> {
   children?: React.ReactNode;
   onClick?: (..._args: any) => void;
 }
@@ -52,18 +25,7 @@ export interface InputProps
   extends
     ElementProps,
     CommonProps,
-    Omit<
-      Partial<HTMLInputElement>,
-      | 'children'
-      | 'translate'
-      | 'style'
-      | 'width'
-      | 'height'
-      | 'animate'
-      | 'animateIn'
-      | 'animateOut'
-      | 'size'
-    > {}
+    Omit<Partial<HTMLInputElement>, keyof ElementProps> {}
 
 export const Form = React.forwardRef<
   HTMLElement,

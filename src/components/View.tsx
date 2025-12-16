@@ -3,12 +3,7 @@ import { Element, ElementProps } from '../element/Element';
 import { ViewStyleProps } from '../types/style';
 
 export interface ViewProps
-  extends
-    Omit<
-      ViewStyleProps,
-      'children' | 'translate' | 'style' | 'pointerEvents' | 'onClick'
-    >,
-    ElementProps {
+  extends Omit<ViewStyleProps, keyof ElementProps>, ElementProps {
   onPress?: (..._args: any) => void;
 }
 
@@ -70,7 +65,7 @@ export const HorizontalResponsive = React.forwardRef<
     media={{
       ...media,
       mobile: {
-        ...media.mobile,
+        ...(media as any)?.mobile,
         flexDirection: 'column',
       },
     }}
@@ -91,7 +86,7 @@ export const VerticalResponsive = React.forwardRef<
     media={{
       ...media,
       mobile: {
-        ...media.mobile,
+        ...(media as any)?.mobile,
         flexDirection: 'row',
       },
     }}

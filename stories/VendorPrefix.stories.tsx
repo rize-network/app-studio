@@ -30,7 +30,7 @@ export const WebkitBackgroundClip: ComponentStory<typeof View> = () => {
         <View
           padding={20}
           background="linear-gradient(45deg, #ff0000, #00ff00, #0000ff)"
-          webkitBackgroundClip="text"
+          WebkitBackgroundClip="text"
           color="transparent"
           fontSize={24}
           fontWeight="bold"
@@ -50,7 +50,7 @@ export const WebkitBackgroundClip: ComponentStory<typeof View> = () => {
           padding={20}
           css={{
             background: "linear-gradient(45deg, #ff0000, #00ff00, #0000ff)",
-            webkitBackgroundClip: "text",
+            WebkitBackgroundClip: "text",
             color: "transparent",
             fontSize: "24px",
             fontWeight: "bold"
@@ -71,8 +71,8 @@ export const WebkitBackgroundClip: ComponentStory<typeof View> = () => {
           padding={20}
           display="flex"
           msFlexDirection="row"
-          mozUserSelect="none"
-          webkitUserDrag="none"
+          MozUserSelect="none"
+          WebkitUserDrag="none"
           fontSize={18}
         >
           This element uses various vendor prefixes

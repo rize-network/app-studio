@@ -25,14 +25,16 @@ export const Exemple: ComponentStory<typeof View> = () => {
   return (
     <View display="flex" flexWrap="wrap" width={100} height={200}>
       <View
-        widthHeight={100}
+        width={100}
+        height={100}
         shadow={4}
         display="flex"
         margin="0 20px 20px"
         backgroundColor="color.blue.200"
       />
       <View
-        widthHeight={'70%'}
+        width="70%"
+        height="70%"
         shadow={4}
         paddingHorizontal={20}
         on={{ hover: { backgroundColor: 'theme.primary' } }}
@@ -60,17 +62,16 @@ export const Exemple: ComponentStory<typeof View> = () => {
       />
       <View
         as="span"
-        widthHeight={100}
+        width={100}
+        height={100}
         display="inline"
         textShadow="none"
         color="transparent"
         shadow={4}
         margin="0 20px 20px"
         backgroundColor="color.green.200"
-        webkitTextStroke="1px #000000"
-        webkitTextFillColor="transparent"
-        textStroke="1px #000000"
-        textFillColor="transparent"
+        WebkitTextStroke="1px #000000"
+        WebkitTextFillColor="transparent"
       >
         text
       </View>

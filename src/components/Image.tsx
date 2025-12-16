@@ -4,26 +4,8 @@ import { ImageStyleProps } from '../types/style';
 
 export interface ImageProps
   extends
-    Omit<
-      ImageStyleProps,
-      'children' | 'style' | 'pointerEvents' | 'onClick' | 'onLayout'
-    >,
-    Omit<
-      Partial<HTMLImageElement>,
-      | 'width'
-      | 'height'
-      | 'children'
-      | 'translate'
-      | 'target'
-      | 'border'
-      | 'animate'
-      | 'animateIn'
-      | 'animateOut'
-      | 'draggable'
-      | 'style'
-      | 'x'
-      | 'y'
-    >,
+    Omit<ImageStyleProps, keyof ElementProps>,
+    Omit<Partial<HTMLImageElement>, keyof ElementProps>,
     ElementProps {}
 
 export const Image = React.forwardRef<

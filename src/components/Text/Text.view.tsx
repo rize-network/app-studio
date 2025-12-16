@@ -79,7 +79,11 @@ const TextView = React.forwardRef<HTMLElement, Props>(
 
     // Common props
     const commonProps = {
-      as: isSub ? 'sub' : isSup ? 'sup' : 'span',
+      as: (isSub
+        ? 'sub'
+        : isSup
+          ? 'sup'
+          : 'span') as keyof JSX.IntrinsicElements,
       fontStyle: isItalic ? 'italic' : 'normal',
       textDecoration: isStriked
         ? 'line-through'

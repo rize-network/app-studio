@@ -1,7 +1,7 @@
 export * from './components/View';
 export * from './components/Image';
 export * from './components/Text';
-export { TextProps } from './components/Text/Text.props';
+export type { TextProps } from './components/Text/Text.props';
 
 export * from './components/Form';
 export * from './element/Element';

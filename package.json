@@ -1,5 +1,5 @@
 {
-  "version": "0.6.47",
+  "version": "0.6.49",
   "name": "app-studio",
   "description": "App Studio is a responsive and themeable framework to build cross platform applications",
   "repository": "git@github.com:rize-network/app-studio.git",
@@ -40,9 +40,9 @@
     "prettier:fix": "prettier --write ./src",
     "prettier": "prettier --check ./src",
     "prepare": "husky install",
-    "prepublishOnly": "npm run build",
     "size": "size-limit",
     "analyze": "size-limit --why",
+    "bundle-analyzer": "node ./scripts/analyse.js",
     "upgrade": "ncu -u",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
@@ -83,7 +83,8 @@
     }
   ],
   "dependencies": {
-    "color-convert": "^2.0.1"
+    "color-convert": "^2.0.1",
+    "hyphenate-style-name": "^1.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.23.2",
@@ -138,7 +139,8 @@
     "storybook": "^7.5.3",
     "tsdx": "^0.14.1",
     "tslib": "^2.6.2",
-    "typescript": "^5.2.2"
+    "typescript": "^5.2.2",
+    "webpack-bundle-analyzer": "^4.8.0"
   },
   "peerDependencies": {
     "react": ">=17",
