@@ -99,6 +99,10 @@ const cssProperties = new Set([
   'backgroundSize',
   'backgroundPosition',
   'backgroundRepeat',
+  'backgroundClip',
+  'WebkitBackgroundClip',
+  'textFillColor',
+  'WebkitTextFillColor',
   'opacity',
 
   // Borders

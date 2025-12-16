@@ -59,7 +59,7 @@ export const GradientWithColorTokens: ComponentStory<typeof View> = () => {
         borderRadius={8}
       >
         <Text fontWeight="bold">Text with Gradient Background:</Text>
-        <View
+        <Text
           padding={20}
           background="linear-gradient(90deg, color.purple.500, color.pink.500)"
           WebkitBackgroundClip="text"
@@ -69,7 +69,7 @@ export const GradientWithColorTokens: ComponentStory<typeof View> = () => {
           marginTop={10}
         >
           This text should have a gradient background
-        </View>
+        </Text>
       </View>
       
       {/* Border with color tokens */}
