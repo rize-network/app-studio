@@ -273,15 +273,15 @@ export const BlendModes: ComponentStory<typeof Text> = () => {
 
       {/* Basic Blend */}
       <View backgroundColor="black" padding={20}>
-        <Text blend>Blend on Black (Should be White)</Text>
+        <Text >Blend on Black (Should be White)</Text>
       </View>
       <View backgroundColor="white" padding={20}>
-        <Text blend>Blend on White (Should be Black)</Text>
+        <Text >Blend on White (Should be Black)</Text>
       </View>
 
       {/* Truncated Text with Blend */}
       <View backgroundColor="blue" padding={20} width={200}>
-        <Text maxLines={2} blend>
+        <Text maxLines={2}>
           Truncated Blend Text on Blue - This should be truncated and visible
         </Text>
       </View>
@@ -290,11 +290,11 @@ export const BlendModes: ComponentStory<typeof Text> = () => {
       <View backgroundColor="darkred" padding={50}>
         <View>
           <Text>Normal </Text>
-          <Text isSup blend>
+          <Text isSup>
             Superscript
           </Text>
           <Text> and </Text>
-          <Text isSub blend>
+          <Text isSub>
             Subscript
           </Text>
         </View>

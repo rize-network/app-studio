@@ -38,7 +38,7 @@ export const Element = React.memo(
         blend !== false &&
         props.color === undefined &&
         typeof props.children === 'string' &&
-        (as === 'span' || as === 'div' || blend === true)
+        (as === 'span' || as === 'div' || as === 'sub' || as === 'sup')
       ) {
         blend = true;
       }

@@ -989,7 +989,7 @@ export const extractUtilityClasses = (
   };
 
   const setBlend = (props: any, style: any) => {
-    if (props.bgColor || props.backgroundColor) {
+    if (props.bgColor) {
       style.mixBlendMode = blendConfig.modeWithBg;
       style.color = 'white';
     } else {

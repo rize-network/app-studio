@@ -8,7 +8,6 @@ import React from 'react';
 
 import { TextProps } from './Text.props';
 
-import { getTextColor } from './Text.utils';
 import { View, ViewProps } from '../View';
 
 import { Element } from '../../element/Element';
@@ -35,29 +34,15 @@ const TextView = React.forwardRef<HTMLElement, Props>(
       isSub = false,
       isSup = false,
       isStriked = false,
-      bgColor,
-      backgroundColor: backgroundColorProp,
-      color,
       views,
-      blend,
       style,
       ...props
     },
     ref
   ) => {
+    console.log('props', props, children);
     // For sub/sup text, use inline display
     const noLineBreak = isSub || isSup ? { display: 'inline' } : {};
-    //
-    const containerBackgroundColor = views?.container?.backgroundColor as
-      | string
-      | undefined;
-    const effectiveBackgroundColor =
-      bgColor ?? backgroundColorProp ?? containerBackgroundColor;
-    const computedColor =
-      color ??
-      (effectiveBackgroundColor
-        ? getTextColor(effectiveBackgroundColor)
-        : undefined);
 
     const finalChildren = toUpperCase
       ? React.Children.map(children, (child) =>
@@ -90,9 +75,6 @@ const TextView = React.forwardRef<HTMLElement, Props>(
         : isUnderlined
           ? 'underline'
           : 'none',
-      color: computedColor,
-      blend,
-      backgroundColor: effectiveBackgroundColor,
       style: styles,
       ...noLineBreak,
       ...props,
@@ -116,6 +98,8 @@ const TextView = React.forwardRef<HTMLElement, Props>(
         </View>
       );
     }
+
+    console.log('commonProps', commonProps, children);
 
     return (
       <Element {...commonProps} ref={ref}>

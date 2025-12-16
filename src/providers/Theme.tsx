@@ -138,10 +138,6 @@ const generateCSSVariables = (
       
       /* Theme Variables (Structural) */
       ${themeVariables.join('\n      ')}
-
-      width: 100%;
-      height: 100%;
-      transition: background-color 0.2s, color 0.2s;
     }
   
     [data-theme='light'] {
@@ -509,10 +505,20 @@ export const ThemeProvider = ({
 
   return (
     <ThemeContext.Provider value={contextValue}>
-      <style data-theme={themeMode}>
+      <style>
         {generateCSSVariables(mergedTheme, themeColors.light, themeColors.dark)}
       </style>
-      {children}
+      <div
+        data-theme={themeMode}
+        style={{
+          backgroundColor: 'white',
+          width: '100%',
+          height: '100%',
+          transition: 'background-color 0.2s, color 0.2s',
+        }}
+      >
+        {children}
+      </div>
     </ThemeContext.Provider>
   );
 };
