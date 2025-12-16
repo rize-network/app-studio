@@ -119,5 +119,6 @@ export interface AnimationProps {
     | string
     | number
     | Record<string, string | number>
+    | AnimationKeyframes
     | undefined;
 }

@@ -11,7 +11,7 @@ export interface CssProps extends CSSProperties {
   animate?: AnimationProps[] | AnimationProps;
   animateIn?: AnimationProps[] | AnimationProps;
   animateOut?: AnimationProps[] | AnimationProps;
-  animateOn?: 'View' | 'Mount' | 'Both';
+  animateOn?: 'View' | 'Mount' | 'Both' | 'Scroll';
   shadow?: boolean | number | Shadow;
   blend?: boolean;
 
@@ -39,6 +39,20 @@ export interface CssProps extends CSSProperties {
   _focusVisible?: CSSProperties | string;
   _focusWithin?: CSSProperties | string;
   _placeholder?: CSSProperties | string;
+
+  // Group modifiers
+  _groupHover?: CSSProperties | string;
+  _groupFocus?: CSSProperties | string;
+  _groupActive?: CSSProperties | string;
+  _groupDisabled?: CSSProperties | string;
+
+  // Peer modifiers
+  _peerHover?: CSSProperties | string;
+  _peerFocus?: CSSProperties | string;
+  _peerActive?: CSSProperties | string;
+  _peerDisabled?: CSSProperties | string;
+  _peerChecked?: CSSProperties | string;
+
   // Pseudo-element props
   _before?: CSSProperties;
   _after?: CSSProperties;
@@ -82,7 +96,7 @@ export interface ElementProps
   before?: React.ReactNode;
   after?: React.ReactNode;
 
-  animateOn?: 'View' | 'Mount' | 'Both';
+  animateOn?: 'View' | 'Mount' | 'Both' | 'Scroll';
 
   // Underscore-prefixed event props (alternative to using the 'on' prop)
   _hover?: CssProps | string;
@@ -108,6 +122,19 @@ export interface ElementProps
   _focusVisible?: CssProps | string;
   _focusWithin?: CssProps | string;
   _placeholder?: CssProps | string;
+
+  // Group modifiers
+  _groupHover?: CssProps | string;
+  _groupFocus?: CssProps | string;
+  _groupActive?: CssProps | string;
+  _groupDisabled?: CssProps | string;
+
+  // Peer modifiers
+  _peerHover?: CssProps | string;
+  _peerFocus?: CssProps | string;
+  _peerActive?: CssProps | string;
+  _peerDisabled?: CssProps | string;
+  _peerChecked?: CssProps | string;
 
   // Pseudo-element props
   _before?: CssProps;

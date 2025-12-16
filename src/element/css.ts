@@ -126,6 +126,17 @@ const EVENT_TO_PSEUDO: Record<string, string> = {
   selection: 'selection',
   backdrop: 'backdrop',
   marker: 'marker',
+  // Group modifiers
+  groupHover: 'group-hover',
+  groupFocus: 'group-focus',
+  groupActive: 'group-active',
+  groupDisabled: 'group-disabled',
+  // Peer modifiers
+  peerHover: 'peer-hover',
+  peerFocus: 'peer-focus',
+  peerActive: 'peer-active',
+  peerDisabled: 'peer-disabled',
+  peerChecked: 'peer-checked',
 };
 
 /**
@@ -498,13 +509,32 @@ export class UtilityClassManager {
       classNames = [pseudoClassName];
       const escapedClassName = this.escapeClassName(pseudoClassName);
 
-      // Add rules for all necessary vendor prefixes
-      cssProperties.forEach((prefixedProperty) => {
-        rules.push({
-          rule: `.${escapedClassName}:${modifier} { ${prefixedProperty}: ${valueForCss}; }`,
-          context: 'pseudo',
+      // Format CSS rules for group and peer modifiers
+      if (modifier.startsWith('group-')) {
+        const groupState = modifier.replace('group-', '');
+        cssProperties.forEach((prefixedProperty) => {
+          rules.push({
+            rule: `.group:${groupState} .${escapedClassName} { ${prefixedProperty}: ${valueForCss}; }`,
+            context: 'pseudo',
+          });
         });
-      });
+      } else if (modifier.startsWith('peer-')) {
+        const peerState = modifier.replace('peer-', '');
+        cssProperties.forEach((prefixedProperty) => {
+          rules.push({
+            rule: `.peer:${peerState} ~ .${escapedClassName} { ${prefixedProperty}: ${valueForCss}; }`,
+            context: 'pseudo',
+          });
+        });
+      } else {
+        // Standard pseudo-class
+        cssProperties.forEach((prefixedProperty) => {
+          rules.push({
+            rule: `.${escapedClassName}:${modifier} { ${prefixedProperty}: ${valueForCss}; }`,
+            context: 'pseudo',
+          });
+        });
+      }
     } else if (context === 'media' && modifier) {
       const mediaClassName = `${modifier}--${baseClassName}`;
       classNames = [mediaClassName];

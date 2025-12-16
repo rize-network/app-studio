@@ -229,6 +229,7 @@ interface ThemeProviderProps {
   light?: Partial<Colors>;
   mode?: 'light' | 'dark';
   children: ReactNode;
+  strict?: boolean;
 }
 
 export const ThemeProvider = ({
@@ -237,6 +238,7 @@ export const ThemeProvider = ({
   dark: darkOverride = {},
   light: lightOverride = {},
   children,
+  strict = false,
 }: ThemeProviderProps): React.ReactElement => {
   const [themeMode, setThemeMode] = useState<'light' | 'dark'>(initialMode);
   const colorCache = useRef(new Map<string, string>()).current;
@@ -365,6 +367,19 @@ export const ThemeProvider = ({
         return colorCache.get(cacheKey)!;
       }
 
+      // Strict Mode Check
+      if (
+        strict &&
+        !name.startsWith(COLOR_PREFIX) &&
+        !name.startsWith(THEME_PREFIX) &&
+        !name.startsWith('light.') &&
+        !name.startsWith('dark.')
+      ) {
+        console.warn(
+          `[Theme] Strict mode enabled: '${name}' is not a valid color token.`
+        );
+      }
+
       // 3. Select the correct color set (light/dark) based on the effective mode
       const colorsToUse = themeColors[effectiveMode];
       if (!colorsToUse) {
@@ -433,7 +448,7 @@ export const ThemeProvider = ({
       if (needCache) colorCache.set(cacheKey, resolvedColor);
       return resolvedColor;
     },
-    [mergedTheme, themeColors, themeMode, colorCache]
+    [mergedTheme, themeColors, themeMode, colorCache, strict]
   );
 
   // Update getColor to use the context mode for alpha lookups if needed.

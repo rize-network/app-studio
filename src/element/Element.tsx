@@ -141,6 +141,25 @@ export const Element = React.memo(
           });
         }
 
+        // Apply scroll() timeline if animateOn='Scroll'
+        if (animateOn === 'Scroll' && propsToProcess.animate) {
+          const animations = Array.isArray(propsToProcess.animate)
+            ? propsToProcess.animate
+            : [propsToProcess.animate];
+
+          propsToProcess.animate = animations.map((anim) => {
+            // Only add timeline if not already specified
+            if (!anim.timeline) {
+              return {
+                ...anim,
+                timeline: 'scroll()',
+                fillMode: anim.fillMode || 'both',
+              };
+            }
+            return anim;
+          });
+        }
+
         return extractUtilityClasses(
           propsToProcess,
           (color: string) => {
@@ -159,6 +178,12 @@ export const Element = React.memo(
 
       if (utilityClasses.length > 0) {
         newProps.className = utilityClasses.join(' ');
+      }
+
+      if (props.className) {
+        newProps.className = newProps.className
+          ? `${newProps.className} ${props.className}`
+          : props.className;
       }
 
       // Handle event tracking for onClick

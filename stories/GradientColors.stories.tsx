@@ -62,7 +62,7 @@ export const GradientWithColorTokens: ComponentStory<typeof View> = () => {
         <View
           padding={20}
           background="linear-gradient(90deg, color.purple.500, color.pink.500)"
-          webkitBackgroundClip="text"
+          WebkitBackgroundClip="text"
           color="transparent"
           fontSize={24}
           fontWeight="bold"
