@@ -207,6 +207,7 @@ A versatile container component extending `Element`, primarily used for layout. 
 
 *   `Horizontal`: A `View` with `display: flex`, `flexDirection: row`.
 *   `Vertical`: A `View` with `display: flex`, `flexDirection: column`.
+*   `Center`: A `View` with `display: flex`, `justifyContent: center`, `alignItems: center`.
 *   `HorizontalResponsive`: Switches from `row` to `column` on `mobile`.
 *   `VerticalResponsive`: Switches from `column` to `row` on `mobile`.
 *   `Scroll`: Basic scrollable view (might need explicit overflow styles).
@@ -801,7 +802,7 @@ Explore our comprehensive documentation to learn more about App-Studio:
 # API Reference Summary
 
 *   **Core:** `Element`
-*   **Components:** `View`, `Horizontal`, `Vertical`, `HorizontalResponsive`, `VerticalResponsive`, `Scroll`, `SafeArea`, `Div`, `Span`, `Text`, `Image`, `ImageBackground`, `Form`, `Input`, `Button`, `Skeleton`.
+*   **Components:** `View`, `Horizontal`, `Vertical`, `Center`, `HorizontalResponsive`, `VerticalResponsive`, `Scroll`, `SafeArea`, `Div`, `Span`, `Text`, `Image`, `ImageBackground`, `Form`, `Input`, `Button`, `Skeleton`.
 *   **Animation:** `Animation` object with functions like `fadeIn`, `slideInLeft`, `pulse`, etc.
 *   **Hooks:** `useActive`, `useClickOutside`, `useElementPosition`, `useFocus`, `useHover`, `useInView`, `useKeyPress`, `useMount`, `useOnScreen`, `useResponsive`, `useScroll`, `useWindowSize`.
 *   **Providers:** `ThemeProvider`, `ResponsiveProvider`, `AnalyticsProvider`, `WindowSizeProvider`.
