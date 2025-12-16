@@ -10,12 +10,13 @@ import {
   toKebabCase,
   processStyleProperty,
 } from '../utils/style';
-import { ElementProps } from './Element';
+import { ElementProps } from './Element.types';
 import { numericCssProperties } from '../utils/cssProperties';
 import {
   needsVendorPrefix,
   getVendorPrefixedProperties,
 } from '../utils/vendorPrefixes';
+import { hash } from '../utils/hash';
 
 type StyleContext = 'base' | 'pseudo' | 'media' | 'modifier';
 
@@ -267,7 +268,7 @@ const ValueUtils = {
       return rawCssCache.get(css)!;
     }
 
-    const shortName = Math.random().toString(36).substring(7);
+    const shortName = hash(css);
     const newClassName = `raw-css-${shortName}`;
 
     rawCssCache.set(css, newClassName);
@@ -275,7 +276,7 @@ const ValueUtils = {
   },
 };
 
-class UtilityClassManager {
+export class UtilityClassManager {
   private styleSheets: Map<Document, Record<StyleContext, CSSStyleSheet>> =
     new Map();
   private classCache: LRUCache<
@@ -403,12 +404,12 @@ class UtilityClassManager {
   public getServerStyles(): string {
     const contexts: StyleContext[] = ['base', 'pseudo', 'media', 'modifier'];
     let css = '';
-    
-    contexts.forEach(context => {
-        const rules = this.serverRules.get(context);
-        if (rules) {
-            css += rules.join('\n') + '\n';
-        }
+
+    contexts.forEach((context) => {
+      const rules = this.serverRules.get(context);
+      if (rules) {
+        css += rules.join('\n') + '\n';
+      }
     });
 
     return css;
@@ -655,7 +656,7 @@ function generatePropertyShorthand(
   return propertyShorthand;
 }
 
-const propertyShorthand = generatePropertyShorthand(StyleProps);
+export const propertyShorthand = generatePropertyShorthand(StyleProps);
 export const utilityClassManager = new UtilityClassManager(
   propertyShorthand,
   10000
@@ -709,7 +710,8 @@ function processStyles(
 function processPseudoStyles(
   styles: Record<string, any>,
   parentPseudo: string = '',
-  getColor: (color: string) => string
+  getColor: (color: string) => string,
+  manager?: UtilityClassManager
 ): string[] {
   const classes: string[] = [];
 
@@ -729,7 +731,9 @@ function processPseudoStyles(
           : `${pseudo}`;
 
         // Process the nested styles with the combined pseudo
-        classes.push(...processPseudoStyles(value, combinedPseudo, getColor));
+        classes.push(
+          ...processPseudoStyles(value, combinedPseudo, getColor, manager)
+        );
       }
     } else if (typeof value !== 'object' || value === null) {
       // This is a regular CSS property
@@ -747,7 +751,7 @@ function processPseudoStyles(
         const rule = `.${escapedClassName}::${parentPseudo} { ${propertyToKebabCase(
           key
         )}: ${processedValue}; }`;
-        utilityClassManager.injectRule(rule, 'pseudo');
+        (manager || utilityClassManager).injectRule(rule, 'pseudo');
 
         classes.push(escapedClassName);
       }
@@ -763,7 +767,8 @@ function processPseudoStyles(
 function processEventStyles(
   eventName: string,
   eventStyles: any,
-  getColor: (color: string) => string
+  getColor: (color: string) => string,
+  manager?: UtilityClassManager
 ): string[] {
   const classes: string[] = [];
 
@@ -786,7 +791,10 @@ function processEventStyles(
   // Process animations if present
   if (animate) {
     const animations = Array.isArray(animate) ? animate : [animate];
-    const animationStyles = AnimationUtils.processAnimations(animations);
+    const animationStyles = AnimationUtils.processAnimations(
+      animations,
+      manager
+    );
     Object.assign(otherEventStyles, animationStyles);
   }
 
@@ -830,7 +838,8 @@ function processEventStyles(
             ...processPseudoStyles(
               otherEventStyles[nestedKey],
               combinedPseudo,
-              getColor
+              getColor,
+              manager
             )
           );
         }
@@ -848,7 +857,15 @@ function processEventStyles(
     const pseudo = EVENT_TO_PSEUDO[eventName];
     if (pseudo) {
       classes.push(
-        ...processStyles(otherEventStyles, 'pseudo', pseudo, getColor)
+        ...processStyles(
+          otherEventStyles,
+          'pseudo',
+          pseudo,
+          getColor,
+          {},
+          {},
+          manager
+        )
       );
     }
   }
@@ -860,7 +877,8 @@ export const extractUtilityClasses = (
   props: ElementProps,
   getColor: (color: string) => string,
   mediaQueries: Record<string, string>,
-  devices: Record<string, string[]>
+  devices: Record<string, string[]>,
+  manager?: UtilityClassManager
 ): string[] => {
   const classes: string[] = [];
   const computedStyles: Record<string, any> = {};
@@ -928,7 +946,10 @@ export const extractUtilityClasses = (
     const animations = Array.isArray(props.animate)
       ? props.animate
       : [props.animate];
-    Object.assign(computedStyles, AnimationUtils.processAnimations(animations));
+    Object.assign(
+      computedStyles,
+      AnimationUtils.processAnimations(animations, manager)
+    );
   }
 
   const blendConfig = {
@@ -962,7 +983,9 @@ export const extractUtilityClasses = (
   }
 
   // Process base styles
-  classes.push(...processStyles(computedStyles, 'base', '', getColor));
+  classes.push(
+    ...processStyles(computedStyles, 'base', '', getColor, {}, {}, manager)
+  );
 
   // Collect underscore-prefixed properties (_hover, _focus, etc.)
   const underscoreProps: Record<string, any> = {};
@@ -987,7 +1010,9 @@ export const extractUtilityClasses = (
         if (property === 'on') {
           // Process event-based styles
           Object.keys(value).forEach((event) => {
-            classes.push(...processEventStyles(event, value[event], getColor));
+            classes.push(
+              ...processEventStyles(event, value[event], getColor, manager)
+            );
           });
         } else if (property === 'media') {
           // Process media query styles
@@ -999,7 +1024,8 @@ export const extractUtilityClasses = (
                 screenOrDevice,
                 getColor,
                 mediaQueries,
-                devices
+                devices,
+                manager
               )
             );
           });
@@ -1007,7 +1033,7 @@ export const extractUtilityClasses = (
       } else if (value !== undefined && value !== '') {
         // Direct style property
         classes.push(
-          ...utilityClassManager.getClassNames(
+          ...(manager || utilityClassManager).getClassNames(
             property,
             value,
             'base',
@@ -1025,11 +1051,15 @@ export const extractUtilityClasses = (
     if (typeof props.css === 'object') {
       // Object-style CSS gets processed as regular styles
       Object.assign(computedStyles, props.css);
-      classes.push(...processStyles(props.css, 'base', '', getColor));
+      classes.push(
+        ...processStyles(props.css, 'base', '', getColor, {}, {}, manager)
+      );
     } else if (typeof props.css === 'string') {
       // String-style CSS gets its own class
       const uniqueClassName = ValueUtils.generateUniqueClassName(props.css);
-      utilityClassManager.injectRule(`.${uniqueClassName} { ${props.css} }`);
+      (manager || utilityClassManager).injectRule(
+        `.${uniqueClassName} { ${props.css} }`
+      );
       classes.push(uniqueClassName);
     }
   }
@@ -1038,7 +1068,7 @@ export const extractUtilityClasses = (
   if (Object.keys(underscoreProps).length > 0) {
     Object.keys(underscoreProps).forEach((event) => {
       classes.push(
-        ...processEventStyles(event, underscoreProps[event], getColor)
+        ...processEventStyles(event, underscoreProps[event], getColor, manager)
       );
     });
   }

@@ -1,6 +1,4 @@
 import React, {
-  CSSProperties,
-  HTMLAttributes,
   useMemo,
   forwardRef,
   useEffect,
@@ -10,125 +8,16 @@ import React, {
 } from 'react';
 import { useTheme } from '../providers/Theme';
 import { useResponsiveContext } from '../providers/Responsive';
+import { useStyleRegistry } from '../providers/StyleRegistry';
 
 import { isStyleProp } from '../utils/style';
-import { AnimationProps, excludedKeys, includeKeys } from '../utils/constants';
+import { excludedKeys, includeKeys } from '../utils/constants';
 import { extractUtilityClasses, AnimationUtils } from './css';
-import { Shadow } from '../utils/shadow';
 import { useAnalytics } from '../providers/Analytics';
-import { ViewStyleProps } from '../types/style';
 
-export interface ElementProps
-  extends
-    CssProps,
-    Omit<
-      ViewStyleProps,
-      keyof HTMLAttributes<HTMLElement> | 'children' | 'style' | 'pointerEvents'
-    >,
-    Omit<
-      HTMLAttributes<HTMLElement>,
-      'color' | 'style' | 'content' | 'translate'
-    > {
-  // Event handling props
-  on?: Record<string, CssProps>;
-  media?: Record<string, CssProps>;
-  only?: string[];
-  css?: CSSProperties | any;
-  onPress?: any;
-  onClick?: any;
-  className?: string;
-  blend?: boolean;
-  type?: string;
+import { ElementProps, CssProps } from './Element.types';
 
-  as?: keyof JSX.IntrinsicElements;
-  style?: CSSProperties;
-  widthHeight?: number | string;
-  children?: React.ReactNode;
-  before?: React.ReactNode;
-  after?: React.ReactNode;
-
-  animateOn?: 'View' | 'Mount' | 'Both';
-
-  // Underscore-prefixed event props (alternative to using the 'on' prop)
-  _hover?: CssProps | string;
-  _active?: CssProps | string;
-  _focus?: CssProps | string;
-  _visited?: CssProps | string;
-  _disabled?: CssProps | string;
-  _enabled?: CssProps | string;
-  _checked?: CssProps | string;
-  _unchecked?: CssProps | string;
-  _invalid?: CssProps | string;
-  _valid?: CssProps | string;
-  _required?: CssProps | string;
-  _optional?: CssProps | string;
-  _selected?: CssProps | string;
-  _target?: CssProps | string;
-  _firstChild?: CssProps | string;
-  _lastChild?: CssProps | string;
-  _onlyChild?: CssProps | string;
-  _firstOfType?: CssProps | string;
-  _lastOfType?: CssProps | string;
-  _empty?: CssProps | string;
-  _focusVisible?: CssProps | string;
-  _focusWithin?: CssProps | string;
-  _placeholder?: CssProps | string;
-
-  // Pseudo-element props
-  _before?: CssProps;
-  _after?: CssProps;
-  _firstLetter?: CssProps;
-  _firstLine?: CssProps;
-  _selection?: CssProps;
-  _backdrop?: CssProps;
-  _marker?: CssProps;
-}
-
-export interface CssProps extends CSSProperties {
-  paddingHorizontal?: number | string;
-  marginHorizontal?: number | string;
-  paddingVertical?: number | string;
-  marginVertical?: number | string;
-  animate?: AnimationProps[] | AnimationProps;
-  animateIn?: AnimationProps[] | AnimationProps;
-  animateOut?: AnimationProps[] | AnimationProps;
-  animateOn?: 'View' | 'Mount' | 'Both';
-  shadow?: boolean | number | Shadow;
-  blend?: boolean;
-
-  // Underscore-prefixed event props (alternative to using the 'on' prop)
-  _hover?: CSSProperties | string;
-  _active?: CSSProperties | string;
-  _focus?: CSSProperties | string;
-  _visited?: CSSProperties | string;
-  _disabled?: CSSProperties | string;
-  _enabled?: CSSProperties | string;
-  _checked?: CSSProperties | string;
-  _unchecked?: CSSProperties | string;
-  _invalid?: CSSProperties | string;
-  _valid?: CSSProperties | string;
-  _required?: CSSProperties | string;
-  _optional?: CSSProperties | string;
-  _selected?: CSSProperties | string;
-  _target?: CSSProperties | string;
-  _firstChild?: CSSProperties | string;
-  _lastChild?: CSSProperties | string;
-  _onlyChild?: CSSProperties | string;
-  _firstOfType?: CSSProperties | string;
-  _lastOfType?: CSSProperties | string;
-  _empty?: CSSProperties | string;
-  _focusVisible?: CSSProperties | string;
-  _focusWithin?: CSSProperties | string;
-  _placeholder?: CSSProperties | string;
-  // Pseudo-element props
-  _before?: CSSProperties;
-  _after?: CSSProperties;
-  _firstLetter?: CSSProperties;
-  _firstLine?: CSSProperties;
-  _selection?: CSSProperties;
-  _backdrop?: CSSProperties;
-  _marker?: CSSProperties;
-}
+export type { ElementProps, CssProps };
 
 export const Element = React.memo(
   forwardRef<HTMLElement, ElementProps>(
@@ -137,7 +26,12 @@ export const Element = React.memo(
         props.cursor = 'pointer';
       }
 
-      const { onPress, blend: initialBlend, animateOn = 'Both', ...rest } = props;
+      const {
+        onPress,
+        blend: initialBlend,
+        animateOn = 'Both',
+        ...rest
+      } = props;
       let blend = initialBlend;
 
       if (
@@ -163,6 +57,7 @@ export const Element = React.memo(
       const { getColor, theme } = useTheme();
       const { trackEvent } = useAnalytics();
       const { mediaQueries, devices } = useResponsiveContext();
+      const { manager } = useStyleRegistry();
       const [isVisible, setIsVisible] = useState(false);
 
       useEffect(() => {
@@ -199,10 +94,10 @@ export const Element = React.memo(
       useEffect(() => {
         if (animateIn && elementRef.current && isVisible) {
           const animations = Array.isArray(animateIn) ? animateIn : [animateIn];
-          const styles = AnimationUtils.processAnimations(animations);
+          const styles = AnimationUtils.processAnimations(animations, manager);
           Object.assign(elementRef.current.style, styles);
         }
-      }, [animateIn, isVisible]);
+      }, [animateIn, isVisible, manager]);
 
       useEffect(() => {
         const node = elementRef.current;
@@ -211,11 +106,14 @@ export const Element = React.memo(
             const animations = Array.isArray(animateOut)
               ? animateOut
               : [animateOut];
-            const styles = AnimationUtils.processAnimations(animations);
+            const styles = AnimationUtils.processAnimations(
+              animations,
+              manager
+            );
             Object.assign(node.style, styles);
           }
         };
-      }, [animateOut]);
+      }, [animateOut, manager]);
 
       const utilityClasses = useMemo(() => {
         const propsToProcess = {
@@ -249,9 +147,10 @@ export const Element = React.memo(
             return getColor(color);
           },
           mediaQueries,
-          devices
+          devices,
+          manager
         );
-      }, [rest, blend, animateOn, mediaQueries, devices, theme]);
+      }, [rest, blend, animateOn, mediaQueries, devices, theme, manager]);
 
       const newProps: any = { ref: setRef };
       if (onPress) {

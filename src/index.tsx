@@ -15,6 +15,7 @@ export * from './utils/colors';
 export * from './providers/Responsive';
 export * from './providers/Analytics';
 export * from './providers/Theme';
+export * from './providers/StyleRegistry';
 export * from './hooks/useActive';
 export * from './hooks/useClickOutside';
 export * from './hooks/useElementPosition';
