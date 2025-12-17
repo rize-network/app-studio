@@ -100,9 +100,13 @@ const cssProperties = new Set([
   'backgroundPosition',
   'backgroundRepeat',
   'backgroundClip',
-  'WebkitBackgroundClip',
   'textFillColor',
   'WebkitTextFillColor',
+  'WebkitBackgroundClip',
+  'WebkitTextStroke',
+  'WebkitTextStrokeColor',
+  'WebkitTextStrokeWidth',
+  'WebkitTextStrokeStyle',
   'opacity',
 
   // Borders

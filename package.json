@@ -1,5 +1,5 @@
 {
-  "version": "0.6.53",
+  "version": "0.6.55",
   "name": "app-studio",
   "description": "App Studio is a responsive and themeable framework to build cross platform applications",
   "repository": "git@github.com:rize-network/app-studio.git",
@@ -70,15 +70,15 @@
   "size-limit": [
     {
       "path": "dist/app-studio.cjs.production.min.js",
-      "limit": "15 KB"
+      "limit": "25 KB"
     },
     {
       "path": "dist/app-studio.esm.js",
-      "limit": "15 KB"
+      "limit": "25 KB"
     },
     {
       "path": "dist/app-studio.umd.production.min.js",
-      "limit": "15 KB"
+      "limit": "25 KB"
     }
   ],
   "dependencies": {

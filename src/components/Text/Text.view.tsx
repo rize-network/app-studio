@@ -40,7 +40,7 @@ const TextView = React.forwardRef<HTMLElement, Props>(
     },
     ref
   ) => {
-    console.log('props', props, children);
+    // console.log('props', props, children);
     // For sub/sup text, use inline display
     const noLineBreak = isSub || isSup ? { display: 'inline' } : {};
 
@@ -99,7 +99,7 @@ const TextView = React.forwardRef<HTMLElement, Props>(
       );
     }
 
-    console.log('commonProps', commonProps, children);
+    // console.log('commonProps', commonProps, children);
 
     return (
       <Element {...commonProps} ref={ref}>

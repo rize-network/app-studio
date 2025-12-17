@@ -353,7 +353,7 @@ export function addImportStatement(root, j, importNames, fromModule) {
 
 function getTemplateLiteralValue(node) {
   if (node.type !== 'TemplateLiteral') {
-    console.log({ node });
+    // console.log({ node });
     throw new Error('Node is not a TemplateLiteral');
   }
 
@@ -557,7 +557,7 @@ export function transformCode(
       } else if (typeof value === 'number') {
         valueLiteral = j.numericLiteral(value);
       } else {
-        console.log({ value, key }, typeof value);
+        // console.log({ value, key }, typeof value);
         valueLiteral = value;
       }
 

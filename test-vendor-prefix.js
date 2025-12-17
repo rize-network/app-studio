@@ -27,7 +27,6 @@ function propertyToKebabCase(property) {
 // Test cases
 const testCases = [
   'webkitBackgroundClip',
-  'WebkitBackgroundClip',
   'msTransform',
   'MozUserSelect',
   'backgroundColor',

@@ -154,6 +154,7 @@ const generateCSSVariables = (
 interface ThemeContextProps {
   // Signature allows overriding the mode for a specific lookup
   getColor: (name: string, override?: Override) => string;
+  getColorHex: (name: string, override?: Override) => string;
   theme: Theme;
   colors: Colors; // Current mode's colors
   themeMode: 'light' | 'dark';
@@ -184,6 +185,7 @@ const defaultDarkColorConfig: Colors = {
 // --- Create Theme Context ---
 export const ThemeContext = createContext<ThemeContextProps>({
   getColor: () => '',
+  getColorHex: () => '',
   theme: {},
   colors: { main: defaultLightColors, palette: defaultLightPalette },
   themeMode: 'light',
@@ -242,6 +244,69 @@ const convertToRgba = (color: string, alpha: number): string => {
   // If color format is not recognized, return as-is
   console.warn(`Unable to convert color "${color}" to rgba format`);
   return color;
+};
+
+const clamp255 = (value: number) => Math.max(0, Math.min(255, value));
+
+const toTwoHex = (value: number) =>
+  clamp255(Math.round(value)).toString(16).padStart(2, '0');
+
+const normalizeToHex = (color: string): string => {
+  if (!color || typeof color !== 'string') return String(color);
+
+  const trimmed = color.trim();
+  if (trimmed === TRANSPARENT) return '#00000000';
+
+  if (trimmed.startsWith('#')) {
+    const hex = trimmed.slice(1);
+    if (hex.length === 3) {
+      const r = hex[0] + hex[0];
+      const g = hex[1] + hex[1];
+      const b = hex[2] + hex[2];
+      return `#${r}${g}${b}`.toLowerCase();
+    }
+    if (hex.length === 4) {
+      const r = hex[0] + hex[0];
+      const g = hex[1] + hex[1];
+      const b = hex[2] + hex[2];
+      const a = hex[3] + hex[3];
+      return `#${r}${g}${b}${a}`.toLowerCase();
+    }
+    if (hex.length === 6 || hex.length === 8) {
+      return `#${hex}`.toLowerCase();
+    }
+    return trimmed;
+  }
+
+  if (trimmed.startsWith('rgb')) {
+    const match = trimmed.match(/rgba?\(([^)]+)\)/i);
+    if (!match) return trimmed;
+
+    const parts = match[1]
+      .split(',')
+      .map((p) => p.trim())
+      .filter(Boolean);
+
+    const r = Number(parts[0]);
+    const g = Number(parts[1]);
+    const b = Number(parts[2]);
+    const a = parts.length >= 4 ? Number(parts[3]) : 1;
+
+    if ([r, g, b].some((v) => Number.isNaN(v)) || Number.isNaN(a))
+      return trimmed;
+
+    const rr = toTwoHex(r);
+    const gg = toTwoHex(g);
+    const bb = toTwoHex(b);
+
+    const alpha = Math.max(0, Math.min(1, a));
+    if (alpha >= 1) return `#${rr}${gg}${bb}`.toLowerCase();
+
+    const aa = toTwoHex(alpha * 255);
+    return `#${rr}${gg}${bb}${aa}`.toLowerCase();
+  }
+
+  return trimmed;
 };
 
 // --- Deep Merge Function (remains the same, assuming it works as intended) ---
@@ -326,6 +391,91 @@ export const ThemeProvider = ({
   const currentColors = useMemo(
     () => themeColors[themeMode],
     [themeColors, themeMode]
+  );
+
+  const resolveColorTokenForMode = useCallback(
+    (
+      token: string,
+      mode: 'light' | 'dark',
+      override?: Override,
+      depth: number = 0
+    ): string => {
+      if (!token || typeof token !== 'string') return String(token);
+      if (token === TRANSPARENT) return token;
+      if (depth > 25) return token;
+
+      const effectiveTheme = override?.theme
+        ? (deepMerge(mergedTheme, override.theme) as Theme)
+        : mergedTheme;
+
+      // Resolve theme.* tokens recursively
+      if (token.startsWith(THEME_PREFIX)) {
+        const themeKey = token.substring(THEME_PREFIX.length) as keyof Theme;
+        const themeValue = effectiveTheme[themeKey];
+        if (typeof themeValue === 'string') {
+          return resolveColorTokenForMode(
+            themeValue,
+            mode,
+            override,
+            depth + 1
+          );
+        }
+        return token;
+      }
+
+      // Resolve explicit mode paths like "light.blue.500" / "dark.blue.500"
+      if (token.startsWith('light.') || token.startsWith('dark.')) {
+        const explicitMode = token.startsWith('light.') ? 'light' : 'dark';
+        const prefixLength = token.startsWith('light.') ? 6 : 5;
+        const modifiedName = `${COLOR_PREFIX}${token.substring(prefixLength)}`;
+        return resolveColorTokenForMode(
+          modifiedName,
+          explicitMode,
+          override,
+          depth + 1
+        );
+      }
+
+      // Resolve color.* tokens
+      if (token.startsWith(COLOR_PREFIX)) {
+        const keys = token.substring(COLOR_PREFIX.length).split('.');
+
+        const colorsToUse = themeColors[mode];
+        const palette = deepMerge(
+          colorsToUse.palette,
+          override?.colors?.palette || {}
+        );
+        const main = deepMerge(colorsToUse.main, override?.colors?.main || {});
+
+        if (keys.length === 3) {
+          // e.g. color.blue.500.200 (alpha)
+          const [colorName, variant, alphaStr] = keys;
+          const base = palette?.[colorName]?.[variant];
+          const alpha = parseInt(alphaStr, 10);
+          if (typeof base === 'string' && !isNaN(alpha)) {
+            return convertToRgba(base, alpha);
+          }
+          return token;
+        }
+
+        if (keys.length === 2) {
+          const [colorName, variant] = keys;
+          const value = palette?.[colorName]?.[variant];
+          return typeof value === 'string' ? value : token;
+        }
+
+        if (keys.length === 1) {
+          const [colorName] = keys;
+          const value = main?.[colorName];
+          return typeof value === 'string' ? value : token;
+        }
+
+        return token;
+      }
+
+      return token;
+    },
+    [mergedTheme, themeColors]
   );
 
   // --- Helper function to resolve color tokens to actual values ---
@@ -491,16 +641,39 @@ export const ThemeProvider = ({
     [mergedTheme, themeColors, themeMode, colorCache, strict]
   );
 
+  const getColorHex = useCallback(
+    (name: string, override?: Override): string => {
+      if (!name || typeof name !== 'string') return String(name);
+      if (name === TRANSPARENT) return '#00000000';
+
+      const effectiveMode = override?.themeMode ?? themeMode;
+      const cacheKey = `${name}-${effectiveMode}-hex`;
+
+      // Cache only when no override object is provided
+      if (!override && colorCache.has(cacheKey)) {
+        return colorCache.get(cacheKey)!;
+      }
+
+      const resolved = resolveColorTokenForMode(name, effectiveMode, override);
+      const hex = normalizeToHex(resolved);
+
+      if (!override) colorCache.set(cacheKey, hex);
+      return hex;
+    },
+    [themeMode, colorCache, resolveColorTokenForMode]
+  );
+
   // --- Memoize Context Value ---
   const contextValue = useMemo(
     () => ({
       getColor,
+      getColorHex,
       theme: mergedTheme,
       colors: currentColors,
       themeMode,
       setThemeMode,
     }),
-    [getColor, mergedTheme, currentColors, themeMode]
+    [getColor, getColorHex, mergedTheme, currentColors, themeMode]
   );
 
   return (
