@@ -36,24 +36,39 @@ import { View } from 'app-studio';
 </View>
 ```
 
-### Vertical & Horizontal
-For stack and row layouts.
+### Vertical, Horizontal & Center
+For stack, row, and centered layouts.
 
 ```tsx
-import { Vertical, Horizontal } from 'app-studio';
+import { Vertical, Horizontal, Center } from 'app-studio';
 
 // Vertical stack
-<Vertical spacing={20}>
+<Vertical gap={20}>
   <View />
   <View />
 </Vertical>
 
 // Horizontal row
-<Horizontal spacing={10}>
+<Horizontal gap={10}>
   <View />
   <View />
 </Horizontal>
+
+// Centered content (both horizontally and vertically)
+<Center>
+  <View />
+</Center>
 ```
+
+**Layout Variants:**
+- `Horizontal`: flex row layout
+- `Vertical`: flex column layout
+- `Center`: flex layout centered both ways
+- `HorizontalResponsive`: switches to column on mobile
+- `VerticalResponsive`: switches to row on mobile
+- `Scroll`: basic scrollable view
+- `SafeArea`: view with overflow auto
+- `Div`, `Span`: element aliases
 
 ## Text Components
 
