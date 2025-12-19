@@ -152,8 +152,6 @@ export const ResponsiveProvider = ({
   devices?: DeviceConfig;
   children: ReactNode;
 }) => {
-
-
   const [screen, setScreen] = useState(() => {
     // Initialize with correct breakpoint instead of hardcoded 'xs'
     if (typeof window !== 'undefined') {
