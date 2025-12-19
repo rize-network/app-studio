@@ -1,6 +1,6 @@
 import React from 'react';
 import { Meta, Story } from '@storybook/react';
-import { View, useResponsive } from '../src';
+import { Text, View, useResponsive } from '../src';
 import { useActive } from '../src/hooks/useActive';
 import { useClickOutside } from '../src/hooks/useClickOutside';
 import { useElementPosition } from '../src/hooks/useElementPosition';
@@ -185,12 +185,35 @@ const WindowSizeExample = () => {
 
 const ResponsiveExample = () => {
   const responsive = useResponsive();
+  const media = {
+      xs: {
+        color: 'red',
+      },
+      sm: {
+        color: 'green',
+      },
+      md: {
+        color: 'blue',
+      },
+      lg: {
+        color: 'yellow',
+      },
+      xl: {
+        color: 'red',
+      },
+    };
+  
+    
+  
   return (
     <View>
       <View css={{ marginBottom: '10px' }}>Screen: {responsive.screen}</View>
       <View css={{ marginBottom: '10px' }}>
         Orientation: {responsive.orientation}
       </View>
+       <Text widthHeight={100} lineHeight={20} media={media}>
+          {`${responsive.screen} - ${responsive.on('mobile') ? 'Mobile' : 'Not Mobile'}`}
+        </Text>
       <View>Is mobile: {responsive.is('mobile').toString()}</View>
     </View>
   );

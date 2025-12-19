@@ -1,10 +1,4 @@
-import React, {
-  ReactNode,
-  createContext,
-  useState,
-  useEffect,
-  useContext,
-} from 'react';
+import React, { ReactNode, createContext, useState, useEffect } from 'react';
 
 export const WindowSizeContext = createContext({ width: 0, height: 0 });
 
@@ -27,5 +21,3 @@ export const WindowSizeProvider = ({ children }: { children: ReactNode }) => {
     </WindowSizeContext.Provider>
   );
 };
-
-export const useWindowSize = () => useContext(WindowSizeContext);

@@ -6,11 +6,11 @@ import { WindowSizeProvider } from '../providers/WindowSize';
 export default class Wrapper extends React.Component<any> {
   render() {
     return (
-      <ThemeProvider>
-        <ResponsiveProvider>
-          <WindowSizeProvider>{this.props.children}</WindowSizeProvider>
-        </ResponsiveProvider>
-      </ThemeProvider>
+      <WindowSizeProvider>
+        <ThemeProvider>
+          <ResponsiveProvider>{this.props.children}</ResponsiveProvider>
+        </ThemeProvider>
+      </WindowSizeProvider>
     );
   }
 }

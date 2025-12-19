@@ -1004,8 +1004,7 @@ export const extractUtilityClasses = (
     Object.keys(props).forEach((property) => {
       if (
         (props as any)[property]?.color === undefined &&
-        property.startsWith('_') &&
-        property.length > 1
+        (property.startsWith('_') || property === 'on' || property === 'media')
       ) {
         setBlend((props as any)[property], (props as any)[property]);
       }

@@ -155,6 +155,13 @@ interface ThemeContextProps {
   // Signature allows overriding the mode for a specific lookup
   getColor: (name: string, override?: Override) => string;
   getColorHex: (name: string, override?: Override) => string;
+  getColorRGBA: (
+    name: string,
+    alphaOrOverride?: number | Override,
+    override?: Override
+  ) => string;
+  getColorScheme: (name: string, override?: Override) => string | undefined;
+  getContrastColor: (name: string, override?: Override) => 'black' | 'white';
   theme: Theme;
   colors: Colors; // Current mode's colors
   themeMode: 'light' | 'dark';
@@ -186,6 +193,9 @@ const defaultDarkColorConfig: Colors = {
 export const ThemeContext = createContext<ThemeContextProps>({
   getColor: () => '',
   getColorHex: () => '',
+  getColorRGBA: () => '',
+  getColorScheme: () => undefined,
+  getContrastColor: () => 'black',
   theme: {},
   colors: { main: defaultLightColors, palette: defaultLightPalette },
   themeMode: 'light',
@@ -306,6 +316,64 @@ const normalizeToHex = (color: string): string => {
     return `#${rr}${gg}${bb}${aa}`.toLowerCase();
   }
 
+  return trimmed;
+};
+
+const normalizeToRgba = (color: string, alphaOverride?: number): string => {
+  if (!color || typeof color !== 'string') return String(color);
+
+  const trimmed = color.trim();
+  const overrideAlpha =
+    typeof alphaOverride === 'number'
+      ? Math.max(0, Math.min(1000, alphaOverride)) / 1000
+      : undefined;
+
+  if (trimmed === TRANSPARENT) {
+    const a = overrideAlpha ?? 0;
+    return `rgba(0, 0, 0, ${a})`;
+  }
+
+  if (trimmed.startsWith('#')) {
+    let hex = trimmed.slice(1);
+    if (hex.length === 3 || hex.length === 4) {
+      hex = hex
+        .split('')
+        .map((ch) => ch + ch)
+        .join('');
+    }
+
+    if (hex.length !== 6 && hex.length !== 8) return trimmed;
+
+    const r = parseInt(hex.slice(0, 2), 16);
+    const g = parseInt(hex.slice(2, 4), 16);
+    const b = parseInt(hex.slice(4, 6), 16);
+    const aFromHex = hex.length === 8 ? parseInt(hex.slice(6, 8), 16) / 255 : 1;
+    const a = overrideAlpha ?? aFromHex;
+    return `rgba(${r}, ${g}, ${b}, ${a})`;
+  }
+
+  if (trimmed.startsWith('rgb')) {
+    const match = trimmed.match(/rgba?\(([^)]+)\)/i);
+    if (!match) return trimmed;
+
+    const parts = match[1]
+      .split(',')
+      .map((p) => p.trim())
+      .filter(Boolean);
+
+    const r = Number(parts[0]);
+    const g = Number(parts[1]);
+    const b = Number(parts[2]);
+    const aExisting = parts.length >= 4 ? Number(parts[3]) : 1;
+
+    if ([r, g, b].some((v) => Number.isNaN(v)) || Number.isNaN(aExisting))
+      return trimmed;
+
+    const a = overrideAlpha ?? Math.max(0, Math.min(1, aExisting));
+    return `rgba(${r}, ${g}, ${b}, ${a})`;
+  }
+
+  // If it's already something else (var(), color-mix(), named color), we can't reliably convert.
   return trimmed;
 };
 
@@ -663,17 +731,186 @@ export const ThemeProvider = ({
     [themeMode, colorCache, resolveColorTokenForMode]
   );
 
+  const getColorRGBA = useCallback(
+    (
+      name: string,
+      alphaOrOverride?: number | Override,
+      overrideMaybe?: Override
+    ): string => {
+      if (!name || typeof name !== 'string') return String(name);
+
+      const alpha =
+        typeof alphaOrOverride === 'number' ? alphaOrOverride : undefined;
+      const override = (
+        typeof alphaOrOverride === 'object' ? alphaOrOverride : overrideMaybe
+      ) as Override | undefined;
+
+      const effectiveMode = override?.themeMode ?? themeMode;
+      const alphaKey = typeof alpha === 'number' ? String(alpha) : 'auto';
+      const cacheKey = `${name}-${effectiveMode}-rgba-${alphaKey}`;
+
+      if (!override && colorCache.has(cacheKey)) {
+        return colorCache.get(cacheKey)!;
+      }
+
+      const resolved = resolveColorTokenForMode(name, effectiveMode, override);
+      const rgba = normalizeToRgba(resolved, alpha);
+
+      if (!override) colorCache.set(cacheKey, rgba);
+      return rgba;
+    },
+    [themeMode, colorCache, resolveColorTokenForMode]
+  );
+
+  const getColorScheme = useCallback(
+    (name: string, override?: Override): string | undefined => {
+      if (!name || typeof name !== 'string') return undefined;
+
+      const effectiveMode = override?.themeMode ?? themeMode;
+      const effectiveTheme = override?.theme
+        ? (deepMerge(mergedTheme, override.theme) as Theme)
+        : mergedTheme;
+
+      // Resolve theme.* tokens to get the underlying color token
+      let colorToken = name;
+      if (name.startsWith(THEME_PREFIX)) {
+        const themeKey = name.substring(THEME_PREFIX.length) as keyof Theme;
+        const themeValue = effectiveTheme[themeKey];
+        if (typeof themeValue === 'string') {
+          colorToken = themeValue;
+        }
+      }
+
+      // Handle light.* or dark.* prefixes
+      if (colorToken.startsWith('light.') || colorToken.startsWith('dark.')) {
+        const prefixLength = colorToken.startsWith('light.') ? 6 : 5;
+        colorToken = `${COLOR_PREFIX}${colorToken.substring(prefixLength)}`;
+      }
+
+      // Extract color scheme from color.* tokens (e.g., color.blue.500 -> 'blue')
+      if (colorToken.startsWith(COLOR_PREFIX)) {
+        const keys = colorToken.substring(COLOR_PREFIX.length).split('.');
+        if (keys.length >= 1) {
+          return keys[0]; // Return the color scheme name (e.g., 'blue', 'pink')
+        }
+      }
+
+      // Handle hex or rgba colors by finding the closest match in the palette
+      const normalizedInput = normalizeToHex(colorToken).toLowerCase();
+      if (normalizedInput.startsWith('#')) {
+        const colorsToUse = themeColors[effectiveMode];
+        const palette = deepMerge(
+          colorsToUse.palette,
+          override?.colors?.palette || {}
+        );
+        const main = deepMerge(colorsToUse.main, override?.colors?.main || {});
+
+        // First check main colors for exact match
+        for (const [colorName, colorValue] of Object.entries(main)) {
+          if (typeof colorValue === 'string') {
+            const normalizedPalette = normalizeToHex(colorValue).toLowerCase();
+            if (normalizedPalette === normalizedInput) {
+              return colorName;
+            }
+          }
+        }
+
+        // Then check palette colors for exact match
+        for (const [colorName, shades] of Object.entries(palette)) {
+          if (typeof shades === 'object' && shades !== null) {
+            for (const [, shadeValue] of Object.entries(shades)) {
+              if (typeof shadeValue === 'string') {
+                const normalizedPalette =
+                  normalizeToHex(shadeValue).toLowerCase();
+                if (normalizedPalette === normalizedInput) {
+                  return colorName;
+                }
+              }
+            }
+          }
+        }
+      }
+
+      return undefined;
+    },
+    [mergedTheme, themeMode, themeColors]
+  );
+
+  const getContrastColor = useCallback(
+    (name: string, override?: Override): 'black' | 'white' => {
+      if (!name || typeof name !== 'string') return 'black';
+
+      const effectiveMode = override?.themeMode ?? themeMode;
+
+      // First resolve the color to a hex value
+      let hexColor: string;
+
+      // Check if it's already a hex or rgb color
+      if (name.startsWith('#') || name.startsWith('rgb')) {
+        hexColor = normalizeToHex(name);
+      } else {
+        // Resolve the token to get the actual color value
+        const resolved = resolveColorTokenForMode(
+          name,
+          effectiveMode,
+          override
+        );
+        hexColor = normalizeToHex(resolved);
+      }
+
+      // If we couldn't get a valid hex, default to black
+      if (!hexColor.startsWith('#') || hexColor.length < 7) {
+        return 'black';
+      }
+
+      // Extract RGB values
+      const hex = hexColor.slice(1);
+      const r = parseInt(hex.slice(0, 2), 16);
+      const g = parseInt(hex.slice(2, 4), 16);
+      const b = parseInt(hex.slice(4, 6), 16);
+
+      // Calculate relative luminance using the sRGB formula
+      // https://www.w3.org/TR/WCAG20/#relativeluminancedef
+      const toLinear = (c: number) => {
+        const sRGB = c / 255;
+        return sRGB <= 0.03928
+          ? sRGB / 12.92
+          : Math.pow((sRGB + 0.055) / 1.055, 2.4);
+      };
+
+      const luminance =
+        0.2126 * toLinear(r) + 0.7152 * toLinear(g) + 0.0722 * toLinear(b);
+
+      // Use threshold of 0.179 (WCAG recommendation)
+      // Return white for dark colors, black for light colors
+      return luminance > 0.179 ? 'black' : 'white';
+    },
+    [themeMode, resolveColorTokenForMode]
+  );
+
   // --- Memoize Context Value ---
   const contextValue = useMemo(
     () => ({
       getColor,
       getColorHex,
+      getColorRGBA,
+      getColorScheme,
+      getContrastColor,
       theme: mergedTheme,
       colors: currentColors,
       themeMode,
       setThemeMode,
     }),
-    [getColor, getColorHex, mergedTheme, currentColors, themeMode]
+    [
+      getColor,
+      getColorHex,
+      getColorRGBA,
+      getColorScheme,
+      getContrastColor,
+      mergedTheme,
+      currentColors,
+      themeMode,
+    ]
   );
 
   return (

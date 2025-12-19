@@ -36,13 +36,13 @@ import {
 function App() {
   return (
     <ThemeProvider>
-      <ResponsiveProvider>
         <WindowSizeProvider>
+      <ResponsiveProvider>
           <AnalyticsProvider>
             {/* Your app content */}
           </AnalyticsProvider>
-        </WindowSizeProvider>
       </ResponsiveProvider>
+        </WindowSizeProvider>
     </ThemeProvider>
   );
 }

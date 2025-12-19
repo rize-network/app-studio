@@ -40,7 +40,17 @@ export const Element = React.memo(
         typeof props.children === 'string' &&
         (as === 'span' || as === 'div' || as === 'sub' || as === 'sup')
       ) {
-        blend = true;
+
+        const otherMediaProps =  {
+          ...(props.on || {}),
+          ...(props.media || {})
+        }
+        
+        if (otherMediaProps.color === undefined) {
+          blend = true;
+        }
+
+       
       }
       const elementRef = useRef<HTMLElement | null>(null);
       const setRef = useCallback(
@@ -59,6 +69,8 @@ export const Element = React.memo(
       const { mediaQueries, devices } = useResponsiveContext();
       const { manager } = useStyleRegistry();
       const [isVisible, setIsVisible] = useState(false);
+
+      console.log({ mediaQueries, devices});
 
       useEffect(() => {
         if (!animateIn) {

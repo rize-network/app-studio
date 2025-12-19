@@ -16,7 +16,7 @@ export default {
 } as ComponentMeta<typeof Text>;
 
 export const Exemple: ComponentStory<typeof Text> = () => {
-  const { screen, on } = useResponsive();
+    const res = useResponsive();
   const responsive = {
     xs: {
       color: 'red',
@@ -35,14 +35,12 @@ export const Exemple: ComponentStory<typeof Text> = () => {
     },
   };
 
+  
+
   return (
-    <Text
-      widthHeight={100}
-      lineHeight={20}
-      {...responsive[screen as keyof typeof responsive]}
-    >
-      {`${screen} - ${on('mobile') ? 'Mobile' : 'Not Mobile'}`}
-    </Text>
+       <Text widthHeight={100} lineHeight={20} media={responsive}>
+        {`${res.screen} - ${res.on('mobile') ? 'Mobile' : 'Not Mobile'}`}
+      </Text>
   );
 };
 
@@ -273,10 +271,10 @@ export const BlendModes: ComponentStory<typeof Text> = () => {
 
       {/* Basic Blend */}
       <View backgroundColor="black" padding={20}>
-        <Text >Blend on Black (Should be White)</Text>
+        <Text>Blend on Black (Should be White)</Text>
       </View>
       <View backgroundColor="white" padding={20}>
-        <Text >Blend on White (Should be Black)</Text>
+        <Text>Blend on White (Should be Black)</Text>
       </View>
 
       {/* Truncated Text with Blend */}
@@ -290,13 +288,9 @@ export const BlendModes: ComponentStory<typeof Text> = () => {
       <View backgroundColor="darkred" padding={50}>
         <View>
           <Text>Normal </Text>
-          <Text isSup>
-            Superscript
-          </Text>
+          <Text isSup>Superscript</Text>
           <Text> and </Text>
-          <Text isSub>
-            Subscript
-          </Text>
+          <Text isSub>Subscript</Text>
         </View>
       </View>
 
