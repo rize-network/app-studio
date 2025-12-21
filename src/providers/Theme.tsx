@@ -419,6 +419,7 @@ interface ThemeProviderProps {
   mode?: 'light' | 'dark';
   children: ReactNode;
   strict?: boolean;
+  targetWindow?: Window;
 }
 
 export const ThemeProvider = ({
@@ -428,6 +429,7 @@ export const ThemeProvider = ({
   light: lightOverride = {},
   children,
   strict = false,
+  targetWindow,
 }: ThemeProviderProps): React.ReactElement => {
   const [themeMode, setThemeMode] = useState<'light' | 'dark'>(initialMode);
   const colorCache = useRef(new Map<string, string>()).current;
@@ -913,11 +915,44 @@ export const ThemeProvider = ({
     ]
   );
 
+  // Generate CSS variables
+  const cssVariables = useMemo(
+    () =>
+      generateCSSVariables(mergedTheme, themeColors.light, themeColors.dark),
+    [mergedTheme, themeColors]
+  );
+
+  // Inject CSS variables into target document (for iframe support)
+  useEffect(() => {
+    if (!targetWindow) return;
+
+    const targetDoc = targetWindow.document;
+    const styleId = 'app-studio-theme-vars';
+
+    // Remove existing style tag if any
+    const existing = targetDoc.getElementById(styleId);
+    if (existing) {
+      existing.remove();
+    }
+
+    // Create and inject new style tag
+    const styleTag = targetDoc.createElement('style');
+    styleTag.id = styleId;
+    styleTag.textContent = cssVariables;
+    targetDoc.head.appendChild(styleTag);
+
+    // Cleanup on unmount
+    return () => {
+      const styleToRemove = targetDoc.getElementById(styleId);
+      if (styleToRemove) {
+        styleToRemove.remove();
+      }
+    };
+  }, [targetWindow, cssVariables]);
+
   return (
     <ThemeContext.Provider value={contextValue}>
-      <style>
-        {generateCSSVariables(mergedTheme, themeColors.light, themeColors.dark)}
-      </style>
+      {!targetWindow && <style>{cssVariables}</style>}
       <div
         data-theme={themeMode}
         style={{

@@ -1,6 +1,6 @@
 import React from 'react';
 import { ComponentStory, ComponentMeta } from '@storybook/react';
-import { View, Text, Vertical, Image, Button } from '../src';
+import { View, Text, Vertical, Image, Button, Animation } from '../src';
 
 export default {
   title: 'CSS/ScrollAnimation',
@@ -79,262 +79,301 @@ const ImageCard = ({
 );
 
 const ThoughtlyFooterContent = () => {
-  // Images generated earlier
-  const images = [
-    'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=2576&auto=format&fit=crop', // Business woman
-    'https://images.unsplash.com/photo-1551434678-e076c223a692?q=80&w=2670&auto=format&fit=crop', // Team working
-    'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2672&auto=format&fit=crop', // Digital connectivity
-    'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=2670&auto=format&fit=crop', // Tech specialist
-    'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2670&auto=format&fit=crop', // Cybersecurity/Tech
+  // Sample images for the floating cards
+  const cardImages = [
+    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=496&h=624&fit=crop',
+    'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=496&h=624&fit=crop',
+    'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=496&h=624&fit=crop',
+    'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=496&h=624&fit=crop',
+    'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=496&h=624&fit=crop',
+  ];
+
+  // Card positions (rotations and offsets)
+  const cardPositions = [
+    { rotate: -12, left: '5%' },
+    { rotate: -6, left: '20%' },
+    { rotate: 0, left: '38%' },
+    { rotate: 6, left: '56%' },
+    { rotate: 12, left: '74%' },
   ];
 
   return (
-    <View
-      height="100vh"
-      overflow="auto"
-      backgroundColor="#000"
-      position="relative"
-    >
-      {/* Spacer to enable scroll */}
+    <View height="300vh" backgroundColor="#000" position="relative">
+      {/* Spacer content before the CTA */}
       <View height="100vh" backgroundColor="color.gray.900" padding={100}>
         <Text fontSize={48} fontWeight="bold" color="white" textAlign="center">
-          Scroll down to see the <br /> Final CTA Merge Animation
+          Scroll down to see the <br /> Animation
         </Text>
         <Text color="color.gray.400" textAlign="center" marginTop={20}>
-          As you reach the bottom, the section will scale down <br /> and round
-          its corners to merge with the footer.
+          The CTA section scales down from 1.0 to 0.8 and rounds its corners <br /> as you scroll, revealing the footer underneath.
         </Text>
       </View>
 
-      <View position="relative" backgroundColor="red">
-        {/* The Final CTA Wrapper that merges into the footer */}
+      {/* Container for the animated CTA and footer */}
+      <View position="relative" height="200vh">
+        {/* CTA Section - Animated wrapper that scales and rounds */}
         <View
-         
-          backgroundColor="red"
+          backgroundColor="rgb(246, 246, 244)"
           minHeight="100vh"
-          position="relative"
+          position="sticky"
+          top={0}
           zIndex={2}
+          paddingTop={80}
+          paddingHorizontal={80}
+          paddingBottom={182}
           overflow="hidden"
-          padding={80}
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-          style={{ 
-            transformOrigin: '50% 100%',
-            margin: '0 auto' 
-          }}
-           animate={{
-            // Use 'contain' range to animate as it hits the bottom
-            timingFunction: 'ease',
-            timeline: 'scroll()',
-            range: 'cover',
-    // range: 'contain 0% exit 100%',
+          style={{ transformOrigin: '50% 100%' }}
+          animate={{
+            timeline: 'view()',
+            range: 'exit 0% exit 100%',
             fillMode: 'both',
             keyframes: {
-              '0%': {
-                transform: 'scale(1)',
-                borderRadius: '0px',
-                width: '100%',
+              from: {
+                transform: 'translate3d(0px, 0px, 0px) scale(1, 1)',
+                borderBottomRightRadius: '0px',
+                borderBottomLeftRadius: '0px',
               },
-              '100%': {
-                // Shrink width and animate all corners as specified
-                transform: 'scale(0.8)',
-                borderRadius: '300px',
-                width: '94%',
+              to: {
+                transform: 'translate3d(0px, -18.5547px, 0px) scale(0.8, 0.8)',
+                borderBottomRightRadius: '74px',
+                borderBottomLeftRadius: '74px',
               },
             },
           }}
         >
-          {/* Photos Panel / Parallax Cards */}
-          <View
-            position="absolute"
-            top={0}
-            left={0}
-            right={0}
-            bottom={0}
-            pointerEvents="none"
-          >
-            <ImageCard
-              src={images[0]}
-              top="10%"
-              left="5%"
-              parallaxY={-100}
-              delay={0}
-            />
-            <ImageCard
-              src={images[1]}
-              top="20%"
-              right="8%"
-              parallaxY={-150}
-              delay={0.5}
-            />
-            <ImageCard
-              src={images[2]}
-              bottom="15%"
-              left="12%"
-              parallaxY={-80}
-              delay={1}
-            />
-            <ImageCard
-              src={images[3]}
-              bottom="25%"
-              right="15%"
-              parallaxY={-120}
-              delay={1.5}
-            />
-            <ImageCard
-              src={images[4]}
-              top="50%"
-              left="30%"
-              parallaxY={-200}
-              delay={2}
-            />
-          </View>
-
-          {/* Content */}
-          <Vertical
-            gap={32}
-            alignItems="center"
-            maxWidth={800}
-            position="relative"
-            zIndex={3}
-          >
-            <Kicker>Scale with Ease</Kicker>
-            <Text
-              fontSize={72}
-              fontWeight="bold"
-              color="white"
-              textAlign="center"
-              lineHeight={1.1}
-            >
-              Join the communication revolution.
-            </Text>
-            <Text
-              fontSize={20}
-              color="color.gray.400"
-              textAlign="center"
-              maxWidth={600}
-            >
-              Slash your costs and transform your customer experience. The
-              generative AI revolution is here. Don't get left behind.
-            </Text>
-
+          {/* CTA Inner Content */}
+          <View maxWidth={1400} marginHorizontal="auto" width="100%">
+            {/* Top Section - Text and Form */}
             <View
-              backgroundColor="white"
-              borderRadius={100}
-              padding={8}
-              paddingLeft={24}
-              width="100%"
-              maxWidth={500}
               display="flex"
               flexDirection="row"
-              alignItems="center"
-              gap={16}
-              border="1px solid rgba(255,255,255,0.1)"
-              style={{ backdropFilter: 'blur(10px)' }}
+              gap={48}
+              marginBottom={64}
+              flexWrap="wrap"
             >
-              <Text color="#666" flex={1}>
-                What is your work email?
-              </Text>
-              <Button
-                backgroundColor="#32CB08"
-                borderRadius={100}
-                paddingHorizontal={24}
-                paddingVertical={12}
-                onPress={() => {}}
-              >
-                <Text color="black" fontWeight="bold">
-                  Get Started
+              {/* Left - Headlines */}
+              <View flex={1} minWidth={300}>
+                {/* Kicker Badge */}
+                <Kicker>Scale with Ease</Kicker>
+                
+                {/* Main Headline */}
+                <Text
+                  fontSize={60}
+                  fontWeight="bold"
+                  color="#1a1a1a"
+                  lineHeight={1.1}
+                  marginTop={24}
+                >
+                  Join the communication revolution.
                 </Text>
-              </Button>
-            </View>
-          </Vertical>
+              </View>
 
-          {/* Background Graph Line */}
-          <View
-            position="absolute"
-            bottom={0}
-            left={0}
-            right={0}
-            height={300}
-            pointerEvents="none"
-            opacity={0.5}
-          >
-            <svg
-              width="100%"
-              height="100%"
-              viewBox="0 0 1000 200"
-              preserveAspectRatio="none"
-            >
-              <path
-                d="M0 150 Q 250 50 500 150 T 1000 150"
-                stroke="#32CB08"
-                strokeWidth="2"
-                fill="none"
+              {/* Right - Description and Form */}
+              <View flex={1} minWidth={300} display="flex" flexDirection="column" gap={32}>
+                <Text fontSize={18} color="#666666" lineHeight={1.6}>
+                  Slash your costs and transform your customer experience. The generative AI revolution is here. Don't get left behind.
+                </Text>
+                
+                {/* Email Input Form */}
+                <View position="relative">
+                  <View
+                    display="flex"
+                    flexDirection="row"
+                    alignItems="center"
+                    backgroundColor="white"
+                    borderRadius={50}
+                    border="2px solid rgba(26, 26, 26, 0.1)"
+                    paddingVertical={4}
+                    paddingHorizontal={4}
+                  >
+                    <input
+                      type="email"
+                      placeholder="What is your work email?"
+                      style={{
+                        flex: 1,
+                        padding: '16px 24px',
+                        backgroundColor: 'transparent',
+                        border: 'none',
+                        outline: 'none',
+                        fontSize: '16px',
+                        color: '#1a1a1a',
+                      }}
+                    />
+                    <View
+                      backgroundColor="#1a1a1a"
+                      borderRadius={50}
+                      paddingVertical={12}
+                      paddingHorizontal={24}
+                      cursor="pointer"
+                      display="flex"
+                      flexDirection="row"
+                      alignItems="center"
+                      gap={8}
+                    >
+                      <Text color="white" fontWeight="500">Get Started</Text>
+                      <Text color="#32CB08">▶</Text>
+                    </View>
+                  </View>
+                </View>
+              </View>
+            </View>
+
+            {/* Bottom Section - Graph and Photo Cards */}
+            <View position="relative" height={500} overflow="visible">
+              {/* Green Gradient Graph Line */}
+              <svg
+                style={{
+                  position: 'absolute',
+                  bottom: 0,
+                  left: 0,
+                  width: '100%',
+                  height: '100%',
+                }}
+                viewBox="0 0 1400 400"
+                preserveAspectRatio="none"
+              >
+                <defs>
+                  <linearGradient id="graphGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stopColor="#32CB08" stopOpacity="0.1" />
+                    <stop offset="50%" stopColor="#32CB08" stopOpacity="0.3" />
+                    <stop offset="100%" stopColor="#32CB08" stopOpacity="0.1" />
+                  </linearGradient>
+                </defs>
+                <path
+                  d="M0,350 Q200,320 400,280 T800,200 T1200,150 T1400,180"
+                  fill="none"
+                  stroke="url(#graphGradient)"
+                  strokeWidth="3"
+                />
+                <path
+                  d="M0,350 Q200,320 400,280 T800,200 T1200,150 T1400,180 L1400,400 L0,400 Z"
+                  fill="url(#graphGradient)"
+                  opacity="0.2"
+                />
+              </svg>
+
+              {/* Graph Cover (reveal animation) */}
+              <View
+                position="absolute"
+                bottom={0}
+                right={0}
+                height="100%"
+                width="100%"
+                backgroundColor="rgb(246, 246, 244)"
+                style={{ transformOrigin: '100% 50%' }}
+                animate={{
+                  timeline: 'view()',
+                  range: 'cover 0% cover 100%',
+                  fillMode: 'both',
+                  keyframes: {
+                    from: { transform: 'translateX(0%) scaleX(1)' },
+                    to: { transform: 'translateX(100%) scaleX(0)' },
+                  },
+                }}
               />
-            </svg>
+
+              {/* Floating Image Cards */}
+              {cardImages.map((src, index) => {
+                const pos = cardPositions[index];
+                
+                return (
+                  <View
+                    key={index}
+                    position="absolute"
+                    left={pos.left}
+                    bottom="-60%"
+                    width={200}
+                    height={250}
+                    borderRadius={24}
+                    overflow="hidden"
+                    boxShadow="0 20px 40px rgba(0,0,0,0.3)"
+                    style={{
+                      transform: `translateY(-90%) rotate(${pos.rotate}deg)`,
+                    }}
+                    animate={{
+                      timeline: 'view()',
+                      range: 'cover 0% cover 100%',
+                      fillMode: 'both',
+                      keyframes: {
+                        from: { transform: `translateY(-90%) rotate(${pos.rotate}deg)` },
+                        to: { transform: `translateY(${244.922 * (0.8 + index * 0.1) - 90}%) rotate(${pos.rotate}deg)` },
+                      },
+                    }}
+                  >
+                    <Image
+                      src={src}
+                      width="100%"
+                      height="100%"
+                      objectFit="cover"
+                    />
+                  </View>
+                );
+              })}
+            </View>
           </View>
         </View>
 
-        {/* The Reveal Footer - This footer is "sticky" or fixed behind the CTA */}
+        {/* Footer - Sits behind and is revealed as CTA shrinks */}
         <View
-          backgroundColor="black"
+          backgroundColor="#1a1a1a"
           paddingVertical={100}
           paddingHorizontal={80}
-          position="sticky"
-          bottom={0}
-          zIndex={1}
+          minHeight="100vh"
         >
-          <Vertical gap={64}>
-            <View display="flex" flexDirection="row" justifyContent="space-between" width="100%">
-              <Vertical gap={24}>
-                <Text fontSize={32} fontWeight="bold" color="white">
-                  Thoughtly
-                </Text>
-                <Text color="color.gray.500" maxWidth={300}>
-                  Building the future of communication with human-like AI agents.
-                </Text>
-              </Vertical>
+          <View maxWidth={1400} marginHorizontal="auto">
+            <Vertical gap={64}>
+              <View display="flex" flexDirection="row" justifyContent="space-between" flexWrap="wrap" gap={32}>
+                <Vertical gap={24}>
+                  <Text fontSize={32} fontWeight="bold" color="white">
+                    Thoughtly
+                  </Text>
+                  <Text color="rgba(255,255,255,0.5)" maxWidth={300}>
+                    Building the future of communication with human-like AI agents.
+                  </Text>
+                </Vertical>
 
-              <View display="flex" flexDirection="row" gap={48}>
-                <Vertical gap={16}>
-                  <Text color="white" fontWeight="bold">Product</Text>
-                  <Text color="color.gray.500">Features</Text>
-                  <Text color="color.gray.500">Pricing</Text>
-                  <Text color="color.gray.500">API</Text>
-                </Vertical>
-                <Vertical gap={16}>
-                  <Text color="white" fontWeight="bold">Company</Text>
-                  <Text color="color.gray.500">About</Text>
-                  <Text color="color.gray.500">Careers</Text>
-                  <Text color="color.gray.500">Blog</Text>
-                </Vertical>
-                <Vertical gap={16}>
-                  <Text color="white" fontWeight="bold">Social</Text>
-                  <Text color="color.gray.500">X (Twitter)</Text>
-                  <Text color="color.gray.500">LinkedIn</Text>
-                  <Text color="color.gray.500">Instagram</Text>
-                </Vertical>
+                <View display="flex" flexDirection="row" gap={48} flexWrap="wrap">
+                  <Vertical gap={16}>
+                    <Text color="white" fontWeight="bold">Product</Text>
+                    <Text color="rgba(255,255,255,0.5)">Features</Text>
+                    <Text color="rgba(255,255,255,0.5)">Pricing</Text>
+                    <Text color="rgba(255,255,255,0.5)">API</Text>
+                  </Vertical>
+                  <Vertical gap={16}>
+                    <Text color="white" fontWeight="bold">Company</Text>
+                    <Text color="rgba(255,255,255,0.5)">About</Text>
+                    <Text color="rgba(255,255,255,0.5)">Careers</Text>
+                    <Text color="rgba(255,255,255,0.5)">Blog</Text>
+                  </Vertical>
+                  <Vertical gap={16}>
+                    <Text color="white" fontWeight="bold">Social</Text>
+                    <Text color="rgba(255,255,255,0.5)">X (Twitter)</Text>
+                    <Text color="rgba(255,255,255,0.5)">LinkedIn</Text>
+                    <Text color="rgba(255,255,255,0.5)">Instagram</Text>
+                  </Vertical>
+                </View>
               </View>
-            </View>
 
-            <View
-              borderTop="1px solid #333"
-              paddingTop={32}
-              display="flex"
-              flexDirection="row"
-              justifyContent="space-between"
-              alignItems="center"
-            >
-              <Text color="color.gray.600">
-                © 2024 Thoughtly AI. All rights reserved.
-              </Text>
-              <View display="flex" flexDirection="row" gap={24}>
-                <Text color="color.gray.600">Privacy Policy</Text>
-                <Text color="color.gray.600">Terms of Service</Text>
+              <View
+                borderTop="1px solid rgba(255,255,255,0.1)"
+                paddingTop={32}
+                display="flex"
+                flexDirection="row"
+                justifyContent="space-between"
+                alignItems="center"
+                flexWrap="wrap"
+                gap={16}
+              >
+                <Text color="rgba(255,255,255,0.4)">
+                  © {new Date().getFullYear()} Thoughtly, Inc
+                </Text>
+                <View display="flex" flexDirection="row" gap={24}>
+                  <Text color="rgba(255,255,255,0.4)">Privacy Policy</Text>
+                  <Text color="rgba(255,255,255,0.4)">Terms of Service</Text>
+                </View>
               </View>
-            </View>
-          </Vertical>
+            </Vertical>
+          </View>
         </View>
       </View>
     </View>

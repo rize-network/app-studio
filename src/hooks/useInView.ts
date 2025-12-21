@@ -2,10 +2,16 @@ import { useRef, useState, useEffect } from 'react';
 
 interface InViewOptions extends IntersectionObserverInit {
   triggerOnce?: boolean;
+  /** Optional target window to use (for iframe support). Defaults to global window. */
+  targetWindow?: Window;
 }
 
 export function useInView(options?: InViewOptions) {
-  const { triggerOnce = false, ...observerOptions } = options || {};
+  const {
+    triggerOnce = false,
+    targetWindow,
+    ...observerOptions
+  } = options || {};
   const ref = useRef<HTMLElement>(null);
   const [inView, setInView] = useState(false);
 
@@ -13,26 +19,39 @@ export function useInView(options?: InViewOptions) {
     const element = ref.current;
     if (!element) return;
 
-    const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) {
-        setInView(true);
+    // If targetWindow is provided and root is not explicitly set,
+    // use the target window's document as the root
+    const win = targetWindow || element.ownerDocument?.defaultView || window;
+    const effectiveRoot =
+      observerOptions.root !== undefined
+        ? observerOptions.root
+        : targetWindow
+          ? win.document.documentElement
+          : undefined;
 
-        // If triggerOnce is true, disconnect the observer once the element is in view
-        if (triggerOnce) {
-          observer.disconnect();
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setInView(true);
+
+          // If triggerOnce is true, disconnect the observer once the element is in view
+          if (triggerOnce) {
+            observer.disconnect();
+          }
+        } else if (!triggerOnce) {
+          // Only update to false if not using triggerOnce
+          setInView(false);
         }
-      } else if (!triggerOnce) {
-        // Only update to false if not using triggerOnce
-        setInView(false);
-      }
-    }, observerOptions);
+      },
+      { ...observerOptions, root: effectiveRoot }
+    );
 
     observer.observe(element);
 
     return () => {
       observer.disconnect();
     };
-  }, [triggerOnce, ...Object.values(observerOptions || {})]);
+  }, [triggerOnce, targetWindow, ...Object.values(observerOptions || {})]);
 
   return { ref, inView };
 }

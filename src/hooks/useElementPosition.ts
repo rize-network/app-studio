@@ -23,6 +23,8 @@ export interface UseElementPositionOptions {
   trackOnScroll?: boolean;
   /** Whether to track on resize events. Default: false */
   trackOnResize?: boolean;
+  /** Optional target window to use (for iframe support). Defaults to global window. */
+  targetWindow?: Window;
 }
 
 // Return type of the hook
@@ -51,6 +53,7 @@ export function useElementPosition<T extends HTMLElement = HTMLElement>(
     trackOnHover = true,
     trackOnScroll = false,
     trackOnResize = false,
+    targetWindow,
   } = options;
 
   const elementRef = useRef<T>(null);
@@ -66,9 +69,11 @@ export function useElementPosition<T extends HTMLElement = HTMLElement>(
       return;
     }
 
+    const win = targetWindow || element.ownerDocument?.defaultView || window;
+
     const rect = element.getBoundingClientRect();
-    const viewportHeight = window.innerHeight;
-    const viewportWidth = window.innerWidth;
+    const viewportHeight = win.innerHeight;
+    const viewportWidth = win.innerWidth;
 
     // 1. Determine element's general position in viewport
     const elementCenterY = rect.top + rect.height / 2;
@@ -106,7 +111,7 @@ export function useElementPosition<T extends HTMLElement = HTMLElement>(
       }
       return newRelation;
     });
-  }, []); // This callback is stable
+  }, [targetWindow]); // This callback is stable
 
   const throttledUpdate = useCallback(() => {
     if (throttleTimerRef.current) {
@@ -129,6 +134,7 @@ export function useElementPosition<T extends HTMLElement = HTMLElement>(
     const element = elementRef.current;
     if (!element) return;
 
+    const win = targetWindow || element.ownerDocument?.defaultView || window;
     const handler = throttledUpdate;
     const immediateHandler = calculateRelation;
 
@@ -147,17 +153,17 @@ export function useElementPosition<T extends HTMLElement = HTMLElement>(
 
     // Scroll events - throttled
     if (trackOnScroll) {
-      window.addEventListener('scroll', handler, { passive: true });
+      win.addEventListener('scroll', handler, { passive: true });
       cleanupFunctions.push(() => {
-        window.removeEventListener('scroll', handler);
+        win.removeEventListener('scroll', handler);
       });
     }
 
     // Resize events - throttled
     if (trackOnResize) {
-      window.addEventListener('resize', handler);
+      win.addEventListener('resize', handler);
       cleanupFunctions.push(() => {
-        window.removeEventListener('resize', handler);
+        win.removeEventListener('resize', handler);
       });
     }
 
@@ -174,6 +180,7 @@ export function useElementPosition<T extends HTMLElement = HTMLElement>(
     trackOnResize,
     throttledUpdate,
     calculateRelation,
+    targetWindow,
   ]);
 
   const manualUpdateRelation = useCallback(() => {

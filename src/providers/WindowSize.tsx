@@ -2,18 +2,31 @@ import React, { ReactNode, createContext, useState, useEffect } from 'react';
 
 export const WindowSizeContext = createContext({ width: 0, height: 0 });
 
-export const WindowSizeProvider = ({ children }: { children: ReactNode }) => {
+export interface WindowSizeProviderProps {
+  children: ReactNode;
+  /** Optional target window to track (for iframe support). Defaults to global window. */
+  targetWindow?: Window;
+}
+
+export const WindowSizeProvider = ({
+  children,
+  targetWindow,
+}: WindowSizeProviderProps) => {
+  const win = targetWindow || (typeof window !== 'undefined' ? window : null);
+
   const [size, setSize] = useState({
-    width: window.innerWidth,
-    height: window.innerHeight,
+    width: win?.innerWidth || 0,
+    height: win?.innerHeight || 0,
   });
 
   useEffect(() => {
+    if (!win) return;
+
     const handleResize = () =>
-      setSize({ width: window.innerWidth, height: window.innerHeight });
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+      setSize({ width: win.innerWidth, height: win.innerHeight });
+    win.addEventListener('resize', handleResize);
+    return () => win.removeEventListener('resize', handleResize);
+  }, [win]);
 
   return (
     <WindowSizeContext.Provider value={size}>

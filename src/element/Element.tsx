@@ -7,13 +7,91 @@ import React, {
   useState,
 } from 'react';
 import { useTheme } from '../providers/Theme';
-import { useResponsiveContext } from '../providers/Responsive';
+import { useBreakpointContext } from '../providers/Responsive';
 import { useStyleRegistry } from '../providers/StyleRegistry';
 
 import { isStyleProp } from '../utils/style';
 import { excludedKeys, includeKeys } from '../utils/constants';
 import { extractUtilityClasses, AnimationUtils } from './css';
 import { useAnalytics } from '../providers/Analytics';
+import { hash } from '../utils/hash';
+
+/**
+ * Computes a stable hash of style-relevant props.
+ * This is used to determine if style extraction needs to be re-run.
+ */
+function hashStyleProps(props: Record<string, any>): string {
+  // Build a deterministic string representation of style-relevant props
+  const parts: string[] = [];
+
+  const sortedKeys = Object.keys(props).sort();
+
+  for (const key of sortedKeys) {
+    // Skip non-style props that don't affect CSS generation
+    if (key === 'children' || key === 'ref' || key === 'key') continue;
+
+    // Include style-relevant props
+    if (
+      isStyleProp(key) ||
+      key.startsWith('_') ||
+      key === 'on' ||
+      key === 'media' ||
+      key === 'animate' ||
+      key === 'css' ||
+      key === 'shadow' ||
+      key === 'blend' ||
+      key === 'widthHeight' ||
+      key === 'paddingHorizontal' ||
+      key === 'paddingVertical' ||
+      key === 'marginHorizontal' ||
+      key === 'marginVertical'
+    ) {
+      const value = props[key];
+      if (value !== undefined) {
+        // Use JSON.stringify for consistent serialization
+        parts.push(`${key}:${JSON.stringify(value)}`);
+      }
+    }
+  }
+
+  return hash(parts.join('|'));
+}
+
+/**
+ * Custom hook that memoizes style extraction based on a stable hash of props.
+ * Only recalculates when the hash of style-relevant props changes.
+ */
+function useStableStyleMemo(
+  propsToProcess: Record<string, any>,
+  getColor: (color: string) => string,
+  mediaQueries: Record<string, string>,
+  devices: Record<string, string[]>,
+  manager: any,
+  theme: any
+): string[] {
+  const cacheRef = useRef<{ hash: string; classes: string[] } | null>(null);
+
+  // Compute hash of current props
+  const currentHash = useMemo(() => {
+    // Include theme in hash to bust cache on theme changes
+    const themeHash = theme ? JSON.stringify(theme) : '';
+    return hashStyleProps(propsToProcess) + '|' + hash(themeHash);
+  }, [propsToProcess, theme]);
+
+  // Only recompute classes if hash changed
+  if (!cacheRef.current || cacheRef.current.hash !== currentHash) {
+    const classes = extractUtilityClasses(
+      propsToProcess,
+      getColor,
+      mediaQueries,
+      devices,
+      manager
+    );
+    cacheRef.current = { hash: currentHash, classes };
+  }
+
+  return cacheRef.current.classes;
+}
 
 import { ElementProps, CssProps } from './Element.types';
 
@@ -40,17 +118,14 @@ export const Element = React.memo(
         typeof props.children === 'string' &&
         (as === 'span' || as === 'div' || as === 'sub' || as === 'sup')
       ) {
-
-        const otherMediaProps =  {
+        const otherMediaProps = {
           ...(props.on || {}),
-          ...(props.media || {})
-        }
-        
+          ...(props.media || {}),
+        };
+
         if (otherMediaProps.color === undefined) {
           blend = true;
         }
-
-       
       }
       const elementRef = useRef<HTMLElement | null>(null);
       const setRef = useCallback(
@@ -66,11 +141,9 @@ export const Element = React.memo(
       );
       const { getColor, theme } = useTheme();
       const { trackEvent } = useAnalytics();
-      const { mediaQueries, devices } = useResponsiveContext();
+      const { mediaQueries, devices } = useBreakpointContext();
       const { manager } = useStyleRegistry();
       const [isVisible, setIsVisible] = useState(false);
-
-      console.log({ mediaQueries, devices});
 
       useEffect(() => {
         if (!animateIn) {
@@ -127,19 +200,20 @@ export const Element = React.memo(
         };
       }, [animateOut, manager]);
 
-      const utilityClasses = useMemo(() => {
-        const propsToProcess = {
+      // Prepare props for processing (apply view/scroll timeline if needed)
+      const propsToProcess = useMemo(() => {
+        const processed: Record<string, any> = {
           ...rest,
           blend,
         };
 
         // Apply view() timeline ONLY if animateOn='View' (not Both or Mount)
-        if (animateOn === 'View' && propsToProcess.animate) {
-          const animations = Array.isArray(propsToProcess.animate)
-            ? propsToProcess.animate
-            : [propsToProcess.animate];
+        if (animateOn === 'View' && processed.animate) {
+          const animations = Array.isArray(processed.animate)
+            ? processed.animate
+            : [processed.animate];
 
-          propsToProcess.animate = animations.map((anim) => {
+          processed.animate = animations.map((anim) => {
             // Only add timeline if not already specified
             if (!anim.timeline) {
               return {
@@ -154,12 +228,12 @@ export const Element = React.memo(
         }
 
         // Apply scroll() timeline if animateOn='Scroll'
-        if (animateOn === 'Scroll' && propsToProcess.animate) {
-          const animations = Array.isArray(propsToProcess.animate)
-            ? propsToProcess.animate
-            : [propsToProcess.animate];
+        if (animateOn === 'Scroll' && processed.animate) {
+          const animations = Array.isArray(processed.animate)
+            ? processed.animate
+            : [processed.animate];
 
-          propsToProcess.animate = animations.map((anim) => {
+          processed.animate = animations.map((anim) => {
             // Only add timeline if not already specified
             if (!anim.timeline) {
               return {
@@ -172,16 +246,18 @@ export const Element = React.memo(
           });
         }
 
-        return extractUtilityClasses(
-          propsToProcess,
-          (color: string) => {
-            return getColor(color);
-          },
-          mediaQueries,
-          devices,
-          manager
-        );
-      }, [rest, blend, animateOn, mediaQueries, devices, theme, manager]);
+        return processed;
+      }, [rest, blend, animateOn]);
+
+      // Use hash-based memoization for style extraction
+      const utilityClasses = useStableStyleMemo(
+        propsToProcess,
+        getColor,
+        mediaQueries,
+        devices,
+        manager,
+        theme
+      );
 
       const newProps: any = { ref: setRef };
       if (onPress) {

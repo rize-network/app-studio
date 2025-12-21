@@ -6,6 +6,7 @@ import React, {
   useMemo,
   useState,
   useEffect,
+  useRef,
 } from 'react';
 
 // Define Types
@@ -33,6 +34,24 @@ const defaultDeviceConfig: DeviceConfig = {
 
 export type QueryConfig = Record<string, string>;
 
+// Split context types for optimized re-renders
+// BreakpointConfig changes rarely (only when crossing breakpoint thresholds)
+export type BreakpointConfig = {
+  breakpoints: ResponsiveConfig;
+  devices: DeviceConfig;
+  mediaQueries: QueryConfig;
+  currentBreakpoint: keyof ResponsiveConfig;
+  currentDevice: DeviceType;
+  orientation: ScreenOrientation;
+};
+
+// WindowDimensions changes often (on every resize)
+export type WindowDimensions = {
+  width: number;
+  height: number;
+};
+
+// Combined ScreenConfig for backward compatibility
 export type ScreenConfig = {
   breakpoints: ResponsiveConfig;
   devices: DeviceConfig;
@@ -101,34 +120,72 @@ const getBreakpointFromWidth = (
   width: number,
   breakpoints: ResponsiveConfig
 ): string => {
-  // console.log('[ResponsiveProvider] Computing breakpoint for width:', width);
-  // console.log('[ResponsiveProvider] Breakpoints config:', breakpoints);
-
   const sortedBreakpoints = Object.entries(breakpoints).sort(
     ([, a], [, b]) => b - a
   ); // Sort descending by min value
 
-  // console.log('[ResponsiveProvider] Sorted breakpoints:', sortedBreakpoints);
-
   for (const [name, minWidth] of sortedBreakpoints) {
     if (width >= minWidth) {
-      // console.log(
-      //   '[ResponsiveProvider] ✓ Match found:',
-      //   name,
-      //   'for width',
-      //   width,
-      //   '>= minWidth',
-      //   minWidth
-      // );
       return name;
     }
   }
   const fallback = sortedBreakpoints[sortedBreakpoints.length - 1]?.[0] || 'xs';
-  // console.log('[ResponsiveProvider] No match, using fallback:', fallback);
   return fallback;
 };
 
-// Create the Context with default values
+// ============================================================================
+// SPLIT CONTEXTS FOR OPTIMIZED RE-RENDERS
+// ============================================================================
+
+// BreakpointContext - changes rarely (only on breakpoint threshold crossing)
+const defaultBreakpointConfig: BreakpointConfig = {
+  breakpoints: defaultBreakpointsConfig,
+  devices: defaultDeviceConfig,
+  mediaQueries: getMediaQueries(defaultBreakpointsConfig),
+  currentBreakpoint: 'xs',
+  currentDevice: 'mobile',
+  orientation: 'portrait',
+};
+
+export const BreakpointContext = createContext<BreakpointConfig>(
+  defaultBreakpointConfig
+);
+
+// WindowDimensionsContext - changes often (on every resize)
+const defaultWindowDimensions: WindowDimensions = {
+  width: 0,
+  height: 0,
+};
+
+export const WindowDimensionsContext = createContext<WindowDimensions>(
+  defaultWindowDimensions
+);
+
+// ============================================================================
+// HOOKS FOR SPLIT CONTEXTS
+// ============================================================================
+
+/**
+ * Hook to access breakpoint information only.
+ * Components using this hook will NOT re-render on every resize,
+ * only when the breakpoint actually changes.
+ */
+export const useBreakpointContext = (): BreakpointConfig =>
+  useContext(BreakpointContext);
+
+/**
+ * Hook to access window dimensions.
+ * Components using this hook WILL re-render on every resize.
+ * Use sparingly - prefer useBreakpointContext when possible.
+ */
+export const useWindowDimensionsContext = (): WindowDimensions =>
+  useContext(WindowDimensionsContext);
+
+// ============================================================================
+// LEGACY CONTEXT FOR BACKWARD COMPATIBILITY
+// ============================================================================
+
+// Create the combined Context with default values (for backward compatibility)
 export const ResponsiveContext = createContext<ScreenConfig>({
   breakpoints: defaultBreakpointsConfig,
   devices: defaultDeviceConfig,
@@ -140,32 +197,53 @@ export const ResponsiveContext = createContext<ScreenConfig>({
   orientation: 'portrait',
 });
 
-// Custom Hook to Access the Responsive Context
+/**
+ * Legacy hook for backward compatibility.
+ * Prefer useBreakpointContext for better performance.
+ * @deprecated Use useBreakpointContext instead for better performance
+ */
 export const useResponsiveContext = (): ScreenConfig =>
   useContext(ResponsiveContext);
+
+// ============================================================================
+// PROVIDER
+// ============================================================================
+
+export interface ResponsiveProviderProps {
+  breakpoints?: ResponsiveConfig;
+  devices?: DeviceConfig;
+  children: ReactNode;
+  /** Optional target window to track (for iframe support). Defaults to global window. */
+  targetWindow?: Window;
+}
+
 export const ResponsiveProvider = ({
   breakpoints = defaultBreakpointsConfig,
   devices = defaultDeviceConfig,
   children,
-}: {
-  breakpoints?: ResponsiveConfig;
-  devices?: DeviceConfig;
-  children: ReactNode;
-}) => {
+  targetWindow,
+}: ResponsiveProviderProps) => {
+  const win = targetWindow || (typeof window !== 'undefined' ? window : null);
+
+  // Track current breakpoint - only updates when crossing thresholds
   const [screen, setScreen] = useState(() => {
-    // Initialize with correct breakpoint instead of hardcoded 'xs'
-    if (typeof window !== 'undefined') {
-      return getBreakpointFromWidth(window.innerWidth, breakpoints);
+    if (win) {
+      return getBreakpointFromWidth(win.innerWidth, breakpoints);
     }
     return 'xs';
   });
-  const [orientation, setOrientation] = useState(
-    'portrait' as ScreenOrientation
-  );
-  const [size, setSize] = useState({
-    width: typeof window !== 'undefined' ? window.innerWidth : 0,
-    height: typeof window !== 'undefined' ? window.innerHeight : 0,
+
+  // Track orientation - rarely changes
+  const [orientation, setOrientation] = useState<ScreenOrientation>('portrait');
+
+  // Track window dimensions - changes often
+  const [dimensions, setDimensions] = useState<WindowDimensions>({
+    width: win?.innerWidth || 0,
+    height: win?.innerHeight || 0,
   });
+
+  // Use ref to track previous breakpoint to avoid unnecessary state updates
+  const prevBreakpointRef = useRef(screen);
 
   const mediaQueries = useMemo(
     () => getMediaQueries(breakpoints),
@@ -173,38 +251,34 @@ export const ResponsiveProvider = ({
   );
 
   useEffect(() => {
-    // console.log('[ResponsiveProvider] useEffect running - initial setup');
+    if (!win) return;
+
     // Set initial screen size immediately based on window width
-    const initialScreen = getBreakpointFromWidth(
-      window.innerWidth,
-      breakpoints
-    );
-    // console.log(
-    //   '[ResponsiveProvider] Setting initial screen to:',
-    //   initialScreen
-    // );
+    const initialScreen = getBreakpointFromWidth(win.innerWidth, breakpoints);
     setScreen(initialScreen);
+    prevBreakpointRef.current = initialScreen;
 
     const handleResize = () => {
-      const newWidth = window.innerWidth;
-      const newHeight = window.innerHeight;
-      // console.log('[ResponsiveProvider] Resize event - new dimensions:', {
-      //   width: newWidth,
-      //   height: newHeight,
-      // });
-      setSize({ width: newWidth, height: newHeight });
+      const newWidth = win.innerWidth;
+      const newHeight = win.innerHeight;
 
-      // Update screen on resize
+      // Always update dimensions (WindowDimensionsContext will re-render)
+      setDimensions({ width: newWidth, height: newHeight });
+
+      // Only update breakpoint if it actually changed
+      // This prevents BreakpointContext from causing unnecessary re-renders
       const newScreen = getBreakpointFromWidth(newWidth, breakpoints);
-      // console.log('[ResponsiveProvider] Setting screen to:', newScreen);
-      setScreen(newScreen);
+      if (newScreen !== prevBreakpointRef.current) {
+        prevBreakpointRef.current = newScreen;
+        setScreen(newScreen);
+      }
     };
 
     const debouncedResize = debounce(handleResize, 100);
-    window.addEventListener('resize', debouncedResize);
+    win.addEventListener('resize', debouncedResize);
 
     // Set up orientation listener
-    const orientationMql = window.matchMedia('(orientation: landscape)');
+    const orientationMql = win.matchMedia('(orientation: landscape)');
     const onOrientationChange = () =>
       setOrientation(orientationMql.matches ? 'landscape' : 'portrait');
 
@@ -217,33 +291,59 @@ export const ResponsiveProvider = ({
     onOrientationChange();
 
     return () => {
-      window.removeEventListener('resize', debouncedResize);
+      win.removeEventListener('resize', debouncedResize);
       if (orientationMql.removeEventListener) {
         orientationMql.removeEventListener('change', onOrientationChange);
       } else {
         orientationMql.removeListener(onOrientationChange);
       }
     };
-  }, [breakpoints]); // Removed mediaQueries dep since we now use direct width comparison
+  }, [breakpoints, win]);
 
-  const value = useMemo(() => {
-    const contextValue = {
+  // Breakpoint context value - only updates when breakpoint/orientation changes
+  const breakpointValue = useMemo<BreakpointConfig>(
+    () => ({
       breakpoints,
       devices,
       mediaQueries,
-      currentWidth: size.width,
-      currentHeight: size.height,
       currentBreakpoint: screen,
       currentDevice: determineCurrentDevice(screen, devices),
       orientation,
-    };
+    }),
+    [breakpoints, devices, mediaQueries, screen, orientation]
+  );
 
-    return contextValue;
-  }, [breakpoints, devices, mediaQueries, size, screen, orientation]);
+  // Window dimensions context value - updates on every resize
+  const dimensionsValue = useMemo<WindowDimensions>(
+    () => ({
+      width: dimensions.width,
+      height: dimensions.height,
+    }),
+    [dimensions.width, dimensions.height]
+  );
+
+  // Combined legacy context value for backward compatibility
+  const legacyValue = useMemo<ScreenConfig>(
+    () => ({
+      breakpoints,
+      devices,
+      mediaQueries,
+      currentWidth: dimensions.width,
+      currentHeight: dimensions.height,
+      currentBreakpoint: screen,
+      currentDevice: determineCurrentDevice(screen, devices),
+      orientation,
+    }),
+    [breakpoints, devices, mediaQueries, dimensions, screen, orientation]
+  );
 
   return (
-    <ResponsiveContext.Provider value={value}>
-      {children}
-    </ResponsiveContext.Provider>
+    <BreakpointContext.Provider value={breakpointValue}>
+      <WindowDimensionsContext.Provider value={dimensionsValue}>
+        <ResponsiveContext.Provider value={legacyValue}>
+          {children}
+        </ResponsiveContext.Provider>
+      </WindowDimensionsContext.Provider>
+    </BreakpointContext.Provider>
   );
 };

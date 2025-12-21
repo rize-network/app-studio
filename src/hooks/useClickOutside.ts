@@ -1,13 +1,23 @@
 import { useRef, useState, useEffect } from 'react';
 
-export function useClickOutside<T extends HTMLElement = HTMLElement>(): [
-  React.RefObject<T>,
-  boolean,
-] {
+export interface UseClickOutsideOptions {
+  /** Optional target window to use (for iframe support). Defaults to global window. */
+  targetWindow?: Window;
+}
+
+export function useClickOutside<T extends HTMLElement = HTMLElement>(
+  options?: UseClickOutsideOptions
+): [React.RefObject<T>, boolean] {
   const [clickedOutside, setClickedOutside] = useState(false);
   const ref = useRef<T>(null);
+  const { targetWindow } = options || {};
 
   useEffect(() => {
+    const win = targetWindow || (typeof window !== 'undefined' ? window : null);
+    if (!win) return;
+
+    const doc = win.document;
+
     const handleClick = (e: MouseEvent) => {
       if (ref.current && !ref.current.contains(e.target as Node)) {
         setClickedOutside(true);
@@ -16,11 +26,11 @@ export function useClickOutside<T extends HTMLElement = HTMLElement>(): [
       }
     };
 
-    document.addEventListener('mousedown', handleClick);
+    doc.addEventListener('mousedown', handleClick);
     return () => {
-      document.removeEventListener('mousedown', handleClick);
+      doc.removeEventListener('mousedown', handleClick);
     };
-  }, []);
+  }, [targetWindow]);
 
   return [ref, clickedOutside];
 }

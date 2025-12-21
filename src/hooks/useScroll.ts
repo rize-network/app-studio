@@ -247,26 +247,31 @@ export const useScrollAnimation = (
 };
 
 // Enhanced useSmoothScroll with error handling
-export const useSmoothScroll = () => {
-  return useCallback((element: HTMLElement | null, offset = 0) => {
-    if (!element) return;
+export const useSmoothScroll = (targetWindow?: Window) => {
+  return useCallback(
+    (element: HTMLElement | null, offset = 0) => {
+      if (!element) return;
 
-    try {
-      const top =
-        element.getBoundingClientRect().top +
-        (window.scrollY || window.pageYOffset) -
-        offset;
+      try {
+        const win =
+          targetWindow || element.ownerDocument?.defaultView || window;
+        const top =
+          element.getBoundingClientRect().top +
+          (win.scrollY || win.pageYOffset) -
+          offset;
 
-      if ('scrollBehavior' in document.documentElement.style) {
-        window.scrollTo({ top, behavior: 'smooth' });
-      } else {
-        // Fallback for browsers that don't support smooth scrolling
-        window.scrollTo(0, top);
+        if ('scrollBehavior' in win.document.documentElement.style) {
+          win.scrollTo({ top, behavior: 'smooth' });
+        } else {
+          // Fallback for browsers that don't support smooth scrolling
+          win.scrollTo(0, top);
+        }
+      } catch (error) {
+        console.error('Error during smooth scroll:', error);
       }
-    } catch (error) {
-      console.error('Error during smooth scroll:', error);
-    }
-  }, []);
+    },
+    [targetWindow]
+  );
 };
 
 // Enhanced useInfiniteScroll with debouncing
@@ -327,21 +332,24 @@ export const useInfiniteScroll = (
   return { sentinelRef: setSentinel };
 };
 
-export const useScrollDirection = (threshold = 5) => {
+export const useScrollDirection = (threshold = 5, targetWindow?: Window) => {
   const [scrollDirection, setScrollDirection] = useState<'up' | 'down'>('up');
   const lastScrollY = useRef(0);
   const lastDirection = useRef<'up' | 'down'>('up');
   const animationFrame = useRef<number>();
   const ticking = useRef(false);
 
-  const updateDirection = () => {
-    const scrollY = window.scrollY || document.documentElement.scrollTop;
+  const updateDirection = useCallback(() => {
+    const win = targetWindow || (typeof window !== 'undefined' ? window : null);
+    if (!win) return;
+
+    const doc = win.document.documentElement;
+    const scrollY = win.scrollY || doc.scrollTop;
     const direction = scrollY > lastScrollY.current ? 'down' : 'up';
     const scrollDelta = Math.abs(scrollY - lastScrollY.current);
 
     // Vérifier si on est au bas de la page
-    const isAtBottom =
-      window.innerHeight + scrollY >= document.documentElement.scrollHeight - 1;
+    const isAtBottom = win.innerHeight + scrollY >= doc.scrollHeight - 1;
 
     // Logique principale
     if (scrollDelta > threshold || (direction === 'down' && isAtBottom)) {
@@ -354,9 +362,12 @@ export const useScrollDirection = (threshold = 5) => {
     // Mise à jour de la position avec un minimum de 0
     lastScrollY.current = Math.max(scrollY, 0);
     ticking.current = false;
-  };
+  }, [threshold, targetWindow]);
 
   useEffect(() => {
+    const win = targetWindow || (typeof window !== 'undefined' ? window : null);
+    if (!win) return;
+
     const handleScroll = () => {
       if (!ticking.current) {
         animationFrame.current = requestAnimationFrame(() => {
@@ -367,14 +378,14 @@ export const useScrollDirection = (threshold = 5) => {
       }
     };
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
+    win.addEventListener('scroll', handleScroll, { passive: true });
     return () => {
-      window.removeEventListener('scroll', handleScroll);
+      win.removeEventListener('scroll', handleScroll);
       if (animationFrame.current) {
         cancelAnimationFrame(animationFrame.current);
       }
     };
-  }, [threshold]);
+  }, [updateDirection, targetWindow]);
 
   return scrollDirection;
 };
