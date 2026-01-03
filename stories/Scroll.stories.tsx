@@ -18,7 +18,7 @@ const ScrollExample = () => {
   const sectionTwoRef = useRef<HTMLDivElement>(null);
   const smoothScroll = useSmoothScroll();
   const scrollDirection = useScrollDirection(10);
-  const scroll = useScroll();
+  const scroll = useScroll({ container: containerRef });
   // const scroll = useScroll();
 
   const { isInView, progress } = useScrollAnimation(sectionRef, {

@@ -88,7 +88,6 @@ const ThoughtlyFooterContent = () => {
     'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=496&h=624&fit=crop',
   ];
 
-  // Card positions (rotations and offsets)
   const cardPositions = [
     { rotate: -12, left: '5%' },
     { rotate: -6, left: '20%' },
@@ -98,35 +97,32 @@ const ThoughtlyFooterContent = () => {
   ];
 
   return (
-    <View height="300vh" backgroundColor="#000" position="relative">
-      {/* Spacer content before the CTA */}
-      <View height="100vh" backgroundColor="color.gray.900" padding={100}>
+    <View height="300vh"  position="relative">
+      {/* Spacer content */}
+      <View height="100vh" backgroundColor="color.gray.900" padding={100} display="flex" flexDirection="column" justifyContent="center">
         <Text fontSize={48} fontWeight="bold" color="white" textAlign="center">
           Scroll down to see the <br /> Animation
         </Text>
         <Text color="color.gray.400" textAlign="center" marginTop={20}>
-          The CTA section scales down from 1.0 to 0.8 and rounds its corners <br /> as you scroll, revealing the footer underneath.
+          The CTA section scales down from 1.0 to 0.8 and rounds its corners <br /> as you scroll using CSS scroll() timeline.
         </Text>
       </View>
 
       {/* Container for the animated CTA and footer */}
       <View position="relative" height="200vh">
-        {/* CTA Section - Animated wrapper that scales and rounds */}
+        {/* CTA Section - Animated wrapper using CSS scroll timeline */}
         <View
           backgroundColor="rgb(246, 246, 244)"
-          minHeight="100vh"
-          position="sticky"
+          minHeight="80vh"
           top={0}
           zIndex={2}
-          paddingTop={80}
           paddingHorizontal={80}
-          paddingBottom={182}
+         paddingVertical={80}
           overflow="hidden"
           style={{ transformOrigin: '50% 100%' }}
           animate={{
-            timeline: 'view()',
-            range: 'exit 0% exit 100%',
-            fillMode: 'both',
+            timeline: 'scroll()',
+            range: 'exit 80% exit 100%',
             keyframes: {
               from: {
                 transform: 'translate3d(0px, 0px, 0px) scale(1, 1)',
@@ -134,7 +130,7 @@ const ThoughtlyFooterContent = () => {
                 borderBottomLeftRadius: '0px',
               },
               to: {
-                transform: 'translate3d(0px, -18.5547px, 0px) scale(0.8, 0.8)',
+                transform: 'translate3d(0px, -18.5px, 0px) scale(0.8, 0.8)',
                 borderBottomRightRadius: '74px',
                 borderBottomLeftRadius: '74px',
               },
@@ -153,10 +149,7 @@ const ThoughtlyFooterContent = () => {
             >
               {/* Left - Headlines */}
               <View flex={1} minWidth={300}>
-                {/* Kicker Badge */}
                 <Kicker>Scale with Ease</Kicker>
-                
-                {/* Main Headline */}
                 <Text
                   fontSize={60}
                   fontWeight="bold"
@@ -233,7 +226,7 @@ const ThoughtlyFooterContent = () => {
                 preserveAspectRatio="none"
               >
                 <defs>
-                  <linearGradient id="graphGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <linearGradient id="graphGradient2" x1="0%" y1="0%" x2="100%" y2="0%">
                     <stop offset="0%" stopColor="#32CB08" stopOpacity="0.1" />
                     <stop offset="50%" stopColor="#32CB08" stopOpacity="0.3" />
                     <stop offset="100%" stopColor="#32CB08" stopOpacity="0.1" />
@@ -242,17 +235,17 @@ const ThoughtlyFooterContent = () => {
                 <path
                   d="M0,350 Q200,320 400,280 T800,200 T1200,150 T1400,180"
                   fill="none"
-                  stroke="url(#graphGradient)"
+                  stroke="url(#graphGradient2)"
                   strokeWidth="3"
                 />
                 <path
                   d="M0,350 Q200,320 400,280 T800,200 T1200,150 T1400,180 L1400,400 L0,400 Z"
-                  fill="url(#graphGradient)"
+                  fill="url(#graphGradient2)"
                   opacity="0.2"
                 />
               </svg>
 
-              {/* Graph Cover (reveal animation) */}
+              {/* Graph Cover (reveal animation using scroll timeline) */}
               <View
                 position="absolute"
                 bottom={0}
@@ -262,9 +255,8 @@ const ThoughtlyFooterContent = () => {
                 backgroundColor="rgb(246, 246, 244)"
                 style={{ transformOrigin: '100% 50%' }}
                 animate={{
-                  timeline: 'view()',
+                  timeline: 'scroll()',
                   range: 'cover 0% cover 100%',
-                  fillMode: 'both',
                   keyframes: {
                     from: { transform: 'translateX(0%) scaleX(1)' },
                     to: { transform: 'translateX(100%) scaleX(0)' },
@@ -272,7 +264,7 @@ const ThoughtlyFooterContent = () => {
                 }}
               />
 
-              {/* Floating Image Cards */}
+              {/* Floating Image Cards with scroll-driven parallax */}
               {cardImages.map((src, index) => {
                 const pos = cardPositions[index];
                 
@@ -291,9 +283,8 @@ const ThoughtlyFooterContent = () => {
                       transform: `translateY(-90%) rotate(${pos.rotate}deg)`,
                     }}
                     animate={{
-                      timeline: 'view()',
+                      timeline: 'scroll()',
                       range: 'cover 0% cover 100%',
-                      fillMode: 'both',
                       keyframes: {
                         from: { transform: `translateY(-90%) rotate(${pos.rotate}deg)` },
                         to: { transform: `translateY(${244.922 * (0.8 + index * 0.1) - 90}%) rotate(${pos.rotate}deg)` },
@@ -316,12 +307,12 @@ const ThoughtlyFooterContent = () => {
         {/* Footer - Sits behind and is revealed as CTA shrinks */}
         <View
           backgroundColor="#1a1a1a"
-          paddingVertical={100}
           paddingHorizontal={80}
-          minHeight="100vh"
+          minHeight="60vh"
+          zIndex={1}
         >
-          <View maxWidth={1400} marginHorizontal="auto">
-            <Vertical gap={64}>
+          <View maxWidth={1400} marginHorizontal="auto" paddingHorizontal={80}>
+             <Vertical gap={64}>
               <View display="flex" flexDirection="row" justifyContent="space-between" flexWrap="wrap" gap={32}>
                 <Vertical gap={24}>
                   <Text fontSize={32} fontWeight="bold" color="white">
@@ -353,24 +344,8 @@ const ThoughtlyFooterContent = () => {
                   </Vertical>
                 </View>
               </View>
-
-              <View
-                borderTop="1px solid rgba(255,255,255,0.1)"
-                paddingTop={32}
-                display="flex"
-                flexDirection="row"
-                justifyContent="space-between"
-                alignItems="center"
-                flexWrap="wrap"
-                gap={16}
-              >
-                <Text color="rgba(255,255,255,0.4)">
-                  © {new Date().getFullYear()} Thoughtly, Inc
-                </Text>
-                <View display="flex" flexDirection="row" gap={24}>
-                  <Text color="rgba(255,255,255,0.4)">Privacy Policy</Text>
-                  <Text color="rgba(255,255,255,0.4)">Terms of Service</Text>
-                </View>
+              <View borderTop="1px solid rgba(255,255,255,0.1)" paddingTop={32} display="flex" justifyContent="space-between" flexDirection="row">
+                 <Text color="rgba(255,255,255,0.4)">© {new Date().getFullYear()} Thoughtly, Inc</Text>
               </View>
             </Vertical>
           </View>

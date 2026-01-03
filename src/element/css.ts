@@ -183,22 +183,38 @@ export const AnimationUtils = {
 
       result.names.push(keyframesName);
 
-      const durationMs = this.parseDuration(animation.duration || '0s');
-      const delayMs = this.parseDuration(animation.delay || '0s');
-      const totalDelayMs = cumulativeTime + delayMs;
+      // For scroll-driven animations (with timeline), use 'auto' duration
+      // For time-based animations, parse the duration normally
+      const hasTimeline = !!animation.timeline;
 
-      cumulativeTime = totalDelayMs + durationMs;
+      if (hasTimeline) {
+        // Scroll-driven animations should use 'auto' duration
+        // unless explicitly specified
+        result.durations.push(animation.duration || 'auto');
+        // Don't accumulate time for scroll-driven animations
+        result.delays.push(animation.delay || '0s');
+      } else {
+        const durationMs = this.parseDuration(animation.duration || '0s');
+        const delayMs = this.parseDuration(animation.delay || '0s');
+        const totalDelayMs = cumulativeTime + delayMs;
 
-      result.durations.push(this.formatDuration(durationMs));
+        cumulativeTime = totalDelayMs + durationMs;
+
+        result.durations.push(this.formatDuration(durationMs));
+        result.delays.push(this.formatDuration(totalDelayMs));
+      }
+
       result.timingFunctions.push(animation.timingFunction || 'ease');
-      result.delays.push(this.formatDuration(totalDelayMs));
       result.iterationCounts.push(
         animation.iterationCount !== undefined
           ? `${animation.iterationCount}`
           : '1'
       );
       result.directions.push(animation.direction || 'normal');
-      result.fillModes.push(animation.fillMode || 'none');
+      // Default to 'both' fillMode for scroll-driven animations, 'none' for time-based
+      result.fillModes.push(
+        animation.fillMode || (hasTimeline ? 'both' : 'none')
+      );
       result.playStates.push(animation.playState || 'running');
       result.timelines.push(animation.timeline || '');
       result.ranges.push(animation.range || '');

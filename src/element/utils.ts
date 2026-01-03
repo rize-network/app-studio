@@ -19,8 +19,11 @@ export const generateKeyframes = (
     playState,
     timeline,
     range,
-    ...keyframesDef
+    keyframes: explicitKeyframes,
+    ...rest
   } = animation;
+
+  const keyframesDef = explicitKeyframes || rest;
 
   // Générer une clé pour le cache basée sur les keyframes
   const animationConfigString = JSON.stringify(keyframesDef);
@@ -51,11 +54,11 @@ export const generateKeyframes = (
     keyframesContent.push(`${cssKey} { ${styleObjectToCss(styles)} }`);
   });
 
-  const keyframes = `
+  const keyframesCss = `
     @keyframes ${keyframesName} {
       ${keyframesContent.join('\n')}
     }
   `;
 
-  return { keyframesName, keyframes };
+  return { keyframesName, keyframes: keyframesCss };
 };

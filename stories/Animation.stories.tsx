@@ -566,3 +566,296 @@ export const ViewDrivenPresets: ComponentStory<typeof View> = () => (
     <View height="50vh" />
   </View>
 );
+
+/**
+ * Typewriter Effect
+ * Demonstrates a classic typewriter animation with a blinking cursor.
+ */
+export const TypewriterEffect: ComponentStory<typeof View> = () => {
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [showCursor, setShowCursor] = useState(true);
+  const text = "Hello, this is a typewriter effect!";
+  
+  // Calculate the width needed for the text (approximate)
+  const textWidth = text.length * 16; // Approximate 16px per character
+
+  // Build animation array conditionally
+  const getAnimation = (duration: string, steps: number, width: number, cursorColor: string, blinkDuration: string) => {
+    const animations: any[] = [
+      Animation.typewriter({
+        duration,
+        steps,
+        iterationCount: 1,
+        width,
+      })
+    ];
+    
+    if (showCursor) {
+      animations.push({
+        from: { borderRight: `3px solid ${cursorColor}` },
+        to: { borderRight: `3px solid ${cursorColor}` },
+        '0%': { borderRight: `3px solid ${cursorColor}` },
+        '50%': { borderRight: `3px solid transparent` },
+        '100%': { borderRight: `3px solid ${cursorColor}` },
+        duration: blinkDuration,
+        timingFunction: 'step-end',
+        iterationCount: 'infinite',
+      });
+    }
+    
+    return animations;
+  };
+
+  return (
+    <View width="100%" padding={40} backgroundColor="#f5f5f5">
+      <View
+        backgroundColor="white"
+        padding={40}
+        borderRadius={12}
+        boxShadow="0 4px 12px rgba(0,0,0,0.1)"
+        maxWidth={800}
+        margin="0 auto"
+      >
+        <Text fontSize={24} fontWeight="bold" marginBottom={20}>
+          Typewriter Animation
+        </Text>
+        
+        <Text color="#666" marginBottom={30}>
+          Click the button to see the typewriter effect in action. The text will appear character by character with an optional blinking cursor.
+        </Text>
+
+        <View style={{ display: 'flex', gap: '10px', marginBottom: '30px', flexWrap: 'wrap' }}>
+          <Button 
+            onPress={() => setIsAnimating(!isAnimating)}
+            style={{
+              padding: '12px 24px',
+              backgroundColor: '#2563eb',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontSize: '16px',
+              fontWeight: '600',
+            }}
+          >
+            {isAnimating ? 'Reset' : 'Start Typewriter'}
+          </Button>
+
+          <Button 
+            onPress={() => setShowCursor(!showCursor)}
+            style={{
+              padding: '12px 24px',
+              backgroundColor: showCursor ? '#059669' : '#6b7280',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontSize: '16px',
+              fontWeight: '600',
+            }}
+          >
+            Cursor: {showCursor ? 'ON' : 'OFF'}
+          </Button>
+        </View>
+
+        {/* Typewriter container */}
+        <View
+          style={{
+            fontFamily: 'monospace',
+            fontSize: '24px',
+            fontWeight: '500',
+            color: '#1f2937',
+            minHeight: '40px',
+            display: 'flex',
+            alignItems: 'center',
+            position: 'relative',
+          }}
+        >
+          {isAnimating && (
+            <View
+              style={{
+                display: 'inline-block',
+                overflow: 'hidden',
+                whiteSpace: 'nowrap',
+                paddingRight: '2px',
+                borderRight: showCursor ? 'none' : '3px solid #2563eb',
+              }}
+              animate={getAnimation('4s', text.length, textWidth, '#2563eb', '0.75s')}
+            >
+              <Text
+                style={{
+                  display: 'inline',
+                  fontFamily: 'monospace',
+                  fontSize: '24px',
+                }}
+              >
+                {text}
+              </Text>
+            </View>
+          )}
+        </View>
+
+        {/* Additional examples */}
+        <View marginTop={60}>
+          <Text fontSize={20} fontWeight="bold" marginBottom={20}>
+            Multiple Typewriter Examples
+          </Text>
+
+          {/* Fast typing WITH cursor */}
+          <View marginBottom={30}>
+            <Text fontSize={14} color="#666" marginBottom={10}>
+              Fast typing speed (with cursor):
+            </Text>
+            <View
+              style={{
+                fontFamily: 'monospace',
+                fontSize: '18px',
+                color: '#059669',
+                overflow: 'hidden',
+                whiteSpace: 'nowrap',
+                display: 'inline-block',
+                paddingRight: '2px',
+              }}
+              animate={[
+                Animation.typewriter({
+                  duration: '2s',
+                  steps: 25,
+                  iterationCount: 1,
+                  width: 400,
+                }),
+                {
+                  from: { borderRight: '2px solid #059669' },
+                  to: { borderRight: '2px solid #059669' },
+                  '0%': { borderRight: '2px solid #059669' },
+                  '50%': { borderRight: '2px solid transparent' },
+                  '100%': { borderRight: '2px solid #059669' },
+                  duration: '0.5s',
+                  timingFunction: 'step-end',
+                  iterationCount: 'infinite',
+                }
+              ]}
+            >
+              <Text
+                style={{
+                  display: 'inline',
+                  fontFamily: 'monospace',
+                  fontSize: '18px',
+                }}
+              >
+                Fast typing animation...
+              </Text>
+            </View>
+          </View>
+
+          {/* Slow typing WITHOUT cursor */}
+          <View marginBottom={30}>
+            <Text fontSize={14} color="#666" marginBottom={10}>
+              Slow typing speed (without cursor):
+            </Text>
+            <View
+              style={{
+                fontFamily: 'monospace',
+                fontSize: '18px',
+                color: '#dc2626',
+                overflow: 'hidden',
+                whiteSpace: 'nowrap',
+                display: 'inline-block',
+                paddingRight: '2px',
+                borderRight: '2px solid #dc2626',
+              }}
+              animate={Animation.typewriter({
+                duration: '6s',
+                steps: 30,
+                iterationCount: 1,
+                width: 480,
+              })}
+            >
+              <Text
+                style={{
+                  display: 'inline',
+                  fontFamily: 'monospace',
+                  fontSize: '18px',
+                }}
+              >
+                Slow and steady typing effect...
+              </Text>
+            </View>
+          </View>
+
+          {/* Code-like appearance WITH cursor */}
+          <View marginBottom={30}>
+            <Text fontSize={14} color="#666" marginBottom={10}>
+              Code-style typewriter (with cursor):
+            </Text>
+            <View
+              style={{
+                fontFamily: '"Courier New", monospace',
+                fontSize: '16px',
+                color: '#f59e0b',
+                backgroundColor: '#1f2937',
+                padding: '15px',
+                borderRadius: '6px',
+                overflow: 'hidden',
+                whiteSpace: 'nowrap',
+                display: 'inline-block',
+                paddingRight: '2px',
+              }}
+              animate={[
+                Animation.typewriter({
+                  duration: '5s',
+                  steps: 45,
+                  iterationCount: 1,
+                  width: 720,
+                }),
+                {
+                  from: { borderRight: '2px solid #f59e0b' },
+                  to: { borderRight: '2px solid #f59e0b' },
+                  '0%': { borderRight: '2px solid #f59e0b' },
+                  '50%': { borderRight: '2px solid transparent' },
+                  '100%': { borderRight: '2px solid #f59e0b' },
+                  duration: '0.75s',
+                  timingFunction: 'step-end',
+                  iterationCount: 'infinite',
+                }
+              ]}
+            >
+              <Text
+                style={{
+                  display: 'inline',
+                  fontFamily: '"Courier New", monospace',
+                  fontSize: '16px',
+                }}
+              >
+                const message = "Coding with style and animation!";
+              </Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Usage instructions */}
+        <View
+          marginTop={40}
+          padding={20}
+          backgroundColor="#eff6ff"
+          borderRadius={8}
+          borderLeft="4px solid #2563eb"
+        >
+          <Text fontSize={16} fontWeight="bold" marginBottom={10} color="#1e40af">
+            How to use:
+          </Text>
+          <Text fontSize={14} color="#1e3a8a" style={{ fontFamily: 'monospace' }}>
+            {`Animation.typewriter({
+  duration: '4s',
+  steps: text.length,
+  iterationCount: 1,
+  width: textWidth,
+})`}
+          </Text>
+          <Text fontSize={14} color="#1e3a8a" marginTop={10}>
+            Combine with <code style={{ backgroundColor: '#dbeafe', padding: '2px 6px', borderRadius: '3px' }}>blinkCursor()</code> for the classic cursor effect!
+          </Text>
+        </View>
+      </View>
+    </View>
+  );
+};
