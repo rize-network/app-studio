@@ -14,8 +14,6 @@ export interface UseScrollOptions {
   throttleMs?: number;
   // Added disabled option to conditionally disable scroll tracking
   disabled?: boolean;
-  // If true, tracks the window scroll even if a container ref is provided (useful for iframes/contexts)
-  trackWindowScroll?: boolean;
 }
 
 export interface UseScrollAnimationOptions {
@@ -84,7 +82,6 @@ export const useScroll = ({
   offset = [0, 0],
   throttleMs = 100,
   disabled = false,
-  trackWindowScroll = false,
 }: UseScrollOptions = {}): ScrollPosition => {
   const [scrollPosition, setScrollPosition] = useState<ScrollPosition>({
     x: 0,
@@ -96,40 +93,25 @@ export const useScroll = ({
   const lastUpdateRef = useRef<number>(0);
   const frameRef = useRef<number>();
 
-  // Resolve the window/document context.
+  // Resolve the window/document context. If the container is an iframe element, use its contentWindow.
   const getContext = useCallback(() => {
-    // If a container is provided, we resolve its context
-    if (container) {
-      const targetEl = container.current;
-      if (targetEl && targetEl instanceof HTMLIFrameElement) {
-        const frameWindow = targetEl.contentWindow ?? null;
-        const frameDoc =
-          targetEl.contentDocument ?? frameWindow?.document ?? null;
-        return {
-          targetEl,
-          targetWindow: frameWindow,
-          targetDocument: frameDoc,
-        } as const;
-      }
+    const targetEl = container?.current ?? null;
 
-      // For distinct elements, finding the window is useful for trackWindowScroll
-      const doc =
-        targetEl?.ownerDocument ??
-        (typeof document !== 'undefined' ? document : null);
-      const win =
-        doc?.defaultView ?? (typeof window !== 'undefined' ? window : null);
-
+    if (targetEl && targetEl instanceof HTMLIFrameElement) {
+      const frameWindow = targetEl.contentWindow ?? null;
+      const frameDoc =
+        targetEl.contentDocument ?? frameWindow?.document ?? null;
       return {
         targetEl,
-        targetWindow: win,
-        targetDocument: doc,
+        targetWindow: frameWindow,
+        targetDocument: frameDoc,
       } as const;
     }
 
-    // No container provided: Default to global window/document
-    const targetEl = null;
-    const targetDocument = typeof document !== 'undefined' ? document : null;
-    const targetWindow = typeof window !== 'undefined' ? window : null;
+    const targetDocument = targetEl?.ownerDocument ?? null;
+    const targetWindow =
+      targetDocument?.defaultView ??
+      (typeof window !== 'undefined' ? window : null);
 
     return { targetEl, targetWindow, targetDocument } as const;
   }, [container]);
@@ -138,20 +120,10 @@ export const useScroll = ({
     if (disabled) return;
 
     const { targetEl, targetWindow } = getContext();
-
-    // Determine the scroll target
-    let scrollTarget: HTMLElement | Window | null = null;
-
-    if (trackWindowScroll && targetWindow) {
-      scrollTarget = targetWindow;
-    } else if (container) {
-      // If container is provided (and not tracking window), use it
-      scrollTarget = targetEl;
-    } else {
-      // No container: fallback to window or targetEl
-      const hasScrollableElement = targetEl && isElementScrollable(targetEl);
-      scrollTarget = hasScrollableElement ? targetEl : targetWindow;
-    }
+    const hasScrollableElement = targetEl && isElementScrollable(targetEl);
+    const scrollTarget = hasScrollableElement
+      ? targetEl
+      : targetWindow || targetEl;
 
     if (!scrollTarget) return;
 
@@ -185,28 +157,21 @@ export const useScroll = ({
       }
       return prev;
     });
-  }, [offset, throttleMs, disabled, getContext, trackWindowScroll]);
+  }, [offset, throttleMs, disabled, getContext]);
 
   useEffect(() => {
     if (disabled) return;
 
-    // Use handleScroll to determine initial position and setup verification
-    handleScroll();
-
     const { targetEl, targetWindow, targetDocument } = getContext();
-
-    // Re-determine scroll target (duplicate logic but safe)
-    let scrollTarget: HTMLElement | Window | null = null;
-    if (trackWindowScroll && targetWindow) {
-      scrollTarget = targetWindow;
-    } else if (container) {
-      scrollTarget = targetEl;
-    } else {
-      const hasScrollableElement = targetEl && isElementScrollable(targetEl);
-      scrollTarget = hasScrollableElement ? targetEl : targetWindow || targetEl;
-    }
+    const hasScrollableElement = targetEl && isElementScrollable(targetEl);
+    const scrollTarget = hasScrollableElement
+      ? targetEl
+      : targetWindow || targetEl;
 
     if (!scrollTarget) return;
+
+    // Initial scroll position
+    handleScroll();
 
     const options = { passive: true } as const;
 
@@ -216,24 +181,24 @@ export const useScroll = ({
       targetWindow.addEventListener('resize', handleScroll, options);
     }
 
-    // If we are using a window (main or iframe), also listen to its document for safety
-    if (targetWindow && targetDocument && (trackWindowScroll || !container)) {
+    // If we are using a window (main or iframe), also listen to its document
+    if (targetWindow && targetDocument) {
       targetDocument.addEventListener('scroll', handleScroll, options);
     }
 
     return () => {
-      scrollTarget?.removeEventListener('scroll', handleScroll);
+      scrollTarget.removeEventListener('scroll', handleScroll);
       if (targetWindow) {
         targetWindow.removeEventListener('resize', handleScroll);
       }
-      if (targetWindow && targetDocument && (trackWindowScroll || !container)) {
+      if (targetWindow && targetDocument) {
         targetDocument.removeEventListener('scroll', handleScroll);
       }
       if (frameRef.current) {
         cancelAnimationFrame(frameRef.current);
       }
     };
-  }, [handleScroll, disabled, getContext, container, trackWindowScroll]);
+  }, [handleScroll, disabled, getContext]);
 
   return scrollPosition;
 };
