@@ -51,7 +51,7 @@ export const DefaultBehavior: ComponentStory<typeof View> = () => (
     {/* These all use the default animateOn="Both" behavior */}
     <View
       animate={Animations.fadeIn({ duration: '0.6s' })}
-      backgroundColor="color.blue.500"
+      backgroundColor="color-blue-500"
       padding={30}
       borderRadius={12}
       marginBottom={60}
@@ -66,7 +66,7 @@ export const DefaultBehavior: ComponentStory<typeof View> = () => (
 
     <View
       animate={Animations.slideInUp({ duration: '0.5s' })}
-      backgroundColor="color.green.500"
+      backgroundColor="color-green-500"
       padding={30}
       borderRadius={12}
       marginBottom={60}
@@ -81,7 +81,7 @@ export const DefaultBehavior: ComponentStory<typeof View> = () => (
 
     <View
       animate={Animations.scale({ duration: '0.6s' })}
-      backgroundColor="color.purple.500"
+      backgroundColor="color-purple-500"
       padding={30}
       borderRadius={12}
       marginBottom={60}
@@ -123,7 +123,7 @@ export const ExplicitView: ComponentStory<typeof View> = () => (
     <View
       animate={Animations.fadeIn({ duration: '0.8s' })}
       animateOn="View"
-      backgroundColor="color.orange.500"
+      backgroundColor="color-orange-500"
       padding={30}
       borderRadius={12}
       marginBottom={60}
@@ -156,7 +156,7 @@ export const MountBehavior: ComponentStory<typeof View> = () => (
     <View
       animate={Animations.fadeIn({ duration: '1s' })}
       animateOn="Mount"
-      backgroundColor="color.red.500"
+      backgroundColor="color-red-500"
       padding={30}
       borderRadius={12}
       marginBottom={20}
@@ -172,7 +172,7 @@ export const MountBehavior: ComponentStory<typeof View> = () => (
     <View
       animate={Animations.slideInLeft({ duration: '0.8s' })}
       animateOn="Mount"
-      backgroundColor="color.pink.500"
+      backgroundColor="color-pink-500"
       padding={30}
       borderRadius={12}
       marginBottom={20}
@@ -188,7 +188,7 @@ export const MountBehavior: ComponentStory<typeof View> = () => (
     <View
       animate={Animations.bounce({ duration: '1s' })}
       animateOn="Mount"
-      backgroundColor="color.indigo.500"
+      backgroundColor="color-indigo-500"
       padding={30}
       borderRadius={12}
     >
@@ -229,7 +229,7 @@ export const Comparison: ComponentStory<typeof View> = () => (
     <View
       animate={Animations.fadeIn({ duration: '1s' })}
       animateOn="Mount"
-      backgroundColor="color.blue.500"
+      backgroundColor="color-blue-500"
       padding={30}
       borderRadius={12}
       marginBottom={40}
@@ -253,7 +253,7 @@ export const Comparison: ComponentStory<typeof View> = () => (
     {/* Both: Default - animates on mount AND scroll */}
     <View
       animate={Animations.fadeIn({ duration: '1s' })}
-      backgroundColor="color.green.500"
+      backgroundColor="color-green-500"
       padding={30}
       borderRadius={12}
       marginBottom={40}
@@ -278,7 +278,7 @@ export const Comparison: ComponentStory<typeof View> = () => (
     <View
       animate={Animations.fadeIn({ duration: '1s' })}
       animateOn="View"
-      backgroundColor="color.orange.500"
+      backgroundColor="color-orange-500"
       padding={30}
       borderRadius={12}
       marginBottom={40}
@@ -317,7 +317,7 @@ export const MixedTriggers: ComponentStory<typeof View> = () => (
     <View
       animate={Animations.fadeIn({ duration: '1.2s' })}
       animateOn="Mount"
-      backgroundColor="color.purple.600"
+      backgroundColor="color-purple-600"
       padding={60}
       borderRadius={16}
       marginBottom={60}
@@ -342,7 +342,7 @@ export const MixedTriggers: ComponentStory<typeof View> = () => (
       <View
         key={i}
         animate={Animations.slideInUp({ duration: '0.6s' })}
-        backgroundColor={`color.${
+        backgroundColor={`color-${
           ['blue', 'green', 'orange', 'red'][i - 1]
         }.500`}
         padding={30}
@@ -368,7 +368,7 @@ export const MixedTriggers: ComponentStory<typeof View> = () => (
  */
 export const TimelineOverride: ComponentStory<typeof View> = () => (
   <View padding={20} minHeight="300vh">
-     <View
+    <View
       position="sticky"
       top={0}
       backgroundColor="white"
@@ -381,7 +381,8 @@ export const TimelineOverride: ComponentStory<typeof View> = () => (
         Timeline Priority
       </Text>
       <Text color="#666">
-        Explicit timelines in the animation object take precedence over animateOn helper logic.
+        Explicit timelines in the animation object take precedence over
+        animateOn helper logic.
       </Text>
     </View>
 
@@ -390,7 +391,7 @@ export const TimelineOverride: ComponentStory<typeof View> = () => (
     <View
       animate={Animations.scaleDownScroll()}
       animateOn="View"
-      backgroundColor="color.teal.500"
+      backgroundColor="color-teal-500"
       width={200}
       height={200}
       borderRadius="50%"
@@ -399,10 +400,10 @@ export const TimelineOverride: ComponentStory<typeof View> = () => (
       justifyContent="center"
     >
       <Text color="white" textAlign="center" fontWeight="bold">
-        I use scroll() timeline <br/> (Explicit)
+        I use scroll() timeline <br /> (Explicit)
       </Text>
     </View>
-    
+
     <View height="100vh" />
   </View>
 );

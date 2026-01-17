@@ -2437,9 +2437,9 @@ const ValueUtils = <span class="cstat-no" title="statement not covered" >{</span
     // Handle properties that might contain color values (borders, gradients, etc.)
 <span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (typeof value === 'string' &amp;&amp; value.length &gt; 3) {</span>
       // Check if the value contains any color tokens
-<span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (value.includes('color.') || value.includes('theme.')) {</span>
+<span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (value.includes('color-') || value.includes('theme.')) {</span>
         // For gradients and complex values, we need to process color tokens within the string
-        // This handles cases like: "linear-gradient(135deg, color.blue.500, color.red.500)"
+        // This handles cases like: "linear-gradient(135deg, color-blue.500, color-red.500)"
         let processedString = <span class="cstat-no" title="statement not covered" >value;</span>
 &nbsp;
         // Find all color tokens in the string
@@ -2464,9 +2464,9 @@ const ValueUtils = <span class="cstat-no" title="statement not covered" >{</span
           // Fallback to the old method for simpler cases (like borders)
           // Parse property to extract color
           const parts = <span class="cstat-no" title="statement not covered" >value.split(' ');</span>
-          // Check each part to see if it starts with 'color.' or 'theme.'
+          // Check each part to see if it starts with 'color-' or 'theme.'
           const processedParts = <span class="cstat-no" title="statement not covered" >parts.map(<span class="fstat-no" title="function not covered" >(p</span>art) =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >            <span class="missing-if-branch" title="if path not taken" >I</span>if (part.startsWith('color.') || part.startsWith('theme.')) {</span>
+<span class="cstat-no" title="statement not covered" >            <span class="missing-if-branch" title="if path not taken" >I</span>if (part.startsWith('color-') || part.startsWith('theme.')) {</span>
               // Process the color part through getColor
 <span class="cstat-no" title="statement not covered" >              return getColor(part);</span>
             }
@@ -3022,7 +3022,7 @@ function <span class="fstat-no" title="function not covered" >processEventStyles
 ): string[] {
   const classes: string[] = <span class="cstat-no" title="statement not covered" >[];</span>
 &nbsp;
-  // Handle string shorthand (e.g., _hover: "color.red.500")
+  // Handle string shorthand (e.g., _hover: "color-red-500")
 <span class="cstat-no" title="statement not covered" >  <span class="missing-if-branch" title="if path not taken" >I</span>if (typeof eventStyles === 'string') {</span>
 <span class="cstat-no" title="statement not covered" >    eventStyles = { color: eventStyles };</span>
   }
@@ -3060,7 +3060,7 @@ function <span class="fstat-no" title="function not covered" >processEventStyles
 <span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (Shadows[shadowValue]) {</span>
       const { shadowColor, shadowOpacity, shadowOffset, shadowRadius } =
 <span class="cstat-no" title="statement not covered" >        Shadows[shadowValue];</span>
-      const rgb = <span class="cstat-no" title="statement not covered" >Color.hex.rgb(shadowColor);</span>
+      const rgb = <span class="cstat-no" title="statement not covered" >color-hex.rgb(shadowColor);</span>
       const rgbaColor = <span class="cstat-no" title="statement not covered" >`rgba(${rgb.join(',')}, ${shadowOpacity})`;</span>
 <span class="cstat-no" title="statement not covered" >      otherEventStyles.boxShadow = `${shadowOffset.height}px ${shadowOffset.width}px ${shadowRadius}px ${rgbaColor}`;</span>
     }
@@ -3172,7 +3172,7 @@ export const <span class="cstat-no" title="statement not covered" >extractUtilit
 <span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (Shadows[shadowValue]) {</span>
       const { shadowColor, shadowOpacity, shadowOffset, shadowRadius } =
 <span class="cstat-no" title="statement not covered" >        Shadows[shadowValue];</span>
-      const rgb = <span class="cstat-no" title="statement not covered" >Color.hex.rgb(shadowColor);</span>
+      const rgb = <span class="cstat-no" title="statement not covered" >color-hex.rgb(shadowColor);</span>
       const rgbaColor = <span class="cstat-no" title="statement not covered" >`rgba(${rgb.join(',')}, ${shadowOpacity})`;</span>
 <span class="cstat-no" title="statement not covered" >      computedStyles.boxShadow = `${shadowOffset.height}px ${shadowOffset.width}px ${shadowRadius}px ${rgbaColor}`;</span>
     }

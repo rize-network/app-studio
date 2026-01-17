@@ -59,7 +59,7 @@ const AnimationCard: React.FC<{
   description: string;
   animate: any;
   backgroundColor?: string;
-}> = ({ title, description, animate, backgroundColor = 'color.blue.500' }) => (
+}> = ({ title, description, animate, backgroundColor = 'color-blue-500' }) => (
   <View
     animate={animate}
     backgroundColor={backgroundColor}
@@ -109,14 +109,14 @@ export const AllPresets: ComponentStory<typeof View> = () => (
       title="fadeInOnView()"
       description="Element fades in when entering the viewport"
       animate={fadeInOnView()}
-      backgroundColor="color.blue.500"
+      backgroundColor="color-blue-500"
     />
 
     <AnimationCard
       title="fadeInOnView({ duration: '1.5s' })"
       description="Slower fade with custom duration"
       animate={fadeInOnView({ duration: '1.5s' })}
-      backgroundColor="color.blue.600"
+      backgroundColor="color-blue-600"
     />
 
     <View height="20vh" />
@@ -130,35 +130,35 @@ export const AllPresets: ComponentStory<typeof View> = () => (
       title="slideUpOnView()"
       description="Slides up while fading in"
       animate={slideUpOnView()}
-      backgroundColor="color.green.500"
+      backgroundColor="color-green-500"
     />
 
     <AnimationCard
       title="slideUpOnView({ distance: '60px' })"
       description="Larger slide distance"
       animate={slideUpOnView({ distance: '60px' })}
-      backgroundColor="color.green.600"
+      backgroundColor="color-green-600"
     />
 
     <AnimationCard
       title="slideDownOnView()"
       description="Slides down while fading in"
       animate={slideDownOnView()}
-      backgroundColor="color.teal.500"
+      backgroundColor="color-teal-500"
     />
 
     <AnimationCard
       title="slideLeftOnView()"
       description="Slides in from the left"
       animate={slideLeftOnView()}
-      backgroundColor="color.cyan.500"
+      backgroundColor="color-cyan-500"
     />
 
     <AnimationCard
       title="slideRightOnView()"
       description="Slides in from the right"
       animate={slideRightOnView()}
-      backgroundColor="color.cyan.600"
+      backgroundColor="color-cyan-600"
     />
 
     <View height="20vh" />
@@ -172,21 +172,21 @@ export const AllPresets: ComponentStory<typeof View> = () => (
       title="scaleUpOnView()"
       description="Scales up from 0.9 to 1.0"
       animate={scaleUpOnView()}
-      backgroundColor="color.purple.500"
+      backgroundColor="color-purple-500"
     />
 
     <AnimationCard
       title="scaleUpOnView({ scale: 0.7 })"
       description="More dramatic scale from 0.7"
       animate={scaleUpOnView({ scale: 0.7 })}
-      backgroundColor="color.purple.600"
+      backgroundColor="color-purple-600"
     />
 
     <AnimationCard
       title="scaleDownOnView({ scale: 1.2 })"
       description="Scales down from 1.2 to 1.0"
       animate={scaleDownOnView({ scale: 1.2 })}
-      backgroundColor="color.indigo.500"
+      backgroundColor="color-indigo-500"
     />
 
     <View height="20vh" />
@@ -200,14 +200,14 @@ export const AllPresets: ComponentStory<typeof View> = () => (
       title="blurInOnView()"
       description="Blurs in when entering viewport"
       animate={blurInOnView()}
-      backgroundColor="color.orange.500"
+      backgroundColor="color-orange-500"
     />
 
     <AnimationCard
       title="blurInOnView({ blur: '20px' })"
       description="Stronger blur effect"
       animate={blurInOnView({ blur: '20px' })}
-      backgroundColor="color.orange.600"
+      backgroundColor="color-orange-600"
     />
 
     <View height="20vh" />
@@ -221,35 +221,35 @@ export const AllPresets: ComponentStory<typeof View> = () => (
       title="rotateInOnView()"
       description="Rotates and scales in"
       animate={rotateInOnView()}
-      backgroundColor="color.red.500"
+      backgroundColor="color-red-500"
     />
 
     <AnimationCard
       title="rotateInOnView({ angle: '-20deg' })"
       description="Larger rotation angle"
       animate={rotateInOnView({ angle: '-20deg' })}
-      backgroundColor="color.red.600"
+      backgroundColor="color-red-600"
     />
 
     <AnimationCard
       title="revealOnView()"
       description="Clip-path reveal from bottom"
       animate={revealOnView()}
-      backgroundColor="color.pink.500"
+      backgroundColor="color-pink-500"
     />
 
     <AnimationCard
       title="flipXOnView()"
       description="3D flip on X axis"
       animate={flipXOnView()}
-      backgroundColor="color.rose.500"
+      backgroundColor="color-rose-500"
     />
 
     <AnimationCard
       title="flipYOnView()"
       description="3D flip on Y axis"
       animate={flipYOnView()}
-      backgroundColor="color.rose.600"
+      backgroundColor="color-rose-600"
     />
 
     <View height="100vh" />
@@ -343,7 +343,7 @@ export const CustomAnimation: ComponentStory<typeof View> = () => {
 
       <View
         animate={animateOnView(bounceIn)}
-        backgroundColor="color.indigo.500"
+        backgroundColor="color-indigo-500"
         padding={40}
         borderRadius={16}
         marginBottom={60}
@@ -358,7 +358,7 @@ export const CustomAnimation: ComponentStory<typeof View> = () => {
 
       <View
         animate={createViewAnimation(swingIn)}
-        backgroundColor="color.violet.500"
+        backgroundColor="color-violet-500"
         padding={40}
         borderRadius={16}
         marginBottom={60}
@@ -373,7 +373,7 @@ export const CustomAnimation: ComponentStory<typeof View> = () => {
 
       <View
         animate={animateOnView(glowIn)}
-        backgroundColor="color.purple.900"
+        backgroundColor="color-purple-900"
         padding={40}
         borderRadius={16}
         marginBottom={60}
@@ -420,13 +420,13 @@ export const UsingPresets: ComponentStory<typeof View> = () => (
         animate={createViewAnimation(preset)}
         backgroundColor={
           [
-            'color.blue.500',
-            'color.green.500',
-            'color.purple.500',
-            'color.orange.500',
-            'color.red.500',
-            'color.teal.500',
-            'color.pink.500',
+            'color-blue-500',
+            'color-green-500',
+            'color-purple-500',
+            'color-orange-500',
+            'color-red-500',
+            'color-teal-500',
+            'color-pink-500',
           ][index % 7]
         }
         padding={30}
@@ -476,7 +476,7 @@ export const StaggeredAnimations: ComponentStory<typeof View> = () => (
           flex="1"
           minWidth={150}
           animate={slideUpOnView({ delay: `${i * 0.1}s`, duration: '0.5s' })}
-          backgroundColor="color.indigo.500"
+          backgroundColor="color-indigo-500"
           padding={30}
           borderRadius={12}
           textAlign="center"
@@ -502,7 +502,7 @@ export const StaggeredAnimations: ComponentStory<typeof View> = () => (
         <View
           key={text}
           animate={fadeInOnView({ delay: `${i * 0.15}s` })}
-          backgroundColor="color.purple.500"
+          backgroundColor="color-purple-500"
           padding={25}
           borderRadius={8}
         >
@@ -548,7 +548,7 @@ export const PerformanceBenefits: ComponentStory<typeof View> = () => (
         flex="1"
         minWidth={300}
         animate={fadeInOnView({ duration: '1s' })}
-        backgroundColor="color.green.500"
+        backgroundColor="color-green-500"
         padding={30}
         borderRadius={12}
       >
@@ -581,7 +581,7 @@ export const PerformanceBenefits: ComponentStory<typeof View> = () => (
         flex="1"
         minWidth={300}
         animate={fadeInOnView({ duration: '1s', delay: '0.2s' })}
-        backgroundColor="color.gray.600"
+        backgroundColor="color-gray-600"
         padding={30}
         borderRadius={12}
       >
@@ -615,7 +615,7 @@ export const PerformanceBenefits: ComponentStory<typeof View> = () => (
 
     <View
       animate={scaleUpOnView()}
-      backgroundColor="color.indigo.500"
+      backgroundColor="color-indigo-500"
       padding={40}
       borderRadius={16}
       textAlign="center"
@@ -649,15 +649,15 @@ export const AnimatedGrid: ComponentStory<typeof View> = () => {
   ];
 
   const colors = [
-    'color.blue.500',
-    'color.green.500',
-    'color.purple.500',
-    'color.orange.500',
-    'color.red.500',
-    'color.pink.500',
-    'color.teal.500',
-    'color.indigo.500',
-    'color.cyan.500',
+    'color-blue-500',
+    'color-green-500',
+    'color-purple-500',
+    'color-orange-500',
+    'color-red-500',
+    'color-pink-500',
+    'color-teal-500',
+    'color-indigo-500',
+    'color-cyan-500',
   ];
 
   return (
@@ -747,7 +747,7 @@ export const EntryAndExit: ComponentStory<typeof View> = () => (
         fadeInOnView({ range: 'entry' }),
         fadeOutOnView({ range: 'exit' }),
       ]}
-      backgroundColor="color.blue.500"
+      backgroundColor="color-blue-500"
       padding={40}
       borderRadius={12}
       marginBottom={100}
@@ -765,7 +765,7 @@ export const EntryAndExit: ComponentStory<typeof View> = () => (
         slideUpOnView({ range: 'entry' }),
         blurOutOnView({ range: 'exit' }),
       ]}
-      backgroundColor="color.purple.500"
+      backgroundColor="color-purple-500"
       padding={40}
       borderRadius={12}
       marginBottom={100}
@@ -783,7 +783,7 @@ export const EntryAndExit: ComponentStory<typeof View> = () => (
         scaleUpOnView({ range: 'entry' }),
         fadeOutOnView({ range: 'exit' }),
       ]}
-      backgroundColor="color.green.500"
+      backgroundColor="color-green-500"
       padding={40}
       borderRadius={12}
       marginBottom={100}

@@ -25,7 +25,10 @@ interface IframePortalProps {
   title?: string;
 }
 
-function IframePortal({ children, title = 'Iframe Content' }: IframePortalProps) {
+function IframePortal({
+  children,
+  title = 'Iframe Content',
+}: IframePortalProps) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [iframeWindow, setIframeWindow] = useState<Window | null>(null);
   const [mountNode, setMountNode] = useState<HTMLElement | null>(null);
@@ -36,7 +39,7 @@ function IframePortal({ children, title = 'Iframe Content' }: IframePortalProps)
     if (!iframe?.contentWindow) return;
 
     const iframeDoc = iframe.contentWindow.document;
-    
+
     // Write the HTML content
     iframeDoc.open();
     iframeDoc.write(`
@@ -87,16 +90,20 @@ function IframePortal({ children, title = 'Iframe Content' }: IframePortalProps)
           borderRadius: '8px',
         }}
       />
-      {mountNode && iframeWindow && createPortal(
-        <ThemeProvider targetWindow={iframeWindow}>
-          <ResponsiveProvider targetWindow={iframeWindow}>
-            <WindowSizeProvider targetWindow={iframeWindow}>
-              {typeof children === 'function' ? children(iframeWindow) : children}
-            </WindowSizeProvider>
-          </ResponsiveProvider>
-        </ThemeProvider>,
-        mountNode
-      )}
+      {mountNode &&
+        iframeWindow &&
+        createPortal(
+          <ThemeProvider targetWindow={iframeWindow}>
+            <ResponsiveProvider targetWindow={iframeWindow}>
+              <WindowSizeProvider targetWindow={iframeWindow}>
+                {typeof children === 'function'
+                  ? children(iframeWindow)
+                  : children}
+              </WindowSizeProvider>
+            </ResponsiveProvider>
+          </ThemeProvider>,
+          mountNode
+        )}
     </>
   );
 }
@@ -108,13 +115,16 @@ export const BasicUtilityClasses: Story = {
   render: () => (
     <div style={{ padding: '20px' }}>
       <h1>Basic CSS Utility Classes in Iframe</h1>
-      <p>All app-studio utility classes are automatically injected into the iframe document.</p>
+      <p>
+        All app-studio utility classes are automatically injected into the
+        iframe document.
+      </p>
 
       <IframePortal title="Basic Utilities Demo">
         <Element padding={20}>
           <Element
             as="h2"
-            color="color.blue.500"
+            color="color-blue-500"
             fontSize={24}
             marginBottom={16}
           >
@@ -132,13 +142,14 @@ export const BasicUtilityClasses: Story = {
               Gradient Background
             </Element>
             <Element>
-              This element uses utility classes for gradient, padding, and border radius.
+              This element uses utility classes for gradient, padding, and
+              border radius.
             </Element>
           </Element>
 
           <Element display="flex" gap={16} flexWrap="wrap">
             <Element
-              backgroundColor="color.red.500"
+              backgroundColor="color-red-500"
               color="white"
               padding={16}
               borderRadius={8}
@@ -148,7 +159,7 @@ export const BasicUtilityClasses: Story = {
               Red Box
             </Element>
             <Element
-              backgroundColor="color.green.500"
+              backgroundColor="color-green-500"
               color="white"
               padding={16}
               borderRadius={8}
@@ -158,7 +169,7 @@ export const BasicUtilityClasses: Story = {
               Green Box
             </Element>
             <Element
-              backgroundColor="color.blue.500"
+              backgroundColor="color-blue-500"
               color="white"
               padding={16}
               borderRadius={8}
@@ -171,11 +182,18 @@ export const BasicUtilityClasses: Story = {
         </Element>
       </IframePortal>
 
-      <Element marginTop={20} padding={20} backgroundColor="#f9f9f9" borderRadius={8}>
-        <Element as="h3" marginBottom={10}>✅ What's Working:</Element>
+      <Element
+        marginTop={20}
+        padding={20}
+        backgroundColor="#f9f9f9"
+        borderRadius={8}
+      >
+        <Element as="h3" marginBottom={10}>
+          ✅ What's Working:
+        </Element>
         <ul>
           <li>All utility classes (padding, margin, colors, etc.)</li>
-          <li>Theme colors (color.* references)</li>
+          <li>Theme colors (color-* references)</li>
           <li>Layout utilities (flexbox, grid)</li>
           <li>Automatic style injection into iframe</li>
         </ul>
@@ -195,7 +213,12 @@ export const PseudoClassesAndStates: Story = {
 
       <IframePortal title="Pseudo-Classes Demo">
         <Element padding={20}>
-          <Element as="h2" marginBottom={20} fontSize={24} color="color.purple.600">
+          <Element
+            as="h2"
+            marginBottom={20}
+            fontSize={24}
+            color="color-purple-600"
+          >
             Interactive Elements
           </Element>
 
@@ -204,14 +227,14 @@ export const PseudoClassesAndStates: Story = {
             <Element
               as="button"
               padding={16}
-              backgroundColor="color.blue.500"
+              backgroundColor="color-blue-500"
               color="white"
               border="none"
               borderRadius={8}
               cursor="pointer"
               transition="all 0.3s ease"
               _hover={{
-                backgroundColor: 'color.blue.700',
+                backgroundColor: 'color-blue-700',
                 transform: 'translateY(-2px)',
                 boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
               }}
@@ -230,7 +253,7 @@ export const PseudoClassesAndStates: Story = {
               fontSize={16}
               outline="none"
               _focus={{
-                borderColor: 'color.purple.500',
+                borderColor: 'color-purple-500',
                 boxShadow: '0 0 0 3px rgba(139, 92, 246, 0.1)',
               }}
             />
@@ -239,13 +262,13 @@ export const PseudoClassesAndStates: Story = {
             <Element
               as="button"
               padding={16}
-              backgroundColor="color.green.500"
+              backgroundColor="color-green-500"
               color="white"
               border="none"
               borderRadius={8}
               cursor="pointer"
               _active={{
-                backgroundColor: 'color.green.700',
+                backgroundColor: 'color-green-700',
                 transform: 'scale(0.98)',
               }}
             >
@@ -261,7 +284,7 @@ export const PseudoClassesAndStates: Story = {
               cursor="pointer"
               transition="all 0.3s ease"
               _hover={{
-                borderColor: 'color.indigo.500',
+                borderColor: 'color-indigo-500',
                 backgroundColor: '#f8f9fa',
               }}
             >
@@ -269,15 +292,15 @@ export const PseudoClassesAndStates: Story = {
                 fontSize={18}
                 fontWeight="bold"
                 marginBottom={8}
-                color="color.gray.700"
+                color="color-gray-700"
                 transition="color 0.3s ease"
                 _groupHover={{
-                  color: 'color.indigo.600',
+                  color: 'color-indigo-600',
                 }}
               >
                 Group Hover Example
               </Element>
-              <Element color="color.gray.600">
+              <Element color="color-gray-600">
                 Hover over this card to see the title change color
               </Element>
             </Element>
@@ -295,7 +318,10 @@ export const AnimationsInIframe: Story = {
   render: () => (
     <div style={{ padding: '20px' }}>
       <h1>Animations & Keyframes</h1>
-      <p>CSS animations and keyframes are properly injected into iframe documents.</p>
+      <p>
+        CSS animations and keyframes are properly injected into iframe
+        documents.
+      </p>
 
       <IframePortal title="Animations Demo">
         <Element padding={20}>
@@ -307,7 +333,7 @@ export const AnimationsInIframe: Story = {
             {/* Fade in animation */}
             <Element
               padding={20}
-              backgroundColor="color.pink.100"
+              backgroundColor="color-pink-100"
               borderRadius={8}
               animate={{
                 from: { opacity: 0, transform: 'translateY(-20px)' },
@@ -325,7 +351,7 @@ export const AnimationsInIframe: Story = {
             {/* Scale animation on hover */}
             <Element
               padding={20}
-              backgroundColor="color.cyan.100"
+              backgroundColor="color-cyan-100"
               borderRadius={8}
               cursor="pointer"
               transition="transform 0.3s ease"
@@ -342,7 +368,7 @@ export const AnimationsInIframe: Story = {
             {/* Pulse animation */}
             <Element
               padding={20}
-              backgroundColor="color.yellow.100"
+              backgroundColor="color-yellow-100"
               borderRadius={8}
               animate={{
                 from: { transform: 'scale(1)' },
@@ -382,11 +408,11 @@ export const ResponsiveStyles: Story = {
 
           <Element
             media={{
-              xs: { backgroundColor: 'color.red.200', padding: 10 },
-              sm: { backgroundColor: 'color.orange.200', padding: 15 },
-              md: { backgroundColor: 'color.yellow.200', padding: 20 },
-              lg: { backgroundColor: 'color.green.200', padding: 25 },
-              xl: { backgroundColor: 'color.blue.200', padding: 30 },
+              xs: { backgroundColor: 'color-red-200', padding: 10 },
+              sm: { backgroundColor: 'color-orange-200', padding: 15 },
+              md: { backgroundColor: 'color-yellow-200', padding: 20 },
+              lg: { backgroundColor: 'color-green-200', padding: 25 },
+              xl: { backgroundColor: 'color-blue-200', padding: 30 },
             }}
             borderRadius={8}
             marginBottom={20}
@@ -419,7 +445,7 @@ export const ResponsiveStyles: Story = {
               <Element
                 key={i}
                 padding={20}
-                backgroundColor="color.purple.100"
+                backgroundColor="color-purple-100"
                 borderRadius={8}
                 textAlign="center"
               >
@@ -442,19 +468,29 @@ export const MultipleIframes: Story = {
       <h1>Multiple Iframes with Independent Styles</h1>
       <p>Each iframe gets its own copy of all CSS rules.</p>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginTop: '20px' }}>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gap: '20px',
+          marginTop: '20px',
+        }}
+      >
         <div>
           <h3>Iframe 1 - Blue Theme</h3>
           <IframePortal title="Blue Theme">
             {(iframeWindow) => (
-              <ThemeProvider 
-                theme={{ primary: 'color.blue.500', secondary: 'color.cyan.500' }}
+              <ThemeProvider
+                theme={{
+                  primary: 'color-blue-500',
+                  secondary: 'color-cyan-500',
+                }}
                 targetWindow={iframeWindow}
               >
                 <Element padding={20}>
                   <Element
                     as="h3"
-                    color="theme.primary"
+                    color="theme-primary"
                     fontSize={20}
                     marginBottom={16}
                   >
@@ -462,7 +498,7 @@ export const MultipleIframes: Story = {
                   </Element>
                   <Element
                     padding={16}
-                    backgroundColor="theme.primary"
+                    backgroundColor="theme-primary"
                     color="white"
                     borderRadius={8}
                     marginBottom={12}
@@ -471,7 +507,7 @@ export const MultipleIframes: Story = {
                   </Element>
                   <Element
                     padding={16}
-                    backgroundColor="theme.secondary"
+                    backgroundColor="theme-secondary"
                     color="white"
                     borderRadius={8}
                   >
@@ -487,14 +523,17 @@ export const MultipleIframes: Story = {
           <h3>Iframe 2 - Purple Theme</h3>
           <IframePortal title="Purple Theme">
             {(iframeWindow) => (
-              <ThemeProvider 
-                theme={{ primary: 'color.purple.500', secondary: 'color.pink.500' }}
+              <ThemeProvider
+                theme={{
+                  primary: 'color-purple-500',
+                  secondary: 'color-pink-500',
+                }}
                 targetWindow={iframeWindow}
               >
                 <Element padding={20}>
                   <Element
                     as="h3"
-                    color="theme.primary"
+                    color="theme-primary"
                     fontSize={20}
                     marginBottom={16}
                   >
@@ -502,7 +541,7 @@ export const MultipleIframes: Story = {
                   </Element>
                   <Element
                     padding={16}
-                    backgroundColor="theme.primary"
+                    backgroundColor="theme-primary"
                     color="white"
                     borderRadius={8}
                     marginBottom={12}
@@ -511,7 +550,7 @@ export const MultipleIframes: Story = {
                   </Element>
                   <Element
                     padding={16}
-                    backgroundColor="theme.secondary"
+                    backgroundColor="theme-secondary"
                     color="white"
                     borderRadius={8}
                   >
@@ -524,8 +563,15 @@ export const MultipleIframes: Story = {
         </div>
       </div>
 
-      <Element marginTop={20} padding={20} backgroundColor="#f0f7ff" borderRadius={8}>
-        <Element as="h3" marginBottom={10}>💡 Key Points:</Element>
+      <Element
+        marginTop={20}
+        padding={20}
+        backgroundColor="#f0f7ff"
+        borderRadius={8}
+      >
+        <Element as="h3" marginBottom={10}>
+          💡 Key Points:
+        </Element>
         <ul>
           <li>Each iframe maintains its own stylesheet</li>
           <li>Styles are automatically synchronized</li>
@@ -544,7 +590,9 @@ export const ComplexComponents: Story = {
   render: () => (
     <div style={{ padding: '20px' }}>
       <h1>Complex Nested Components</h1>
-      <p>Testing complex component hierarchies with various styling utilities.</p>
+      <p>
+        Testing complex component hierarchies with various styling utilities.
+      </p>
 
       <IframePortal title="Complex Demo">
         <Element padding={20} minHeight="100vh" backgroundColor="#f5f5f5">
@@ -559,31 +607,31 @@ export const ComplexComponents: Story = {
             borderRadius={12}
             marginBottom={20}
           >
-            <Element fontSize={24} fontWeight="bold" color="color.indigo.600">
+            <Element fontSize={24} fontWeight="bold" color="color-indigo-600">
               App Studio Iframe
             </Element>
             <Element display="flex" gap={12}>
               <Element
                 as="button"
                 padding="8px 16px"
-                backgroundColor="color.indigo.500"
+                backgroundColor="color-indigo-500"
                 color="white"
                 border="none"
                 borderRadius={6}
                 cursor="pointer"
-                _hover={{ backgroundColor: 'color.indigo.600' }}
+                _hover={{ backgroundColor: 'color-indigo-600' }}
               >
                 Action 1
               </Element>
               <Element
                 as="button"
                 padding="8px 16px"
-                backgroundColor="color.gray.200"
-                color="color.gray.700"
+                backgroundColor="color-gray-200"
+                color="color-gray-700"
                 border="none"
                 borderRadius={6}
                 cursor="pointer"
-                _hover={{ backgroundColor: 'color.gray.300' }}
+                _hover={{ backgroundColor: 'color-gray-300' }}
               >
                 Action 2
               </Element>
@@ -614,13 +662,13 @@ export const ComplexComponents: Story = {
                   width={40}
                   height={40}
                   borderRadius={8}
-                  backgroundColor={`color.${['blue', 'purple', 'pink', 'green', 'orange', 'cyan'][i]}.500`}
+                  backgroundColor={`color-${['blue', 'purple', 'pink', 'green', 'orange', 'cyan'][i]}.500`}
                   marginBottom={12}
                 />
                 <Element fontSize={18} fontWeight="bold" marginBottom={8}>
                   Card {i + 1}
                 </Element>
-                <Element color="color.gray.600" fontSize={14}>
+                <Element color="color-gray-600" fontSize={14}>
                   This is a card with hover effects
                 </Element>
               </Element>

@@ -30,23 +30,23 @@ export const Exemple: ComponentStory<typeof View> = () => {
         shadow={4}
         display="flex"
         margin="0 20px 20px"
-        backgroundColor="color.blue.200"
+        backgroundColor="color-blue-200"
       />
       <View
         width="70%"
         height="70%"
         shadow={4}
         paddingHorizontal={20}
-        on={{ hover: { backgroundColor: 'theme.primary' } }}
+        on={{ hover: { backgroundColor: 'theme-primary' } }}
         media={{
           mobile: {
-            backgroundColor: 'color.orange',
+            backgroundColor: 'color-orange',
           },
           md: {
-            backgroundColor: 'color.green',
+            backgroundColor: 'color-green',
           },
           desktop: {
-            backgroundColor: 'color.red',
+            backgroundColor: 'color-red',
           },
         }}
         animate={{
@@ -69,7 +69,7 @@ export const Exemple: ComponentStory<typeof View> = () => {
         color="transparent"
         shadow={4}
         margin="0 20px 20px"
-        backgroundColor="color.green.200"
+        backgroundColor="color-green-200"
         WebkitTextStroke="1px #000000"
         WebkitTextFillColor="transparent"
       >
@@ -87,12 +87,12 @@ export const VerticalExemple: ComponentStory<typeof View> = () => {
         shadow={4}
         display="flex"
         margin="0 20px 20px"
-        backgroundColor="color.blue"
+        backgroundColor="color-blue"
       />
       <View
         widthHeight={100}
         shadow={4}
-        backgroundColor="color.red"
+        backgroundColor="color-red"
         paddingHorizontal={20}
       />
     </Vertical>
@@ -107,12 +107,12 @@ export const VerticalResponsiveExemple: ComponentStory<typeof View> = () => {
         shadow={4}
         display="flex"
         margin="0 20px 20px"
-        backgroundColor="color.blue.300"
+        backgroundColor="color-blue-300"
       />
       <View
         widthHeight={100}
         shadow={4}
-        backgroundColor="color.red"
+        backgroundColor="color-red"
         paddingHorizontal={20}
       />
     </VerticalResponsive>
@@ -127,12 +127,12 @@ export const HorizontalExemple: ComponentStory<typeof View> = () => {
         shadow={4}
         display="flex"
         margin="0 20px 20px"
-        backgroundColor="color.blue"
+        backgroundColor="color-blue"
       />
       <View
         widthHeight={100}
         shadow={4}
-        backgroundColor="color.red"
+        backgroundColor="color-red"
         paddingHorizontal={20}
       />
     </Horizontal>
@@ -147,12 +147,12 @@ export const HorizontalResponsiveExemple: ComponentStory<typeof View> = () => {
         shadow={4}
         display="flex"
         margin="0 20px 20px"
-        backgroundColor="color.blue"
+        backgroundColor="color-blue"
       />
       <View
         widthHeight={100}
         shadow={4}
-        backgroundColor="color.red"
+        backgroundColor="color-red"
         paddingHorizontal={20}
       />
     </HorizontalResponsive>

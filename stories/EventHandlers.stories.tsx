@@ -19,29 +19,27 @@ export const EventHandlersTest: ComponentStory<typeof View> = () => {
   const [clickCount, setClickCount] = useState(0);
   const [hoverCount, setHoverCount] = useState(0);
   const [changeValue, setChangeValue] = useState('');
-  
+
   const handleClick = () => {
-    setClickCount(prev => prev + 1);
+    setClickCount((prev) => prev + 1);
   };
-  
+
   const handleMouseEnter = () => {
-    setHoverCount(prev => prev + 1);
+    setHoverCount((prev) => prev + 1);
   };
-  
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setChangeValue(e.target.value);
   };
-  
+
   return (
     <Vertical gap={20} padding={20}>
-      <Text fontSize={24} fontWeight="bold">Event Handlers Test</Text>
-      
+      <Text fontSize={24} fontWeight="bold">
+        Event Handlers Test
+      </Text>
+
       {/* onClick handler */}
-      <View
-        padding={20}
-        backgroundColor="#f0f0f0"
-        borderRadius={8}
-      >
+      <View padding={20} backgroundColor="#f0f0f0" borderRadius={8}>
         <Text fontWeight="bold">onClick Handler:</Text>
         <View
           padding={20}
@@ -53,13 +51,9 @@ export const EventHandlersTest: ComponentStory<typeof View> = () => {
           <Text>Click me! Count: {clickCount}</Text>
         </View>
       </View>
-      
+
       {/* onMouseEnter handler */}
-      <View
-        padding={20}
-        backgroundColor="#f0f0f0"
-        borderRadius={8}
-      >
+      <View padding={20} backgroundColor="#f0f0f0" borderRadius={8}>
         <Text fontWeight="bold">onMouseEnter Handler:</Text>
         <View
           padding={20}
@@ -70,13 +64,9 @@ export const EventHandlersTest: ComponentStory<typeof View> = () => {
           <Text>Hover over me! Count: {hoverCount}</Text>
         </View>
       </View>
-      
+
       {/* onChange handler */}
-      <View
-        padding={20}
-        backgroundColor="#f0f0f0"
-        borderRadius={8}
-      >
+      <View padding={20} backgroundColor="#f0f0f0" borderRadius={8}>
         <Text fontWeight="bold">onChange Handler:</Text>
         <View
           padding={20}
@@ -86,27 +76,27 @@ export const EventHandlersTest: ComponentStory<typeof View> = () => {
           flexDirection="column"
           gap={10}
         >
-          <input 
-            type="text" 
-            value={changeValue} 
-            onChange={handleChange} 
+          <input
+            type="text"
+            value={changeValue}
+            onChange={handleChange}
             placeholder="Type something..."
-            style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
+            style={{
+              padding: '8px',
+              borderRadius: '4px',
+              border: '1px solid #ccc',
+            }}
           />
           <Text>Value: {changeValue}</Text>
         </View>
       </View>
-      
+
       {/* Multiple event handlers */}
-      <View
-        padding={20}
-        backgroundColor="#f0f0f0"
-        borderRadius={8}
-      >
+      <View padding={20} backgroundColor="#f0f0f0" borderRadius={8}>
         <Text fontWeight="bold">Multiple Event Handlers:</Text>
         <Button
           padding={10}
-          backgroundColor="color.blue.500"
+          backgroundColor="color-blue-500"
           color="white"
           borderRadius={4}
           onClick={() => alert('Button clicked!')}

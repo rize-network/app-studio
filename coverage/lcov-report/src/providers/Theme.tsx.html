@@ -765,9 +765,9 @@
 &nbsp;
 // --- Constants ---
 const THEME_PREFIX = <span class="cstat-no" title="statement not covered" >'theme.';</span>
-const COLOR_PREFIX = <span class="cstat-no" title="statement not covered" >'color.';</span>
-const LIGHT_PREFIX = <span class="cstat-no" title="statement not covered" >'light.';</span>
-const DARK_PREFIX = <span class="cstat-no" title="statement not covered" >'dark.';</span>
+const COLOR_PREFIX = <span class="cstat-no" title="statement not covered" >'color-';</span>
+const LIGHT_PREFIX = <span class="cstat-no" title="statement not covered" >'light-';</span>
+const DARK_PREFIX = <span class="cstat-no" title="statement not covered" >'dark-';</span>
 const TRANSPARENT = <span class="cstat-no" title="statement not covered" >'transparent';</span>
 &nbsp;
 // --- Interfaces ---
@@ -809,7 +809,7 @@ export const <span class="cstat-no" title="statement not covered" >defaultThemeM
   error: `${COLOR_PREFIX}red.500`,
   warning: `${COLOR_PREFIX}orange.500`,
   disabled: `${COLOR_PREFIX}gray.500`,
-  loading: `${COLOR_PREFIX}dark.500`,
+  loading: `${COLOR_PREFIX}dark-500`,
 };
 &nbsp;
 const defaultLightColorConfig: Colors = <span class="cstat-no" title="statement not covered" >{</span>
@@ -952,7 +952,7 @@ export const <span class="cstat-no" title="statement not covered" >ThemeProvider
           //   override
           // );
 &nbsp;
-          const keys = <span class="cstat-no" title="statement not covered" >name.substring(THEME_PREFIX.length).split('.');</span>
+          const keys = <span class="cstat-no" title="statement not covered" >name.substring(THEME_PREFIX.length).split('-');</span>
           let value: any = <span class="cstat-no" title="statement not covered" >deepMerge(mergedTheme, override?.theme || {});</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >          for (const key of keys) {</span>
@@ -975,7 +975,7 @@ export const <span class="cstat-no" title="statement not covered" >ThemeProvider
           }
           // If value === name, it resolved to itself, keep fallback
 &nbsp;
-          // --- Resolve "light.*" or "dark.*" paths directly ---
+          // --- Resolve "light-*" or "dark-*" paths directly ---
         } else <span class="cstat-no" title="statement not covered" >if (</span>
           name.startsWith(LIGHT_PREFIX) ||
           name.startsWith(DARK_PREFIX)
@@ -998,16 +998,16 @@ export const <span class="cstat-no" title="statement not covered" >ThemeProvider
           };
 <span class="cstat-no" title="statement not covered" >          resolvedColor = getColor(modifiedName, specificOverride);</span>
 &nbsp;
-          // --- Resolve "color.*" paths ---
+          // --- Resolve "color-*" paths ---
         } else <span class="cstat-no" title="statement not covered" ><span class="missing-if-branch" title="if path not taken" >I</span>if (name.startsWith(COLOR_PREFIX)) {</span>
           // console.log(
           //   `Resolving color "${name}" for mode "${effectiveMode}".`,
           //   override
           // );
-          const keys = <span class="cstat-no" title="statement not covered" >name.substring(COLOR_PREFIX.length).split('.');</span>
+          const keys = <span class="cstat-no" title="statement not covered" >name.substring(COLOR_PREFIX.length).split('-');</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >          if (keys.length === 1) {</span>
-            // e.g., "color.white"
+            // e.g., "color-white"
             const colorName = <span class="cstat-no" title="statement not covered" >keys[0];</span>
             const main = <span class="cstat-no" title="statement not covered" >deepMerge(</span>
               colorsToUse.main,
@@ -1023,7 +1023,7 @@ export const <span class="cstat-no" title="statement not covered" >ThemeProvider
 <span class="cstat-no" title="statement not covered" >              resolvedColor = name; </span>// Fallback on unexpected error
             }
           } else <span class="cstat-no" title="statement not covered" >if (keys.length === 2) {</span>
-            // e.g., "color.blue.500"
+            // e.g., "color-blue-500"
             const [colorName, variant] = <span class="cstat-no" title="statement not covered" >keys;</span>
             const palette = <span class="cstat-no" title="statement not covered" >deepMerge(</span>
               colorsToUse.palette,
@@ -1040,14 +1040,14 @@ export const <span class="cstat-no" title="statement not covered" >ThemeProvider
             }
           } else {
 <span class="cstat-no" title="statement not covered" >            console.warn(</span>
-              `Invalid color format: "${name}". Expected 'color.name' or 'color.name.shade'.`
+              `Invalid color format: "${name}". Expected 'color-name' or 'color-name.shade'.`
             );
 &nbsp;
 <span class="cstat-no" title="statement not covered" >            resolvedColor = name; </span>// Fallback on unexpected error
           }
         }
         // --- Direct Color Value ---
-        // If it's not theme.*, light.*, dark.*, or color.*, assume it's a direct value ('red', '#fff').
+        // If it's not theme.*, light-*, dark-*, or color-*, assume it's a direct value ('red', '#fff').
         // resolvedColor remains 'name', which is correct.
       } catch (e) {
 <span class="cstat-no" title="statement not covered" >        console.error(</span>

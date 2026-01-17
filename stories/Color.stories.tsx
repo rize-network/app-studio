@@ -20,7 +20,7 @@ export default {
     docs: {
       description: {
         component:
-          'Demonstrates how the `colors` prop can override the global theme colors for a specific component instance. The `colors` prop takes an object matching the `Colors` interface (`{ main: {...}, palette: {...} }`). Colors requested within this component (e.g., `color.blue.500`, `theme.primary`) will first try to resolve using this local `colors` object before falling back to the global theme.',
+          'Demonstrates how the `colors` prop can override the global theme colors for a specific component instance. The `colors` prop takes an object matching the `Colors` interface (`{ main: {...}, palette: {...} }`). Colors requested within this component (e.g., `color-blue.500`, `theme-primary`) will first try to resolve using this local `colors` object before falling back to the global theme.',
       },
     },
   },
@@ -31,8 +31,8 @@ export default {
 // and the 'primary' theme color points to a specific green shade.
 
 const customTheme: Theme = {
-  primary: 'color.green.600', // Override 'theme.primary' to use our green.600
-  secondary: 'color.orange.500', // Override 'theme.secondary'
+  primary: 'color-green-600', // Override 'theme-primary' to use our green.600
+  secondary: 'color-orange-500', // Override 'theme-secondary'
 };
 const customComponentColors: Colors = {
   // Define main theme overrides for this component
@@ -48,7 +48,7 @@ const customComponentColors: Colors = {
       200: '#e9d5ff', // purple-200
       300: '#d8b4fe', // purple-300
       400: '#c084fc', // purple-400
-      500: '#a855f7', // purple-500 <- This will be used for 'color.blue.500'
+      500: '#a855f7', // purple-500 <- This will be used for 'color-blue-500'
       600: '#9333ea', // purple-600
       700: '#7e22ce', // purple-700
       800: '#6b21a8', // purple-800
@@ -68,7 +68,7 @@ const Template: ComponentStory<typeof View> = () => (
   <Vertical
     gap={20}
     padding={20}
-    backgroundColor="color.gray.100"
+    backgroundColor="color-gray-100"
     borderRadius={8}
   >
     <Text fontSize="lg" fontWeight="bold">
@@ -81,7 +81,7 @@ const Template: ComponentStory<typeof View> = () => (
         <Text fontWeight="medium">Using Global Theme:</Text>
         <View
           height={100}
-          backgroundColor="color.blue.500" // Should be the default blue
+          backgroundColor="color-blue-500" // Should be the default blue
           borderRadius={8}
           display="flex"
           alignItems="center"
@@ -89,12 +89,12 @@ const Template: ComponentStory<typeof View> = () => (
           shadow={2}
         >
           <Text color="white" fontWeight="bold">
-            BG: color.blue.500
+            BG: color-blue.500
           </Text>
         </View>
         <View
           height={50}
-          backgroundColor="theme.primary" // Should be default theme's primary
+          backgroundColor="theme-primary" // Should be default theme's primary
           borderRadius={8}
           display="flex"
           alignItems="center"
@@ -107,7 +107,7 @@ const Template: ComponentStory<typeof View> = () => (
         </View>
         <View
           height={50}
-          backgroundColor="theme.secondary" // Should be default theme's red
+          backgroundColor="theme-secondary" // Should be default theme's red
           borderRadius={8}
           display="flex"
           alignItems="center"
@@ -115,7 +115,7 @@ const Template: ComponentStory<typeof View> = () => (
           shadow={2}
         >
           <Text color="white" fontWeight="bold">
-            BG: color.white
+            BG: color-white
           </Text>
         </View>
       </Vertical>
@@ -125,7 +125,7 @@ const Template: ComponentStory<typeof View> = () => (
         <Text fontWeight="medium">Using `colors` Prop Override:</Text>
         <View
           height={100}
-          backgroundColor="color.blue.500" // Should use the OVERRIDDEN purple-500
+          backgroundColor="color-blue-500" // Should use the OVERRIDDEN purple-500
           colors={customComponentColors} // Apply the override!
           theme={customTheme} // Pass the custom theme
           borderRadius={8}
@@ -135,12 +135,12 @@ const Template: ComponentStory<typeof View> = () => (
           shadow={2}
         >
           <Text color="white" fontWeight="bold">
-            BG: color.blue.500 (Overridden)
+            BG: color-blue.500 (Overridden)
           </Text>
         </View>
         <View
           height={50}
-          backgroundColor="theme.primary" // Should use the OVERRIDDEN green-600
+          backgroundColor="theme-primary" // Should use the OVERRIDDEN green-600
           colors={customComponentColors} // Apply the override!
           theme={customTheme} // Pass the custom theme
           borderRadius={8}
@@ -150,7 +150,7 @@ const Template: ComponentStory<typeof View> = () => (
           shadow={2}
         >
           <Text
-            color="color.white"
+            color="color-white"
             colors={customComponentColors}
             fontWeight="bold"
           >
@@ -159,7 +159,7 @@ const Template: ComponentStory<typeof View> = () => (
         </View>
         <View
           height={50}
-          backgroundColor="theme.secondary" // Red wasn't overridden, should FALLBACK to theme's red
+          backgroundColor="theme-secondary" // Red wasn't overridden, should FALLBACK to theme's red
           colors={customComponentColors} // Apply the override!
           theme={customTheme} // Pass the custom theme
           borderRadius={8}
@@ -169,11 +169,11 @@ const Template: ComponentStory<typeof View> = () => (
           shadow={2}
         >
           <Text
-            color="color.white"
+            color="color-white"
             colors={customComponentColors}
             fontWeight="bold"
           >
-            BG: color.white (Fallback)
+            BG: color-white (Fallback)
           </Text>
         </View>
       </Vertical>

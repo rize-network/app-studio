@@ -8,7 +8,7 @@ describe('Border Color Processing', () => {
     const { container } = render(
       <ThemeProvider>
         <Element
-          border="1px solid color.blue.500"
+          border="1px solid color-blue-500"
           data-testid="border-element"
         />
         <Element
@@ -16,7 +16,7 @@ describe('Border Color Processing', () => {
           data-testid="border-top-element"
         />
         <Element
-          borderBottom="3px dotted color.red.300"
+          borderBottom="3px dotted color-red-300"
           data-testid="border-bottom-element"
         />
       </ThemeProvider>

@@ -121,15 +121,15 @@ const Card = ({
   description: any;
 }) => (
   <View
-    backgroundColor="color.gray.800"
+    backgroundColor="color-gray-800"
     borderRadius={16}
     overflow="hidden"
     minHeight={414}
     width="100%"
   >
     <View
-      backgroundColor="color.yellow.300"
-      color="color.gray.800"
+      backgroundColor="color-yellow-300"
+      color="color-gray-800"
       padding={8}
       borderRadius={30}
       width="fit-content"
@@ -164,7 +164,7 @@ export const AnimatedCards = () => {
   ];
 
   return (
-    <View backgroundColor="color.gray.900" minHeight="100vh" padding={32}>
+    <View backgroundColor="color-gray-900" minHeight="100vh" padding={32}>
       <Vertical gap={48}>
         {cards.map((card, index) => (
           <View key={index} position="sticky" top={32}>

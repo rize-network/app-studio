@@ -95,7 +95,7 @@ describe('Regression Suite', () => {
   it('renders custom tokens', () => {
     const { container } = render(
       <ThemeProvider>
-        <View backgroundColor="color.blue.500" color="theme.primary" />
+        <View backgroundColor="color-blue-500" color="theme-primary" />
       </ThemeProvider>
     );
     expect(container.firstChild).toMatchSnapshot();

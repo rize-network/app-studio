@@ -16,7 +16,7 @@ export default {
 } as ComponentMeta<typeof Text>;
 
 export const Exemple: ComponentStory<typeof Text> = () => {
-    const res = useResponsive();
+  const res = useResponsive();
   const responsive = {
     xs: {
       color: 'red',
@@ -35,12 +35,10 @@ export const Exemple: ComponentStory<typeof Text> = () => {
     },
   };
 
-  
-
   return (
-       <Text widthHeight={100} lineHeight={20} media={responsive}>
-        {`${res.screen} - ${res.on('mobile') ? 'Mobile' : 'Not Mobile'}`}
-      </Text>
+    <Text widthHeight={100} lineHeight={20} media={responsive}>
+      {`${res.screen} - ${res.on('mobile') ? 'Mobile' : 'Not Mobile'}`}
+    </Text>
   );
 };
 
@@ -71,7 +69,7 @@ export const DarkLightMode: ComponentStory<typeof Text> = () => {
           <Text fontSize={30} fontWeight="bold" blend>
             Smart Text (Blend)
           </Text>
-          <Text color="color.black" marginTop={10}>
+          <Text color="color-black" marginTop={10}>
             Standard Text (Black)
           </Text>
         </View>
@@ -85,7 +83,7 @@ export const DarkLightMode: ComponentStory<typeof Text> = () => {
           <Text fontSize={30} fontWeight="bold">
             Smart Text (Blend)
           </Text>
-          <Text color="color.white" marginTop={10}>
+          <Text color="color-white" marginTop={10}>
             Standard Text (White)
           </Text>
         </View>
@@ -202,28 +200,28 @@ export const DesignSystemText = () => (
           Typography - Semantic Text
         </Text>
         <Vertical gap={16}>
-          <View padding={16} backgroundColor="color.gray.50" borderRadius="8px">
+          <View padding={16} backgroundColor="color-gray.50" borderRadius="8px">
             <Vertical gap={8}>
-              <Text color="color.gray.900" fontWeight="semiBold">
+              <Text color="color-gray-900" fontWeight="semiBold">
                 Primary Text
               </Text>
-              <Text color="color.gray.700">Secondary Text</Text>
-              <Text color="color.gray.500" size="sm">
+              <Text color="color-gray-700">Secondary Text</Text>
+              <Text color="color-gray-500" size="sm">
                 Tertiary Text
               </Text>
-              <Text color="color.gray.400" size="xs">
+              <Text color="color-gray-400" size="xs">
                 Disabled Text
               </Text>
             </Vertical>
           </View>
 
-          <View padding={16} backgroundColor="color.blue.50" borderRadius="8px">
+          <View padding={16} backgroundColor="color-blue.50" borderRadius="8px">
             <Vertical gap={8}>
-              <Text color="color.blue.900" fontWeight="semiBold">
+              <Text color="color-blue-900" fontWeight="semiBold">
                 Info Heading
               </Text>
-              <Text color="color.blue.700">Info Text</Text>
-              <Text color="color.blue.500" size="sm">
+              <Text color="color-blue-700">Info Text</Text>
+              <Text color="color-blue-500" size="sm">
                 Info Details
               </Text>
             </Vertical>
@@ -231,27 +229,27 @@ export const DesignSystemText = () => (
 
           <View
             padding={16}
-            backgroundColor="color.green.50"
+            backgroundColor="color-green.50"
             borderRadius="8px"
           >
             <Vertical gap={8}>
-              <Text color="color.green.900" fontWeight="semiBold">
+              <Text color="color-green-900" fontWeight="semiBold">
                 Success Heading
               </Text>
-              <Text color="color.green.700">Success Text</Text>
-              <Text color="color.green.500" size="sm">
+              <Text color="color-green-700">Success Text</Text>
+              <Text color="color-green-500" size="sm">
                 Success Details
               </Text>
             </Vertical>
           </View>
 
-          <View padding={16} backgroundColor="color.red.50" borderRadius="8px">
+          <View padding={16} backgroundColor="color-red.50" borderRadius="8px">
             <Vertical gap={8}>
-              <Text color="color.red.900" fontWeight="semiBold">
+              <Text color="color-red-900" fontWeight="semiBold">
                 Error Heading
               </Text>
-              <Text color="color.red.700">Error Text</Text>
-              <Text color="color.red.500" size="sm">
+              <Text color="color-red-700">Error Text</Text>
+              <Text color="color-red-500" size="sm">
                 Error Details
               </Text>
             </Vertical>

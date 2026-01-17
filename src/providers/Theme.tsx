@@ -18,8 +18,11 @@ import {
 } from '../utils/colors'; // Assuming this path is correct
 
 // --- Constants ---
-const THEME_PREFIX = 'theme.';
-const COLOR_PREFIX = 'color.';
+// Public API prefixes (dash notation: theme-primary, color-blue-500)
+const THEME_PREFIX = 'theme-';
+const COLOR_PREFIX = 'color-';
+const LIGHT_PREFIX = 'light-';
+const DARK_PREFIX = 'dark-';
 
 const TRANSPARENT = 'transparent';
 
@@ -95,21 +98,17 @@ const generateCSSVariables = (
   collectGenericNames(lightColors.main, 'color');
   collectGenericNames(lightColors.palette, 'color');
   // 3. Process Theme variables (references)
+  // Theme config uses dash notation (color-blue-500, theme-primary)
   const processTheme = (obj: any, prefix: string) => {
     Object.keys(obj).forEach((key) => {
       const value = obj[key];
-      const variableName = `${prefix}-${key}`.replace(/\./g, '-');
+      const variableName = `${prefix}-${key}`;
       if (typeof value === 'object' && value !== null) {
         processTheme(value, variableName);
       } else if (typeof value === 'string') {
-        if (value.startsWith(COLOR_PREFIX)) {
-          // Convert 'color.blue.500' -> 'var(--color-blue-500)'
-          // The underlying --color-blue-500 will change based on scope!
-          const refVar = value.replace(/\./g, '-');
-          themeVariables.push(`--${variableName}: var(--${refVar});`);
-        } else if (value.startsWith(THEME_PREFIX)) {
-          const refVar = value.replace(/\./g, '-');
-          themeVariables.push(`--${variableName}: var(--${refVar});`);
+        if (value.startsWith('color-') || value.startsWith('theme-')) {
+          // Convert 'color-blue-500' -> 'var(--color-blue-500)'
+          themeVariables.push(`--${variableName}: var(--${value});`);
         } else {
           themeVariables.push(`--${variableName}: ${value};`);
         }
@@ -169,14 +168,16 @@ interface ThemeContextProps {
 }
 
 // --- Default Configuration ---
+// Theme values use dash notation (color-X or color-X-shade)
+// which gets resolved to CSS variables (var(--color-X-shade))
 export const defaultThemeMain: Theme = {
-  primary: `${COLOR_PREFIX}black`,
-  secondary: `${COLOR_PREFIX}blue`,
-  success: `${COLOR_PREFIX}green.500`,
-  error: `${COLOR_PREFIX}red.500`,
-  warning: `${COLOR_PREFIX}orange.500`,
-  disabled: `${COLOR_PREFIX}gray.500`,
-  loading: `${COLOR_PREFIX}dark.500`,
+  primary: 'color-black',
+  secondary: 'color-blue',
+  success: 'color-green-500',
+  error: 'color-red-500',
+  warning: 'color-orange-500',
+  disabled: 'color-gray-500',
+  loading: 'color-dark-500',
 };
 
 const defaultLightColorConfig: Colors = {
@@ -241,9 +242,9 @@ const convertToRgba = (color: string, alpha: number): string => {
   // Handle rgb/rgba colors
   if (color.startsWith('rgb')) {
     // Extract the values from rgb() or rgba()
-    const match = color.match(/rgba?\(([^)]+)\)/);
-    if (match) {
-      const values = match[1].split(',').map((v) => v.trim());
+    const rgbMatch = color.match(/rgba?\(([^)]+)\)/);
+    if (rgbMatch) {
+      const values = rgbMatch[1].split(',').map((v) => v.trim());
       const r = values[0];
       const g = values[1];
       const b = values[2];
@@ -478,11 +479,35 @@ export const ThemeProvider = ({
         ? (deepMerge(mergedTheme, override.theme) as Theme)
         : mergedTheme;
 
-      // Resolve theme.* tokens recursively
+      // Convert dash notation to internal format for resolution
+      // theme-primary-100 -> parts for processing
       if (token.startsWith(THEME_PREFIX)) {
-        const themeKey = token.substring(THEME_PREFIX.length) as keyof Theme;
-        const themeValue = effectiveTheme[themeKey];
+        const parts = token.substring(THEME_PREFIX.length).split('-');
+        const lastPart = parts[parts.length - 1];
+        const maybeAlpha = parseInt(lastPart, 10);
+
+        // Check for alpha suffix: theme-primary-100 (2+ parts after prefix, last is 0-1000)
+        if (
+          parts.length >= 2 &&
+          !isNaN(maybeAlpha) &&
+          maybeAlpha >= 0 &&
+          maybeAlpha <= 1000
+        ) {
+          const themeKey = parts.slice(0, -1).join('-') as keyof Theme;
+          const baseToken = `${THEME_PREFIX}${themeKey}`;
+          const resolvedBase = resolveColorTokenForMode(
+            baseToken,
+            mode,
+            override,
+            depth + 1
+          );
+          return convertToRgba(resolvedBase, maybeAlpha);
+        }
+
+        const themeKey = parts.join('-') as keyof Theme;
+        const themeValue = effectiveTheme[themeKey as keyof Theme];
         if (typeof themeValue === 'string') {
+          // Theme values use dash notation (color-blue-500)
           return resolveColorTokenForMode(
             themeValue,
             mode,
@@ -493,23 +518,9 @@ export const ThemeProvider = ({
         return token;
       }
 
-      // Resolve explicit mode paths like "light.blue.500" / "dark.blue.500"
-      if (token.startsWith('light.') || token.startsWith('dark.')) {
-        const explicitMode = token.startsWith('light.') ? 'light' : 'dark';
-        const prefixLength = token.startsWith('light.') ? 6 : 5;
-        const modifiedName = `${COLOR_PREFIX}${token.substring(prefixLength)}`;
-        return resolveColorTokenForMode(
-          modifiedName,
-          explicitMode,
-          override,
-          depth + 1
-        );
-      }
-
-      // Resolve color.* tokens
+      // Handle dash notation: color-blue-500, light-blue-500, dark-blue-500
       if (token.startsWith(COLOR_PREFIX)) {
-        const keys = token.substring(COLOR_PREFIX.length).split('.');
-
+        const parts = token.substring(COLOR_PREFIX.length).split('-');
         const colorsToUse = themeColors[mode];
         const palette = deepMerge(
           colorsToUse.palette,
@@ -517,30 +528,46 @@ export const ThemeProvider = ({
         );
         const main = deepMerge(colorsToUse.main, override?.colors?.main || {});
 
-        if (keys.length === 3) {
-          // e.g. color.blue.500.200 (alpha)
-          const [colorName, variant, alphaStr] = keys;
-          const base = palette?.[colorName]?.[variant];
-          const alpha = parseInt(alphaStr, 10);
-          if (typeof base === 'string' && !isNaN(alpha)) {
-            return convertToRgba(base, alpha);
+        // color-blue-500-200 (alpha)
+        if (parts.length >= 3) {
+          const lastPart = parts[parts.length - 1];
+          const maybeAlpha = parseInt(lastPart, 10);
+          if (!isNaN(maybeAlpha) && maybeAlpha >= 0 && maybeAlpha <= 1000) {
+            const colorName = parts[0];
+            const variant = parts[1];
+            const base = palette?.[colorName]?.[variant];
+            if (typeof base === 'string') {
+              return convertToRgba(base, maybeAlpha);
+            }
           }
-          return token;
         }
-
-        if (keys.length === 2) {
-          const [colorName, variant] = keys;
+        // color-blue-500
+        if (parts.length === 2) {
+          const [colorName, variant] = parts;
           const value = palette?.[colorName]?.[variant];
           return typeof value === 'string' ? value : token;
         }
-
-        if (keys.length === 1) {
-          const [colorName] = keys;
-          const value = main?.[colorName];
+        // color-blue
+        if (parts.length === 1) {
+          const value = main?.[parts[0]];
           return typeof value === 'string' ? value : token;
         }
-
         return token;
+      }
+
+      // Handle light-* and dark-* tokens
+      if (token.startsWith(LIGHT_PREFIX) || token.startsWith(DARK_PREFIX)) {
+        const explicitMode = token.startsWith(LIGHT_PREFIX) ? 'light' : 'dark';
+        const prefix = token.startsWith(LIGHT_PREFIX)
+          ? LIGHT_PREFIX
+          : DARK_PREFIX;
+        const colorPart = token.substring(prefix.length);
+        return resolveColorTokenForMode(
+          `${COLOR_PREFIX}${colorPart}`,
+          explicitMode,
+          override,
+          depth + 1
+        );
       }
 
       return token;
@@ -549,6 +576,7 @@ export const ThemeProvider = ({
   );
 
   // --- Helper function to resolve color tokens to actual values ---
+  // This is used internally and handles dash notation (public API)
   const resolveColorToken = useCallback(
     (token: string): string => {
       if (!token || typeof token !== 'string') return String(token);
@@ -556,35 +584,53 @@ export const ThemeProvider = ({
 
       const colors = currentColors;
 
-      // Resolve color.* tokens
+      // Handle dash notation: color-blue-500
       if (token.startsWith(COLOR_PREFIX)) {
-        const keys = token.substring(COLOR_PREFIX.length).split('.');
+        const parts = token.substring(COLOR_PREFIX.length).split('-');
 
-        if (keys.length === 1) {
-          // e.g., "color.blue" -> main color
-          const colorValue = colors.main[keys[0]];
-          return typeof colorValue === 'string' ? colorValue : token;
-        } else if (keys.length === 2) {
-          // e.g., "color.blue.500" -> palette color
-          const [colorName, shade] = keys;
+        // color-blue-500-200 (alpha)
+        if (parts.length >= 3) {
+          const lastPart = parts[parts.length - 1];
+          const maybeAlpha = parseInt(lastPart, 10);
+          if (!isNaN(maybeAlpha) && maybeAlpha >= 0 && maybeAlpha <= 1000) {
+            const percentage = Math.round((maybeAlpha / 1000) * 100);
+            const baseVar = `color-${parts.slice(0, -1).join('-')}`;
+            return `color-mix(in srgb, var(--${baseVar}) ${percentage}%, transparent)`;
+          }
+        }
+        // color-blue-500
+        if (parts.length === 2) {
+          const [colorName, shade] = parts;
           const shadeValue = colors.palette[colorName]?.[Number(shade)];
           return typeof shadeValue === 'string' ? shadeValue : token;
-        } else if (keys.length === 3) {
-          // e.g., "color.blue.500.200" -> palette color with alpha
-          // Use color-mix() to apply alpha via CSS variables
-          const [colorName, shade, alphaStr] = keys;
-          const alpha = parseInt(alphaStr, 10);
-          if (!isNaN(alpha)) {
-            const percentage = Math.round((alpha / 1000) * 100);
-            return `color-mix(in srgb, var(--color-${colorName}-${shade}) ${percentage}%, transparent)`;
-          }
+        }
+        // color-blue
+        if (parts.length === 1) {
+          const colorValue = colors.main[parts[0]];
+          return typeof colorValue === 'string' ? colorValue : token;
         }
       }
 
-      // Resolve theme.* tokens (recursive resolution)
+      // Handle dash notation: theme-primary, theme-primary-100
       if (token.startsWith(THEME_PREFIX)) {
-        const themeKey = token.substring(THEME_PREFIX.length) as keyof Theme;
-        const themeValue = mergedTheme[themeKey];
+        const parts = token.substring(THEME_PREFIX.length).split('-');
+        const lastPart = parts[parts.length - 1];
+        const maybeAlpha = parseInt(lastPart, 10);
+
+        // theme-primary-100 (alpha)
+        if (
+          parts.length >= 2 &&
+          !isNaN(maybeAlpha) &&
+          maybeAlpha >= 0 &&
+          maybeAlpha <= 1000
+        ) {
+          const percentage = Math.round((maybeAlpha / 1000) * 100);
+          const baseVar = `theme-${parts.slice(0, -1).join('-')}`;
+          return `color-mix(in srgb, var(--${baseVar}) ${percentage}%, transparent)`;
+        }
+
+        const themeKey = parts.join('-') as keyof Theme;
+        const themeValue = mergedTheme[themeKey as keyof Theme];
         if (typeof themeValue === 'string') {
           return resolveColorToken(themeValue);
         }
@@ -597,118 +643,74 @@ export const ThemeProvider = ({
 
   // The mode is now handled by the data-attribute on the container
 
-  // --- Memoized getColor function - Revised for Robustness ---
+  // --- Memoized getColor function - Dash notation only ---
   const getColor = useCallback(
-    (name: string, override?: Override): string => {
-      if (!name || typeof name !== 'string') return String(name); // Handle invalid input
+    (name: string): string => {
+      if (!name || typeof name !== 'string') return String(name);
       if (name === TRANSPARENT) return name;
 
-      // 1. Check for optimization (CSS vars) if no overrides
-      // This allows instant theme switching via CSS variables without re-render
-      if (!override || Object.keys(override).length === 0) {
-        if (name.startsWith(THEME_PREFIX)) {
-          return `var(--${name.replace(/\./g, '-')})`;
-        }
-        if (name.startsWith(COLOR_PREFIX)) {
-          const parts = name.split('.');
-          // Simple lookup (e.g. color.blue or color.blue.500)
-          if (parts.length < 4) {
-            return `var(--${name.replace(/\./g, '-')})`;
-          }
-        }
-      }
-
-      // 2. Manual Resolution (Fallback for overrides or complex keys)
-      const effectiveMode = override?.themeMode ?? themeMode;
-      const needCache = override && Object.keys(override).length === 0;
-      const cacheKey = `${name}-${effectiveMode}`;
-
-      if (needCache && colorCache.has(cacheKey)) {
-        return colorCache.get(cacheKey)!;
-      }
-
-      // Strict Mode Check
+      // Strict Mode Check - only dash notation is supported
       if (
         strict &&
         !name.startsWith(COLOR_PREFIX) &&
         !name.startsWith(THEME_PREFIX) &&
-        !name.startsWith('light.') &&
-        !name.startsWith('dark.')
+        !name.startsWith(LIGHT_PREFIX) &&
+        !name.startsWith(DARK_PREFIX)
       ) {
         console.warn(
-          `[Theme] Strict mode enabled: '${name}' is not a valid color token.`
+          `[Theme] Invalid color token: '${name}'. Use dash notation: theme-primary, color-blue-500`
         );
       }
 
-      // 3. Select the correct color set (light/dark) based on the effective mode
-      const colorsToUse = themeColors[effectiveMode];
-      if (!colorsToUse) {
-        console.warn(`Color set for mode "${effectiveMode}" not found.`);
-        return name;
+      const parts = name.split('-');
+      const lastPart = parts[parts.length - 1];
+      const maybeAlpha = parseInt(lastPart, 10);
+
+      // Handle theme-* tokens (e.g., theme-primary, theme-primary-100)
+      if (name.startsWith(THEME_PREFIX)) {
+        // Check for alpha suffix: theme-primary-100 (3+ parts, last is 0-1000)
+        if (
+          parts.length >= 3 &&
+          !isNaN(maybeAlpha) &&
+          maybeAlpha >= 0 &&
+          maybeAlpha <= 1000
+        ) {
+          const baseVar = parts.slice(0, -1).join('-');
+          const percentage = Math.round((maybeAlpha / 1000) * 100);
+          return `color-mix(in srgb, var(--${baseVar}) ${percentage}%, transparent)`;
+        }
+        return `var(--${name})`;
       }
 
-      let resolvedColor = name;
-
-      try {
-        // Resolve "light.*" or "dark.*" paths directly
-        if (name.startsWith('light.') || name.startsWith('dark.')) {
-          const prefixLength = name.startsWith('light.') ? 6 : 5;
-          const modifiedName = `${COLOR_PREFIX}${name.substring(prefixLength)}`;
-          return `var(--${modifiedName.replace(/\./g, '-')})`;
+      // Handle color-* tokens (e.g., color-blue-500, color-blue-500-200)
+      if (name.startsWith(COLOR_PREFIX)) {
+        // Check for alpha suffix: color-blue-500-200 (4+ parts, last is 0-1000)
+        if (
+          parts.length >= 4 &&
+          !isNaN(maybeAlpha) &&
+          maybeAlpha >= 0 &&
+          maybeAlpha <= 1000
+        ) {
+          const baseVar = parts.slice(0, -1).join('-');
+          const percentage = Math.round((maybeAlpha / 1000) * 100);
+          return `color-mix(in srgb, var(--${baseVar}) ${percentage}%, transparent)`;
         }
-
-        // Resolve "color.*" paths
-        if (name.startsWith(COLOR_PREFIX)) {
-          const keys = name.substring(COLOR_PREFIX.length).split('.');
-
-          if (keys.length === 3) {
-            // e.g. "color.black.900.200" (alpha)
-            const [colorName, variant, alphaStr] = keys;
-            const palette = deepMerge(
-              colorsToUse.palette,
-              override?.colors?.palette || {}
-            );
-            const shadeValue = palette?.[colorName]?.[variant];
-            const alpha = parseInt(alphaStr, 10);
-
-            if (typeof shadeValue === 'string' && !isNaN(alpha)) {
-              resolvedColor = convertToRgba(shadeValue, alpha);
-            }
-          } else if (keys.length === 2) {
-            // e.g. "color.blue.500"
-            const [colorName, variant] = keys;
-            const palette = deepMerge(
-              colorsToUse.palette,
-              override?.colors?.palette || {}
-            );
-            const shadeValue = palette?.[colorName]?.[variant];
-
-            if (typeof shadeValue === 'string') {
-              resolvedColor = shadeValue;
-            }
-          } else if (keys.length === 1) {
-            // e.g. "color.blue"
-            const [colorName] = keys;
-            const main = deepMerge(
-              colorsToUse.main,
-              override?.colors?.main || {}
-            );
-            const colorValue = main?.[colorName];
-
-            if (typeof colorValue === 'string') {
-              resolvedColor = colorValue;
-            }
-          }
-        }
-      } catch (e) {
-        console.error(`Error resolving color "${name}"`, e);
-        resolvedColor = name;
+        return `var(--${name})`;
       }
 
-      if (needCache) colorCache.set(cacheKey, resolvedColor);
-      return resolvedColor;
+      // Handle light-* and dark-* tokens (e.g., light-blue-500, dark-red-200)
+      if (name.startsWith(LIGHT_PREFIX) || name.startsWith(DARK_PREFIX)) {
+        const prefix = name.startsWith(LIGHT_PREFIX)
+          ? LIGHT_PREFIX
+          : DARK_PREFIX;
+        const colorPart = name.substring(prefix.length);
+        return `var(--${prefix}color-${colorPart})`;
+      }
+
+      // Return as-is for direct values (#hex, rgb(), etc.)
+      return name;
     },
-    [mergedTheme, themeColors, themeMode, colorCache, strict]
+    [strict]
   );
 
   const getColorHex = useCallback(
@@ -773,7 +775,7 @@ export const ThemeProvider = ({
         ? (deepMerge(mergedTheme, override.theme) as Theme)
         : mergedTheme;
 
-      // Resolve theme.* tokens to get the underlying color token
+      // Resolve theme-* tokens to get the underlying color token
       let colorToken = name;
       if (name.startsWith(THEME_PREFIX)) {
         const themeKey = name.substring(THEME_PREFIX.length) as keyof Theme;
@@ -783,17 +785,22 @@ export const ThemeProvider = ({
         }
       }
 
-      // Handle light.* or dark.* prefixes
-      if (colorToken.startsWith('light.') || colorToken.startsWith('dark.')) {
-        const prefixLength = colorToken.startsWith('light.') ? 6 : 5;
-        colorToken = `${COLOR_PREFIX}${colorToken.substring(prefixLength)}`;
+      // Handle light-* or dark-* prefixes
+      if (
+        colorToken.startsWith(LIGHT_PREFIX) ||
+        colorToken.startsWith(DARK_PREFIX)
+      ) {
+        const prefix = colorToken.startsWith(LIGHT_PREFIX)
+          ? LIGHT_PREFIX
+          : DARK_PREFIX;
+        colorToken = `${COLOR_PREFIX}${colorToken.substring(prefix.length)}`;
       }
 
-      // Extract color scheme from color.* tokens (e.g., color.blue.500 -> 'blue')
+      // Extract color scheme from color-* tokens (e.g., color-blue-500 -> 'blue')
       if (colorToken.startsWith(COLOR_PREFIX)) {
-        const keys = colorToken.substring(COLOR_PREFIX.length).split('.');
-        if (keys.length >= 1) {
-          return keys[0]; // Return the color scheme name (e.g., 'blue', 'pink')
+        const parts = colorToken.substring(COLOR_PREFIX.length).split('-');
+        if (parts.length >= 1) {
+          return parts[0]; // Return the color scheme name (e.g., 'blue', 'pink')
         }
       }
 

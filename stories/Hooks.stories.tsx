@@ -97,7 +97,7 @@ const InViewExample = () => {
       <View marginTop="40vh">
         {inView ? 'Element is in view' : 'Element is out of view'}
       </View>
-      <View ref={ref} backgroundColor="color.lightblue" margin="60vh">
+      <View ref={ref} backgroundColor="color-lightblue" margin="60vh">
         {inView ? 'Element is in view' : 'Element is out of view'}
       </View>
     </View>
@@ -142,13 +142,13 @@ const ScrollExample = () => {
         Scroll Position - X: {x}, Y: {y} | Scroll Progress - X:{' '}
         {(xProgress * 100).toFixed(0)}%, Y: {(yProgress * 100).toFixed(0)}%
       </View>
-      <View marginTop="40vh" padding="20px" backgroundColor="color.red">
+      <View marginTop="40vh" padding="20px" backgroundColor="color-red">
         Scroll down to see more content.
       </View>
-      <View marginTop="40vh" padding="20px" backgroundColor="color.blue">
+      <View marginTop="40vh" padding="20px" backgroundColor="color-blue">
         Scroll down to see more content.
       </View>
-      <View marginTop="40vh" padding="20px" backgroundColor="color.green">
+      <View marginTop="40vh" padding="20px" backgroundColor="color-green">
         Scroll down to see more content.
       </View>
     </View>
@@ -165,7 +165,7 @@ const OnScreenExample = () => {
       <View
         ref={ref}
         marginTop="90vh"
-        backgroundColor="color.lightcoral"
+        backgroundColor="color-lightcoral"
         widthHeight={100}
       />
     </View>
@@ -186,34 +186,32 @@ const WindowSizeExample = () => {
 const ResponsiveExample = () => {
   const responsive = useResponsive();
   const media = {
-      xs: {
-        color: 'red',
-      },
-      sm: {
-        color: 'green',
-      },
-      md: {
-        color: 'blue',
-      },
-      lg: {
-        color: 'yellow',
-      },
-      xl: {
-        color: 'red',
-      },
-    };
-  
-    
-  
+    xs: {
+      color: 'red',
+    },
+    sm: {
+      color: 'green',
+    },
+    md: {
+      color: 'blue',
+    },
+    lg: {
+      color: 'yellow',
+    },
+    xl: {
+      color: 'red',
+    },
+  };
+
   return (
     <View>
       <View css={{ marginBottom: '10px' }}>Screen: {responsive.screen}</View>
       <View css={{ marginBottom: '10px' }}>
         Orientation: {responsive.orientation}
       </View>
-       <Text widthHeight={100} lineHeight={20} media={media}>
-          {`${responsive.screen} - ${responsive.on('mobile') ? 'Mobile' : 'Not Mobile'}`}
-        </Text>
+      <Text widthHeight={100} lineHeight={20} media={media}>
+        {`${responsive.screen} - ${responsive.on('mobile') ? 'Mobile' : 'Not Mobile'}`}
+      </Text>
       <View>Is mobile: {responsive.is('mobile').toString()}</View>
     </View>
   );
@@ -278,8 +276,8 @@ const CornerElement = ({
         ref={ref}
         width={120}
         height={80}
-        backgroundColor="color.blue.500"
-        color="color.white"
+        backgroundColor="color-blue-500"
+        color="color-white"
         borderRadius={8}
         padding={12}
         cursor="pointer"
@@ -315,8 +313,8 @@ const CornerElement = ({
       {showTooltip && relation && (
         <View
           style={getTooltipStyle()}
-          backgroundColor="color.gray.900"
-          color="color.white"
+          backgroundColor="color-gray-900"
+          color="color-white"
           borderRadius={4}
           padding={6}
           fontSize="xs"
@@ -351,8 +349,8 @@ const ScrollableElement = ({
         ref={ref}
         width={100}
         height={60}
-        backgroundColor="color.green.500"
-        color="color.white"
+        backgroundColor="color-green-500"
+        color="color-white"
         borderRadius={6}
         padding={8}
         cursor="pointer"
@@ -390,22 +388,22 @@ const ScrollableElement = ({
           top="50%"
           css={{ transform: 'translate(-50%, -50%)' }}
           width={200}
-          backgroundColor="color.white"
+          backgroundColor="color-white"
           boxShadow="xl"
           borderRadius={8}
           padding={12}
           zIndex={1000}
           border="1px solid"
-          borderColor="color.gray.300"
+          borderColor="color-gray-300"
         >
           <View fontSize="sm" fontWeight="bold" marginBottom={4}>
             {label} Position Info
           </View>
-          <View fontSize="xs" color="color.gray.600" marginBottom={2}>
+          <View fontSize="xs" color="color-gray-600" marginBottom={2}>
             Position: {relation.position.vertical}-
             {relation.position.horizontal}
           </View>
-          <View fontSize="xs" color="color.gray.600">
+          <View fontSize="xs" color="color-gray-600">
             More space: {relation.space.vertical}-{relation.space.horizontal}
           </View>
         </View>
@@ -422,7 +420,7 @@ const BasicElementPositionExample = () => {
     <View
       height="300px"
       width="100%"
-      backgroundColor="color.gray.50"
+      backgroundColor="color-gray.50"
       padding={20}
       position="relative"
     >
@@ -430,7 +428,7 @@ const BasicElementPositionExample = () => {
         fontSize="lg"
         fontWeight="bold"
         marginBottom={16}
-        color="color.gray.700"
+        color="color-gray-700"
       >
         Basic useElementPosition Example (Hover Enabled)
       </View>
@@ -439,8 +437,8 @@ const BasicElementPositionExample = () => {
         ref={ref}
         width={200}
         height={100}
-        backgroundColor="color.blue.500"
-        color="color.white"
+        backgroundColor="color-blue-500"
+        color="color-white"
         borderRadius={8}
         padding={16}
         cursor="pointer"
@@ -457,7 +455,7 @@ const BasicElementPositionExample = () => {
         }}
         onClick={updateRelation}
         _hover={{
-          backgroundColor: 'color.blue.600',
+          backgroundColor: 'color-blue-600',
         }}
       >
         <View fontSize="sm" fontWeight="bold" marginBottom={8}>
@@ -483,12 +481,12 @@ const BasicElementPositionExample = () => {
         bottom={10}
         left={10}
         fontSize="xs"
-        color="color.gray.600"
-        backgroundColor="color.white"
+        color="color-gray-600"
+        backgroundColor="color-white"
         padding={8}
         borderRadius={4}
         border="1px solid"
-        borderColor="color.gray.200"
+        borderColor="color-gray-200"
       >
         Hover tracking enabled by default. Position updates on hover
         automatically.
@@ -514,14 +512,14 @@ const ConfigurableEventsExample = () => {
     <View
       height="400px"
       width="100%"
-      backgroundColor="color.gray.50"
+      backgroundColor="color-gray.50"
       padding={20}
     >
       <View
         fontSize="lg"
         fontWeight="bold"
         marginBottom={16}
-        color="color.gray.700"
+        color="color-gray-700"
       >
         Configurable Events Demo
       </View>
@@ -535,8 +533,8 @@ const ConfigurableEventsExample = () => {
           <View
             ref={hoverOnly.ref}
             height={100}
-            backgroundColor="color.blue.500"
-            color="color.white"
+            backgroundColor="color-blue-500"
+            color="color-white"
             borderRadius={8}
             padding={12}
             cursor="pointer"
@@ -574,8 +572,8 @@ const ConfigurableEventsExample = () => {
           <View
             ref={allEvents.ref}
             height={100}
-            backgroundColor="color.green.500"
-            color="color.white"
+            backgroundColor="color-green-500"
+            color="color-white"
             borderRadius={8}
             padding={12}
             cursor="pointer"
@@ -613,8 +611,8 @@ const ConfigurableEventsExample = () => {
           <View
             ref={noEvents.ref}
             height={100}
-            backgroundColor="color.orange.500"
-            color="color.white"
+            backgroundColor="color-orange-500"
+            color="color-white"
             borderRadius={8}
             padding={12}
             cursor="pointer"
@@ -646,7 +644,7 @@ const ConfigurableEventsExample = () => {
         </View>
       </View>
 
-      <View fontSize="xs" color="color.gray.500" marginTop={12}>
+      <View fontSize="xs" color="color-gray-500" marginTop={12}>
         Blue: Hover tracking only (default) | Green: All events enabled |
         Orange: Manual updates only
       </View>
@@ -659,14 +657,14 @@ const ElementPositionExample = () => {
     <View
       height="500px"
       width="100%"
-      backgroundColor="color.gray.50"
+      backgroundColor="color-gray.50"
       padding={20}
     >
       <View
         fontSize="lg"
         fontWeight="bold"
         marginBottom={16}
-        color="color.gray.700"
+        color="color-gray-700"
       >
         useElementPosition Demo - Viewport Relation Detection
       </View>
@@ -678,17 +676,17 @@ const ElementPositionExample = () => {
             fontSize="sm"
             fontWeight="bold"
             marginBottom={8}
-            color="color.gray.600"
+            color="color-gray-600"
           >
             Viewport Position Detection
           </View>
           <View
             height="300px"
             position="relative"
-            backgroundColor="color.blue.50"
+            backgroundColor="color-blue.50"
             borderRadius={8}
             border="2px solid"
-            borderColor="color.blue.200"
+            borderColor="color-blue-200"
           >
             <CornerElement corner="TOP LEFT" style={{ top: 10, left: 10 }} />
             <CornerElement corner="TOP RIGHT" style={{ top: 10, right: 10 }} />
@@ -709,17 +707,17 @@ const ElementPositionExample = () => {
             fontSize="sm"
             fontWeight="bold"
             marginBottom={8}
-            color="color.gray.600"
+            color="color-gray-600"
           >
             Scrollable Content Demo
           </View>
           <View
             height="300px"
             position="relative"
-            backgroundColor="color.green.50"
+            backgroundColor="color-green.50"
             borderRadius={8}
             border="2px solid"
-            borderColor="color.green.200"
+            borderColor="color-green-200"
             css={{
               overflow: 'auto',
             }}
@@ -757,10 +755,10 @@ const ElementPositionExample = () => {
                   textAlign: 'center',
                 }}
               >
-                <View fontSize="sm" color="color.gray.500" marginBottom={4}>
+                <View fontSize="sm" color="color-gray-500" marginBottom={4}>
                   Scroll to see position updates
                 </View>
-                <View fontSize="xs" color="color.gray.400">
+                <View fontSize="xs" color="color-gray-400">
                   Click elements for position info
                 </View>
               </View>
@@ -769,7 +767,7 @@ const ElementPositionExample = () => {
         </View>
       </View>
 
-      <View fontSize="xs" color="color.gray.500" marginTop={12}>
+      <View fontSize="xs" color="color-gray-500" marginTop={12}>
         Left: Hover for tooltips, click to update | Right: Click elements for
         position details
       </View>

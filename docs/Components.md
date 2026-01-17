@@ -9,7 +9,7 @@ The `Element` component is the foundation of App-Studio. It is responsible for h
 ### Usage
 
 ```jsx
-<Element backgroundColor="color.blue" padding={10}>This is an element</Element>
+<Element backgroundColor="color-blue" padding={10}>This is an element</Element>
 ```
 
 It is the base component for all other components in the library. It adds additional properties to help manage design:
@@ -29,7 +29,7 @@ import { View } from 'app-studio';
 
 <View
   widthHeight={100}
-  backgroundColor="color.white"
+  backgroundColor="color-white"
   marginTop={20}
 >
   {/* Content */}
@@ -79,7 +79,7 @@ For displaying text content with theme support. Extends the basic `span` HTML el
 import { Text } from 'app-studio';
 
 <Text
-  color="color.black"
+  color="color-black"
   marginRight={10}
 >
   Content
@@ -87,7 +87,7 @@ import { Text } from 'app-studio';
 
 // With theme mode
 <Text
-  color="color.red"
+  color="color-red"
   themeMode="dark"
 >
   Dark mode text
@@ -144,7 +144,7 @@ import { Input } from 'app-studio';
   shadow={9}
   on={{
     hover: {
-      backgroundColor: 'color.red'
+      backgroundColor: 'color-red'
     }
   }}
 />
@@ -159,12 +159,12 @@ import { Button } from 'app-studio';
 <Button
   paddingHorizontal={20}
   paddingVertical={10}
-  backgroundColor="color.green.500"
-  color="color.white"
+  backgroundColor="color-green-500"
+  color="color-white"
   borderRadius={5}
   fontWeight="bold"
   on={{
-    hover: { backgroundColor: 'color.green.600' },
+    hover: { backgroundColor: 'color-green-600' },
     active: { transform: 'scale(0.95)' }
   }}
 >

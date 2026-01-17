@@ -123,10 +123,10 @@ function MyStyledElement() {
     <Element
       as="section"
       padding={16}
-      backgroundColor="color.blue.500"
+      backgroundColor="color-blue-500"
       borderRadius={8}
-      color="color.white"
-      on={{ hover: { backgroundColor: 'color.blue.600' } }}
+      color="color-white"
+      on={{ hover: { backgroundColor: 'color-blue-600' } }}
       media={{ mobile: { padding: 8 } }}
     >
       This is a styled section.
@@ -162,9 +162,9 @@ import { View, Horizontal, Text } from 'app-studio';
 
 function MyLayout() {
   return (
-    <View padding={16} backgroundColor="color.gray.100">
+    <View padding={16} backgroundColor="color-gray-100">
       <Horizontal gap={8} alignItems="center">
-        <View width={50} height={50} backgroundColor="color.red.500" borderRadius="50%" />
+        <View width={50} height={50} backgroundColor="color-red-500" borderRadius="50%" />
         <Text fontSize="lg" fontWeight="bold">Item Title</Text>
       </Horizontal>
     </View>
@@ -200,7 +200,7 @@ function MyText() {
     <Text
       fontSize="xl"
       fontWeight="bold"
-      color="theme.primary"
+      color="theme-primary"
       textAlign="center"
       toUpperCase
     >
@@ -243,7 +243,7 @@ function MyImage() {
       <Image src="logo.png" alt="Company Logo" width={100} height={50} objectFit="contain" />
 
       <ImageBackground src="hero.jpg" height={200} width="100%" display="flex" alignItems="center" justifyContent="center">
-        <Text color="color.white" fontSize="2xl">Overlay Text</Text>
+        <Text color="color-white" fontSize="2xl">Overlay Text</Text>
       </ImageBackground>
     </>
   );
@@ -287,9 +287,9 @@ function MyForm() {
 
   return (
     <Form onSubmit={handleSubmit} display="flex" flexDirection="column" gap={12}>
-      <Input name="username" placeholder="Username" padding={8} borderRadius={4} border="1px solid color.gray.300" />
-      <Input name="password" type="password" placeholder="Password" padding={8} borderRadius={4} border="1px solid color.gray.300" />
-      <Button type="submit" backgroundColor="color.blue.500" color="color.white" padding={10} borderRadius={4} cursor="pointer">
+      <Input name="username" placeholder="Username" padding={8} borderRadius={4} border="1px solid color-gray-300" />
+      <Input name="password" type="password" placeholder="Password" padding={8} borderRadius={4} border="1px solid color-gray-300" />
+      <Button type="submit" backgroundColor="color-blue-500" color="color-white" padding={10} borderRadius={4} cursor="pointer">
         Log In
       </Button>
     </Form>
@@ -347,7 +347,7 @@ function AnimatedComponent() {
     <View
       animate={Animation.fadeIn({ duration: '0.5s' })}
       padding={20}
-      backgroundColor="color.blue.200"
+      backgroundColor="color-blue-200"
     >
       Fades In
     </View>
@@ -395,7 +395,7 @@ function SequencedAnimation() {
     <View
       animate={sequence}
       padding={20}
-      backgroundColor="color.green.200"
+      backgroundColor="color-green-200"
     >
       Sequence
     </View>
@@ -449,7 +449,7 @@ function ResponsiveAnimation() {
   return (
     <View
       padding={20}
-      backgroundColor="color.purple.200"
+      backgroundColor="color-purple-200"
       media={{
         mobile: {
           animate: Animation.fadeIn({ duration: '1s' })
@@ -497,7 +497,7 @@ import { View } from './components/View'; // Assuming View component path
 function HoverComponent() {
   const [hoverRef, isHovered] = useHover();
   return (
-    <View ref={hoverRef} padding={20} backgroundColor={isHovered ? 'color.gray.200' : 'color.white'}>
+    <View ref={hoverRef} padding={20} backgroundColor={isHovered ? 'color-gray-200' : 'color-white'}>
       Hover over me!
     </View>
   );
@@ -512,8 +512,8 @@ function ResponsiveComponent() {
   return (
     <View>
       <Text>Current Screen: {screen}, Orientation: {orientation}</Text>
-      {on('mobile') && <Text color="color.red.500">This only shows on mobile!</Text>}
-      {on('desktop') && <Text color="color.blue.500">This only shows on desktop!</Text>}
+      {on('mobile') && <Text color="color-red-500">This only shows on mobile!</Text>}
+      {on('desktop') && <Text color="color-blue-500">This only shows on desktop!</Text>}
       {/* Check specific breakpoint */}
       {on('md') && <Text>Medium screen size detected.</Text>}
     </View>
@@ -528,7 +528,7 @@ function LazyLoadComponent() {
   const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.1 });
 
   return (
-    <View ref={ref} height={200} backgroundColor="color.gray.100">
+    <View ref={ref} height={200} backgroundColor="color-gray-100">
       {inView ? (
         <View animate={Animation.fadeIn()}>Content loaded!</View>
       ) : (
@@ -553,14 +553,14 @@ Manages the application's theme, including color palettes, light/dark modes, and
 
 | Prop    | Type               | Default                             | Description                                                                       |
 | :------ | :----------------- | :---------------------------------- | :-------------------------------------------------------------------------------- |
-| `theme` | `object`           | `{ primary: 'color.black', ... }`   | Custom theme tokens (e.g., `primary`, `secondary`) that map to color strings.     |
+| `theme` | `object`           | `{ primary: 'color-black', ... }`   | Custom theme tokens (e.g., `primary`, `secondary`) that map to color strings.     |
 | `mode`  | `'light' \| 'dark'`| `'light'`                           | Sets the initial theme mode.                                                      |
 | `dark`  | `Colors`           | Default dark palette & main colors  | Configuration object for dark mode containing `main` (singleton colors) and `palette`. |
 | `light` | `Colors`           | Default light palette & main colors | Configuration object for light mode containing `main` (singleton colors) and `palette`.|
 
 **Context Values (via `useTheme`)**
 
-*   `getColor(colorName, mode?)`: Resolves a color string (e.g., `color.blue.500`, `theme.primary`, `blackAlpha.500`) to its CSS value for the specified or current theme mode. You can also directly access specific theme mode colors using the `light.` or `dark.` prefix (e.g., `light.white` or `dark.red.200`), which will always use that specific theme mode's color regardless of the current theme setting.
+*   `getColor(colorName, mode?)`: Resolves a color string (e.g., `color-blue.500`, `theme-primary`, `blackAlpha.500`) to its CSS value for the specified or current theme mode. You can also directly access specific theme mode colors using the `light-` or `dark-` prefix (e.g., `light-white` or `dark-red.200`), which will always use that specific theme mode's color regardless of the current theme setting.
 *   `theme`: The merged theme configuration object.
 *   `themeMode`: The current mode ('light' or 'dark').
 *   `setThemeMode(mode)`: Function to change the theme mode.
@@ -634,8 +634,8 @@ function ThemedComponent() {
 
   return (
     <View
-      backgroundColor={getColor('theme.primary')} // Get theme color
-      color={getColor('color.white')}            // Get singleton color
+      backgroundColor={getColor('theme-primary')} // Get theme color
+      color={getColor('color-white')}            // Get singleton color
       borderRadius={8}
       padding={10}
     >
@@ -645,8 +645,8 @@ function ThemedComponent() {
       <View
         marginTop={10}
         padding={8}
-        backgroundColor={getColor('light.blue.200')} // Always light mode blue
-        borderColor={getColor('dark.red.500')}       // Always dark mode red
+        backgroundColor={getColor('light-blue-200')} // Always light mode blue
+        borderColor={getColor('dark-red-500')}       // Always dark mode red
         borderWidth={2}
         borderStyle="solid"
         borderRadius={4}
@@ -656,8 +656,8 @@ function ThemedComponent() {
 
       {/* Direct usage in component props without getColor */}
       <View marginTop={10} padding={8}>
-        <Text color="light.white">Always light mode white text</Text>
-        <Text color="dark.blue.700" marginTop={4}>Always dark mode blue text</Text>
+        <Text color="light-white">Always light mode white text</Text>
+        <Text color="dark-blue-700" marginTop={4}>Always dark mode blue text</Text>
       </View>
     </View>
   );
@@ -692,16 +692,16 @@ function ResponsiveCard() {
     <View
       flexDirection={on('mobile') ? 'column' : 'row'} // Stack on mobile, row otherwise
       padding={16}
-      backgroundColor="color.white"
+      backgroundColor="color-white"
       borderRadius={8}
       shadow={2} // Apply shadow level 2
       gap={on('mobile') ? 12 : 20}
     >
       <View flex={1}> {/* Use flex for layout control */}
         <Text fontWeight="bold" fontSize="lg">Card Title</Text>
-        <Text color="color.gray.600">Some descriptive content here.</Text>
+        <Text color="color-gray-600">Some descriptive content here.</Text>
       </View>
-      <View width={on('mobile') ? '100%' : 100} height={100} backgroundColor="color.blue.100" borderRadius={4}>
+      <View width={on('mobile') ? '100%' : 100} height={100} backgroundColor="color-blue-100" borderRadius={4}>
         {/* Image or placeholder */}
       </View>
     </View>
@@ -719,14 +719,14 @@ function AnimatedButton() {
     <Button
       paddingHorizontal={20}
       paddingVertical={10}
-      backgroundColor="color.green.500"
-      color="color.white"
+      backgroundColor="color-green-500"
+      color="color-white"
       borderRadius={5}
       fontWeight="bold"
       animate={Animation.fadeIn({ duration: '0.5s' })}
       on={{
         hover: {
-          backgroundColor: 'color.green.600',
+          backgroundColor: 'color-green-600',
           animate: Animation.pulse({ duration: '0.8s', iterationCount: 2 })
         },
         active: {

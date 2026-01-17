@@ -19,7 +19,7 @@ export const Input: ComponentStory<typeof $Input> = () => {
     <$Input
       width={100}
       shadow={9}
-      on={{ hover: { backgroundColor: 'color.red' } }}
+      on={{ hover: { backgroundColor: 'color-red' } }}
     />
   );
 };
@@ -30,7 +30,7 @@ export const Form: ComponentStory<typeof $Form> = () => {
       widthHeight={100}
       shadow={9}
       target="https://google.com"
-      on={{ hover: { backgroundColor: 'color.red' } }}
+      on={{ hover: { backgroundColor: 'color-red' } }}
     />
   );
 };
@@ -40,7 +40,7 @@ export const Image: ComponentStory<typeof $Image> = () => {
     <$Image
       widthHeight={100}
       src="https://dummyimage.com/600x400/000/fff"
-      on={{ hover: { backgroundColor: 'color.red' } }}
+      on={{ hover: { backgroundColor: 'color-red' } }}
       onClick={() => console.log('click')}
     />
   );

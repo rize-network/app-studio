@@ -60,7 +60,7 @@ const Template: ComponentStory<typeof View> = (args) => {
   return (
     <View
       widthHeight={100}
-      backgroundColor="color.blue.500"
+      backgroundColor="color-blue-500"
       animate={animate}
       {...rest}
     />
@@ -103,7 +103,7 @@ export const SequencesAnimation: ComponentStory<typeof View> = () => (
 export const TranslationAnimation: ComponentStory<typeof View> = () => (
   <View
     widthHeight={100}
-    backgroundColor="color.blue"
+    backgroundColor="color-blue"
     animate={Animation.bounce({
       duration: '1s',
       timingFunction: 'ease',
@@ -116,7 +116,7 @@ export const RotationOnHover: ComponentStory<typeof View> = () => (
   <View>
     <View
       widthHeight={100}
-      backgroundColor="color.green"
+      backgroundColor="color-green"
       on={{
         hover: {
           animate: Animation.rotate({ duration: '1s', timingFunction: 'ease' }),
@@ -137,7 +137,7 @@ export const ScalingAnimation: ComponentStory<typeof View> = () => {
       {visible && (
         <View
           widthHeight={100}
-          backgroundColor="color.red"
+          backgroundColor="color-red"
           animate={{
             from: { transform: 'scale(0)' },
             to: { transform: 'scale(1)' },
@@ -166,7 +166,7 @@ export const ColorChangeAnimation: ComponentStory<typeof View> = () => (
 export const InfiniteRotation: ComponentStory<typeof View> = () => (
   <View
     widthHeight={100}
-    backgroundColor="color.orange"
+    backgroundColor="color-orange"
     animate={{
       from: { transform: 'rotate(0deg)' },
       to: { transform: 'rotate(360deg)' },
@@ -180,7 +180,7 @@ export const InfiniteRotation: ComponentStory<typeof View> = () => (
 export const ResponsiveAnimation: ComponentStory<typeof View> = () => (
   <View
     widthHeight={100}
-    backgroundColor="color.pink"
+    backgroundColor="color-pink"
     animate={{
       from: { opacity: 0 },
       to: { opacity: 1 },
@@ -211,7 +211,7 @@ export const ResponsiveAnimation: ComponentStory<typeof View> = () => (
 export const BlinkAnimation: ComponentStory<typeof View> = () => (
   <View
     widthHeight={100}
-    backgroundColor="color.black"
+    backgroundColor="color-black"
     animate={{
       from: { opacity: 0 },
       to: { opacity: 1 },
@@ -227,7 +227,7 @@ export const BlinkAnimation: ComponentStory<typeof View> = () => (
 export const ComplexAnimation: ComponentStory<typeof View> = () => (
   <View
     widthHeight={100}
-    backgroundColor="color.black"
+    backgroundColor="color-black"
     animate={{
       from: {
         opacity: 0,
@@ -246,7 +246,7 @@ export const ComplexAnimation: ComponentStory<typeof View> = () => (
 export const CustomTiming: ComponentStory<typeof View> = () => (
   <View
     widthHeight={100}
-    backgroundColor="color.black"
+    backgroundColor="color-black"
     animate={{
       from: { transform: 'translateY(0)' },
       to: { transform: 'translateY(-100px)' },
@@ -262,7 +262,7 @@ export const ClickAnimation: ComponentStory<typeof View> = () => {
   return (
     <View
       widthHeight={100}
-      backgroundColor="color.cyan"
+      backgroundColor="color-cyan"
       onPress={() => setAnimate(!animate)}
       animate={
         animate
@@ -308,7 +308,7 @@ export const AnimateInExample: ComponentStory<typeof View> = () => {
       {render && (
         <View
           widthHeight={100}
-          backgroundColor="color.blue"
+          backgroundColor="color-blue"
           animateIn={{
             from: { opacity: 0, transform: 'translateY(-50px)' },
             to: { opacity: 1, transform: 'translateY(0)' },
@@ -344,7 +344,7 @@ export const AnimateOutExample: ComponentStory<typeof View> = () => {
       {render && (
         <View
           widthHeight={100}
-          backgroundColor="color.green"
+          backgroundColor="color-green"
           animateOut={{
             from: { opacity: 1, transform: 'translateX(0)' },
             to: { opacity: 0, transform: 'translateX(50px)' },
@@ -380,7 +380,7 @@ export const VisibleAnimation: ComponentStory<typeof View> = () => (
     </View>
     <View
       widthHeight={200}
-      backgroundColor="color.purple"
+      backgroundColor="color-purple"
       style={{ margin: '50px auto' }}
       animateIn={{
         from: { opacity: 0, transform: 'scale(0.5) translateY(100px)' },
@@ -415,8 +415,8 @@ export const ScrollDrivenAnimations: ComponentStory<typeof View> = () => (
         Scroll-Linked Animations
       </Text>
       <Text color="#555">
-        These elements animate based on your scroll position.
-        The animation effect is tied to the scroll progress.
+        These elements animate based on your scroll position. The animation
+        effect is tied to the scroll progress.
       </Text>
     </View>
     <View height="20vh" />
@@ -434,7 +434,8 @@ export const ScrollDrivenAnimations: ComponentStory<typeof View> = () => (
           // @ts-ignore - CSS variables for this specific effect
           '--fill': '0',
           '--finish-fill': '#2563eb', // Blue-600
-          background: 'linear-gradient(90deg, #2563eb var(--fill), #e5e7eb var(--fill))',
+          background:
+            'linear-gradient(90deg, #2563eb var(--fill), #e5e7eb var(--fill))',
           WebkitBackgroundClip: 'text',
           WebkitTextFillColor: 'transparent',
           color: 'transparent', // Fallback
@@ -452,14 +453,16 @@ export const ScrollDrivenAnimations: ComponentStory<typeof View> = () => (
       <View
         width={200}
         height={200}
-        backgroundColor="color.red.500"
+        backgroundColor="color-red-500"
         borderRadius={20}
         animate={Animation.fadeInScroll()}
         display="flex"
         alignItems="center"
         justifyContent="center"
       >
-        <Text color="white" fontWeight="bold">I fade in as you scroll</Text>
+        <Text color="white" fontWeight="bold">
+          I fade in as you scroll
+        </Text>
       </View>
     </View>
 
@@ -471,17 +474,19 @@ export const ScrollDrivenAnimations: ComponentStory<typeof View> = () => (
       <View
         width={200}
         height={200}
-        backgroundColor="color.blue.500"
+        backgroundColor="color-blue-500"
         borderRadius="50%"
         animate={Animation.scaleDownScroll()}
         display="flex"
         alignItems="center"
         justifyContent="center"
       >
-        <Text color="white" fontWeight="bold" textAlign="center">I shrink as you scroll</Text>
+        <Text color="white" fontWeight="bold" textAlign="center">
+          I shrink as you scroll
+        </Text>
       </View>
     </View>
-    
+
     <View height="50vh" />
   </View>
 );
@@ -506,8 +511,8 @@ export const ViewDrivenPresets: ComponentStory<typeof View> = () => (
         View Timeline Presets
       </Text>
       <Text color="#555">
-        These use optimized CSS View Timelines (`view()`) for smooth entry animations.
-        Scroll down to see them trigger.
+        These use optimized CSS View Timelines (`view()`) for smooth entry
+        animations. Scroll down to see them trigger.
       </Text>
     </View>
 
@@ -516,51 +521,61 @@ export const ViewDrivenPresets: ComponentStory<typeof View> = () => (
     <View
       animate={fadeInOnView()}
       padding={30}
-      backgroundColor="color.indigo.100"
+      backgroundColor="color-indigo-100"
       marginBottom={40}
       borderRadius={12}
     >
-      <Text fontSize={20} fontWeight="bold">Fade In On View</Text>
+      <Text fontSize={20} fontWeight="bold">
+        Fade In On View
+      </Text>
     </View>
 
     <View
       animate={slideUpOnView()}
       padding={30}
-      backgroundColor="color.pink.100"
+      backgroundColor="color-pink-100"
       marginBottom={40}
       borderRadius={12}
     >
-      <Text fontSize={20} fontWeight="bold">Slide Up On View</Text>
+      <Text fontSize={20} fontWeight="bold">
+        Slide Up On View
+      </Text>
     </View>
 
     <View
       animate={scaleUpOnView()}
       padding={30}
-      backgroundColor="color.amber.100"
+      backgroundColor="color-amber-100"
       marginBottom={40}
       borderRadius={12}
     >
-      <Text fontSize={20} fontWeight="bold">Scale Up On View</Text>
+      <Text fontSize={20} fontWeight="bold">
+        Scale Up On View
+      </Text>
     </View>
 
     <View
       animate={revealOnView()}
       padding={30}
-      backgroundColor="color.emerald.100"
+      backgroundColor="color-emerald-100"
       marginBottom={40}
       borderRadius={12}
     >
-      <Text fontSize={20} fontWeight="bold">Clip Path Reveal On View</Text>
+      <Text fontSize={20} fontWeight="bold">
+        Clip Path Reveal On View
+      </Text>
     </View>
 
     <View
       animate={blurInOnView()}
       padding={30}
-      backgroundColor="color.cyan.100"
+      backgroundColor="color-cyan-100"
       marginBottom={40}
       borderRadius={12}
     >
-      <Text fontSize={20} fontWeight="bold">Blur In On View</Text>
+      <Text fontSize={20} fontWeight="bold">
+        Blur In On View
+      </Text>
     </View>
 
     <View height="50vh" />
@@ -574,22 +589,28 @@ export const ViewDrivenPresets: ComponentStory<typeof View> = () => (
 export const TypewriterEffect: ComponentStory<typeof View> = () => {
   const [isAnimating, setIsAnimating] = useState(false);
   const [showCursor, setShowCursor] = useState(true);
-  const text = "Hello, this is a typewriter effect!";
-  
+  const text = 'Hello, this is a typewriter effect!';
+
   // Calculate the width needed for the text (approximate)
   const textWidth = text.length * 16; // Approximate 16px per character
 
   // Build animation array conditionally
-  const getAnimation = (duration: string, steps: number, width: number, cursorColor: string, blinkDuration: string) => {
+  const getAnimation = (
+    duration: string,
+    steps: number,
+    width: number,
+    cursorColor: string,
+    blinkDuration: string
+  ) => {
     const animations: any[] = [
       Animation.typewriter({
         duration,
         steps,
         iterationCount: 1,
         width,
-      })
+      }),
     ];
-    
+
     if (showCursor) {
       animations.push({
         from: { borderRight: `3px solid ${cursorColor}` },
@@ -602,7 +623,7 @@ export const TypewriterEffect: ComponentStory<typeof View> = () => {
         iterationCount: 'infinite',
       });
     }
-    
+
     return animations;
   };
 
@@ -619,13 +640,21 @@ export const TypewriterEffect: ComponentStory<typeof View> = () => {
         <Text fontSize={24} fontWeight="bold" marginBottom={20}>
           Typewriter Animation
         </Text>
-        
+
         <Text color="#666" marginBottom={30}>
-          Click the button to see the typewriter effect in action. The text will appear character by character with an optional blinking cursor.
+          Click the button to see the typewriter effect in action. The text will
+          appear character by character with an optional blinking cursor.
         </Text>
 
-        <View style={{ display: 'flex', gap: '10px', marginBottom: '30px', flexWrap: 'wrap' }}>
-          <Button 
+        <View
+          style={{
+            display: 'flex',
+            gap: '10px',
+            marginBottom: '30px',
+            flexWrap: 'wrap',
+          }}
+        >
+          <Button
             onPress={() => setIsAnimating(!isAnimating)}
             style={{
               padding: '12px 24px',
@@ -641,7 +670,7 @@ export const TypewriterEffect: ComponentStory<typeof View> = () => {
             {isAnimating ? 'Reset' : 'Start Typewriter'}
           </Button>
 
-          <Button 
+          <Button
             onPress={() => setShowCursor(!showCursor)}
             style={{
               padding: '12px 24px',
@@ -680,7 +709,13 @@ export const TypewriterEffect: ComponentStory<typeof View> = () => {
                 paddingRight: '2px',
                 borderRight: showCursor ? 'none' : '3px solid #2563eb',
               }}
-              animate={getAnimation('4s', text.length, textWidth, '#2563eb', '0.75s')}
+              animate={getAnimation(
+                '4s',
+                text.length,
+                textWidth,
+                '#2563eb',
+                '0.75s'
+              )}
             >
               <Text
                 style={{
@@ -732,7 +767,7 @@ export const TypewriterEffect: ComponentStory<typeof View> = () => {
                   duration: '0.5s',
                   timingFunction: 'step-end',
                   iterationCount: 'infinite',
-                }
+                },
               ]}
             >
               <Text
@@ -816,7 +851,7 @@ export const TypewriterEffect: ComponentStory<typeof View> = () => {
                   duration: '0.75s',
                   timingFunction: 'step-end',
                   iterationCount: 'infinite',
-                }
+                },
               ]}
             >
               <Text
@@ -840,10 +875,19 @@ export const TypewriterEffect: ComponentStory<typeof View> = () => {
           borderRadius={8}
           borderLeft="4px solid #2563eb"
         >
-          <Text fontSize={16} fontWeight="bold" marginBottom={10} color="#1e40af">
+          <Text
+            fontSize={16}
+            fontWeight="bold"
+            marginBottom={10}
+            color="#1e40af"
+          >
             How to use:
           </Text>
-          <Text fontSize={14} color="#1e3a8a" style={{ fontFamily: 'monospace' }}>
+          <Text
+            fontSize={14}
+            color="#1e3a8a"
+            style={{ fontFamily: 'monospace' }}
+          >
             {`Animation.typewriter({
   duration: '4s',
   steps: text.length,
@@ -852,7 +896,17 @@ export const TypewriterEffect: ComponentStory<typeof View> = () => {
 })`}
           </Text>
           <Text fontSize={14} color="#1e3a8a" marginTop={10}>
-            Combine with <code style={{ backgroundColor: '#dbeafe', padding: '2px 6px', borderRadius: '3px' }}>blinkCursor()</code> for the classic cursor effect!
+            Combine with{' '}
+            <code
+              style={{
+                backgroundColor: '#dbeafe',
+                padding: '2px 6px',
+                borderRadius: '3px',
+              }}
+            >
+              blinkCursor()
+            </code>{' '}
+            for the classic cursor effect!
           </Text>
         </View>
       </View>

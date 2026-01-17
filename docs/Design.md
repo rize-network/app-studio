@@ -8,7 +8,7 @@ Here is an example:
 
 ```jsx
 <View
-  backgroundColor="theme.primary"
+  backgroundColor="theme-primary"
   padding={20}
   margin={10}
   width={200}
@@ -25,7 +25,7 @@ The `shadow` prop allows you to apply shadow effects to components. It can accep
 Here is an example:
 
 ```jsx
-<View backgroundColor="theme.primary" padding={20} shadow={6}>
+<View backgroundColor="theme-primary" padding={20} shadow={6}>
   I have a shadow
 </View>
 ```

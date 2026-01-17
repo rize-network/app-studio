@@ -91,9 +91,9 @@ App-Studio generates CSS utility classes based on the props you provide to `Elem
 
 ## Theming
 
-Use `ThemeProvider` to define global theme settings, including light/dark mode colors and custom theme tokens (e.g., `primary`, `secondary`). The `useTheme` hook provides access to the current theme mode (`themeMode`), theme configuration (`theme`), a function to switch modes (`setThemeMode`), and the essential `getColor` function to resolve color strings (like `color.blue.500` or `theme.primary`) into actual CSS color values for the current mode.
+Use `ThemeProvider` to define global theme settings, including light/dark mode colors and custom theme tokens (e.g., `primary`, `secondary`). The `useTheme` hook provides access to the current theme mode (`themeMode`), theme configuration (`theme`), a function to switch modes (`setThemeMode`), and the essential `getColor` function to resolve color strings (like `color-blue.500` or `theme.primary`) into actual CSS color values for the current mode.
 
-You can also directly access specific theme mode colors using the `light.` or `dark.` prefix (e.g., `light.white` or `dark.red.200`), which will always use that specific theme mode's color regardless of the current theme setting.
+You can also directly access specific theme mode colors using the `light-` or `dark-` prefix (e.g., `light-white` or `dark-red.200`), which will always use that specific theme mode's color regardless of the current theme setting.
 
 ## Responsiveness
 
@@ -140,10 +140,10 @@ function MyStyledElement() {
     <Element
       as="section"
       padding={16}
-      backgroundColor="color.blue.500"
+      backgroundColor="color-blue-500"
       borderRadius={8}
-      color="color.white"
-      on={{ hover: { backgroundColor: 'color.blue.600' } }}
+      color="color-white"
+      on={{ hover: { backgroundColor: 'color-blue-600' } }}
       media={{ mobile: { padding: 8 } }}
     >
       This is a styled section.
@@ -152,7 +152,7 @@ function MyStyledElement() {
 }
 ```
 
-In addition to global theming via `ThemeProvider`, the `Element` component offers granular control through the `themeMode`, `colors`, and `theme` props. When specified, these props locally override the context provided by `ThemeProvider` for this specific element instance and how its style props (like `backgroundColor="theme.primary"` or `color="color.blue.500"`) resolve color values. `themeMode` forces 'light' or 'dark' mode resolution, `colors` provides a custom `{ main, palette }` object, and `theme` supplies custom token mappings (e.g., `{ primary: 'color.purple.500' }`). This allows creating distinctly styled sections or components without altering the global theme, useful for sidebars, specific UI states, or component variations.
+In addition to global theming via `ThemeProvider`, the `Element` component offers granular control through the `themeMode`, `colors`, and `theme` props. When specified, these props locally override the context provided by `ThemeProvider` for this specific element instance and how its style props (like `backgroundColor="theme.primary"` or `color="color-blue-500"`) resolve color values. `themeMode` forces 'light' or 'dark' mode resolution, `colors` provides a custom `{ main, palette }` object, and `theme` supplies custom token mappings (e.g., `{ primary: 'color-purple-500' }`). This allows creating distinctly styled sections or components without altering the global theme, useful for sidebars, specific UI states, or component variations.
 
 **Example (Local Theme Override):**
 
@@ -163,7 +163,7 @@ function LocallyThemedSection() {
   // Assume the global theme is currently 'light' mode.
 
   // Define a local override theme and colors for this specific section
-  const localThemeOverride = { primary: 'color.orange.500', secondary: 'color.teal.300' };
+  const localThemeOverride = { primary: 'color-orange-500', secondary: 'color-teal-300' };
   const localDarkColorsOverride = {
     main: {
       white: '#EEE'
@@ -179,14 +179,14 @@ function LocallyThemedSection() {
       theme={localThemeOverride}
       colors={localDarkColorsOverride}
       // Styles below will resolve using the LOCAL dark theme override defined above:
-      backgroundColor="theme.secondary" // Resolves to 'color.teal.300' via localThemeOverride in dark mode
+      backgroundColor="theme.secondary" // Resolves to 'color-teal-300' via localThemeOverride in dark mode
       borderRadius={8}
     >
-      <Text color="color.white"
-      colors={localDarkColorsOverride}> {/* 'color.white' from localDarkColorsOverride.main */}
-        This section forces dark mode with an orange primary, even if the app is light.
+      <Text color="color-white"
+      colors={localDarkColorsOverride}> {/* 'color-white' from localDarkColorsOverride.main */}
+        This section forces dark mode with an orange primary, even if the app is light-
       </Text>
-      <Element marginTop={8} padding={10} backgroundColor="color.gray.700"> {/* Uses local dark palette */}
+      <Element marginTop={8} padding={10} backgroundColor="color-gray-700"> {/* Uses local dark palette */}
          <Text color="theme.primary">Nested Primary (Orange)</Text> {/* Still uses local override */}
       </Element>
     </Element>
@@ -221,9 +221,9 @@ import { View, Horizontal, Text } from 'app-studio';
 
 function MyLayout() {
   return (
-    <View padding={16} backgroundColor="color.gray.100">
+    <View padding={16} backgroundColor="color-gray-100">
       <Horizontal gap={8} alignItems="center">
-        <View width={50} height={50} backgroundColor="color.red.500" borderRadius="50%" />
+        <View width={50} height={50} backgroundColor="color-red-500" borderRadius="50%" />
         <Text fontSize="lg" fontWeight="bold">Item Title</Text>
       </Horizontal>
     </View>
@@ -302,7 +302,7 @@ function MyImage() {
       <Image src="logo.png" alt="Company Logo" width={100} height={50} objectFit="contain" />
 
       <ImageBackground src="hero.jpg" height={200} width="100%" display="flex" alignItems="center" justifyContent="center">
-        <Text color="color.white" fontSize="2xl">Overlay Text</Text>
+        <Text color="color-white" fontSize="2xl">Overlay Text</Text>
       </ImageBackground>
     </>
   );
@@ -346,9 +346,9 @@ function MyForm() {
 
   return (
     <Form onSubmit={handleSubmit} display="flex" flexDirection="column" gap={12}>
-      <Input name="username" placeholder="Username" padding={8} borderRadius={4} border="1px solid color.gray.300" />
-      <Input name="password" type="password" placeholder="Password" padding={8} borderRadius={4} border="1px solid color.gray.300" />
-      <Button type="submit" backgroundColor="color.blue.500" color="color.white" padding={10} borderRadius={4} cursor="pointer">
+      <Input name="username" placeholder="Username" padding={8} borderRadius={4} border="1px solid color-gray-300" />
+      <Input name="password" type="password" placeholder="Password" padding={8} borderRadius={4} border="1px solid color-gray-300" />
+      <Button type="submit" backgroundColor="color-blue-500" color="color-white" padding={10} borderRadius={4} cursor="pointer">
         Log In
       </Button>
     </Form>
@@ -406,7 +406,7 @@ function AnimatedComponent() {
     <View
       animate={Animation.fadeIn({ duration: '0.5s' })}
       padding={20}
-      backgroundColor="color.blue.200"
+      backgroundColor="color-blue-200"
     >
       Fades In
     </View>
@@ -454,7 +454,7 @@ function SequencedAnimation() {
     <View
       animate={sequence}
       padding={20}
-      backgroundColor="color.green.200"
+      backgroundColor="color-green-200"
     >
       Sequence
     </View>
@@ -508,7 +508,7 @@ function ResponsiveAnimation() {
   return (
     <View
       padding={20}
-      backgroundColor="color.purple.200"
+      backgroundColor="color-purple-200"
       media={{
         mobile: {
           animate: Animation.fadeIn({ duration: '1s' })
@@ -556,7 +556,7 @@ import { View } from './components/View'; // Assuming View component path
 function HoverComponent() {
   const [hoverRef, isHovered] = useHover();
   return (
-    <View ref={hoverRef} padding={20} backgroundColor={isHovered ? 'color.gray.200' : 'color.white'}>
+    <View ref={hoverRef} padding={20} backgroundColor={isHovered ? 'color-gray-200' : 'color-white'}>
       Hover over me!
     </View>
   );
@@ -571,8 +571,8 @@ function ResponsiveComponent() {
   return (
     <View>
       <Text>Current Screen: {screen}, Orientation: {orientation}</Text>
-      {on('mobile') && <Text color="color.red.500">This only shows on mobile!</Text>}
-      {on('desktop') && <Text color="color.blue.500">This only shows on desktop!</Text>}
+      {on('mobile') && <Text color="color-red-500">This only shows on mobile!</Text>}
+      {on('desktop') && <Text color="color-blue-500">This only shows on desktop!</Text>}
       {/* Check specific breakpoint */}
       {on('md') && <Text>Medium screen size detected.</Text>}
     </View>
@@ -587,7 +587,7 @@ function LazyLoadComponent() {
   const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.1 });
 
   return (
-    <View ref={ref} height={200} backgroundColor="color.gray.100">
+    <View ref={ref} height={200} backgroundColor="color-gray-100">
       {inView ? (
         <View animate={Animation.fadeIn()}>Content loaded!</View>
       ) : (
@@ -612,14 +612,14 @@ Manages the application's theme, including color palettes, light/dark modes, and
 
 | Prop    | Type               | Default                             | Description                                                                       |
 | :------ | :----------------- | :---------------------------------- | :-------------------------------------------------------------------------------- |
-| `theme` | `object`           | `{ primary: 'color.black', ... }`   | Custom theme tokens (e.g., `primary`, `secondary`) that map to color strings.     |
+| `theme` | `object`           | `{ primary: 'color-black', ... }`   | Custom theme tokens (e.g., `primary`, `secondary`) that map to color strings.     |
 | `mode`  | `'light' \| 'dark'`| `'light'`                           | Sets the initial theme mode.                                                      |
 | `dark`  | `Colors`           | Default dark palette & main colors  | Configuration object for dark mode containing `main` (singleton colors) and `palette`. |
 | `light` | `Colors`           | Default light palette & main colors | Configuration object for light mode containing `main` (singleton colors) and `palette`.|
 
 **Context Values (via `useTheme`)**
 
-*   `getColor(colorName, mode?)`: Resolves a color string (e.g., `color.blue.500`, `theme.primary`, `blackAlpha.500`) to its CSS value for the specified or current theme mode.
+*   `getColor(colorName, mode?)`: Resolves a color string (e.g., `color-blue.500`, `theme.primary`, `blackAlpha.500`) to its CSS value for the specified or current theme mode.
 *   `theme`: The merged theme configuration object.
 *   `themeMode`: The current mode ('light' or 'dark').
 *   `setThemeMode(mode)`: Function to change the theme mode.
@@ -694,8 +694,8 @@ function ThemedComponent() {
   return (
     <View
       backgroundColor={getColor('theme.primary')} // Get theme color
-      color={getColor('color.white')}            // Get singleton color
-      borderColor={getColor('color.blue.300')}     // Get palette color
+      color={getColor('color-white')}            // Get singleton color
+      borderColor={getColor('color-blue-300')}     // Get palette color
       padding={10}
     >
       My Themed Content
@@ -732,16 +732,16 @@ function ResponsiveCard() {
     <View
       flexDirection={on('mobile') ? 'column' : 'row'} // Stack on mobile, row otherwise
       padding={16}
-      backgroundColor="color.white"
+      backgroundColor="color-white"
       borderRadius={8}
       shadow={2} // Apply shadow level 2
       gap={on('mobile') ? 12 : 20}
     >
       <View flex={1}> {/* Use flex for layout control */}
         <Text fontWeight="bold" fontSize="lg">Card Title</Text>
-        <Text color="color.gray.600">Some descriptive content here.</Text>
+        <Text color="color-gray-600">Some descriptive content here.</Text>
       </View>
-      <View width={on('mobile') ? '100%' : 100} height={100} backgroundColor="color.blue.100" borderRadius={4}>
+      <View width={on('mobile') ? '100%' : 100} height={100} backgroundColor="color-blue-100" borderRadius={4}>
         {/* Image or placeholder */}
       </View>
     </View>
@@ -759,14 +759,14 @@ function AnimatedButton() {
     <Button
       paddingHorizontal={20}
       paddingVertical={10}
-      backgroundColor="color.green.500"
-      color="color.white"
+      backgroundColor="color-green-500"
+      color="color-white"
       borderRadius={5}
       fontWeight="bold"
       animate={Animation.fadeIn({ duration: '0.5s' })}
       on={{
         hover: {
-          backgroundColor: 'color.green.600',
+          backgroundColor: 'color-green-600',
           animate: Animation.pulse({ duration: '0.8s', iterationCount: 2 })
         },
         active: {

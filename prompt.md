@@ -204,7 +204,7 @@ const FormComponentsDemo = () => {
   };
 
   return (
-    <View padding={24} backgroundColor="color.gray.50">
+    <View padding={24} backgroundColor="color-gray.50">
       <form onSubmit={handleSubmit}>
         <Vertical gap={32}>
           <Text color="theme.primary">Form Components</Text>

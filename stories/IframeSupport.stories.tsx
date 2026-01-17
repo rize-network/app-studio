@@ -5,7 +5,7 @@ import { ResponsiveProvider } from '../src/providers/Responsive';
 import { WindowSizeProvider } from '../src/providers/WindowSize';
 import { useResponsive } from '../src/hooks/useResponsive';
 import { useWindowSize } from '../src/hooks/useWindowSize';
-import { useScroll } from '../src/hooks/useScroll';
+import { useScroll, useScrollAnimation } from '../src/hooks/useScroll';
 import { useClickOutside } from '../src/hooks/useClickOutside';
 
 const meta: Meta = {
@@ -358,6 +358,187 @@ export const MultipleIframes: Story = {
             )}
           </IframePortal>
         </div>
+      </div>
+    </div>
+  ),
+};
+
+/**
+ * Scroll Animation in iframe with targetWindow support
+ * Demonstrates useScrollAnimation hook properly detecting iframe context
+ */
+interface ScrollAnimationSectionProps {
+  index: number;
+  targetWindow?: Window;
+}
+
+function ScrollAnimationSection({ index, targetWindow }: ScrollAnimationSectionProps) {
+  const sectionRef = useRef<HTMLDivElement>(null);
+  
+  // Auto-detect iframe context or use explicit targetWindow
+  const { isInView, progress } = useScrollAnimation(sectionRef, {
+    threshold: [0, 0.25, 0.5, 0.75, 1],
+    targetWindow,
+  });
+
+  return (
+    <div
+      ref={sectionRef}
+      style={{
+        padding: '60px 40px',
+        margin: '40px 20px',
+        borderRadius: '16px',
+        background: `linear-gradient(135deg, hsl(${index * 60}, 70%, ${isInView ? '85%' : '95%'}) 0%, hsl(${index * 60 + 30}, 70%, ${isInView ? '75%' : '90%'}) 100%)`,
+        opacity: 0.3 + progress * 0.7,
+        transform: `scale(${0.85 + progress * 0.15}) translateY(${(1 - progress) * 20}px)`,
+        transition: 'background 0.3s ease, opacity 0.4s ease-out, transform 0.4s ease-out',
+        boxShadow: isInView 
+          ? '0 20px 40px rgba(0,0,0,0.15)' 
+          : '0 4px 12px rgba(0,0,0,0.05)',
+      }}
+    >
+      <h3 style={{ margin: '0 0 12px 0', fontFamily: 'system-ui, sans-serif', fontSize: '24px' }}>
+        Section {index + 1}
+      </h3>
+      <div style={{ 
+        display: 'flex', 
+        gap: '20px', 
+        flexWrap: 'wrap',
+        fontFamily: 'monospace',
+        fontSize: '14px',
+      }}>
+        <span style={{ 
+          padding: '6px 12px', 
+          borderRadius: '20px', 
+          background: isInView ? '#4CAF50' : '#ccc',
+          color: isInView ? 'white' : '#666',
+          transition: 'all 0.3s ease',
+        }}>
+          {isInView ? '✓ In View' : '○ Out of View'}
+        </span>
+        <span style={{ 
+          padding: '6px 12px', 
+          borderRadius: '20px', 
+          background: 'rgba(0,0,0,0.1)',
+        }}>
+          Progress: {(progress * 100).toFixed(0)}%
+        </span>
+      </div>
+      <div style={{
+        marginTop: '16px',
+        height: '8px',
+        borderRadius: '4px',
+        background: 'rgba(0,0,0,0.1)',
+        overflow: 'hidden',
+      }}>
+        <div style={{
+          width: `${progress * 100}%`,
+          height: '100%',
+          borderRadius: '4px',
+          background: `hsl(${index * 60}, 70%, 50%)`,
+          transition: 'width 0.1s ease-out',
+        }} />
+      </div>
+    </div>
+  );
+}
+
+function ScrollAnimationIframeContent({ targetWindow }: { targetWindow?: Window }) {
+  return (
+    <div
+      style={{
+        padding: '20px',
+        fontFamily: 'system-ui, sans-serif',
+        minHeight: '100vh',
+        background: 'linear-gradient(180deg, #f8f9fa 0%, #e9ecef 100%)',
+      }}
+    >
+      <div
+        style={{
+          position: 'sticky',
+          top: '10px',
+          background: 'rgba(255,255,255,0.95)',
+          backdropFilter: 'blur(10px)',
+          padding: '16px 20px',
+          borderRadius: '12px',
+          marginBottom: '20px',
+          boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+          zIndex: 100,
+        }}
+      >
+        <h2 style={{ margin: '0 0 8px 0', fontSize: '20px' }}>
+          useScrollAnimation with targetWindow
+        </h2>
+        <p style={{ margin: 0, color: '#666', fontSize: '14px' }}>
+          Scroll to see sections animate in. The hook auto-detects iframe context.
+        </p>
+      </div>
+
+      {Array.from({ length: 6 }).map((_, i) => (
+        <ScrollAnimationSection key={i} index={i} targetWindow={targetWindow} />
+      ))}
+
+      <div style={{ 
+        textAlign: 'center', 
+        padding: '40px',
+        color: '#666',
+      }}>
+        <p>🎉 You've reached the end!</p>
+      </div>
+    </div>
+  );
+}
+
+export const ScrollAnimationInIframe: Story = {
+  render: () => (
+    <div style={{ padding: '20px' }}>
+      <h1>useScrollAnimation with Iframe Support</h1>
+      <p style={{ marginBottom: '20px', color: '#666' }}>
+        This demonstrates the <code>targetWindow</code> option for <code>useScrollAnimation</code>.
+        The hook automatically detects when elements are inside an iframe and uses the correct root for intersection observation.
+      </p>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+        <div>
+          <h3 style={{ marginBottom: '10px' }}>Auto-detect (no targetWindow)</h3>
+          <IframePortal>
+            {() => (
+              <ScrollAnimationIframeContent />
+            )}
+          </IframePortal>
+        </div>
+
+        <div>
+          <h3 style={{ marginBottom: '10px' }}>Explicit targetWindow</h3>
+          <IframePortal>
+            {(iframeWindow: Window) => (
+              <ScrollAnimationIframeContent targetWindow={iframeWindow} />
+            )}
+          </IframePortal>
+        </div>
+      </div>
+
+      <div style={{ marginTop: '20px', padding: '20px', background: '#f9f9f9', borderRadius: '8px' }}>
+        <h3>Usage</h3>
+        <pre style={{ 
+          background: '#282c34', 
+          color: '#abb2bf', 
+          padding: '16px', 
+          borderRadius: '8px',
+          overflow: 'auto',
+          fontSize: '14px',
+        }}>
+{`// Auto-detect iframe context from element's document
+const { isInView, progress } = useScrollAnimation(ref, { 
+  threshold: 0.5 
+});
+
+// Or explicitly pass the iframe window
+const { isInView, progress } = useScrollAnimation(ref, { 
+  threshold: 0.5,
+  targetWindow: iframeRef.current?.contentWindow 
+});`}
+        </pre>
       </div>
     </div>
   ),

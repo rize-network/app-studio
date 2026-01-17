@@ -20,18 +20,20 @@ export const StrictModeWarning: ComponentStory<typeof ThemeProvider> = () => {
   return (
     <ThemeProvider strict={true}>
       <Vertical gap={20} padding={20}>
-        <Text fontSize={24} fontWeight="bold">Strict Mode Verification</Text>
+        <Text fontSize={24} fontWeight="bold">
+          Strict Mode Verification
+        </Text>
         <Text>Check the browser console for warnings.</Text>
-        
+
         {/* Valid usage */}
         <View
           padding={20}
-          backgroundColor="color.green.100"
-          border="1px solid color.green.500"
+          backgroundColor="color-green-100"
+          border="1px solid color-green-500"
           borderRadius={8}
         >
-          <Text color="color.green.700">
-            This uses valid tokens (color.green.100). No warning.
+          <Text color="color-green-700">
+            This uses valid tokens (color-green.100). No warning.
           </Text>
         </View>
 
@@ -39,7 +41,7 @@ export const StrictModeWarning: ComponentStory<typeof ThemeProvider> = () => {
         <View
           padding={20}
           backgroundColor="#ffebee" // Raw hex
-          border="1px solid red"    // Raw color
+          border="1px solid red" // Raw color
           borderRadius={8}
         >
           <Text color="red">

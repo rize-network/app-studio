@@ -757,8 +757,8 @@ export const defaultDarkColors: ColorConfig = {
 };
 
 // Centralized regex for color token detection
-// Matches color.x.y.z or theme.x.y
-const COLOR_TOKEN_REGEX = /(color\.[a-zA-Z0-9.]+|theme\.[a-zA-Z0-9.]+)/g;
+// Matches color-x-y-z or theme-x-y (dash notation)
+const COLOR_TOKEN_REGEX = /(color-[a-zA-Z0-9-]+|theme-[a-zA-Z0-9-]+)/g;
 
 /**
  * Checks if a value contains color tokens.
@@ -766,7 +766,7 @@ const COLOR_TOKEN_REGEX = /(color\.[a-zA-Z0-9.]+|theme\.[a-zA-Z0-9.]+)/g;
  * @returns True if the value contains color tokens.
  */
 export const hasColorToken = (value: string): boolean => {
-  return value.includes('color.') || value.includes('theme.');
+  return value.includes('color-') || value.includes('theme-');
 };
 
 /**

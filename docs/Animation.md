@@ -189,6 +189,294 @@ These animations are linked to the scroll position associated with a timeline (u
 <View animate={Animation.fadeInScroll()} />
 ```
 
+### Custom Scroll Timeline with `animate.timeline`
+
+For fine-grained control over scroll-driven animations, use the `animate` prop with `timeline` and `keyframes`:
+
+```jsx
+import { View, Vertical, Text } from 'app-studio';
+
+function ScrollProgressBar() {
+  return (
+    <Vertical gap={20} padding={20} height="100vh">
+      <Text fontSize={24} fontWeight="bold">
+        Scroll Timeline Animation
+      </Text>
+      <Text>Scroll down to see the progress bar animate.</Text>
+
+      {/* Scroll container */}
+      <View
+        height={300}
+        overflow="auto"
+        border="1px solid #ccc"
+        padding={20}
+        position="relative"
+      >
+        {/* Progress Bar - sticks to top of container */}
+        <View
+          position="sticky"
+          top={0}
+          width="100%"
+          height={8}
+          backgroundColor="#ddd"
+          zIndex={10}
+        >
+          {/* Animated progress fill */}
+          <View
+            height="100%"
+            backgroundColor="color-blue-500"
+            width="0%"
+            animate={{
+              timeline: 'scroll()',
+              keyframes: {
+                from: { width: '0%' },
+                to: { width: '100%' },
+              },
+            }}
+          />
+        </View>
+
+        {/* Scrollable content */}
+        <Vertical gap={50} paddingVertical={50}>
+          {[1, 2, 3, 4, 5].map((i) => (
+            <View key={i} padding={20} backgroundColor="#f5f5f5" borderRadius={8}>
+              Item {i}
+            </View>
+          ))}
+        </Vertical>
+      </View>
+    </Vertical>
+  );
+}
+```
+
+**Timeline Options:**
+
+| Timeline | Description |
+|----------|-------------|
+| `scroll()` | Links animation to the nearest scrollable ancestor's scroll progress |
+| `scroll(root)` | Links to the root (viewport) scroll progress |
+| `view()` | Links to element's visibility in the viewport (entry/exit) |
+
+**Keyframe Properties:**
+
+You can animate any CSS property between `from` and `to` states, or use percentage keyframes for more control:
+
+```jsx
+animate={{
+  timeline: 'scroll()',
+  keyframes: {
+    '0%': { opacity: 0, transform: 'translateY(20px)' },
+    '50%': { opacity: 1, transform: 'translateY(0)' },
+    '100%': { opacity: 0.5, transform: 'translateY(-10px)' },
+  },
+}}
+```
+
+See the [ScrollTimeline Story](../stories/ScrollTimeline.stories.tsx) for a complete example.
+
+### FillText Scroll Animation with Theming
+
+The `fillTextScroll()` animation creates a text reveal effect that fills as the user scrolls. It integrates with App-Studio's theming system using CSS variables.
+
+#### Basic Usage
+
+```jsx
+import { View, Animation } from 'app-studio';
+
+<View
+  as="span"
+  fontSize={48}
+  fontWeight="bold"
+  color="color-gray-500"
+  backgroundClip="text"
+  animate={Animation.fillTextScroll({
+    duration: '1s',
+    timingFunction: 'linear',
+    timeline: '--section',
+    range: 'entry 100% cover 55%',
+  })}
+>
+  Text that fills as you scroll
+</View>
+```
+
+#### Theme-Aware FillText with CSS Variables
+
+For full theme integration, use CSS variables from the theming system. This ensures colors adapt to light/dark mode:
+
+```jsx
+import { View, Text } from 'app-studio';
+import { Animation } from 'app-studio';
+
+function ThemedFillText({ children, color = 'blue' }) {
+  // Map palette names to CSS variables
+  const colors = {
+    blue: {
+      fill: 'var(--color-blue-500)',
+      accent: 'var(--color-blue-400)',
+      base: 'color-mix(in srgb, var(--color-blue-500) 15%, transparent)',
+      underline: 'color-mix(in srgb, var(--color-blue-500) 20%, transparent)',
+    },
+    emerald: {
+      fill: 'var(--color-emerald-500)',
+      accent: 'var(--color-emerald-400)',
+      base: 'color-mix(in srgb, var(--color-emerald-500) 12%, transparent)',
+      underline: 'color-mix(in srgb, var(--color-emerald-500) 20%, transparent)',
+    },
+    violet: {
+      fill: 'var(--color-violet-500)',
+      accent: 'var(--color-violet-400)',
+      base: 'color-mix(in srgb, var(--color-violet-500) 10%, transparent)',
+      underline: 'color-mix(in srgb, var(--color-violet-500) 20%, transparent)',
+    },
+  };
+
+  const { fill, accent, base, underline } = colors[color] || colors.blue;
+
+  return (
+    <View
+      as="span"
+      fontSize={48}
+      fontWeight="bold"
+      css={`
+        color: ${base};
+        --fill-color: ${fill};
+        --accent: ${accent};
+        --underline-color: ${underline};
+        --underline-block-width: 200vmax;
+        --underline-width: 100%;
+      `}
+      backgroundImage={`
+        linear-gradient(90deg, transparent calc(100% - 1ch), var(--accent) calc(100% - 1ch)),
+        linear-gradient(90deg, var(--fill-color), var(--fill-color)),
+        linear-gradient(90deg, var(--underline-color), var(--underline-color))`}
+      backgroundSize={`
+        var(--underline-block-width) var(--underline-width),
+        var(--underline-block-width) var(--underline-width),
+        100% var(--underline-width)`}
+      backgroundRepeat="no-repeat"
+      backgroundPositionX="0"
+      backgroundPositionY="100%"
+      backgroundClip="text"
+      animate={Animation.fillTextScroll({
+        duration: '1s',
+        timingFunction: 'linear',
+      })}
+    >
+      {children}
+    </View>
+  );
+}
+
+// Usage with different color palettes
+<ThemedFillText color="blue">Blue themed text</ThemedFillText>
+<ThemedFillText color="emerald">Emerald themed text</ThemedFillText>
+<ThemedFillText color="violet">Violet themed text</ThemedFillText>
+```
+
+#### Using Color Palettes
+
+All App-Studio color palettes work with FillText. Reference them via CSS variables:
+
+| Palette | Fill Variable | Accent Variable |
+|---------|--------------|-----------------|
+| Blue | `var(--color-blue-500)` | `var(--color-blue-400)` |
+| Emerald | `var(--color-emerald-500)` | `var(--color-emerald-400)` |
+| Violet | `var(--color-violet-500)` | `var(--color-violet-400)` |
+| Amber | `var(--color-amber-500)` | `var(--color-amber-400)` |
+| Rose | `var(--color-rose-500)` | `var(--color-rose-400)` |
+| Cyan | `var(--color-cyan-500)` | `var(--color-cyan-400)` |
+| Gray (light bg) | `var(--color-gray-800)` | `var(--color-gray-900)` |
+
+#### Alpha Transparency with `color-mix()`
+
+For semi-transparent colors that remain theme-aware, use `color-mix()`:
+
+```jsx
+// 15% opacity blue
+baseColor="color-mix(in srgb, var(--color-blue-500) 15%, transparent)"
+
+// 20% opacity emerald
+underlineColor="color-mix(in srgb, var(--color-emerald-500) 20%, transparent)"
+
+// 70% opacity white
+fillColor="color-mix(in srgb, var(--color-white) 70%, transparent)"
+```
+
+#### Complete Section Example
+
+Here's a complete FillText section with view-timeline:
+
+```jsx
+function FillTextSection() {
+  return (
+    <View
+      css={`
+        @supports (animation-timeline: scroll()) {
+          @media (prefers-reduced-motion: no-preference) {
+            view-timeline-name: --hero-section;
+          }
+        }
+      `}
+      backgroundColor="color-slate-900"
+    >
+      <View height="50vh" />
+      <View as="main" height="200vh">
+        <View
+          as="section"
+          position="sticky"
+          top="0"
+          height="100vh"
+          display="grid"
+          placeItems="center"
+        >
+          <View padding="5ch" textAlign="center" maxWidth={1200}>
+            <View
+              as="span"
+              fontSize={56}
+              fontWeight="bold"
+              css={`
+                color: color-mix(in srgb, var(--color-blue-500) 15%, transparent);
+                --fill-color: var(--color-blue-500);
+                --accent: var(--color-blue-400);
+                --underline-color: color-mix(in srgb, var(--color-blue-500) 20%, transparent);
+                --underline-block-width: 200vmax;
+                --underline-width: 100%;
+              `}
+              backgroundImage={`
+                linear-gradient(90deg, transparent calc(100% - 1ch), var(--accent) calc(100% - 1ch)),
+                linear-gradient(90deg, var(--fill-color), var(--fill-color)),
+                linear-gradient(90deg, var(--underline-color), var(--underline-color))`}
+              backgroundSize={`
+                var(--underline-block-width) var(--underline-width),
+                var(--underline-block-width) var(--underline-width),
+                100% var(--underline-width)`}
+              backgroundRepeat="no-repeat"
+              backgroundPositionX="0"
+              backgroundPositionY="100%"
+              backgroundClip="text"
+              animate={Animation.fillTextScroll({
+                duration: '1s',
+                timingFunction: 'linear',
+                timeline: '--hero-section',
+                range: 'entry 100% cover 55%, cover 50% exit 0%',
+              })}
+            >
+              Build beautiful scroll-driven animations with pure CSS.
+            </View>
+          </View>
+        </View>
+      </View>
+    </View>
+  );
+}
+```
+
+See [docs/Theming.md](./Theming.md) for the complete color palette reference.
+
+See the [FillText Examples Story](../stories/ScrollAnimation.stories.tsx) for interactive demos with all color themes.
+
 ## 7. Event-Based Animations
 
 You can trigger animations on interactions like hover, click, or focus using the `on` prop or underscore props (`_hover`, `_active`).

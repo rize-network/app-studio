@@ -10,7 +10,7 @@ describe('ThemeProvider', () => {
     return (
       <div>
         <div data-testid="theme-mode">{themeMode}</div>
-        <div data-testid="primary-color">{getColor('color.white')}</div>
+        <div data-testid="primary-color">{getColor('color-white')}</div>
       </div>
     );
   };

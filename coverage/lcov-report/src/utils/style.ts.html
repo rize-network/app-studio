@@ -1096,10 +1096,10 @@ export const processStyleProperty = (
   <span class="missing-if-branch" title="if path not taken" >I</span>if (
     typeof value === 'string' &amp;&amp;
     value.length &gt; 7 &amp;&amp;
-    (<span class="branch-2 cbranch-no" title="branch not covered" >value.indexOf('color.') &gt;= 0 </span>|| <span class="branch-3 cbranch-no" title="branch not covered" >value.indexOf('theme.') &gt;= 0)</span>
+    (<span class="branch-2 cbranch-no" title="branch not covered" >value.indexOf('color-') &gt;= 0 </span>|| <span class="branch-3 cbranch-no" title="branch not covered" >value.indexOf('theme.') &gt;= 0)</span>
   ) {
     // Parse border property to extract color
-    // Format could be like: "1px solid red" or "1px solid color.red.500"
+    // Format could be like: "1px solid red" or "1px solid color-red-500"
     const parts = <span class="cstat-no" title="statement not covered" >value.split(' ');</span>
 <span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (parts.length &gt;= 3) {</span>
       // The color is typically the last part

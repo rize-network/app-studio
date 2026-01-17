@@ -2,11 +2,19 @@
 
 App-Studio provides a comprehensive set of React hooks to help you build interactive and responsive applications. This guide covers all the available hooks and their usage.
 
+## Iframe Support
+
+Many hooks in App-Studio support working inside iframes for micro-frontend architectures, preview environments, and embedded widgets.
+
+**Supported hooks:** `useScroll`, `useScrollAnimation`, `useScrollDirection`, `useSmoothScroll`, `useClickOutside`, plus `ResponsiveProvider` and `WindowSizeProvider`.
+
+See the dedicated [Iframe Support Guide](./IframeSupport.md) for complete documentation and examples.
+
 ## Scroll Hooks
 
 ### useScroll
 
-A hook that tracks scroll position and progress for a container or window.
+A hook that tracks scroll position and progress for a container or window. Supports tracking scroll inside iframes.
 
 ```tsx
 import { useScroll } from 'app-studio';
@@ -27,17 +35,57 @@ function MyComponent() {
 }
 ```
 
+#### Tracking Scroll Inside an Iframe
+
+When you pass an `HTMLIFrameElement` reference to the `container` option, `useScroll` automatically detects the iframe context and tracks scroll within the iframe's window:
+
+```tsx
+import { useScroll } from 'app-studio';
+
+function IframeScrollTracker() {
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+
+  // Pass the iframe ref - useScroll will track the iframe's scroll position
+  const scrollPosition = useScroll({
+    container: iframeRef,
+    throttleMs: 50
+  });
+
+  return (
+    <div>
+      <p>Iframe Scroll Y: {Math.round(scrollPosition.y)}px</p>
+      <p>Iframe Scroll Progress: {Math.round(scrollPosition.yProgress * 100)}%</p>
+      <iframe
+        ref={iframeRef}
+        src="/your-iframe-content"
+        style={{ width: '100%', height: '400px' }}
+      />
+    </div>
+  );
+}
+```
+
 **Options:**
 
-- `container`: Reference to the scrollable container (optional, defaults to window)
-- `target`: Reference to the target element (optional)
-- `offset`: X and Y offset values (optional, defaults to [0, 0])
-- `throttleMs`: Throttle interval in milliseconds (optional, defaults to 100)
-- `disabled`: Whether to disable the hook (optional, defaults to false)
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `container` | `RefObject<HTMLElement>` | window | Reference to the scrollable container. If an `HTMLIFrameElement` is passed, tracks the iframe's content scroll. |
+| `offset` | `[number, number]` | `[0, 0]` | X and Y offset values to add to scroll position |
+| `throttleMs` | `number` | `100` | Throttle interval in milliseconds for performance |
+| `disabled` | `boolean` | `false` | Whether to disable scroll tracking |
+
+**Returns:** `ScrollPosition`
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `x` | `number` | Horizontal scroll position in pixels |
+| `y` | `number` | Vertical scroll position in pixels |
+| `xProgress` | `number` | Horizontal scroll progress (0 to 1) |
+| `yProgress` | `number` | Vertical scroll progress (0 to 1) |
 
 ### useScrollDirection
 
-A hook that detects scroll direction.
+A hook that detects scroll direction. Supports tracking direction inside iframes via the `targetWindow` parameter.
 
 ```tsx
 import { useScrollDirection } from 'app-studio';
@@ -53,13 +101,35 @@ function ScrollDirectionComponent() {
 }
 ```
 
+#### With Iframe Support
+
+```tsx
+import { useScrollDirection } from 'app-studio';
+
+function IframeScrollDirection({ iframeWindow }: { iframeWindow: Window }) {
+  // Track scroll direction inside an iframe
+  const scrollDirection = useScrollDirection(5, iframeWindow);
+
+  return (
+    <div>
+      Iframe scroll direction: {scrollDirection}
+    </div>
+  );
+}
+```
+
 **Parameters:**
 
-- `threshold`: Minimum scroll distance in pixels before direction change is detected (optional, defaults to 0)
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `threshold` | `number` | `5` | Minimum scroll distance in pixels before direction change is detected |
+| `targetWindow` | `Window` | `window` | Target window to track (use `iframe.contentWindow` for iframe support) |
+
+**Returns:** `'up' | 'down'`
 
 ### useSmoothScroll
 
-A hook that provides smooth scrolling functionality to elements.
+A hook that provides smooth scrolling functionality to elements. Supports scrolling inside iframes via the `targetWindow` parameter.
 
 ```tsx
 import { useSmoothScroll } from 'app-studio';
@@ -79,9 +149,42 @@ function SmoothScrollComponent() {
 }
 ```
 
+#### With Iframe Support
+
+```tsx
+import { useSmoothScroll } from 'app-studio';
+
+function IframeSmoothScroll({ iframeWindow }: { iframeWindow: Window }) {
+  // Smooth scroll inside an iframe
+  const scrollTo = useSmoothScroll(iframeWindow);
+  const targetRef = useRef<HTMLDivElement>(null);
+
+  return (
+    <>
+      <button onClick={() => scrollTo(targetRef.current, 80)}>
+        Scroll to Section in Iframe
+      </button>
+      <div ref={targetRef}>Target Section</div>
+    </>
+  );
+}
+```
+
+**Parameters:**
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `targetWindow` | `Window` | `window` | Target window to scroll (use `iframe.contentWindow` for iframe support) |
+
+**Returns:** `(element: HTMLElement | null, offset?: number) => void`
+
+The returned function accepts:
+- `element`: The element to scroll to
+- `offset`: Optional offset from the top in pixels (default: 0)
+
 ### useScrollAnimation
 
-A hook for creating scroll-linked animations using Intersection Observer.
+A hook for creating scroll-linked animations using Intersection Observer. Supports automatic iframe detection and explicit `targetWindow` for cross-window observation.
 
 ```tsx
 import { useScrollAnimation } from 'app-studio';
@@ -100,6 +203,98 @@ function ScrollAnimationComponent() {
   );
 }
 ```
+
+#### With Multiple Thresholds
+
+Use an array of thresholds to get granular progress updates:
+
+```tsx
+import { useScrollAnimation } from 'app-studio';
+
+function AnimatedSection({ index }: { index: number }) {
+  const sectionRef = useRef<HTMLDivElement>(null);
+
+  const { isInView, progress } = useScrollAnimation(sectionRef, {
+    threshold: [0, 0.25, 0.5, 0.75, 1], // Fire at each 25% visibility
+  });
+
+  return (
+    <div
+      ref={sectionRef}
+      style={{
+        opacity: 0.3 + progress * 0.7,
+        transform: `scale(${0.85 + progress * 0.15})`,
+        transition: 'opacity 0.4s, transform 0.4s',
+      }}
+    >
+      <span>{isInView ? '✓ In View' : '○ Out of View'}</span>
+      <span>Progress: {(progress * 100).toFixed(0)}%</span>
+    </div>
+  );
+}
+```
+
+#### With Iframe Support
+
+The hook automatically detects when elements are inside an iframe and uses the correct `IntersectionObserver`. You can also explicitly pass `targetWindow`:
+
+```tsx
+import { useScrollAnimation } from 'app-studio';
+
+function IframeAnimatedSection({ targetWindow }: { targetWindow?: Window }) {
+  const sectionRef = useRef<HTMLDivElement>(null);
+
+  // Auto-detect iframe context or use explicit targetWindow
+  const { isInView, progress } = useScrollAnimation(sectionRef, {
+    threshold: [0, 0.25, 0.5, 0.75, 1],
+    targetWindow, // Optional: explicitly set the iframe's window
+  });
+
+  return (
+    <div
+      ref={sectionRef}
+      style={{
+        opacity: 0.3 + progress * 0.7,
+        background: isInView ? '#e8f5e9' : '#f5f5f5',
+      }}
+    >
+      Progress: {(progress * 100).toFixed(0)}%
+    </div>
+  );
+}
+```
+
+#### With Callback
+
+Use the `onIntersectionChange` callback for custom logic:
+
+```tsx
+const { isInView, progress } = useScrollAnimation(ref, {
+  threshold: 0.5,
+  onIntersectionChange: (isIntersecting, ratio) => {
+    if (isIntersecting) {
+      analytics.track('section_viewed', { visibility: ratio });
+    }
+  },
+});
+```
+
+**Options:**
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `threshold` | `number \| number[]` | `0` | Visibility threshold(s) to trigger updates (0-1) |
+| `rootMargin` | `string` | `'0px'` | Margin around the root for intersection calculation |
+| `root` | `Element \| null` | `null` | Custom root element for intersection |
+| `targetWindow` | `Window \| null` | auto-detected | Target window for iframe support. Auto-detects from element's `ownerDocument` if not specified. |
+| `onIntersectionChange` | `(isIntersecting: boolean, ratio: number) => void` | - | Callback fired on intersection changes |
+
+**Returns:**
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `isInView` | `boolean` | Whether the element is currently in view |
+| `progress` | `number` | Intersection ratio (0 to 1) based on threshold |
 
 ### useInfiniteScroll
 
@@ -146,7 +341,7 @@ function ThemeComponent() {
       <Button onClick={() => setThemeMode(themeMode === 'light' ? 'dark' : 'light')}>
         Toggle Theme
       </Button>
-      <View backgroundColor={getColor('theme.primary')}>
+      <View backgroundColor={getColor('theme-primary')}>
         Themed content
       </View>
     </>
@@ -259,7 +454,7 @@ function InViewComponent() {
   });
 
   return (
-    <View ref={ref} height={200} backgroundColor="gray.100">
+    <View ref={ref} height={200} backgroundColor="gray-100">
       {inView ? 'Visible' : 'Hidden'}
     </View>
   );
@@ -324,12 +519,12 @@ function PositionAwareComponent() {
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
         padding={20}
-        backgroundColor="gray.100"
+        backgroundColor="gray-100"
         borderRadius={8}
       >
         Hover me for tooltip
         {relation && (
-          <Text fontSize="sm" color="gray.600">
+          <Text fontSize="sm" color="gray-600">
             Position: {relation.position.vertical}-{relation.position.horizontal}
             <br />
             More space: {relation.space.vertical}-{relation.space.horizontal}
@@ -373,7 +568,7 @@ function ManualUpdateExample() {
           More space available on {relation.space.vertical} and {relation.space.horizontal}.
         </Text>
       )}
-      <View ref={ref} padding={20} backgroundColor="blue.100" marginTop={20}>
+      <View ref={ref} padding={20} backgroundColor="blue-100" marginTop={20}>
         Target Element
       </View>
     </View>
@@ -390,7 +585,7 @@ function CustomEventsExample() {
   });
 
   return (
-    <View ref={ref} padding={20} backgroundColor="green.100">
+    <View ref={ref} padding={20} backgroundColor="green-100">
       Hover, scroll, or resize to see updates
       {relation && (
         <Text fontSize="sm" marginTop={8}>

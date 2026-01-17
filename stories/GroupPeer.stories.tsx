@@ -18,8 +18,10 @@ export default {
 export const GroupHover: ComponentStory<typeof View> = () => {
   return (
     <Vertical gap={20} padding={20}>
-      <Text fontSize={24} fontWeight="bold">Group Hover Test</Text>
-      
+      <Text fontSize={24} fontWeight="bold">
+        Group Hover Test
+      </Text>
+
       <View
         className="group"
         padding={20}
@@ -29,7 +31,7 @@ export const GroupHover: ComponentStory<typeof View> = () => {
         _hover={{ backgroundColor: '#e0e0e0' }}
       >
         <Text fontWeight="bold">Hover over this box (the group parent)</Text>
-        
+
         <View
           marginTop={10}
           padding={10}
@@ -37,18 +39,18 @@ export const GroupHover: ComponentStory<typeof View> = () => {
           borderRadius={4}
           transition="all 0.2s"
           _groupHover={{
-            backgroundColor: "color.blue.100",
-            transform: "scale(1.02)",
-            color: "color.blue.700"
+            backgroundColor: 'color-blue-100',
+            transform: 'scale(1.02)',
+            color: 'color-blue-700',
           }}
         >
           This child reacts to group verify hover!
         </View>
-        
-        <Text 
-          marginTop={10} 
+
+        <Text
+          marginTop={10}
           color="gray"
-          _groupHover={{ color: "black", fontWeight: "bold" }}
+          _groupHover={{ color: 'black', fontWeight: 'bold' }}
         >
           Even this text reacts to group hover
         </Text>
@@ -58,40 +60,42 @@ export const GroupHover: ComponentStory<typeof View> = () => {
 };
 
 export const PeerHover: ComponentStory<typeof View> = () => {
-    return (
-      <Vertical gap={20} padding={20}>
-        <Text fontSize={24} fontWeight="bold">Peer Hover Test</Text>
-        
-        <View>
-          <Text marginBottom={5}>Hover over the button below:</Text>
-          
-          <View
-            as="button"
-            className="peer"
-            padding={10}
-            backgroundColor="color.blue.500"
-            color="white"
-            borderRadius={4}
-            border="none"
-            cursor="pointer"
-          >
-            I am the Peer
-          </View>
-          
-          <View
-            marginTop={10}
-            padding={10}
-            backgroundColor="#f0f0f0"
-            borderRadius={4}
-            transition="all 0.2s"
-            _peerHover={{
-              backgroundColor: "color.green.100",
-              color: "color.green.700"
-            }}
-          >
-            I react when my peer (sibling above) is hovered!
-          </View>
+  return (
+    <Vertical gap={20} padding={20}>
+      <Text fontSize={24} fontWeight="bold">
+        Peer Hover Test
+      </Text>
+
+      <View>
+        <Text marginBottom={5}>Hover over the button below:</Text>
+
+        <View
+          as="button"
+          className="peer"
+          padding={10}
+          backgroundColor="color-blue-500"
+          color="white"
+          borderRadius={4}
+          border="none"
+          cursor="pointer"
+        >
+          I am the Peer
         </View>
-      </Vertical>
-    );
-  };
+
+        <View
+          marginTop={10}
+          padding={10}
+          backgroundColor="#f0f0f0"
+          borderRadius={4}
+          transition="all 0.2s"
+          _peerHover={{
+            backgroundColor: 'color-green-100',
+            color: 'color-green-700',
+          }}
+        >
+          I react when my peer (sibling above) is hovered!
+        </View>
+      </View>
+    </Vertical>
+  );
+};

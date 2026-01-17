@@ -133,7 +133,7 @@ Manages application theme including color palettes, light/dark modes, and custom
 [Documentation: docs/Theming.md]
 
 **Props:**
-- `theme`: Custom theme tokens mapping names to color strings (e.g., primary: 'color.blue.500')
+- `theme`: Custom theme tokens mapping names to color strings (e.g., primary: 'color-blue-500')
 - `mode`: Initial theme mode ('light' or 'dark')
 - `dark`: Dark mode color configuration with main colors and palette
 - `light`: Light mode color configuration with main colors and palette
@@ -152,7 +152,7 @@ Manages application theme including color palettes, light/dark modes, and custom
 **Theme Tokens**: Custom mappable tokens (primary, secondary, accent, etc.) that reference palette colors.
 [Documentation: docs/Theming.md]
 
-**Direct Access**: Use light.* or dark.* prefix to access specific theme mode colors regardless of current theme.
+**Direct Access**: Use light-* or dark-* prefix to access specific theme mode colors regardless of current theme.
 [Documentation: docs/Theming.md]
 
 **Smart Contrast**: Automatic mix-blend-mode for text visibility on any background when color prop is undefined.
@@ -375,20 +375,20 @@ import { View, Text, Button } from 'app-studio';
 
 function Card() {
   return (
-    <View padding={20} backgroundColor="color.white" borderRadius={8} shadow={2}>
+    <View padding={20} backgroundColor="color-white" borderRadius={8} shadow={2}>
       <Text fontSize="xl" fontWeight="bold" marginBottom={8}>
         Card Title
       </Text>
-      <Text color="color.gray.600" marginBottom={16}>
+      <Text color="color-gray-600" marginBottom={16}>
         Card description text goes here.
       </Text>
       <Button
-        backgroundColor="color.blue.500"
-        color="color.white"
+        backgroundColor="color-blue-500"
+        color="color-white"
         padding={10}
         borderRadius={4}
         on={{
-          hover: { backgroundColor: 'color.blue.600' }
+          hover: { backgroundColor: 'color-blue-600' }
         }}
       >
         Click Me
@@ -410,7 +410,7 @@ function ResponsiveCard() {
     <View
       flexDirection={on('mobile') ? 'column' : 'row'}
       padding={16}
-      backgroundColor="color.white"
+      backgroundColor="color-white"
       borderRadius={8}
       shadow={2}
       media={{
@@ -420,7 +420,7 @@ function ResponsiveCard() {
     >
       <View flex={1}>
         <Text fontWeight="bold" fontSize="lg">Title</Text>
-        <Text color="color.gray.600">Content</Text>
+        <Text color="color-gray-600">Content</Text>
       </View>
     </View>
   );
@@ -437,10 +437,10 @@ function AnimatedBox() {
     <View
       animate={Animation.fadeIn({ duration: '0.5s' })}
       padding={20}
-      backgroundColor="color.blue.200"
+      backgroundColor="color-blue-200"
       on={{
         hover: {
-          backgroundColor: 'color.blue.300',
+          backgroundColor: 'color-blue-300',
           animate: Animation.pulse({ duration: '1s', iterationCount: 'infinite' })
         }
       }}
@@ -461,7 +461,7 @@ function ThemedComponent() {
 
   return (
     <View backgroundColor="theme.primary" padding={20} borderRadius={8}>
-      <Text color={getColor('color.white')} marginBottom={12}>
+      <Text color={getColor('color-white')} marginBottom={12}>
         Current theme: {themeMode}
       </Text>
       <Button onClick={() => setThemeMode(themeMode === 'light' ? 'dark' : 'light')}>

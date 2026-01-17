@@ -21,7 +21,7 @@ const Template: ComponentStory<typeof View> = () => (
     <Vertical
       gap={20}
       padding={20}
-      backgroundColor="color.gray.100"
+      backgroundColor="color-gray-100"
       borderRadius={8}
     >
       <Text fontSize="lg" fontWeight="bold">
@@ -35,11 +35,11 @@ const Template: ComponentStory<typeof View> = () => (
           <View
             height={100}
             backgroundColor="white"
-            border="2px solid color.blue.500"
+            border="2px solid color-blue-500"
             borderRadius={8}
             padding={10}
           >
-            <Text>Border using color.blue.500</Text>
+            <Text>Border using color-blue.500</Text>
           </View>
 
           <View
@@ -55,10 +55,10 @@ const Template: ComponentStory<typeof View> = () => (
           <View
             height={100}
             backgroundColor="white"
-            borderTop="3px solid color.green.500"
-            borderRight="3px solid color.red.500"
-            borderBottom="3px solid color.blue.500"
-            borderLeft="3px solid color.purple.500"
+            borderTop="3px solid color-green-500"
+            borderRight="3px solid color-red-500"
+            borderBottom="3px solid color-blue-500"
+            borderLeft="3px solid color-purple-500"
             borderRadius={8}
             padding={10}
           >

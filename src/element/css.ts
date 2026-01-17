@@ -818,7 +818,7 @@ function processEventStyles(
 ): string[] {
   const classes: string[] = [];
 
-  // Handle string shorthand (e.g., _hover: "color.red.500")
+  // Handle string shorthand (e.g., _hover: "color-red-500")
   if (typeof eventStyles === 'string') {
     eventStyles = { color: eventStyles };
   }

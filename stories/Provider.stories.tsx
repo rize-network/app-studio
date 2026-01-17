@@ -20,31 +20,36 @@ export const ThemeMode: ComponentStory<typeof ThemeProvider> = () => {
   const [mode, setMode] = React.useState<'light' | 'dark'>('light');
 
   return (
-      <View>
-        <Text marginRight={10}>Current Theme Mode: {mode}</Text>
-        <View  data-theme={mode}>
-          <Button onPress={() => setMode(mode === 'light' ? 'dark' : 'light')}>
-            Toggle Theme
-          </Button>
+    <View>
+      <Text marginRight={10}>Current Theme Mode: {mode}</Text>
+      <View data-theme={mode}>
+        <Button onPress={() => setMode(mode === 'light' ? 'dark' : 'light')}>
+          Toggle Theme
+        </Button>
 
-          <View width={100} height={100} backgroundColor="color.white" marginTop={20}>
-            <Text color="color.black">
-              This text is styled using the primary color from the theme.
-            </Text>
-          </View>
+        <View
+          width={100}
+          height={100}
+          backgroundColor="color-white"
+          marginTop={20}
+        >
+          <Text color="color-black">
+            This text is styled using the primary color from the theme.
+          </Text>
+        </View>
 
-          <View
-            width={100}
-            height={100}
-            backgroundColor="color.black"
-            marginTop={20}
-          >
-            <Text color="color.red">
-              This text is styled using the primary color from the theme.
-            </Text>
-          </View>
+        <View
+          width={100}
+          height={100}
+          backgroundColor="color-black"
+          marginTop={20}
+        >
+          <Text color="color-red">
+            This text is styled using the primary color from the theme.
+          </Text>
         </View>
       </View>
+    </View>
   );
 };
 

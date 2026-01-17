@@ -21,6 +21,8 @@ export interface UseScrollAnimationOptions {
   rootMargin?: string;
   root?: Element | null;
   onIntersectionChange?: (isIntersecting: boolean, ratio: number) => void;
+  /** Target window for iframe support - automatically sets correct root */
+  targetWindow?: Window | null;
 }
 
 export interface UseInfiniteScrollOptions {
@@ -203,7 +205,7 @@ export const useScroll = ({
   return scrollPosition;
 };
 
-// Enhanced useScrollAnimation with callback support
+// Enhanced useScrollAnimation with callback support and iframe support
 export const useScrollAnimation = (
   ref: RefObject<HTMLElement>,
   options: UseScrollAnimationOptions = {}
@@ -215,8 +217,29 @@ export const useScrollAnimation = (
     const element = ref.current;
     if (!element) return;
 
-    const observer = new IntersectionObserver(
-      (entries) => {
+    // Auto-detect iframe context from element's ownerDocument
+    const elementWindow = element.ownerDocument?.defaultView;
+    const targetWindow = options.targetWindow ?? elementWindow;
+
+    // If no valid window context, bail out
+    if (!targetWindow) return;
+
+    // Use the IntersectionObserver from the target window context
+    // This is crucial for iframe support - we need to use the iframe's
+    // IntersectionObserver, not the parent window's
+    const ObserverClass = (targetWindow as Window & typeof globalThis)
+      .IntersectionObserver;
+    if (!ObserverClass) return;
+
+    // Determine effective root:
+    // 1. If explicit root provided, use it
+    // 2. Otherwise use null (default viewport of the target window)
+    // Note: When using the iframe's IntersectionObserver with null root,
+    // it correctly observes relative to the iframe's viewport
+    const effectiveRoot = options.root !== undefined ? options.root : null;
+
+    const observer = new ObserverClass(
+      (entries: IntersectionObserverEntry[]) => {
         const entry = entries[0];
         setIsInView(entry.isIntersecting);
         setProgress(entry.intersectionRatio);
@@ -229,7 +252,7 @@ export const useScrollAnimation = (
       {
         threshold: options.threshold ?? 0,
         rootMargin: options.rootMargin ?? '0px',
-        root: options.root ?? null,
+        root: effectiveRoot,
       }
     );
 
@@ -240,6 +263,7 @@ export const useScrollAnimation = (
     options.threshold,
     options.rootMargin,
     options.root,
+    options.targetWindow,
     options.onIntersectionChange,
   ]);
 

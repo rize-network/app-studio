@@ -21,25 +21,25 @@ Here `eventName` is the name of the CSS pseudo-class, `styleProps` are the CSS p
 As an alternative to the `on` prop, you can use underscore-prefixed properties directly. This provides a more concise syntax for common event-based styling:
 
 ```jsx
-_hover={{ backgroundColor: 'blue.100' }}
+_hover={{ backgroundColor: 'blue-100' }}
 ```
 
 You can also use string values for simple color changes:
 
 ```jsx
-_hover="color.blue.500"
+_hover="color-blue-500"
 ```
 
 Underscore-prefixed properties support all the same events as the `on` prop, but with a more direct syntax. For example, instead of writing:
 
 ```jsx
-on={{ hover: { backgroundColor: 'blue.100' } }}
+on={{ hover: { backgroundColor: 'blue-100' } }}
 ```
 
 You can simply write:
 
 ```jsx
-_hover={{ backgroundColor: 'blue.100' }}
+_hover={{ backgroundColor: 'blue-100' }}
 ```
 
 Both approaches achieve the same result, so you can choose the syntax that best fits your coding style. The underscore-prefixed approach is particularly useful when you want to apply styles to multiple different states without nesting them all within a single `on` prop object.
@@ -54,7 +54,7 @@ Both approaches achieve the same result, so you can choose the syntax that best 
 <View
   backgroundColor="grey"
   padding={20}
-  on={{ hover: { backgroundColor: 'blue.100' } }}
+  on={{ hover: { backgroundColor: 'blue-100' } }}
 >
   Hover over me
 </View>
@@ -65,7 +65,7 @@ In this example, the `View` component's background color will change to `blue.10
 ### Example 2: Background Color Toggle for `Element`
 
 ```jsx
-<Element backgroundColor="blue" on={{ hover: { backgroundColor: 'color.red' } }} />
+<Element backgroundColor="blue" on={{ hover: { backgroundColor: 'color-red' } }} />
 ```
 
 Here, the `Element` component initially has a background color of `blue`. When hovered over, the background color toggles to `red`.
@@ -125,10 +125,10 @@ The `on` prop supports a comprehensive set of CSS pseudo-classes, allowing you t
 <Form.Input
   value="Focus me"
   on={{
-    focus: { borderColor: 'color.blue.500', boxShadow: '0 0 0 3px rgba(66, 153, 225, 0.5)' },
-    invalid: { borderColor: 'color.red.500' },
-    disabled: { backgroundColor: 'color.gray.100', cursor: 'not-allowed' },
-    placeholder: { color: 'color.gray.400' }
+    focus: { borderColor: 'color-blue-500', boxShadow: '0 0 0 3px rgba(66, 153, 225, 0.5)' },
+    invalid: { borderColor: 'color-red-500' },
+    disabled: { backgroundColor: 'color-gray-100', cursor: 'not-allowed' },
+    placeholder: { color: 'color-gray-400' }
   }}
 />
 ```
@@ -140,10 +140,10 @@ This example shows how to style an input field in different states: when it has 
 ```jsx
 <Form.Input
   value="Focus me"
-  _focus={{ borderColor: 'color.blue.500', boxShadow: '0 0 0 3px rgba(66, 153, 225, 0.5)' }}
-  _invalid={{ borderColor: 'color.red.500' }}
-  _disabled={{ backgroundColor: 'color.gray.100', cursor: 'not-allowed' }}
-  _placeholder={{ color: 'color.gray.400' }}
+  _focus={{ borderColor: 'color-blue-500', boxShadow: '0 0 0 3px rgba(66, 153, 225, 0.5)' }}
+  _invalid={{ borderColor: 'color-red-500' }}
+  _disabled={{ backgroundColor: 'color-gray-100', cursor: 'not-allowed' }}
+  _placeholder={{ color: 'color-gray-400' }}
 />
 ```
 
@@ -153,13 +153,13 @@ This example achieves the same result as the previous one but uses the more conc
 
 ```jsx
 <Button
-  backgroundColor="color.blue.500"
+  backgroundColor="color-blue-500"
   color="white"
   padding={10}
   borderRadius={4}
   on={{
-    hover: { backgroundColor: 'color.blue.600', shadow: 3 },
-    active: { backgroundColor: 'color.blue.700', transform: 'scale(0.98)', shadow: 1 },
+    hover: { backgroundColor: 'color-blue-600', shadow: 3 },
+    active: { backgroundColor: 'color-blue-700', transform: 'scale(0.98)', shadow: 1 },
     focus: { boxShadow: '0 0 0 3px rgba(66, 153, 225, 0.5)' },
     disabled: { opacity: 0.6, cursor: 'not-allowed', shadow: 0 }
   }}
@@ -176,12 +176,12 @@ This button changes its appearance based on different interaction states, provid
 
 ```jsx
 <Button
-  backgroundColor="color.blue.500"
+  backgroundColor="color-blue-500"
   color="white"
   padding={10}
   borderRadius={4}
-  _hover={{ backgroundColor: 'color.blue.600', shadow: 3 }}
-  _active={{ backgroundColor: 'color.blue.700', transform: 'scale(0.98)', shadow: 1 }}
+  _hover={{ backgroundColor: 'color-blue-600', shadow: 3 }}
+  _active={{ backgroundColor: 'color-blue-700', transform: 'scale(0.98)', shadow: 1 }}
   _focus={{ boxShadow: '0 0 0 3px rgba(66, 153, 225, 0.5)' }}
   _disabled={{ opacity: 0.6, cursor: 'not-allowed', shadow: 0 }}
 >
@@ -199,11 +199,11 @@ This example achieves the same result as the previous one but uses the more conc
     <View
       as="li"
       padding={10}
-      borderBottom="1px solid color.gray.200"
+      borderBottom="1px solid color-gray-200"
       on={{
-        firstChild: { borderTop: '1px solid color.gray.200' },
+        firstChild: { borderTop: '1px solid color-gray-200' },
         lastChild: { borderBottom: 'none' },
-        hover: { backgroundColor: 'color.gray.50' }
+        hover: { backgroundColor: 'color-gray.50' }
       }}
     >
       {item.name}
@@ -228,7 +228,7 @@ This example shows how to apply different styles to list items based on their po
     marginRight={8}
     on={{
       checked: { /* Custom styles for the checked state */ },
-      focus: { outline: 'none', boxShadow: '0 0 0 2px color.blue.300' }
+      focus: { outline: 'none', boxShadow: '0 0 0 2px color-blue-300' }
     }}
   />
   Accept terms and conditions
@@ -248,16 +248,16 @@ The `on` prop can be combined with animations to create dynamic effects:
 ```jsx
 <Button
   padding={10}
-  backgroundColor="color.purple.500"
+  backgroundColor="color-purple-500"
   color="white"
   borderRadius={4}
   on={{
     hover: {
-      backgroundColor: 'color.purple.600',
+      backgroundColor: 'color-purple-600',
       animate: Animation.pulse({ duration: '1s', iterationCount: 'infinite' })
     },
     active: {
-      backgroundColor: 'color.purple.700',
+      backgroundColor: 'color-purple-700',
       animate: Animation.scale({ from: { transform: 'scale(1)' }, to: { transform: 'scale(0.95)' }, duration: '0.1s' })
     }
   }}
@@ -273,15 +273,15 @@ You can also use underscore-prefixed properties with animations:
 ```jsx
 <Button
   padding={10}
-  backgroundColor="color.purple.500"
+  backgroundColor="color-purple-500"
   color="white"
   borderRadius={4}
   _hover={{
-    backgroundColor: 'color.purple.600',
+    backgroundColor: 'color-purple-600',
     animate: Animation.pulse({ duration: '1s', iterationCount: 'infinite' })
   }}
   _active={{
-    backgroundColor: 'color.purple.700',
+    backgroundColor: 'color-purple-700',
     animate: Animation.scale({ from: { transform: 'scale(1)' }, to: { transform: 'scale(0.95)' }, duration: '0.1s' })
   }}
 >
