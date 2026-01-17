@@ -33,7 +33,7 @@ export const StrictModeWarning: ComponentStory<typeof ThemeProvider> = () => {
           borderRadius={8}
         >
           <Text color="color-green-700">
-            This uses valid tokens (color-green.100). No warning.
+            This uses valid tokens (color-green-100). No warning.
           </Text>
         </View>
 

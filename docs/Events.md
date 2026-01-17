@@ -203,7 +203,7 @@ This example achieves the same result as the previous one but uses the more conc
       on={{
         firstChild: { borderTop: '1px solid color-gray-200' },
         lastChild: { borderBottom: 'none' },
-        hover: { backgroundColor: 'color-gray.50' }
+        hover: { backgroundColor: 'color-gray-50' }
       }}
     >
       {item.name}

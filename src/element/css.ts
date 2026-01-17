@@ -18,7 +18,7 @@ import {
 } from '../utils/vendorPrefixes';
 import { hash } from '../utils/hash';
 
-type StyleContext = 'base' | 'pseudo' | 'media' | 'modifier';
+type StyleContext = 'base' | 'pseudo' | 'media' | 'modifier' | 'override';
 
 // Implement a simple LRU cache for classCache
 class LRUCache<K, V> {
@@ -342,6 +342,7 @@ export class UtilityClassManager {
         pseudo: 'utility-classes-pseudo',
         media: 'utility-classes-media',
         modifier: 'utility-classes-modifier',
+        override: 'utility-classes-override',
       };
 
       for (const [context, id] of Object.entries(contextIds)) {
@@ -429,7 +430,13 @@ export class UtilityClassManager {
   }
 
   public getServerStyles(): string {
-    const contexts: StyleContext[] = ['base', 'pseudo', 'media', 'modifier'];
+    const contexts: StyleContext[] = [
+      'base',
+      'pseudo',
+      'media',
+      'modifier',
+      'override',
+    ];
     let css = '';
 
     contexts.forEach((context) => {
@@ -569,10 +576,11 @@ export class UtilityClassManager {
       const escapedClassName = this.escapeClassName(baseClassName);
 
       // Add rules for all necessary vendor prefixes
+      // Use the passed context (base or override) for proper specificity
       cssProperties.forEach((prefixedProperty) => {
         rules.push({
           rule: `.${escapedClassName} { ${prefixedProperty}: ${valueForCss}; }`,
-          context: 'base',
+          context: context === 'override' ? 'override' : 'base',
         });
       });
     }
@@ -1091,19 +1099,20 @@ export const extractUtilityClasses = (
     }
   });
 
-  // Handle raw CSS
+  // Handle raw CSS - uses 'override' context for higher specificity
   if (props.css) {
     if (typeof props.css === 'object') {
-      // Object-style CSS gets processed as regular styles
+      // Object-style CSS gets processed with override context for higher priority
       Object.assign(computedStyles, props.css);
       classes.push(
-        ...processStyles(props.css, 'base', '', getColor, {}, {}, manager)
+        ...processStyles(props.css, 'override', '', getColor, {}, {}, manager)
       );
     } else if (typeof props.css === 'string') {
-      // String-style CSS gets its own class
+      // String-style CSS gets its own class in override context
       const uniqueClassName = ValueUtils.generateUniqueClassName(props.css);
       (manager || utilityClassManager).injectRule(
-        `.${uniqueClassName} { ${props.css} }`
+        `.${uniqueClassName} { ${props.css} }`,
+        'override'
       );
       classes.push(uniqueClassName);
     }

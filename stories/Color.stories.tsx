@@ -11,16 +11,17 @@ import {
   Horizontal,
   Colors, // Import the Colors type
   Theme,
+  ThemeProvider,
 } from '../src'; // Adjust the import path based on your structure
 
 export default {
-  title: 'Theming/Custom Colors Prop', // Organize under Theming or similar
-  component: View, // The example uses View, but the prop is on Element
+  title: 'Theming/Custom Colors', // Organize under Theming or similar
+  component: View,
   parameters: {
     docs: {
       description: {
         component:
-          'Demonstrates how the `colors` prop can override the global theme colors for a specific component instance. The `colors` prop takes an object matching the `Colors` interface (`{ main: {...}, palette: {...} }`). Colors requested within this component (e.g., `color-blue.500`, `theme-primary`) will first try to resolve using this local `colors` object before falling back to the global theme.',
+          'Demonstrates how to override theme colors using a nested `ThemeProvider`. Wrap components in a `ThemeProvider` with custom `theme` and `light`/`dark` props to override colors locally. Colors like `color-blue-500` and `theme-primary` will resolve using the nested provider\'s configuration.',
       },
     },
   },
@@ -30,15 +31,11 @@ export default {
 // Let's create a palette where 'blue' is actually shades of purple,
 // and the 'primary' theme color points to a specific green shade.
 
-const customTheme: Theme = {
+const customTheme: Partial<Theme> = {
   primary: 'color-green-600', // Override 'theme-primary' to use our green.600
   secondary: 'color-orange-500', // Override 'theme-secondary'
 };
-const customComponentColors: Colors = {
-  // Define main theme overrides for this component
-  main: {
-    white: 'blue', // Start with defaults to avoid defining everything
-  },
+const customComponentColors: Partial<Colors> = {
   // Define color palette overrides
   palette: {
     // Override the entire 'blue' palette with shades of purple
@@ -71,8 +68,8 @@ const Template: ComponentStory<typeof View> = () => (
     backgroundColor="color-gray-100"
     borderRadius={8}
   >
-    <Text fontSize="lg" fontWeight="bold">
-      Demonstrating the `colors` Prop Override
+    <Text fontSize={20} fontWeight="bold">
+      Demonstrating ThemeProvider Color Override
     </Text>
 
     <Horizontal gap={20} alignItems="center">
@@ -89,7 +86,7 @@ const Template: ComponentStory<typeof View> = () => (
           shadow={2}
         >
           <Text color="white" fontWeight="bold">
-            BG: color-blue.500
+            BG: color-blue-500
           </Text>
         </View>
         <View
@@ -102,12 +99,12 @@ const Template: ComponentStory<typeof View> = () => (
           shadow={2}
         >
           <Text color="white" fontWeight="bold">
-            BG: theme.primary
+            BG: theme-primary
           </Text>
         </View>
         <View
           height={50}
-          backgroundColor="theme-secondary" // Should be default theme's red
+          backgroundColor="theme-secondary" // Should be default theme's secondary
           borderRadius={8}
           display="flex"
           alignItems="center"
@@ -115,68 +112,56 @@ const Template: ComponentStory<typeof View> = () => (
           shadow={2}
         >
           <Text color="white" fontWeight="bold">
-            BG: color-white
+            BG: theme-secondary
           </Text>
         </View>
       </Vertical>
 
-      {/* Component using the LOCAL 'colors' prop */}
-      <Vertical gap={5} flex={1}>
-        <Text fontWeight="medium">Using `colors` Prop Override:</Text>
-        <View
-          height={100}
-          backgroundColor="color-blue-500" // Should use the OVERRIDDEN purple-500
-          colors={customComponentColors} // Apply the override!
-          theme={customTheme} // Pass the custom theme
-          borderRadius={8}
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-          shadow={2}
-        >
-          <Text color="white" fontWeight="bold">
-            BG: color-blue.500 (Overridden)
-          </Text>
-        </View>
-        <View
-          height={50}
-          backgroundColor="theme-primary" // Should use the OVERRIDDEN green-600
-          colors={customComponentColors} // Apply the override!
-          theme={customTheme} // Pass the custom theme
-          borderRadius={8}
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-          shadow={2}
-        >
-          <Text
-            color="color-white"
-            colors={customComponentColors}
-            fontWeight="bold"
+      {/* Component using ThemeProvider override */}
+      <ThemeProvider theme={customTheme} light={customComponentColors}>
+        <Vertical gap={5} flex={1}>
+          <Text fontWeight="medium">Using ThemeProvider Override:</Text>
+          <View
+            height={100}
+            backgroundColor="color-blue-500" // Should use the OVERRIDDEN purple-500
+            borderRadius={8}
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            shadow={2}
           >
-            BG: theme.primary (Overridden)
-          </Text>
-        </View>
-        <View
-          height={50}
-          backgroundColor="theme-secondary" // Red wasn't overridden, should FALLBACK to theme's red
-          colors={customComponentColors} // Apply the override!
-          theme={customTheme} // Pass the custom theme
-          borderRadius={8}
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-          shadow={2}
-        >
-          <Text
-            color="color-white"
-            colors={customComponentColors}
-            fontWeight="bold"
+            <Text color="white" fontWeight="bold">
+              BG: color-blue-500 (Overridden)
+            </Text>
+          </View>
+          <View
+            height={50}
+            backgroundColor="theme-primary" // Should use the OVERRIDDEN green-600
+            borderRadius={8}
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            shadow={2}
           >
-            BG: color-white (Fallback)
-          </Text>
-        </View>
-      </Vertical>
+            <Text color="color-white" fontWeight="bold">
+              BG: theme-primary (Overridden)
+            </Text>
+          </View>
+          <View
+            height={50}
+            backgroundColor="theme-secondary" // Uses overridden orange-500
+            borderRadius={8}
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            shadow={2}
+          >
+            <Text color="color-white" fontWeight="bold">
+              BG: theme-secondary (Overridden)
+            </Text>
+          </View>
+        </Vertical>
+      </ThemeProvider>
     </Horizontal>
   </Vertical>
 );

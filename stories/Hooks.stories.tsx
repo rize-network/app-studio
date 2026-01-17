@@ -420,7 +420,7 @@ const BasicElementPositionExample = () => {
     <View
       height="300px"
       width="100%"
-      backgroundColor="color-gray.50"
+      backgroundColor="color-gray-50"
       padding={20}
       position="relative"
     >
@@ -512,7 +512,7 @@ const ConfigurableEventsExample = () => {
     <View
       height="400px"
       width="100%"
-      backgroundColor="color-gray.50"
+      backgroundColor="color-gray-50"
       padding={20}
     >
       <View
@@ -657,7 +657,7 @@ const ElementPositionExample = () => {
     <View
       height="500px"
       width="100%"
-      backgroundColor="color-gray.50"
+      backgroundColor="color-gray-50"
       padding={20}
     >
       <View
@@ -683,7 +683,7 @@ const ElementPositionExample = () => {
           <View
             height="300px"
             position="relative"
-            backgroundColor="color-blue.50"
+            backgroundColor="color-blue-50"
             borderRadius={8}
             border="2px solid"
             borderColor="color-blue-200"
@@ -714,7 +714,7 @@ const ElementPositionExample = () => {
           <View
             height="300px"
             position="relative"
-            backgroundColor="color-green.50"
+            backgroundColor="color-green-50"
             borderRadius={8}
             border="2px solid"
             borderColor="color-green-200"

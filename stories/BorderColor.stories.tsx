@@ -39,17 +39,17 @@ const Template: ComponentStory<typeof View> = () => (
             borderRadius={8}
             padding={10}
           >
-            <Text>Border using color-blue.500</Text>
+            <Text>Border using color-blue-500</Text>
           </View>
 
           <View
             height={100}
             backgroundColor="white"
-            border="2px solid theme.primary"
+            border="2px solid theme-primary"
             borderRadius={8}
             padding={10}
           >
-            <Text>Border using theme.primary</Text>
+            <Text>Border using theme-primary</Text>
           </View>
 
           <View

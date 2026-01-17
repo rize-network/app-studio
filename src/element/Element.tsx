@@ -104,29 +104,7 @@ export const Element = React.memo(
         props.cursor = 'pointer';
       }
 
-      const {
-        onPress,
-        blend: initialBlend,
-        animateOn = 'Both',
-        ...rest
-      } = props;
-      let blend = initialBlend;
-
-      if (
-        blend !== false &&
-        props.color === undefined &&
-        typeof props.children === 'string' &&
-        (as === 'span' || as === 'div' || as === 'sub' || as === 'sup')
-      ) {
-        const otherMediaProps = {
-          ...(props.on || {}),
-          ...(props.media || {}),
-        };
-
-        if (otherMediaProps.color === undefined) {
-          blend = true;
-        }
-      }
+      const { onPress, blend, animateOn = 'Both', ...rest } = props;
       const elementRef = useRef<HTMLElement | null>(null);
       const setRef = useCallback(
         (node: HTMLElement | null) => {

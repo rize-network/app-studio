@@ -560,7 +560,7 @@ Manages the application's theme, including color palettes, light/dark modes, and
 
 **Context Values (via `useTheme`)**
 
-*   `getColor(colorName, mode?)`: Resolves a color string (e.g., `color-blue.500`, `theme-primary`, `blackAlpha.500`) to its CSS value for the specified or current theme mode. You can also directly access specific theme mode colors using the `light-` or `dark-` prefix (e.g., `light-white` or `dark-red.200`), which will always use that specific theme mode's color regardless of the current theme setting.
+*   `getColor(colorName, mode?)`: Resolves a color string (e.g., `color-blue-500`, `theme-primary`) to its CSS value for the specified or current theme mode. You can also directly access specific theme mode colors using the `light-` or `dark-` prefix (e.g., `light-white` or `dark-red-200`), which will always use that specific theme mode's color regardless of the current theme setting.
 *   `theme`: The merged theme configuration object.
 *   `themeMode`: The current mode ('light' or 'dark').
 *   `setThemeMode(mode)`: Function to change the theme mode.

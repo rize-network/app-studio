@@ -28,7 +28,7 @@ export const GradientWithColorTokens: ComponentStory<typeof View> = () => {
         <View
           height={100}
           width="100%"
-          background="linear-gradient(135deg, color-blue.500, color-red.500)"
+          background="linear-gradient(135deg, color-blue-500, color-red-500)"
           borderRadius={8}
           marginTop={10}
         />
@@ -40,7 +40,7 @@ export const GradientWithColorTokens: ComponentStory<typeof View> = () => {
         <View
           height={100}
           width="100%"
-          background="radial-gradient(circle, color-yellow.300, color-green.600)"
+          background="radial-gradient(circle, color-yellow-300, color-green-600)"
           borderRadius={8}
           marginTop={10}
         />
@@ -51,9 +51,12 @@ export const GradientWithColorTokens: ComponentStory<typeof View> = () => {
         <Text fontWeight="bold">Text with Gradient Background:</Text>
         <Text
           padding={20}
-          background="linear-gradient(90deg, color-purple.500, color-pink.500)"
-          WebkitBackgroundClip="text"
-          color="transparent"
+          background="linear-gradient(90deg, color-purple-500, color-pink-500)"
+          css={{
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+          }}
           fontSize={24}
           fontWeight="bold"
           marginTop={10}

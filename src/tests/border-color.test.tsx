@@ -12,7 +12,7 @@ describe('Border Color Processing', () => {
           data-testid="border-element"
         />
         <Element
-          borderTop="2px dashed theme.primary"
+          borderTop="2px dashed theme-primary"
           data-testid="border-top-element"
         />
         <Element

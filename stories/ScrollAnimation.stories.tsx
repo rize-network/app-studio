@@ -949,7 +949,7 @@ ScrollDrivenTextFill.storyName = 'Scroll-Driven Text Fill';
  *
  * - Palette colors: var(--color-blue-500), var(--color-emerald-500)
  * - Alpha transparency: color-mix(in srgb, var(--color-blue-500) 20%, transparent)
- * - Background colors: color-slate.900, color-emerald.950, etc.
+ * - Background colors: color-slate-900, color-emerald-950, etc.
  *
  * See docs/Theming.md for the complete color reference.
  */
@@ -1092,7 +1092,7 @@ export const FillTextExamples: ComponentStory<typeof View> = () => {
 
       {/* Example 3: Emerald Theme - Using emerald palette */}
       <Section
-        backgroundColor="color-emerald.950"
+        backgroundColor="color-emerald-950"
         timelineName="--green-section"
       >
         <FillText
@@ -1114,7 +1114,7 @@ export const FillTextExamples: ComponentStory<typeof View> = () => {
 
       {/* Example 4: Violet Theme - Using violet palette */}
       <Section
-        backgroundColor="color-indigo.950"
+        backgroundColor="color-indigo-950"
         timelineName="--purple-section"
       >
         <FillText
@@ -1158,7 +1158,7 @@ export const FillTextExamples: ComponentStory<typeof View> = () => {
       </Section>
 
       {/* Example 6: Light Theme - Using gray on light background */}
-      <Section backgroundColor="color-gray.50" timelineName="--light-section">
+      <Section backgroundColor="color-gray-50" timelineName="--light-section">
         <FillText
           fontSize={50}
           fillColor="var(--color-gray-800)"
@@ -1234,7 +1234,7 @@ export const FillTextExamples: ComponentStory<typeof View> = () => {
         </View>
       </Section>
 
-      {/* Example 9: Theme Colors - Using theme.primary/secondary */}
+      {/* Example 9: Theme Colors - Using theme-primary/secondary */}
       <Section backgroundColor="color-dark-900" timelineName="--theme-section">
         <FillText
           fontSize={48}
