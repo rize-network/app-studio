@@ -89,7 +89,7 @@ export function useIframe(iframeRef: React.RefObject<HTMLIFrameElement>) {
 
     const updateState = () => {
       const win = iframe.contentWindow;
-      const doc = iframe.contentDocument || win?.document;
+      const doc = win?.document || iframe.contentDocument;
 
       if (win && doc) {
         setIframeWindow(win);

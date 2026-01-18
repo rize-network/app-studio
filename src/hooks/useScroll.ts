@@ -6,6 +6,17 @@ export interface ScrollPosition {
   y: number;
   xProgress: number; // Value between 0 and 1
   yProgress: number; // Value between 0 and 1
+  /**
+   * Position of the tracked element relative to the viewport top (if container is provided).
+   * Equivalent to getBoundingClientRect().top
+   */
+  elementY?: number;
+  /**
+   * Progress of the element scrolling through the viewport (for sticky/reveal effects).
+   * Calculated as: -elementY / (elementHeight - viewportHeight)
+   * Varies from 0 (element hits top) to 1 (element finishes scrolling).
+   */
+  elementProgress?: number;
 }
 
 export interface UseScrollOptions {
@@ -90,10 +101,13 @@ export const useScroll = ({
     y: 0,
     xProgress: 0,
     yProgress: 0,
+    elementY: 0,
+    elementProgress: 0,
   });
 
   const lastUpdateRef = useRef<number>(0);
   const frameRef = useRef<number>();
+  const ticking = useRef(false);
 
   // Resolve the window/document context. If the container is an iframe element, use its contentWindow.
   const getContext = useCallback(() => {
@@ -118,20 +132,22 @@ export const useScroll = ({
     return { targetEl, targetWindow, targetDocument } as const;
   }, [container]);
 
-  const handleScroll = useCallback(() => {
-    if (disabled) return;
-
+  const updateScrollPosition = useCallback(() => {
     const { targetEl, targetWindow } = getContext();
     const hasScrollableElement = targetEl && isElementScrollable(targetEl);
     const scrollTarget = hasScrollableElement
       ? targetEl
       : targetWindow || targetEl;
 
-    if (!scrollTarget) return;
+    if (!scrollTarget) {
+      ticking.current = false;
+      return;
+    }
 
     const now = Date.now();
+    // Verify throttle constraints inside the RAF to skip frame if needed
     if (throttleMs > 0 && now - lastUpdateRef.current < throttleMs) {
-      frameRef.current = requestAnimationFrame(handleScroll);
+      ticking.current = false;
       return;
     }
 
@@ -147,19 +163,52 @@ export const useScroll = ({
     const yProgress =
       maxScrollY <= 0 ? 1 : Math.min(Math.max(y / maxScrollY, 0), 1);
 
+    // Calculate element-specific stats if we are tracking a specific element container
+    // that is NOT the main scroller itself.
+    let elementY = 0;
+    let elementProgress = 0;
+
+    if (targetEl && targetEl !== scrollTarget) {
+      const rect = targetEl.getBoundingClientRect();
+      elementY = rect.top;
+
+      const viewportHeight = dimensions.clientHeight;
+      const scrollDistance = rect.height - viewportHeight;
+
+      if (scrollDistance > 0) {
+        // Calculate progress consistent with sticky scrolling behavior
+        // 0 when hitting top, 1 when finished scrolling
+        const scrolled = -rect.top;
+        elementProgress = Math.max(0, Math.min(1, scrolled / scrollDistance));
+      } else {
+        elementProgress = 0;
+      }
+    }
+
     setScrollPosition((prev) => {
       if (
-        prev.x !== x ||
+        prev.elementProgress !== elementProgress ||
         prev.y !== y ||
-        prev.xProgress !== xProgress ||
+        prev.x !== x ||
         prev.yProgress !== yProgress
       ) {
         lastUpdateRef.current = now;
-        return { x, y, xProgress, yProgress };
+        return { x, y, xProgress, yProgress, elementY, elementProgress };
       }
       return prev;
     });
-  }, [offset, throttleMs, disabled, getContext]);
+    
+    ticking.current = false;
+  }, [offset, throttleMs, getContext]);
+
+  const handleScroll = useCallback(() => {
+    if (disabled) return;
+
+    if (!ticking.current) {
+      frameRef.current = requestAnimationFrame(updateScrollPosition);
+      ticking.current = true;
+    }
+  }, [disabled, updateScrollPosition]);
 
   useEffect(() => {
     if (disabled) return;
@@ -173,7 +222,7 @@ export const useScroll = ({
     if (!scrollTarget) return;
 
     // Initial scroll position
-    handleScroll();
+    updateScrollPosition();
 
     const options = { passive: true } as const;
 
@@ -199,8 +248,9 @@ export const useScroll = ({
       if (frameRef.current) {
         cancelAnimationFrame(frameRef.current);
       }
+      ticking.current = false;
     };
-  }, [handleScroll, disabled, getContext]);
+  }, [handleScroll, disabled, getContext, updateScrollPosition]);
 
   return scrollPosition;
 };

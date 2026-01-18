@@ -543,3 +543,486 @@ const { isInView, progress } = useScrollAnimation(ref, {
     </div>
   ),
 };
+
+/**
+ * Sticky Scroll using useScroll's elementProgress in Iframe
+ */
+function StickyScrollIframeContent() {
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  
+  // This uses the new feature: tracking element progress for sticky animations
+  const { elementProgress } = useScroll({ 
+    container: wrapperRef,
+    throttleMs: 16 
+  });
+  
+  // Default to 0 if undefined
+  const progress = elementProgress || 0;
+
+  return (
+    <div style={{ minHeight: '300vh', fontFamily: 'system-ui, sans-serif' }}>
+      <div style={{ 
+        height: '100vh', 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center',
+        background: '#f8f9fa'
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <h1>Sticky Scroll Demo</h1>
+          <p>Scroll down to see the sticky animation</p>
+          <div style={{ fontSize: '40px', marginTop: '20px' }}>↓</div>
+        </div>
+      </div>
+
+      <div 
+        ref={wrapperRef}
+        style={{ height: '300vh', position: 'relative', background: '#e9ecef' }}
+      >
+        <div style={{
+          position: 'sticky',
+          top: 0,
+          height: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '20px',
+        }}>
+          <div style={{
+            background: 'white',
+            padding: '40px',
+            borderRadius: '20px',
+            boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
+            textAlign: 'center',
+            maxWidth: '500px',
+            width: '100%',
+          }}>
+            <h2 style={{ marginBottom: '20px' }}>Sticky Progress</h2>
+            
+            <div style={{
+              width: '100%',
+              height: '12px',
+              background: '#f0f0f0',
+              borderRadius: '6px',
+              overflow: 'hidden',
+              marginBottom: '20px',
+            }}>
+              <div style={{
+                width: `${progress * 100}%`,
+                height: '100%',
+                background: 'linear-gradient(90deg, #2196f3, #9c27b0)',
+                transition: 'width 0.1s linear',
+              }} />
+            </div>
+
+            <div style={{ 
+              fontSize: '60px', 
+              fontWeight: 'bold', 
+              fontVariantNumeric: 'tabular-nums',
+              color: `hsl(${220 + progress * 80}, 70%, 50%)`
+            }}>
+              {Math.round(progress * 100)}%
+            </div>
+            
+            <p style={{ marginTop: '20px', color: '#666', lineHeight: '1.6' }}>
+              This element is <strong>sticky</strong>. The progress is calculated relative to its parent container's scroll position using <code>useScroll</code> inside this iframe.
+            </p>
+            
+            <div style={{
+              marginTop: '30px',
+              display: 'flex',
+              justifyContent: 'center',
+              gap: '10px'
+            }}>
+              {[0, 1, 2].map(i => (
+                <div key={i} style={{
+                  width: '12px',
+                  height: '12px',
+                  borderRadius: '50%',
+                  background: progress > (i * 0.33) ? '#2196f3' : '#ddd',
+                  transform: progress > (i * 0.33) ? 'scale(1.2)' : 'scale(1)',
+                  transition: 'all 0.3s ease',
+                }} />
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style={{ 
+        height: '100vh', 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center',
+        background: '#f8f9fa'
+      }}>
+        <p>End of demo</p>
+      </div>
+    </div>
+  );
+}
+
+export const StickyScrollInIframe: Story = {
+  render: () => (
+    <div style={{ padding: '20px' }}>
+      <h1>Sticky Scroll Animation in Iframe</h1>
+      <p style={{ marginBottom: '20px', color: '#666' }}>
+        This example demonstrates using <code>useScroll</code> with a container ref inside an iframe to track 
+        <strong>element-specific progress</strong> for sticky animations.
+      </p>
+
+      <IframePortal>
+        {() => <StickyScrollIframeContent />}
+      </IframePortal>
+    </div>
+  )
+};
+
+/**
+ * Fill Text Reveal Animation in Iframe
+ */
+function FillTextIframeContent() {
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  
+  // Track element progress in the sticky container
+  const { elementProgress } = useScroll({ 
+    container: wrapperRef,
+    throttleMs: 16 
+  });
+  
+  const progress = elementProgress || 0;
+  
+  const text = "Scroll to reveal this text character by character inside the iframe.";
+  const words = text.split(" ");
+  const totalChars = text.replace(/\s/g, '').length;
+  let globalCharIndex = 0;
+
+  return (
+    <div style={{ minHeight: '300vh', fontFamily: 'system-ui, sans-serif' }}>
+       {/* Spacer Top */}
+      <div style={{ height: '50vh', background: '#000', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ textAlign: 'center' }}>
+          <h2>Fill Text Demo</h2>
+          <p>Scroll down</p>
+        </div>
+      </div>
+
+      {/* Sticky Section */}
+      <div 
+        ref={wrapperRef}
+        style={{ height: '300vh', position: 'relative', background: '#000' }}
+      >
+        <div style={{
+          position: 'sticky',
+          top: 0,
+          height: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '40px',
+        }}>
+           <div style={{ 
+             maxWidth: '800px', 
+             textAlign: 'center',
+             fontSize: '32px',
+             fontWeight: 'bold',
+             lineHeight: '1.6',
+           }}>
+             {words.map((word, wIndex) => (
+                <span key={wIndex} style={{ display: 'inline-block', whiteSpace: 'nowrap' }}>
+                  {word.split('').map((char, cIndex) => {
+                    const currentCharIndex = globalCharIndex++;
+                    const charProgress = currentCharIndex / totalChars;
+                    const transitionWidth = 0.05;
+                    
+                    let opacity: number;
+                    if (progress > charProgress + transitionWidth) {
+                       opacity = 1;
+                    } else if (progress < charProgress - transitionWidth) {
+                       opacity = 0.1;
+                    } else {
+                       const t = (progress - (charProgress - transitionWidth)) / (2 * transitionWidth);
+                       opacity = 0.1 + (1 - 0.1) * t;
+                    }
+
+                    return (
+                      <span
+                        key={cIndex}
+                        style={{
+                           display: 'inline-block',
+                           color: opacity > 0.5 ? '#fff' : '#fff',
+                           opacity: opacity,
+                           transition: 'opacity 0.1s ease-out'
+                        }}
+                      >
+                        {char}
+                      </span>
+                    );
+                  })}
+                  {/* Space */}
+                  {wIndex < words.length - 1 && <span style={{ display: 'inline-block', width: '0.3em' }}> </span>}
+                </span>
+             ))}
+           </div>
+        </div>
+      </div>
+
+      {/* Spacer Bottom */}
+      <div style={{ height: '100vh', background: '#000', color: '#666', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <p>End of fill text demo</p>
+      </div>
+    </div>
+  );
+}
+
+export const FillTextInIframe: Story = {
+  render: () => (
+    <div style={{ padding: '20px' }}>
+      <h1>Fill Text Reveal in Iframe</h1>
+      <p style={{ marginBottom: '20px', color: '#666' }}>
+        This example demonstrates the JS-driven <strong>character-by-character text reveal</strong> effect working 
+        inside an iframe, powered by the same <code>useScroll</code> logic.
+      </p>
+
+      <IframePortal>
+        {() => <FillTextIframeContent />}
+      </IframePortal>
+    </div>
+  )
+};
+
+/**
+ * Direct createPortal Example
+ * Shows explicit usage of createPortal + useIframe hook pattern
+ */
+function DirectPortalContent() {
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  
+  const { elementProgress } = useScroll({ 
+    container: wrapperRef,
+    throttleMs: 16 
+  });
+  
+  const progress = elementProgress || 0;
+  
+  const sentences = [
+    "This example uses createPortal directly.",
+    "No wrapper component needed.",
+    "Just the hook and the portal."
+  ];
+  
+  return (
+    <div style={{ 
+      minHeight: '400vh', 
+      fontFamily: 'system-ui, sans-serif',
+      background: 'linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)'
+    }}>
+      {/* Hero */}
+      <div style={{ 
+        height: '100vh', 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center',
+        flexDirection: 'column',
+        gap: '20px'
+      }}>
+        <h1 style={{ color: '#fff', fontSize: '48px', margin: 0, textAlign: 'center' }}>
+          Direct createPortal
+        </h1>
+        <p style={{ color: '#888', fontSize: '18px', margin: 0 }}>
+          Scroll to see the text reveal
+        </p>
+        <div style={{ fontSize: '32px', color: '#666', marginTop: '40px' }}>↓</div>
+      </div>
+
+      {/* Sticky Fill Text Section */}
+      <div 
+        ref={wrapperRef}
+        style={{ height: '300vh', position: 'relative' }}
+      >
+        <div style={{
+          position: 'sticky',
+          top: 0,
+          height: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '40px',
+        }}>
+          <div style={{ 
+            maxWidth: '700px', 
+            textAlign: 'center',
+          }}>
+            {sentences.map((sentence, sIndex) => {
+              const words = sentence.split(' ');
+              const sentenceStart = sentences.slice(0, sIndex).join(' ').replace(/\s/g, '').length;
+              const totalChars = sentences.join(' ').replace(/\s/g, '').length;
+              let charOffset = sentenceStart;
+              
+              return (
+                <p key={sIndex} style={{ 
+                  fontSize: '32px', 
+                  fontWeight: 'bold', 
+                  lineHeight: '1.6',
+                  margin: '0 0 20px 0'
+                }}>
+                  {words.map((word, wIndex) => (
+                    <span key={wIndex} style={{ display: 'inline-block', whiteSpace: 'nowrap' }}>
+                      {word.split('').map((char, cIndex) => {
+                        const charProgress = charOffset / totalChars;
+                        charOffset++;
+                        const transitionWidth = 0.04;
+                        
+                        let opacity: number;
+                        if (progress > charProgress + transitionWidth) {
+                          opacity = 1;
+                        } else if (progress < charProgress - transitionWidth) {
+                          opacity = 0.15;
+                        } else {
+                          const t = (progress - (charProgress - transitionWidth)) / (2 * transitionWidth);
+                          opacity = 0.15 + 0.85 * t;
+                        }
+
+                        return (
+                          <span
+                            key={cIndex}
+                            style={{
+                              display: 'inline-block',
+                              color: `rgba(255, 255, 255, ${opacity})`,
+                              transition: 'color 0.1s ease-out'
+                            }}
+                          >
+                            {char}
+                          </span>
+                        );
+                      })}
+                      {wIndex < words.length - 1 && <span style={{ display: 'inline-block' }}>&nbsp;</span>}
+                    </span>
+                  ))}
+                </p>
+              );
+            })}
+          </div>
+          
+          {/* Progress indicator */}
+          <div style={{
+            marginTop: '40px',
+            width: '200px',
+            height: '4px',
+            background: 'rgba(255,255,255,0.1)',
+            borderRadius: '2px',
+            overflow: 'hidden'
+          }}>
+            <div style={{
+              width: `${progress * 100}%`,
+              height: '100%',
+              background: 'linear-gradient(90deg, #e94560, #0f3460)',
+              transition: 'width 0.1s linear'
+            }} />
+          </div>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div style={{ 
+        height: '100vh', 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center',
+        flexDirection: 'column',
+        gap: '16px'
+      }}>
+        <p style={{ color: '#fff', fontSize: '24px', margin: 0 }}>✨ Complete</p>
+        <p style={{ color: '#666', fontSize: '14px', margin: 0 }}>
+          Rendered via createPortal into iframe
+        </p>
+      </div>
+    </div>
+  );
+}
+
+export const CreatePortalExample: Story = {
+  render: function CreatePortalStory() {
+    const iframeRef = useRef<HTMLIFrameElement>(null);
+    const [mountNode, setMountNode] = useState<HTMLElement | null>(null);
+    const [iframeWindow, setIframeWindow] = useState<Window | null>(null);
+
+    useEffect(() => {
+      const iframe = iframeRef.current;
+      if (!iframe?.contentWindow?.document) return;
+
+      const doc = iframe.contentWindow.document;
+      doc.open();
+      doc.write(`
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <style>
+              * { margin: 0; padding: 0; box-sizing: border-box; }
+              body { overflow-x: hidden; }
+            </style>
+          </head>
+          <body>
+            <div id="portal-root"></div>
+          </body>
+        </html>
+      `);
+      doc.close();
+
+      setIframeWindow(iframe.contentWindow);
+      setMountNode(doc.getElementById('portal-root'));
+    }, []);
+
+    return (
+      <div style={{ padding: '20px' }}>
+        <h1>Direct createPortal Usage</h1>
+        <p style={{ marginBottom: '20px', color: '#666' }}>
+          This example shows how to use <code>createPortal</code> directly with an iframe, 
+          without an abstraction layer. The portal renders content into the iframe's DOM.
+        </p>
+
+        <div style={{ 
+          marginBottom: '20px', 
+          padding: '16px', 
+          background: '#f5f5f5', 
+          borderRadius: '8px',
+          fontFamily: 'monospace',
+          fontSize: '13px',
+          overflow: 'auto'
+        }}>
+          <pre style={{ margin: 0 }}>{`// Pattern:
+const iframeRef = useRef<HTMLIFrameElement>(null);
+const [mountNode, setMountNode] = useState(null);
+
+// Setup iframe document...
+setMountNode(doc.getElementById('portal-root'));
+
+// Render with portal
+{mountNode && createPortal(<Content />, mountNode)}`}</pre>
+        </div>
+
+        <iframe
+          ref={iframeRef}
+          style={{
+            width: '100%',
+            height: '600px',
+            border: '2px solid #333',
+            borderRadius: '12px',
+          }}
+        />
+        
+        {mountNode && iframeWindow && createPortal(
+          <ResponsiveProvider targetWindow={iframeWindow}>
+            <WindowSizeProvider targetWindow={iframeWindow}>
+              <DirectPortalContent />
+            </WindowSizeProvider>
+          </ResponsiveProvider>,
+          mountNode
+        )}
+      </div>
+    );
+  }
+};

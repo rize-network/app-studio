@@ -1,7 +1,7 @@
 import React from 'react';
 import { ComponentStory, ComponentMeta } from '@storybook/react';
 import { View, Text } from '../src/index';
-import { useRef, useState, useMemo, useEffect } from 'react';
+import { useRef, useMemo } from 'react';
 import {
   useScroll,
   useScrollDirection,
@@ -915,37 +915,19 @@ const ScrollTextReveal = ({
   maxWidth = 800,
 }: ScrollTextRevealProps) => {
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const [progress, setProgress] = useState(0);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      if (!wrapperRef.current) return;
-      
-      const element = wrapperRef.current;
-      const { top, height } = element.getBoundingClientRect();
-      const windowHeight = window.innerHeight;
-      
-      // Calculate progress based on how much of the element has scrolled past the viewport top
-      // We want the animation to start when the element hits the top (top <= 0)
-      // And finish when we've scrolled enough distance.
-      // Since it's sticky, valid scroll distance is (height - windowHeight)
-      
-      const scrollDistance = height - windowHeight;
-      const scrolled = -top;
-      
-      let newProgress = 0;
-      if (scrollDistance > 0) {
-        newProgress = Math.max(0, Math.min(1, scrolled / scrollDistance));
-      }
-      
-      setProgress(newProgress);
-    };
+  /* 
+   Ideally, 'useScroll' tracks the container's own scroll position. 
+   Here, we track the *element's progress* through the viewport.
+   The updated useScroll now provides 'elementProgress' for this exact sticky case.
+   */
+  const { elementProgress } = useScroll({ 
+    container: wrapperRef,
+    throttleMs: 16 
+  });
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll(); // Initial check
-    
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  // Use the hook's returned progress directly, defaulting to 0
+  const progress = elementProgress || 0;
 
   // Count total characters across all paragraphs
   const totalChars = useMemo(() => 
