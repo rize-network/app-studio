@@ -306,11 +306,10 @@ import { View, Animation } from 'app-studio';
 For full theme integration, use CSS variables from the theming system. This ensures colors adapt to light/dark mode:
 
 ```jsx
-import { View, Text } from 'app-studio';
-import { Animation } from 'app-studio';
+import { View, Text, Animation } from 'app-studio';
 
 function ThemedFillText({ children, color = 'blue' }) {
-  // Map palette names to CSS variables
+  // Map palette names to theme variables
   const colors = {
     blue: {
       fill: 'var(--color-blue-500)',
@@ -341,16 +340,16 @@ function ThemedFillText({ children, color = 'blue' }) {
       fontWeight="bold"
       css={`
         color: ${base};
-        --fill-color: ${fill};
-        --accent: ${accent};
-        --underline-color: ${underline};
+        /* Required by fillTextScroll animation */
+        --finish-fill: ${fill};
+        
         --underline-block-width: 200vmax;
         --underline-width: 100%;
       `}
       backgroundImage={`
-        linear-gradient(90deg, transparent calc(100% - 1ch), var(--accent) calc(100% - 1ch)),
-        linear-gradient(90deg, var(--fill-color), var(--fill-color)),
-        linear-gradient(90deg, var(--underline-color), var(--underline-color))`}
+        linear-gradient(90deg, transparent calc(100% - 1ch), ${accent} calc(100% - 1ch)),
+        linear-gradient(90deg, ${fill}, ${fill}),
+        linear-gradient(90deg, ${underline}, ${underline})`}
       backgroundSize={`
         var(--underline-block-width) var(--underline-width),
         var(--underline-block-width) var(--underline-width),
@@ -438,16 +437,14 @@ function FillTextSection() {
               fontWeight="bold"
               css={`
                 color: color-mix(in srgb, var(--color-blue-500) 15%, transparent);
-                --fill-color: var(--color-blue-500);
-                --accent: var(--color-blue-400);
-                --underline-color: color-mix(in srgb, var(--color-blue-500) 20%, transparent);
+                --finish-fill: var(--color-blue-500);
                 --underline-block-width: 200vmax;
                 --underline-width: 100%;
               `}
               backgroundImage={`
-                linear-gradient(90deg, transparent calc(100% - 1ch), var(--accent) calc(100% - 1ch)),
-                linear-gradient(90deg, var(--fill-color), var(--fill-color)),
-                linear-gradient(90deg, var(--underline-color), var(--underline-color))`}
+                linear-gradient(90deg, transparent calc(100% - 1ch), var(--color-blue-400) calc(100% - 1ch)),
+                linear-gradient(90deg, var(--color-blue-500), var(--color-blue-500)),
+                linear-gradient(90deg, color-mix(in srgb, var(--color-blue-500) 20%, transparent), color-mix(in srgb, var(--color-blue-500) 20%, transparent))`}
               backgroundSize={`
                 var(--underline-block-width) var(--underline-width),
                 var(--underline-block-width) var(--underline-width),

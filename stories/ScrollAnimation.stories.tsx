@@ -1,7 +1,7 @@
 import React from 'react';
 import { ComponentStory, ComponentMeta } from '@storybook/react';
 import { View, Text } from '../src/index';
-import { useRef, useState } from 'react';
+import { useRef, useState, useMemo, useEffect } from 'react';
 import {
   useScroll,
   useScrollDirection,
@@ -863,156 +863,428 @@ export const EntryExitAnimations: ComponentStory<typeof View> = () => (
 // SCROLL-DRIVEN ANIMATIONS (CSS)
 // =============================================================================
 
-const RootContainer = ({ children }: { children: React.ReactNode }) => (
-  <View
-    css={`
-      --bg: hsl(0 0% 2%);
-      --color: hsl(0 0% 100% / 0.1);
-      --underline-block-width: 200vmax;
-      --underline-color: hsl(0 0% 50% / 0.15);
-      --accent: hsl(0 0% 100%);
-      --fill-color: hsl(0 0% 50%);
-      --underline-width: 100%;
+// =============================================================================
+// SCROLL TEXT REVEAL COMPONENTS
+// =============================================================================
 
-      @supports (animation-timeline: scroll()) {
-        @media (prefers-reduced-motion: no-preference) {
-          view-timeline-name: --section;
-        }
-      }
-    `}
-    backgroundColor="black"
-  >
-    {children}
-  </View>
+const Vertical = (props: any) => (
+  <View display="flex" flexDirection="column" {...props} />
 );
 
 /**
- * Scroll-driven text fill animation
+ * ScrollTextReveal - A character-by-character scroll-driven text reveal animation
+ * 
+ * Works with app-studio's styling system and useScroll hook.
+ * Text stays sticky while scrolling, and each character's opacity
+ * animates based on scroll progress.
  */
-export const ScrollDrivenTextFill: ComponentStory<typeof View> = () => (
-  <RootContainer>
-    <View height="50vh" />
-    <View as="main" height="200vh">
+
+interface ScrollTextRevealProps {
+  /** Array of paragraphs to animate */
+  paragraphs: string[];
+  /** Base opacity for unrevealed characters (0-1) */
+  baseOpacity?: number;
+  /** Fill opacity for revealed characters (0-1) */
+  fillOpacity?: number;
+  /** Height of the scroll container (creates scroll distance) */
+  scrollHeight?: string;
+  /** Font size for the text */
+  fontSize?: number | string;
+  /** Font weight for the text */
+  fontWeight?: number | string;
+  /** Color for revealed text (app-studio color token) */
+  fillColor?: string;
+  /** Color for unrevealed text (app-studio color token) */
+  baseColor?: string;
+  /** Gap between paragraphs */
+  gap?: number;
+  /** Maximum width of text container */
+  maxWidth?: number | string;
+}
+
+const ScrollTextReveal = ({
+  paragraphs,
+  baseOpacity = 0.1,
+  fillOpacity = 1,
+  scrollHeight = '300vh',
+  fontSize = 26,
+  fontWeight = 500,
+  fillColor = 'color-white',
+  baseColor = 'color-white',
+  gap = 30,
+  maxWidth = 800,
+}: ScrollTextRevealProps) => {
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!wrapperRef.current) return;
+      
+      const element = wrapperRef.current;
+      const { top, height } = element.getBoundingClientRect();
+      const windowHeight = window.innerHeight;
+      
+      // Calculate progress based on how much of the element has scrolled past the viewport top
+      // We want the animation to start when the element hits the top (top <= 0)
+      // And finish when we've scrolled enough distance.
+      // Since it's sticky, valid scroll distance is (height - windowHeight)
+      
+      const scrollDistance = height - windowHeight;
+      const scrolled = -top;
+      
+      let newProgress = 0;
+      if (scrollDistance > 0) {
+        newProgress = Math.max(0, Math.min(1, scrolled / scrollDistance));
+      }
+      
+      setProgress(newProgress);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll(); // Initial check
+    
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Count total characters across all paragraphs
+  const totalChars = useMemo(() => 
+    paragraphs.reduce((sum, p) => sum + p.replace(/\s/g, '').length, 0),
+    [paragraphs]
+  );
+  
+  // Track character index across paragraphs
+  let globalCharIndex = 0;
+
+  return (
+    <View
+      ref={wrapperRef}
+      height={scrollHeight}
+      position="relative"
+    >
       <View
-        as="section"
         position="sticky"
-        top="0"
+        top={0}
         height="100vh"
-        width="100vw"
-        display="grid"
-        placeItems="center"
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        flexDirection="column"
+        padding={20}
       >
-        <View as="p" padding="10ch" textAlign="center">
-          <View
-            as="span"
-            fontSize={60}
-            color="var(--color)"
-            backgroundImage="
-              linear-gradient(90deg, transparent calc(100% - 1ch), var(--accent) calc(100% - 1ch)),
-              linear-gradient(90deg, var(--fill-color), var(--fill-color)),
-              linear-gradient(90deg, var(--underline-color), var(--underline-color))"
-            backgroundSize="
-              var(--underline-block-width) var(--underline-width),
-              var(--underline-block-width) var(--underline-width),
-              100% var(--underline-width)"
-            backgroundRepeat="no-repeat"
-            backgroundPositionX="0"
-            backgroundPositionY="100%"
-            backgroundClip="text"
-            animate={ScrollAnimations.fillTextScroll({
-              duration: '1s',
-              timingFunction: 'linear',
-              timeline: '--section',
-              range: 'entry 100% cover 55%, cover 50% exit 0%',
-            })}
-          >
-            Responsive Animated Text Reveals with CSS Scroll-Driven Animations.
-          </View>
-        </View>
+        <Vertical
+          gap={gap}
+          textAlign="center"
+          maxWidth={maxWidth}
+          width="100%"
+        >
+          {paragraphs.map((paragraph, pIndex) => {
+            const words = paragraph.split(' ');
+            
+            return (
+              <Text
+                key={pIndex}
+                as="p"
+                fontSize={fontSize}
+                fontWeight={fontWeight}
+                lineHeight={16}
+                margin={0}
+              >
+                {words.map((word, wIndex) => (
+                  <View
+                    key={wIndex}
+                    as="span"
+                    display="inline-block"
+                  >
+                    {word.split('').map((char, cIndex) => {
+                      const currentCharIndex = globalCharIndex++;
+                      const charProgress = currentCharIndex / totalChars;
+                      
+                      // Smooth transition zone
+                      const transitionWidth = 0.05; // Slightly wider for smoother effect
+                      let opacity: number;
+                      
+                      // Calculate opacity based on progress vs char position
+                      if (progress > charProgress + transitionWidth) {
+                         opacity = fillOpacity;
+                      } else if (progress < charProgress - transitionWidth) {
+                         opacity = baseOpacity;
+                      } else {
+                         // Interpolate
+                         const t = (progress - (charProgress - transitionWidth)) / (2 * transitionWidth);
+                         opacity = baseOpacity + (fillOpacity - baseOpacity) * t;
+                      }
+
+                      return (
+                        <View
+                          key={cIndex}
+                          as="span"
+                          display="inline-block"
+                          color={opacity > 0.5 ? fillColor : baseColor}
+                          opacity={opacity}
+                          transition="color 0.1s ease-out, opacity 0.1s ease-out"
+                        >
+                          {char}
+                        </View>
+                      );
+                    })}
+                    {wIndex < words.length - 1 && (
+                      <View as="span" display="inline">&nbsp;</View>
+                    )}
+                  </View>
+                ))}
+              </Text>
+            );
+          })}
+        </Vertical>
       </View>
     </View>
-    <View as="footer" height="100vh" display="grid" placeItems="center">
-      <Text color="white" fontSize={32}>
-        fin.
-      </Text>
-    </View>
-  </RootContainer>
-);
-
-ScrollDrivenTextFill.storyName = 'Scroll-Driven Text Fill';
+  );
+};
 
 /**
- * FillText Examples - Using App-Studio's Theming System
- *
- * This story demonstrates FillText scroll animations integrated with App-Studio's
- * color system. Colors use CSS variables for theme-awareness:
- *
- * - Palette colors: var(--color-blue-500), var(--color-emerald-500)
- * - Alpha transparency: color-mix(in srgb, var(--color-blue-500) 20%, transparent)
- * - Background colors: color-slate-900, color-emerald-950, etc.
- *
- * See docs/Theming.md for the complete color reference.
+ * ScrollTextRevealSection - Complete section with scroll text reveal
+ * 
+ * A pre-configured section that handles the scroll container setup
+ * with proper height and sticky positioning.
  */
-export const FillTextExamples: ComponentStory<typeof View> = () => {
-  // Reusable FillText-style component with CSS variable support
-  const FillText: React.FC<{
-    children: React.ReactNode;
-    fontSize?: number;
-    /** CSS color or var(--color-*) reference */
-    fillColor?: string;
-    /** CSS color or var(--color-*) reference */
-    accentColor?: string;
-    /** CSS color or color-mix() for transparency */
-    underlineColor?: string;
-    /** CSS color or color-mix() for transparency */
-    baseColor?: string;
-    timeline?: string;
-    range?: string;
-  }> = ({
-    children,
-    fontSize = 48,
-    fillColor = 'var(--color-gray-500)',
-    accentColor = 'var(--color-white)',
-    underlineColor = 'color-mix(in srgb, var(--color-gray-500) 15%, transparent)',
-    baseColor = 'color-mix(in srgb, var(--color-white) 10%, transparent)',
-    timeline = '--section',
-    range = 'entry 100% cover 55%, cover 50% exit 0%',
-  }) => (
+
+interface ScrollTextRevealSectionProps extends ScrollTextRevealProps {
+  /** Background color for the section (app-studio color token) */
+  backgroundColor?: string;
+}
+
+const ScrollTextRevealSection = ({
+  backgroundColor = 'color-black',
+  ...props
+}: ScrollTextRevealSectionProps) => {
+  return (
+    <View backgroundColor={backgroundColor}>
+      <ScrollTextReveal {...props} />
+    </View>
+  );
+};
+
+// =============================================================================
+// ALTERNATIVE: Using CSS Scroll-Driven Animations (Pure CSS approach)
+// =============================================================================
+
+/**
+ * FillTextScrollReveal - Uses app-studio's Animation.fillTextScroll() 
+ * for a pure CSS scroll-driven text fill effect.
+ * 
+ * This approach uses CSS animation-timeline: scroll() and is more performant
+ * but has different visual characteristics (sweep fill vs character opacity).
+ */
+
+interface FillTextScrollRevealProps {
+  /** Text content to animate */
+  children: string;
+  /** Color palette to use */
+  color?: 'blue' | 'emerald' | 'violet' | 'amber' | 'rose' | 'cyan' | 'gray';
+  /** Font size */
+  fontSize?: number | string;
+  /** Font weight */
+  fontWeight?: number | string;
+  /** Custom timeline name */
+  timeline?: string;
+  /** Animation range */
+  range?: string;
+}
+
+const FillTextScrollReveal = ({
+  children,
+  color = 'blue',
+  fontSize = 48,
+  fontWeight = 'bold',
+  timeline = '--section',
+  range = 'entry 100% cover 55%',
+}: FillTextScrollRevealProps) => {
+  // Color configurations for different palettes
+  const colorConfigs = {
+    blue: {
+      fill: 'var(--color-blue-500)',
+      accent: 'var(--color-blue-400)',
+      base: 'color-mix(in srgb, var(--color-blue-500) 15%, transparent)',
+    },
+    emerald: {
+      fill: 'var(--color-emerald-500)',
+      accent: 'var(--color-emerald-400)',
+      base: 'color-mix(in srgb, var(--color-emerald-500) 12%, transparent)',
+    },
+    violet: {
+      fill: 'var(--color-violet-500)',
+      accent: 'var(--color-violet-400)',
+      base: 'color-mix(in srgb, var(--color-violet-500) 10%, transparent)',
+    },
+    amber: {
+      fill: 'var(--color-amber-500)',
+      accent: 'var(--color-amber-400)',
+      base: 'color-mix(in srgb, var(--color-amber-500) 12%, transparent)',
+    },
+    rose: {
+      fill: 'var(--color-rose-500)',
+      accent: 'var(--color-rose-400)',
+      base: 'color-mix(in srgb, var(--color-rose-500) 12%, transparent)',
+    },
+    cyan: {
+      fill: 'var(--color-cyan-500)',
+      accent: 'var(--color-cyan-400)',
+      base: 'color-mix(in srgb, var(--color-cyan-500) 12%, transparent)',
+    },
+    gray: {
+      fill: 'var(--color-gray-100)',
+      accent: 'var(--color-gray-200)',
+      base: 'color-mix(in srgb, var(--color-gray-100) 15%, transparent)',
+    },
+  };
+
+  const { fill, accent, base } = colorConfigs[color] || colorConfigs.blue;
+
+  return (
     <View
       as="span"
       fontSize={fontSize}
-      fontWeight="bold"
+      fontWeight={fontWeight}
       css={`
-        color: ${baseColor};
-        --fill-color: ${fillColor};
-        --accent: ${accentColor};
-        --underline-color: ${underlineColor};
+        color: ${base};
+        --fill-color: ${fill};
+        --accent: ${accent};
         --underline-block-width: 200vmax;
         --underline-width: 100%;
       `}
       backgroundImage={`
         linear-gradient(90deg, transparent calc(100% - 1ch), var(--accent) calc(100% - 1ch)),
-        linear-gradient(90deg, var(--fill-color), var(--fill-color)),
-        linear-gradient(90deg, var(--underline-color), var(--underline-color))`}
+        linear-gradient(90deg, var(--fill-color), var(--fill-color))`}
       backgroundSize={`
         var(--underline-block-width) var(--underline-width),
-        var(--underline-block-width) var(--underline-width),
-        100% var(--underline-width)`}
+        var(--underline-block-width) var(--underline-width)`}
       backgroundRepeat="no-repeat"
       backgroundPositionX="0"
       backgroundPositionY="100%"
       backgroundClip="text"
-      animate={ScrollAnimations.fillTextScroll({
-        duration: '1s',
-        timingFunction: 'linear',
-        timeline,
-        range,
-      })}
+      animate={{
+        timeline: timeline,
+        range: range,
+        keyframes: {
+          from: { backgroundSize: '0% 100%, 0% 100%' },
+          to: { backgroundSize: '200vmax 100%, 200vmax 100%' },
+        },
+      }}
     >
       {children}
     </View>
   );
+};
 
+// =============================================================================
+// STORIES
+// =============================================================================
+
+export const ScrollTextRevealStory: ComponentStory<typeof View> = () => {
+  const demoParagraphs = [
+    "Small businesses don't need more software, they need ones built around how they actually work.",
+    "We build focused apps that solve one problem perfectly and connect to the rest of their stack.",
+    "Allo handles calls. Claim tracks expenses. Due manages invoices. Solving every problem that slows small teams down, one app at a time."
+  ];
+
+  const secondDemo = [
+    "Design is not just what it looks like and feels like.",
+    "Design is how it works.",
+    "— Steve Jobs"
+  ];
+
+  return (
+    <View backgroundColor="color-black" minHeight="100vh">
+      {/* Hero Section */}
+      <View
+        height="100vh"
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+      >
+        <Vertical alignItems="center" gap={20}>
+          <Text
+            fontSize={56}
+            fontWeight="bold"
+            color="color-white"
+            textAlign="center"
+          >
+            Scroll Text Reveal
+          </Text>
+          <Text fontSize={20} color="color-gray-400" textAlign="center">
+            Scroll down to see the animation
+          </Text>
+          <Text fontSize={24} color="color-gray-600" marginTop={40}>
+            ↓
+          </Text>
+        </Vertical>
+      </View>
+
+      {/* First Demo */}
+      <ScrollTextRevealSection
+        paragraphs={demoParagraphs}
+        backgroundColor="color-black"
+        fillColor="color-white"
+        baseColor="color-white"
+        baseOpacity={0.1}
+        fillOpacity={1}
+        fontSize={26}
+        fontWeight={500}
+        gap={30}
+        maxWidth={800}
+      />
+
+      {/* Spacer */}
+      <View
+        height="50vh"
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+      >
+        <Text color="color-gray-600" fontSize={18}>
+          Keep scrolling...
+        </Text>
+      </View>
+
+      {/* Second Demo - Quote */}
+      <ScrollTextRevealSection
+        paragraphs={secondDemo}
+        backgroundColor="color-gray-900"
+        fillColor="color-blue-400"
+        baseColor="color-blue-400"
+        baseOpacity={0.15}
+        fillOpacity={1}
+        fontSize={32}
+        fontWeight={600}
+        gap={20}
+        maxWidth={600}
+      />
+
+      {/* Footer */}
+      <View
+        height="100vh"
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        backgroundColor="color-black"
+      >
+        <Vertical alignItems="center" gap={16}>
+          <Text fontSize={40} fontWeight="bold" color="color-white">
+            That's it!
+          </Text>
+          <Text color="color-gray-400">
+            Scroll back up to replay
+          </Text>
+        </Vertical>
+      </View>
+    </View>
+  );
+};
+ScrollTextRevealStory.storyName = 'JS Scroll Text Reveal';
+
+export const FillTextScrollRevealStory: ComponentStory<typeof View> = () => {
+    // Section wrapper with view-timeline
   // Section wrapper with view-timeline
   const Section: React.FC<{
     children: React.ReactNode;
@@ -1054,227 +1326,49 @@ export const FillTextExamples: ComponentStory<typeof View> = () => {
 
   return (
     <View>
-      {/* Example 1: Default - Using gray palette */}
-      <Section backgroundColor="color-black-900">
-        <FillText fontSize={56}>
-          Build beautiful scroll-driven animations with pure CSS.
-        </FillText>
-        <View marginTop={40}>
-          <Text
-            color="color-whiteAlpha-400"
-            fontSize={14}
-            fontFamily="monospace"
-          >
-            Default: var(--color-gray-500), var(--color-white)
-          </Text>
-        </View>
-      </Section>
-
-      {/* Example 2: Blue Theme - Using blue palette */}
-      <Section backgroundColor="color-slate-900" timelineName="--blue-section">
-        <FillText
-          fontSize={48}
-          fillColor="var(--color-blue-500)"
-          accentColor="var(--color-blue-400)"
-          baseColor="color-mix(in srgb, var(--color-blue-500) 15%, transparent)"
-          underlineColor="color-mix(in srgb, var(--color-blue-500) 20%, transparent)"
-          timeline="--blue-section"
-        >
-          Create engaging reading experiences with text that reveals as users
-          scroll.
-        </FillText>
-        <View marginTop={40}>
-          <Text color="color-blue-400" fontSize={14} fontFamily="monospace">
-            Blue: var(--color-blue-500), var(--color-blue-400)
-          </Text>
-        </View>
-      </Section>
-
-      {/* Example 3: Emerald Theme - Using emerald palette */}
-      <Section
-        backgroundColor="color-emerald-950"
-        timelineName="--green-section"
-      >
-        <FillText
-          fontSize={52}
-          fillColor="var(--color-emerald-500)"
-          accentColor="var(--color-emerald-400)"
-          baseColor="color-mix(in srgb, var(--color-emerald-500) 12%, transparent)"
-          underlineColor="color-mix(in srgb, var(--color-emerald-500) 20%, transparent)"
-          timeline="--green-section"
-        >
-          Perfect for hero sections, landing pages, and storytelling websites.
-        </FillText>
-        <View marginTop={40}>
-          <Text color="color-emerald-400" fontSize={14} fontFamily="monospace">
-            Emerald: var(--color-emerald-500), var(--color-emerald-400)
-          </Text>
-        </View>
-      </Section>
-
-      {/* Example 4: Violet Theme - Using violet palette */}
-      <Section
-        backgroundColor="color-indigo-950"
-        timelineName="--purple-section"
-      >
-        <FillText
-          fontSize={44}
-          fillColor="var(--color-violet-500)"
-          accentColor="var(--color-violet-400)"
-          baseColor="color-mix(in srgb, var(--color-violet-500) 10%, transparent)"
-          underlineColor="color-mix(in srgb, var(--color-violet-500) 20%, transparent)"
-          timeline="--purple-section"
-        >
-          The animation progress is driven entirely by CSS scroll-timeline, no
-          JavaScript required.
-        </FillText>
-        <View marginTop={40}>
-          <Text color="color-violet-400" fontSize={14} fontFamily="monospace">
-            Violet: var(--color-violet-500), var(--color-violet-400)
-          </Text>
-        </View>
-      </Section>
-
-      {/* Example 5: Amber Theme - Using amber palette */}
-      <Section
-        backgroundColor="color-stone-900"
-        timelineName="--orange-section"
-      >
-        <FillText
-          fontSize={60}
-          fillColor="var(--color-amber-500)"
-          accentColor="var(--color-amber-400)"
-          baseColor="color-mix(in srgb, var(--color-amber-500) 10%, transparent)"
-          underlineColor="color-mix(in srgb, var(--color-amber-500) 15%, transparent)"
-          timeline="--orange-section"
-        >
-          Make your content stand out.
-        </FillText>
-        <View marginTop={40}>
-          <Text color="color-amber-400" fontSize={14} fontFamily="monospace">
-            Amber: var(--color-amber-500), var(--color-amber-400)
-          </Text>
-        </View>
-      </Section>
-
-      {/* Example 6: Light Theme - Using gray on light background */}
-      <Section backgroundColor="color-gray-50" timelineName="--light-section">
-        <FillText
-          fontSize={50}
-          fillColor="var(--color-gray-800)"
-          accentColor="var(--color-gray-900)"
-          baseColor="color-mix(in srgb, var(--color-gray-800) 15%, transparent)"
-          underlineColor="color-mix(in srgb, var(--color-gray-800) 10%, transparent)"
-          timeline="--light-section"
-        >
-          Works great on light backgrounds too. The text fills in as you scroll
-          through this section.
-        </FillText>
-        <View marginTop={40}>
-          <Text color="color-gray-500" fontSize={14} fontFamily="monospace">
-            Light: var(--color-gray-800), var(--color-gray-900)
-          </Text>
-        </View>
-      </Section>
-
-      {/* Example 7: Rose Theme - Using rose palette */}
-      <Section backgroundColor="color-stone-900" timelineName="--rose-section">
-        <FillText
-          fontSize={46}
-          fillColor="var(--color-rose-500)"
-          accentColor="var(--color-rose-400)"
-          baseColor="color-mix(in srgb, var(--color-rose-500) 10%, transparent)"
-          underlineColor="color-mix(in srgb, var(--color-rose-500) 15%, transparent)"
-          timeline="--rose-section"
-        >
-          Combine multiple FillText elements for more complex layouts and visual
-          hierarchies.
-        </FillText>
-        <View marginTop={40}>
-          <Text color="color-rose-400" fontSize={14} fontFamily="monospace">
-            Rose: var(--color-rose-500), var(--color-rose-400)
-          </Text>
-        </View>
-      </Section>
-
-      {/* Example 8: Multi-line with different sizes using white palette */}
-      <Section backgroundColor="color-zinc-900" timelineName="--multi-section">
-        <View>
-          <FillText
-            fontSize={72}
-            fillColor="var(--color-white)"
-            accentColor="var(--color-white)"
-            baseColor="color-mix(in srgb, var(--color-white) 8%, transparent)"
-            timeline="--multi-section"
-          >
-            Big Impact.
-          </FillText>
-        </View>
-        <View marginTop={24}>
-          <FillText
-            fontSize={28}
-            fillColor="color-mix(in srgb, var(--color-white) 70%, transparent)"
-            accentColor="color-mix(in srgb, var(--color-white) 90%, transparent)"
-            baseColor="color-mix(in srgb, var(--color-white) 10%, transparent)"
-            timeline="--multi-section"
-            range="entry 80% cover 50%, cover 45% exit 0%"
-          >
-            Smaller supporting text that fills in slightly after the headline.
-            Great for creating visual hierarchy.
-          </FillText>
-        </View>
-        <View marginTop={40}>
-          <Text
-            color="color-whiteAlpha-400"
-            fontSize={14}
-            fontFamily="monospace"
-          >
-            Multi-size: staggered ranges with whiteAlpha
-          </Text>
-        </View>
-      </Section>
-
-      {/* Example 9: Theme Colors - Using theme-primary/secondary */}
-      <Section backgroundColor="color-dark-900" timelineName="--theme-section">
-        <FillText
-          fontSize={48}
-          fillColor="var(--color-cyan-500)"
-          accentColor="var(--color-cyan-400)"
-          baseColor="color-mix(in srgb, var(--color-cyan-500) 12%, transparent)"
-          underlineColor="color-mix(in srgb, var(--color-cyan-500) 18%, transparent)"
-          timeline="--theme-section"
-        >
-          Use any palette from the theming system: blue, emerald, violet, amber,
-          rose, cyan, and more.
-        </FillText>
-        <View marginTop={40}>
-          <Text color="color-cyan-400" fontSize={14} fontFamily="monospace">
-            Cyan: var(--color-cyan-500), var(--color-cyan-400)
-          </Text>
-        </View>
-      </Section>
-
-      {/* Footer */}
-      <View
-        backgroundColor="color-black"
-        height="100vh"
-        display="grid"
-        placeItems="center"
-      >
-        <View textAlign="center">
-          <Text color="color-white" fontSize={24} marginBottom={16}>
-            End of FillText Examples
-          </Text>
-          <Text color="color-whiteAlpha-600" fontSize={14}>
-            See docs/Theming.md for all available color palettes
-          </Text>
-        </View>
+      <View padding={40} backgroundColor="color-black" textAlign="center">
+        <Text color="white" fontSize={32} fontWeight="bold">CSS Scroll-Driven Examples</Text>
       </View>
+      
+      <Section backgroundColor="color-slate-900">
+        <FillTextScrollReveal color="blue">
+            CSS-driven animations are performant and smooth.
+        </FillTextScrollReveal>
+      </Section>
+
+      <Section backgroundColor="color-emerald-950">
+        <FillTextScrollReveal color="emerald">
+            Perfect for hero sections and storytelling.
+        </FillTextScrollReveal>
+      </Section>
+
+      <Section backgroundColor="color-indigo-950">
+        <FillTextScrollReveal color="violet">
+            Driven entirely by CSS scroll-timeline.
+        </FillTextScrollReveal>
+      </Section>
+
+      <Section backgroundColor="color-stone-900">
+        <FillTextScrollReveal color="amber">
+            Make your content stand out.
+        </FillTextScrollReveal>
+      </Section>
+      
+      <Section backgroundColor="color-dark-900">
+        <FillTextScrollReveal color="cyan">
+            Works with any theme palette.
+        </FillTextScrollReveal>
+      </Section>
+
+      <Section backgroundColor="color-stone-900">
+        <FillTextScrollReveal color="rose">
+            They work using view-timeline and scroll-timeline.
+        </FillTextScrollReveal>
+      </Section>
     </View>
   );
 };
-
-FillTextExamples.storyName = 'FillText Examples';
+FillTextScrollRevealStory.storyName = 'CSS Scroll Text Reveal';
 
 /**
  * All scroll-driven animation presets

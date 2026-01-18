@@ -433,9 +433,9 @@ export const ScrollDrivenAnimations: ComponentStory<typeof View> = () => (
         style={{
           // @ts-ignore - CSS variables for this specific effect
           '--fill': '0',
-          '--finish-fill': '#2563eb', // Blue-600
+          '--finish-fill': 'var(--color-blue-600)',
           background:
-            'linear-gradient(90deg, #2563eb var(--fill), #e5e7eb var(--fill))',
+            'linear-gradient(90deg, var(--color-blue-600) var(--fill), var(--color-gray-200) var(--fill))',
           backgroundClip: 'text',
           WebkitBackgroundClip: 'text',
           WebkitTextFillColor: 'transparent',

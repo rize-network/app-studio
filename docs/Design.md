@@ -39,15 +39,13 @@ App-Studio supports CSS custom properties (CSS variables) that start with `--`. 
 ```jsx
 <View
   style={{
-    '--primary-color': 'blue',
-    '--primary-bg': 'lightblue',
-    '--spacing': '15px',
+    '--local-spacing': '20px',
   }}
-  backgroundColor="var(--primary-bg)"
-  color="var(--primary-color)"
-  padding="var(--spacing)"
+  backgroundColor="var(--color-blue-500)"
+  color="var(--color-white)"
+  padding="var(--local-spacing)"
 >
-  This component uses CSS variables
+  This component uses existing Theme CSS variables
 </View>
 ```
 
