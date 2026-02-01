@@ -30,7 +30,7 @@ jobs:
         run: npm test -- --ci --coverage --maxWorkers=2
 
       - name: E2E Tests (WebDriver)
-        run: npm run test:e2e:webdriver
+        run: npm run test:e2e
         continue-on-error: true
 
       - name: Build
