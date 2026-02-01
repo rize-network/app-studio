@@ -197,7 +197,7 @@ export const useScroll = ({
       }
       return prev;
     });
-    
+
     ticking.current = false;
   }, [offset, throttleMs, getContext]);
 

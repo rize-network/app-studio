@@ -7,6 +7,7 @@ import { useResponsive } from '../src/hooks/useResponsive';
 import { useWindowSize } from '../src/hooks/useWindowSize';
 import { useScroll, useScrollAnimation } from '../src/hooks/useScroll';
 import { useClickOutside } from '../src/hooks/useClickOutside';
+import { useIframe } from '../src/hooks/useIframeStyles';
 
 const meta: Meta = {
   title: 'Hooks/Iframe Support',
@@ -947,41 +948,45 @@ function DirectPortalContent() {
 export const CreatePortalExample: Story = {
   render: function CreatePortalStory() {
     const iframeRef = useRef<HTMLIFrameElement>(null);
+    
+    // Use the useIframe hook - it handles style registration automatically
+    const { iframeWindow, iframeDocument, isLoaded } = useIframe(iframeRef);
+    
+    // Setup mount node when iframe loads
     const [mountNode, setMountNode] = useState<HTMLElement | null>(null);
-    const [iframeWindow, setIframeWindow] = useState<Window | null>(null);
-
+    
     useEffect(() => {
-      const iframe = iframeRef.current;
-      if (!iframe?.contentWindow?.document) return;
-
-      const doc = iframe.contentWindow.document;
-      doc.open();
-      doc.write(`
-        <!DOCTYPE html>
-        <html>
-          <head>
-            <style>
-              * { margin: 0; padding: 0; box-sizing: border-box; }
-              body { overflow-x: hidden; }
-            </style>
-          </head>
-          <body>
-            <div id="portal-root"></div>
-          </body>
-        </html>
-      `);
-      doc.close();
-
-      setIframeWindow(iframe.contentWindow);
-      setMountNode(doc.getElementById('portal-root'));
-    }, []);
+      if (!iframeDocument) return;
+      
+      // Check if we need to initialize the document
+      if (!iframeDocument.getElementById('portal-root')) {
+        iframeDocument.open();
+        iframeDocument.write(`
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <style>
+                * { margin: 0; padding: 0; box-sizing: border-box; }
+                body { overflow-x: hidden; }
+              </style>
+            </head>
+            <body>
+              <div id="portal-root"></div>
+            </body>
+          </html>
+        `);
+        iframeDocument.close();
+      }
+      
+      setMountNode(iframeDocument.getElementById('portal-root'));
+    }, [iframeDocument]);
 
     return (
       <div style={{ padding: '20px' }}>
-        <h1>Direct createPortal Usage</h1>
+        <h1>createPortal with useIframe Hook</h1>
         <p style={{ marginBottom: '20px', color: '#666' }}>
-          This example shows how to use <code>createPortal</code> directly with an iframe, 
-          without an abstraction layer. The portal renders content into the iframe's DOM.
+          This example uses the <code>useIframe</code> hook which automatically handles 
+          style registration and provides <code>iframeWindow</code>, <code>iframeDocument</code>, and <code>isLoaded</code>.
         </p>
 
         <div style={{ 
@@ -993,16 +998,21 @@ export const CreatePortalExample: Story = {
           fontSize: '13px',
           overflow: 'auto'
         }}>
-          <pre style={{ margin: 0 }}>{`// Pattern:
+          <pre style={{ margin: 0 }}>{`// Using useIframe hook:
+import { useIframe } from 'app-studio';
+
 const iframeRef = useRef<HTMLIFrameElement>(null);
-const [mountNode, setMountNode] = useState(null);
+const { iframeWindow, iframeDocument, isLoaded } = useIframe(iframeRef);
 
-// Setup iframe document...
-setMountNode(doc.getElementById('portal-root'));
-
-// Render with portal
-{mountNode && createPortal(<Content />, mountNode)}`}</pre>
+// Then use createPortal with iframeDocument
+{isLoaded && createPortal(<Content />, mountNode)}`}</pre>
         </div>
+
+        {!isLoaded && (
+          <div style={{ padding: '20px', textAlign: 'center', color: '#999' }}>
+            Loading iframe...
+          </div>
+        )}
 
         <iframe
           ref={iframeRef}
@@ -1014,7 +1024,7 @@ setMountNode(doc.getElementById('portal-root'));
           }}
         />
         
-        {mountNode && iframeWindow && createPortal(
+        {isLoaded && mountNode && iframeWindow && createPortal(
           <ResponsiveProvider targetWindow={iframeWindow}>
             <WindowSizeProvider targetWindow={iframeWindow}>
               <DirectPortalContent />
