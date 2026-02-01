@@ -1,8 +1,8 @@
 import React from 'react';
 import { render } from '@testing-library/react';
-import { View, Horizontal, Vertical } from '../../../src/components/View';
-import { ThemeProvider } from '../../../src/providers/Theme';
-import { Text } from '../../../src/components/Text';
+import { View, Horizontal, Vertical } from '../../src/components/View';
+import { ThemeProvider } from '../../src/providers/Theme';
+import { Text } from '../../src/components/Text';
 
 // Mock matchMedia for responsive tests
 Object.defineProperty(window, 'matchMedia', {

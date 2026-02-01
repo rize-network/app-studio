@@ -1,7 +1,7 @@
 import React from 'react';
 import { render } from '@testing-library/react';
-import { Element } from '../element/Element';
-import { ThemeProvider } from '../../../src/providers/Theme';
+import { Element } from '../../src/element/Element';
+import { ThemeProvider } from '../../src/providers/Theme';
 
 describe('Border Color Processing', () => {
   it('should process color values in border properties', () => {

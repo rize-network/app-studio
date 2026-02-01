@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { WindowSizeProvider, useWindowSize } from '../../../src/providers/WindowSize';
+import { WindowSizeProvider } from '../../../src/providers/WindowSize';
+import { useWindowSize } from '../../../src/hooks/useWindowSize';
 
 describe('WindowSizeProvider', () => {
   const TestComponent = () => {

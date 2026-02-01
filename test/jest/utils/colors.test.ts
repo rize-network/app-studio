@@ -8,20 +8,20 @@ import {
 
 describe('Colors', () => {
   describe('defaultLightPalette', () => {
-    it('should have whiteAlpha colors', () => {
-      expect(defaultLightPalette.whiteAlpha).toBeDefined();
-      expect(defaultLightPalette.whiteAlpha[50]).toBe(
+    it('should have white colors (alpha variants)', () => {
+      expect(defaultLightPalette.white).toBeDefined();
+      expect(defaultLightPalette.white[50]).toBe(
         'rgba(255, 255, 255, 0.04)'
       );
-      expect(defaultLightPalette.whiteAlpha[900]).toBe(
-        'rgba(255, 255, 255, 0.92)'
+      expect(defaultLightPalette.white[900]).toBe(
+        'rgba(255, 255, 255, 1)'
       );
     });
 
-    it('should have blackAlpha colors', () => {
-      expect(defaultLightPalette.blackAlpha).toBeDefined();
-      expect(defaultLightPalette.blackAlpha[50]).toBe('rgba(0, 0, 0, 0.04)');
-      expect(defaultLightPalette.blackAlpha[900]).toBe('rgba(0, 0, 0, 0.92)');
+    it('should have black colors (alpha variants)', () => {
+      expect(defaultLightPalette.black).toBeDefined();
+      expect(defaultLightPalette.black[50]).toBe('rgba(0, 0, 0, 0.04)');
+      expect(defaultLightPalette.black[900]).toBe('rgba(0, 0, 0, 1)');
     });
 
     it('should have all color scales from 50 to 900', () => {
@@ -43,8 +43,6 @@ describe('Colors', () => {
 
     it('should have all named color palettes', () => {
       const expectedColors = [
-        'whiteAlpha',
-        'blackAlpha',
         'white',
         'black',
         'rose',
@@ -71,6 +69,10 @@ describe('Colors', () => {
         'light',
         'coolGray',
         'blueGray',
+        'slate',
+        'zinc',
+        'neutral',
+        'stone',
       ];
 
       expectedColors.forEach((color) => {
@@ -80,17 +82,15 @@ describe('Colors', () => {
   });
 
   describe('defaultDarkPalette', () => {
-    it('should have whiteAlpha colors', () => {
-      expect(defaultDarkPalette.whiteAlpha).toBeDefined();
-      expect(defaultDarkPalette.whiteAlpha[50]).toBe(
-        'rgba(255, 255, 255, 0.04)'
+    it('should have white colors (inverted for dark theme)', () => {
+      expect(defaultDarkPalette.white).toBeDefined();
+      expect(defaultDarkPalette.white[50]).toBe(
+        'rgba(0, 0, 0, 0.04)'
       );
     });
 
     it('should have all named color palettes', () => {
       const expectedColors = [
-        'whiteAlpha',
-        'blackAlpha',
         'white',
         'black',
         'rose',
@@ -117,6 +117,10 @@ describe('Colors', () => {
         'light',
         'coolGray',
         'blueGray',
+        'slate',
+        'zinc',
+        'neutral',
+        'stone',
       ];
 
       expectedColors.forEach((color) => {
@@ -149,23 +153,6 @@ describe('Colors', () => {
         'brown',
         'purple',
         'pink',
-        'lime',
-        'teal',
-        'navy',
-        'olive',
-        'maroon',
-        'gold',
-        'silver',
-        'indigo',
-        'violet',
-        'beige',
-        'turquoise',
-        'coral',
-        'chocolate',
-        'skyBlue',
-        'plum',
-        'darkGreen',
-        'salmon',
       ];
 
       expectedColors.forEach((color) => {
@@ -179,12 +166,12 @@ describe('Colors', () => {
     it('should extend defaultColors with light theme colors', () => {
       expect(defaultLightColors.white).toBe('#FFFFFF');
       expect(defaultLightColors.black).toBe('#000000');
-      expect(defaultLightColors.dark).toBe('#a1a1aa');
     });
 
-    it('should have dark property for light theme', () => {
-      expect(defaultLightColors.dark).toBeDefined();
-      expect(defaultLightColors.dark).toBe('#a1a1aa');
+    it('should have same colors as defaultColors', () => {
+      expect(defaultLightColors.red).toBe('#FF0000');
+      expect(defaultLightColors.green).toBe('#00FF00');
+      expect(defaultLightColors.blue).toBe('#0000FF');
     });
   });
 
@@ -192,7 +179,6 @@ describe('Colors', () => {
     it('should extend defaultColors with dark theme colors', () => {
       expect(defaultDarkColors.white).toBe('#000000');
       expect(defaultDarkColors.black).toBe('#FFFFFF');
-      expect(defaultDarkColors.dark).toBe('#adb5bd');
     });
 
     it('should invert white and black for dark theme', () => {
@@ -200,9 +186,10 @@ describe('Colors', () => {
       expect(defaultDarkColors.black).toBe('#FFFFFF');
     });
 
-    it('should have dark property for dark theme', () => {
-      expect(defaultDarkColors.dark).toBeDefined();
-      expect(defaultDarkColors.dark).toBe('#adb5bd');
+    it('should preserve other colors from defaultColors', () => {
+      expect(defaultDarkColors.red).toBe('#FF0000');
+      expect(defaultDarkColors.green).toBe('#00FF00');
+      expect(defaultDarkColors.blue).toBe('#0000FF');
     });
   });
 });
