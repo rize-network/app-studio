@@ -110,13 +110,13 @@ describe('ImageBackground Component', () => {
   it('should render children over background', () => {
     const { container } = render(
       <ThemeProvider>
-        <ImageBackground src="bg.jpg">
-          <span>Content</span>
+        <ImageBackground src="bg.jpg" data-testid="bg-with-content">
+          <span data-testid="bg-content">Content</span>
         </ImageBackground>
       </ThemeProvider>
     );
 
-    expect(container.querySelector('span')).toBeInTheDocument();
+    expect(container.querySelector('[data-testid="bg-content"]')).toBeInTheDocument();
   });
 
   it('should forward ref', () => {
