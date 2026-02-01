@@ -14,6 +14,16 @@ describe('Skeleton Component', () => {
     expect(container).toBeInTheDocument();
   });
 
+  it('should accept data-testid prop', () => {
+    const { container } = render(
+      <ThemeProvider>
+        <Skeleton data-testid="skeleton-loader" />
+      </ThemeProvider>
+    );
+
+    expect(container.querySelector('[data-testid="skeleton-loader"]')).toBeInTheDocument();
+  });
+
   it('should accept animation props', () => {
     const { container } = render(
       <ThemeProvider>
@@ -22,6 +32,20 @@ describe('Skeleton Component', () => {
     );
 
     expect(container.querySelector('div')).toBeInTheDocument();
+  });
+
+  it('should accept animation props with data-testid', () => {
+    const { container } = render(
+      <ThemeProvider>
+        <Skeleton
+          duration="3s"
+          timingFunction="ease-in-out"
+          data-testid="animated-skeleton"
+        />
+      </ThemeProvider>
+    );
+
+    expect(container.querySelector('[data-testid="animated-skeleton"]')).toBeInTheDocument();
   });
 
   it('should support width and height', () => {
@@ -34,7 +58,33 @@ describe('Skeleton Component', () => {
     expect(container).toBeInTheDocument();
   });
 
+  it('should support width and height with data-testid', () => {
+    const { container } = render(
+      <ThemeProvider>
+        <Skeleton width={100} height={100} data-testid="sized-skeleton" />
+      </ThemeProvider>
+    );
+
+    const skeleton = container.querySelector('[data-testid="sized-skeleton"]');
+    expect(skeleton).toBeInTheDocument();
+  });
+
   it('should be memoized', () => {
     expect(Skeleton.$$typeof).toBeDefined();
+  });
+
+  it('should support custom styling props with data-testid', () => {
+    const { container } = render(
+      <ThemeProvider>
+        <Skeleton
+          width={200}
+          height={50}
+          borderRadius={8}
+          data-testid="styled-skeleton"
+        />
+      </ThemeProvider>
+    );
+
+    expect(container.querySelector('[data-testid="styled-skeleton"]')).toBeInTheDocument();
   });
 });

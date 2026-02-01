@@ -33,7 +33,7 @@
     "test": "tsdx test --passWithNoTests",
     "test:e2e:cypress": "cypress run",
     "test:e2e:cypress:open": "cypress open",
-    "test:e2e:webdriver": "ts-node e2e-tests/webdriver/data-testid.test.ts && ts-node e2e-tests/webdriver/component-tests.test.ts",
+    "test:e2e:webdriver": "ts-node e2e-tests/webdriver/data-testid.test.ts && ts-node e2e-tests/webdriver/component-tests.test.ts && ts-node e2e-tests/webdriver/form-components.test.ts",
     "test:e2e": "npm run test:e2e:webdriver",
     "lint": "npm run eslint && npm run prettier",
     "lint:fix": "npm run eslint:fix && npm run prettier:fix",
