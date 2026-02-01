@@ -53,11 +53,13 @@ describe('View Component', () => {
   it('should support className prop', () => {
     const { container } = render(
       <ThemeProvider>
-        <View className="custom-class" />
+        <View className="custom-class" data-testid="view-with-class" />
       </ThemeProvider>
     );
 
-    expect(container.querySelector('.custom-class')).toBeInTheDocument();
+    const element = container.querySelector('[data-testid="view-with-class"]');
+    expect(element).toBeInTheDocument();
+    expect(element?.classList.contains('custom-class')).toBe(true);
   });
 });
 
