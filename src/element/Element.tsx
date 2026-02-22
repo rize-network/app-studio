@@ -1,5 +1,4 @@
 import React, {
-  useMemo,
   forwardRef,
   useEffect,
   useRef,
@@ -71,12 +70,10 @@ function useStableStyleMemo(
 ): string[] {
   const cacheRef = useRef<{ hash: string; classes: string[] } | null>(null);
 
-  // Compute hash of current props
-  const currentHash = useMemo(() => {
-    // Include theme in hash to bust cache on theme changes
-    const themeHash = theme ? JSON.stringify(theme) : '';
-    return hashStyleProps(propsToProcess) + '|' + hash(themeHash);
-  }, [propsToProcess, theme]);
+  // Compute hash directly — no useMemo since propsToProcess is always a new
+  // reference (from destructuring), so the memo deps would always change.
+  const themeHash = theme ? JSON.stringify(theme) : '';
+  const currentHash = hashStyleProps(propsToProcess) + '|' + hash(themeHash);
 
   // Only recompute classes if hash changed
   if (!cacheRef.current || cacheRef.current.hash !== currentHash) {
@@ -179,53 +176,52 @@ export const Element = React.memo(
       }, [animateOut, manager]);
 
       // Prepare props for processing (apply view/scroll timeline if needed)
-      const propsToProcess = useMemo(() => {
-        const processed: Record<string, any> = {
-          ...rest,
-          blend,
-        };
+      // No useMemo — `rest` is always a new reference from destructuring, so
+      // memo deps would always change. useStableStyleMemo handles the real
+      // memoization via hash-based comparison.
+      const propsToProcess: Record<string, any> = {
+        ...rest,
+        blend,
+      };
 
-        // Apply view() timeline ONLY if animateOn='View' (not Both or Mount)
-        if (animateOn === 'View' && processed.animate) {
-          const animations = Array.isArray(processed.animate)
-            ? processed.animate
-            : [processed.animate];
+      // Apply view() timeline ONLY if animateOn='View' (not Both or Mount)
+      if (animateOn === 'View' && propsToProcess.animate) {
+        const animations = Array.isArray(propsToProcess.animate)
+          ? propsToProcess.animate
+          : [propsToProcess.animate];
 
-          processed.animate = animations.map((anim) => {
-            // Only add timeline if not already specified
-            if (!anim.timeline) {
-              return {
-                ...anim,
-                timeline: 'view()',
-                range: anim.range || 'entry',
-                fillMode: anim.fillMode || 'both',
-              };
-            }
-            return anim;
-          });
-        }
+        propsToProcess.animate = animations.map((anim: any) => {
+          // Only add timeline if not already specified
+          if (!anim.timeline) {
+            return {
+              ...anim,
+              timeline: 'view()',
+              range: anim.range || 'entry',
+              fillMode: anim.fillMode || 'both',
+            };
+          }
+          return anim;
+        });
+      }
 
-        // Apply scroll() timeline if animateOn='Scroll'
-        if (animateOn === 'Scroll' && processed.animate) {
-          const animations = Array.isArray(processed.animate)
-            ? processed.animate
-            : [processed.animate];
+      // Apply scroll() timeline if animateOn='Scroll'
+      if (animateOn === 'Scroll' && propsToProcess.animate) {
+        const animations = Array.isArray(propsToProcess.animate)
+          ? propsToProcess.animate
+          : [propsToProcess.animate];
 
-          processed.animate = animations.map((anim) => {
-            // Only add timeline if not already specified
-            if (!anim.timeline) {
-              return {
-                ...anim,
-                timeline: 'scroll()',
-                fillMode: anim.fillMode || 'both',
-              };
-            }
-            return anim;
-          });
-        }
-
-        return processed;
-      }, [rest, blend, animateOn]);
+        propsToProcess.animate = animations.map((anim: any) => {
+          // Only add timeline if not already specified
+          if (!anim.timeline) {
+            return {
+              ...anim,
+              timeline: 'scroll()',
+              fillMode: anim.fillMode || 'both',
+            };
+          }
+          return anim;
+        });
+      }
 
       // Use hash-based memoization for style extraction
       const utilityClasses = useStableStyleMemo(

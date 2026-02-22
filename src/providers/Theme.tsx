@@ -423,11 +423,15 @@ interface ThemeProviderProps {
   targetWindow?: Window;
 }
 
+// Stable default references to prevent unnecessary re-renders and cache invalidation
+const DEFAULT_THEME_OVERRIDE: Partial<Theme> = {};
+const DEFAULT_COLORS_OVERRIDE: Partial<Colors> = {};
+
 export const ThemeProvider = ({
-  theme: themeOverride = {},
+  theme: themeOverride = DEFAULT_THEME_OVERRIDE,
   mode: initialMode = 'light',
-  dark: darkOverride = {},
-  light: lightOverride = {},
+  dark: darkOverride = DEFAULT_COLORS_OVERRIDE,
+  light: lightOverride = DEFAULT_COLORS_OVERRIDE,
   children,
   strict = false,
   targetWindow,

@@ -11,9 +11,10 @@ export interface ImageProps
 export const Image = React.forwardRef<
   HTMLElement,
   React.ComponentPropsWithRef<typeof Element> & ImageProps
->((props, ref) => (
-  <Element as="img" {...props} ref={ref} />
-)) as unknown as React.ForwardRefExoticComponent<
+>((props, ref) => {
+  const imageProps = { ...props, alt: props.alt || '' };
+  return <Element as="img" {...imageProps} ref={ref} />;
+}) as unknown as React.ForwardRefExoticComponent<
   React.ComponentPropsWithRef<typeof Element> &
     ImageProps &
     React.RefAttributes<HTMLElement>

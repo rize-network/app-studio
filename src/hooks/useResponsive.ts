@@ -1,3 +1,4 @@
+import { useCallback, useMemo } from 'react';
 import {
   useResponsiveContext,
   useBreakpointContext,
@@ -24,16 +25,21 @@ export const useBreakpoint = () => {
   const { currentBreakpoint: screen, orientation, devices } = context;
 
   // Helper to check if current screen matches a breakpoint or device
-  const on = (s: string) =>
-    devices[s] ? devices[s].includes(screen) : s === screen;
+  const on = useCallback(
+    (s: string) => (devices[s] ? devices[s].includes(screen) : s === screen),
+    [devices, screen]
+  );
 
-  return {
-    ...context,
-    screen,
-    orientation,
-    on,
-    is: on,
-  };
+  return useMemo(
+    () => ({
+      ...context,
+      screen,
+      orientation,
+      on,
+      is: on,
+    }),
+    [context, screen, orientation, on]
+  );
 };
 
 /**
@@ -62,10 +68,16 @@ export const useWindowDimensions = (): WindowDimensions => {
 export const useResponsive = () => {
   const context = useResponsiveContext();
   const { currentBreakpoint: screen, orientation, devices } = context;
-  const on = (s: string) =>
-    devices[s] ? devices[s].includes(screen) : s === screen;
-  const result = { ...context, screen, orientation, on, is: on };
-  return result;
+
+  const on = useCallback(
+    (s: string) => (devices[s] ? devices[s].includes(screen) : s === screen),
+    [devices, screen]
+  );
+
+  return useMemo(
+    () => ({ ...context, screen, orientation, on, is: on }),
+    [context, screen, orientation, on]
+  );
 };
 
 // Re-export types for convenience

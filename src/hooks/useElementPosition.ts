@@ -40,12 +40,14 @@ export interface UseElementPositionReturn {
   updateRelation: () => void;
 }
 
+const DEFAULT_ELEMENT_POSITION_OPTIONS: UseElementPositionOptions = {};
+
 /**
  * A React hook to determine an element's relative position within the viewport
  * and where the most available space is around it within the viewport.
  */
 export function useElementPosition<T extends HTMLElement = HTMLElement>(
-  options: UseElementPositionOptions = {}
+  options: UseElementPositionOptions = DEFAULT_ELEMENT_POSITION_OPTIONS
 ): UseElementPositionReturn {
   const {
     trackChanges = true,
