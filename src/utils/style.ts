@@ -14,10 +14,10 @@ export function propertyToKebabCase(property: string): string {
 }
 
 // Comprehensive list of CSS properties that should be converted to classes
+// NOTE: Uses a static set instead of document.createElement('div').style
+// to avoid DOM access at module load time (breaks SSR, adds startup overhead).
+// The manual list below is comprehensive and covers all commonly used CSS properties.
 const cssProperties = new Set([
-  // Standard CSS properties
-  ...Object.keys(document.createElement('div').style),
-
   // Box model
   'margin',
   'marginTop',
@@ -215,6 +215,9 @@ const commonEventHandlers = new Set([
   'onDragEnd',
   'onDrop',
 ]);
+
+// Cache for CSS.supports results to avoid repeated DOM queries
+const cssSupportCache = new Map<string, boolean>();
 
 // Non-hyphenated HTML/SVG attributes that must never be treated as style props.
 // Hyphenated attributes (aria-*, data-*, etc.) are caught by a prefix/hyphen check below.
@@ -455,11 +458,18 @@ export const isStyleProp = (prop: string): boolean => {
   }
 
   // Check if it's a valid CSS property using CSS.supports (browser environment)
+  // Results are cached to avoid repeated CSS.supports calls
   if (typeof CSS !== 'undefined' && CSS.supports) {
+    const cached = cssSupportCache.get(prop);
+    if (cached !== undefined) return cached;
+
     try {
       const kebabProp = vendorPrefixToKebabCase(prop);
-      return CSS.supports(kebabProp, 'inherit');
+      const result = CSS.supports(kebabProp, 'inherit');
+      cssSupportCache.set(prop, result);
+      return result;
     } catch {
+      cssSupportCache.set(prop, false);
       return false;
     }
   }

@@ -49,105 +49,62 @@ interface Override {
 }
 
 // --- CSS Variable Injection Helper ---
+// Optimized: single-pass processing, minimal string allocations, minified output
 const generateCSSVariables = (
   theme: Theme,
   lightColors: Colors,
   darkColors: Colors
 ) => {
-  const variables: string[] = [];
-  const lightVariables: string[] = [];
-  const darkVariables: string[] = [];
-  const themeVariables: string[] = [];
-  // Helper to process object and generate variables
-  const processObject = (obj: any, prefix: string, targetArray: string[]) => {
-    Object.keys(obj).forEach((key) => {
-      const value = obj[key];
-      const variableName = `${prefix}-${key}`.replace(/\./g, '-');
-      if (typeof value === 'object' && value !== null) {
-        processObject(value, variableName, targetArray);
-      } else if (typeof value === 'string' || typeof value === 'number') {
-        targetArray.push(`--${variableName}: ${value};`);
+  const rootVars: string[] = [];
+  const lightMappings: string[] = [];
+  const darkMappings: string[] = [];
+
+  // Single-pass helper: generates base, light, dark vars and theme-switch mappings together
+  const processColors = (lightObj: any, darkObj: any, prefix: string) => {
+    const keys = Object.keys(lightObj);
+    for (let i = 0; i < keys.length; i++) {
+      const key = keys[i];
+      const lightValue = lightObj[key];
+      const darkValue = darkObj?.[key];
+      const varName = `${prefix}-${key}`;
+
+      if (typeof lightValue === 'object' && lightValue !== null) {
+        processColors(lightValue, darkValue, varName);
+      } else if (
+        typeof lightValue === 'string' ||
+        typeof lightValue === 'number'
+      ) {
+        // :root gets base + light/dark prefixed vars
+        rootVars.push(
+          `--${varName}:${lightValue};--light-${varName}:${lightValue};--dark-${varName}:${darkValue ?? lightValue}`
+        );
+        // Theme-switching selectors
+        lightMappings.push(`--${varName}:var(--light-${varName})`);
+        darkMappings.push(`--${varName}:var(--dark-${varName})`);
       }
-    });
-  };
-  // 1. Generate ALL primitive variables (light and dark)
-  // We prefix them with --light-color-... and --dark-color-...
-  processObject(lightColors.main, 'color', variables);
-  processObject(lightColors.palette, 'color', variables);
-
-  processObject(lightColors.main, 'light-color', lightVariables);
-  processObject(lightColors.palette, 'light-color', lightVariables);
-
-  processObject(darkColors.main, 'dark-color', darkVariables);
-  processObject(darkColors.palette, 'dark-color', darkVariables);
-
-  // We collect the names that need mapping
-  const genericColorVars: string[] = [];
-  const collectGenericNames = (obj: any, prefix: string) => {
-    Object.keys(obj).forEach((key) => {
-      const value = obj[key];
-      const variableName = `${prefix}-${key}`.replace(/\./g, '-');
-      if (typeof value === 'object' && value !== null) {
-        collectGenericNames(value, variableName);
-      } else {
-        genericColorVars.push(variableName);
-      }
-    });
+    }
   };
 
-  collectGenericNames(lightColors.main, 'color');
-  collectGenericNames(lightColors.palette, 'color');
-  // 3. Process Theme variables (references)
-  // Theme config uses dash notation (color-blue-500, theme-primary)
-  const processTheme = (obj: any, prefix: string) => {
-    Object.keys(obj).forEach((key) => {
-      const value = obj[key];
-      const variableName = `${prefix}-${key}`;
-      if (typeof value === 'object' && value !== null) {
-        processTheme(value, variableName);
-      } else if (typeof value === 'string') {
-        if (value.startsWith('color-') || value.startsWith('theme-')) {
-          // Convert 'color-blue-500' -> 'var(--color-blue-500)'
-          themeVariables.push(`--${variableName}: var(--${value});`);
-        } else {
-          themeVariables.push(`--${variableName}: ${value};`);
-        }
-      }
-    });
-  };
+  processColors(lightColors.main, darkColors.main, 'color');
+  processColors(lightColors.palette, darkColors.palette, 'color');
 
-  processTheme(theme, 'theme');
-  // 4. Construct CSS
-  // :root has all primitives
-  // [data-theme='light'] maps color vars to light primitives
-  // [data-theme='dark'] maps color vars to dark primitives
+  // Process theme variables
+  const themeVars: string[] = [];
+  const themeKeys = Object.keys(theme);
+  for (let i = 0; i < themeKeys.length; i++) {
+    const key = themeKeys[i];
+    const value = (theme as any)[key];
+    if (typeof value === 'string') {
+      themeVars.push(
+        value.startsWith('color-') || value.startsWith('theme-')
+          ? `--theme-${key}:var(--${value})`
+          : `--theme-${key}:${value}`
+      );
+    }
+  }
 
-  const lightMappings = genericColorVars
-    .map((name) => `--${name}: var(--light-${name});`)
-    .join('\n    ');
-  const darkMappings = genericColorVars
-    .map((name) => `--${name}: var(--dark-${name});`)
-    .join('\n    ');
-  const css = `
-    :root {
-      /* Primitives */
-      ${variables.join('\n      ')}
-      ${lightVariables.join('\n      ')}
-      ${darkVariables.join('\n      ')}
-      
-      /* Theme Variables (Structural) */
-      ${themeVariables.join('\n      ')}
-    }
-  
-    [data-theme='light'] {
-      ${lightMappings}
-    }
-    
-    [data-theme='dark'] {
-      ${darkMappings}
-    }
-  `;
-  return css;
+  // Build minified CSS (no unnecessary whitespace)
+  return `:root{${rootVars.join(';')};${themeVars.join(';')}}[data-theme='light']{${lightMappings.join(';')}}[data-theme='dark']{${darkMappings.join(';')}}`;
 };
 
 interface ThemeContextProps {

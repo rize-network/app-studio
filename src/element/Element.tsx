@@ -15,45 +15,68 @@ import { extractUtilityClasses, AnimationUtils } from './css';
 import { useAnalytics } from '../providers/Analytics';
 import { hash } from '../utils/hash';
 
+// Set of special prop names that affect CSS generation
+const styleRelevantProps = new Set([
+  'on',
+  'media',
+  'animate',
+  'css',
+  'shadow',
+  'blend',
+  'widthHeight',
+  'paddingHorizontal',
+  'paddingVertical',
+  'marginHorizontal',
+  'marginVertical',
+]);
+
+// Skip these props from hash computation
+const skipHashProps = new Set(['children', 'ref', 'key', 'style']);
+
+/**
+ * Fast serialization of a value for hashing purposes.
+ * Avoids JSON.stringify overhead for common cases (strings, numbers, booleans).
+ */
+function fastSerialize(value: any): string {
+  if (value === null) return 'n';
+  const t = typeof value;
+  if (t === 'string') return `s${value}`;
+  if (t === 'number') return `d${value}`;
+  if (t === 'boolean') return value ? 'T' : 'F';
+  // Fall back to JSON.stringify only for complex objects
+  return JSON.stringify(value);
+}
+
 /**
  * Computes a stable hash of style-relevant props.
- * This is used to determine if style extraction needs to be re-run.
+ * Optimized: avoids sorting, uses fast serialization, feeds directly to hash.
  */
 function hashStyleProps(props: Record<string, any>): string {
   // Build a deterministic string representation of style-relevant props
-  const parts: string[] = [];
+  // We use a single string accumulator instead of array + join
+  let hashInput = '';
 
-  const sortedKeys = Object.keys(props).sort();
+  const keys = Object.keys(props);
+  for (let i = 0; i < keys.length; i++) {
+    const key = keys[i];
 
-  for (const key of sortedKeys) {
     // Skip non-style props that don't affect CSS generation
-    if (key === 'children' || key === 'ref' || key === 'key') continue;
+    if (skipHashProps.has(key)) continue;
 
     // Include style-relevant props
     if (
       isStyleProp(key) ||
-      key.startsWith('_') ||
-      key === 'on' ||
-      key === 'media' ||
-      key === 'animate' ||
-      key === 'css' ||
-      key === 'shadow' ||
-      key === 'blend' ||
-      key === 'widthHeight' ||
-      key === 'paddingHorizontal' ||
-      key === 'paddingVertical' ||
-      key === 'marginHorizontal' ||
-      key === 'marginVertical'
+      key.charCodeAt(0) === 95 || // starts with '_'
+      styleRelevantProps.has(key)
     ) {
       const value = props[key];
       if (value !== undefined) {
-        // Use JSON.stringify for consistent serialization
-        parts.push(`${key}:${JSON.stringify(value)}`);
+        hashInput += `|${key}:${fastSerialize(value)}`;
       }
     }
   }
 
-  return hash(parts.join('|'));
+  return hash(hashInput);
 }
 
 /**
@@ -72,8 +95,9 @@ function useStableStyleMemo(
 
   // Compute hash directly — no useMemo since propsToProcess is always a new
   // reference (from destructuring), so the memo deps would always change.
-  const themeHash = theme ? JSON.stringify(theme) : '';
-  const currentHash = hashStyleProps(propsToProcess) + '|' + hash(themeHash);
+  // Theme hash uses Object.values() concatenation instead of JSON.stringify
+  const themeHash = theme ? hash(Object.values(theme).join('|')) : '';
+  const currentHash = hashStyleProps(propsToProcess) + '|' + themeHash;
 
   // Only recompute classes if hash changed
   if (!cacheRef.current || cacheRef.current.hash !== currentHash) {
@@ -280,26 +304,28 @@ export const Element = React.memo(
 
       const { style, children, before, after, ...otherProps } = rest;
 
-      // First, add all event handlers (they start with "on" and have a capital letter after)
-      Object.keys(otherProps).forEach((key) => {
+      // Single pass: add event handlers and non-style props together
+      const otherKeys = Object.keys(otherProps);
+      for (let i = 0; i < otherKeys.length; i++) {
+        const key = otherKeys[i];
+        // Event handlers: start with "on" + uppercase letter
         if (
-          key.startsWith('on') &&
+          key.charCodeAt(0) === 111 && // 'o'
+          key.charCodeAt(1) === 110 && // 'n'
           key.length > 2 &&
-          key[2] === key[2].toUpperCase()
+          key.charCodeAt(2) >= 65 &&
+          key.charCodeAt(2) <= 90 // uppercase A-Z
         ) {
           newProps[key] = (otherProps as any)[key];
         }
-      });
-
-      // Then add all other non-style props
-      Object.keys(otherProps).forEach((key) => {
-        if (
+        // Non-style props (pass through to DOM)
+        else if (
           (!excludedKeys.has(key) && !isStyleProp(key)) ||
           includeKeys.has(key)
         ) {
           newProps[key] = (otherProps as any)[key];
         }
-      });
+      }
 
       if (style) {
         newProps.style = style;
