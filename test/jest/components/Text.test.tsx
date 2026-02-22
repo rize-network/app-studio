@@ -38,13 +38,13 @@ describe('Text Component', () => {
   it('should not uppercase non-string children', () => {
     const { container: testContainer } = render(
       <ThemeProvider>
-        <Text toUpperCase>
-          <span>Hello</span>
+        <Text toUpperCase data-testid="text-with-child">
+          <span data-testid="child-span">Hello</span>
         </Text>
       </ThemeProvider>
     );
 
-    expect(testContainer.querySelector('span')).toBeInTheDocument();
+    expect(testContainer.querySelector('[data-testid="child-span"]')).toBeInTheDocument();
   });
 
   it('should support CSS styling props', () => {
@@ -74,10 +74,12 @@ describe('Text Component', () => {
   it('should render empty when no children', () => {
     const { container } = render(
       <ThemeProvider>
-        <Text />
+        <Text data-testid="empty-text" />
       </ThemeProvider>
     );
 
-    expect(container.querySelector('span')).toBeInTheDocument();
+    const element = container.querySelector('[data-testid="empty-text"]');
+    expect(element).toBeInTheDocument();
+    expect(element?.tagName.toLowerCase()).toBe('span');
   });
 });
