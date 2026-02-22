@@ -18,9 +18,17 @@ import { hash } from '../utils/hash';
 
 // Set of special prop names that affect CSS generation
 const styleRelevantProps = new Set([
-  'on', 'media', 'animate', 'css', 'shadow', 'blend',
-  'widthHeight', 'paddingHorizontal', 'paddingVertical',
-  'marginHorizontal', 'marginVertical',
+  'on',
+  'media',
+  'animate',
+  'css',
+  'shadow',
+  'blend',
+  'widthHeight',
+  'paddingHorizontal',
+  'paddingVertical',
+  'marginHorizontal',
+  'marginVertical',
 ]);
 
 // Skip these props from hash computation
@@ -308,7 +316,8 @@ export const Element = React.memo(
           key.charCodeAt(0) === 111 && // 'o'
           key.charCodeAt(1) === 110 && // 'n'
           key.length > 2 &&
-          key.charCodeAt(2) >= 65 && key.charCodeAt(2) <= 90 // uppercase A-Z
+          key.charCodeAt(2) >= 65 &&
+          key.charCodeAt(2) <= 90 // uppercase A-Z
         ) {
           newProps[key] = (otherProps as any)[key];
         }

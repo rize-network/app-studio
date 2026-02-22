@@ -60,11 +60,7 @@ const generateCSSVariables = (
   const darkMappings: string[] = [];
 
   // Single-pass helper: generates base, light, dark vars and theme-switch mappings together
-  const processColors = (
-    lightObj: any,
-    darkObj: any,
-    prefix: string
-  ) => {
+  const processColors = (lightObj: any, darkObj: any, prefix: string) => {
     const keys = Object.keys(lightObj);
     for (let i = 0; i < keys.length; i++) {
       const key = keys[i];
@@ -74,9 +70,14 @@ const generateCSSVariables = (
 
       if (typeof lightValue === 'object' && lightValue !== null) {
         processColors(lightValue, darkValue, varName);
-      } else if (typeof lightValue === 'string' || typeof lightValue === 'number') {
+      } else if (
+        typeof lightValue === 'string' ||
+        typeof lightValue === 'number'
+      ) {
         // :root gets base + light/dark prefixed vars
-        rootVars.push(`--${varName}:${lightValue};--light-${varName}:${lightValue};--dark-${varName}:${darkValue ?? lightValue}`);
+        rootVars.push(
+          `--${varName}:${lightValue};--light-${varName}:${lightValue};--dark-${varName}:${darkValue ?? lightValue}`
+        );
         // Theme-switching selectors
         lightMappings.push(`--${varName}:var(--light-${varName})`);
         darkMappings.push(`--${varName}:var(--dark-${varName})`);
@@ -95,7 +96,7 @@ const generateCSSVariables = (
     const value = (theme as any)[key];
     if (typeof value === 'string') {
       themeVars.push(
-        (value.startsWith('color-') || value.startsWith('theme-'))
+        value.startsWith('color-') || value.startsWith('theme-')
           ? `--theme-${key}:var(--${value})`
           : `--theme-${key}:${value}`
       );

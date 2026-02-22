@@ -256,17 +256,25 @@ const ValueUtils = {
     const str = typeof value === 'string' ? value : String(value);
 
     // Handle CSS variables in values
-    if (str.charCodeAt(0) === 45 && str.charCodeAt(1) === 45) { // starts with '--'
+    if (str.charCodeAt(0) === 45 && str.charCodeAt(1) === 45) {
+      // starts with '--'
       return `var-${str.substring(2)}`;
     }
 
     // Handle vendor-prefixed values
     if (str.startsWith('-webkit-')) {
-      return `webkit-${str.substring(8).replace(/\./g, 'p').replace(/\s+/g, '-').replace(/[^a-zA-Z0-9-]/g, '')}`;
+      return `webkit-${str
+        .substring(8)
+        .replace(/\./g, 'p')
+        .replace(/\s+/g, '-')
+        .replace(/[^a-zA-Z0-9-]/g, '')}`;
     }
 
     // Single-pass normalization: replace dots with 'p', spaces with '-', strip non-alphanumeric
-    return str.replace(/\./g, 'p').replace(/\s+/g, '-').replace(/[^a-zA-Z0-9-]/g, '');
+    return str
+      .replace(/\./g, 'p')
+      .replace(/\s+/g, '-')
+      .replace(/[^a-zA-Z0-9-]/g, '');
   },
 
   generateUniqueClassName(css: string): string {
@@ -1019,11 +1027,10 @@ export const extractUtilityClasses = (
     const value = (props as any)[property];
 
     // Handle underscore-prefixed event properties (_hover, _focus, etc.)
-    if (property.charCodeAt(0) === 95 && property.length > 1) { // 95 = '_'
+    if (property.charCodeAt(0) === 95 && property.length > 1) {
+      // 95 = '_'
       const eventName = property.substring(1);
-      classes.push(
-        ...processEventStyles(eventName, value, getColor, manager)
-      );
+      classes.push(...processEventStyles(eventName, value, getColor, manager));
 
       // Handle blend for underscore props
       if (props.blend === true && value?.color === undefined) {
@@ -1047,7 +1054,12 @@ export const extractUtilityClasses = (
         const events = Object.keys(value);
         for (let j = 0; j < events.length; j++) {
           classes.push(
-            ...processEventStyles(events[j], value[events[j]], getColor, manager)
+            ...processEventStyles(
+              events[j],
+              value[events[j]],
+              getColor,
+              manager
+            )
           );
         }
 
