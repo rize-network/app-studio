@@ -7,28 +7,47 @@ import {
 
 describe('Vendor Prefixes', () => {
   describe('vendorPrefixedProperties', () => {
-    it('should have animation properties', () => {
-      expect(vendorPrefixedProperties.animation).toBeDefined();
-      expect(vendorPrefixedProperties.animation).toContain('-webkit-animation');
-    });
+    // Modern browsers (Chrome 100+, Safari 15+, Firefox 91+) no longer need
+    // vendor prefixes for animation, transform, transition, flexbox, etc.
+    // Only webkit-specific properties that have no unprefixed equivalent remain.
 
-    it('should have transform properties', () => {
-      expect(vendorPrefixedProperties.transform).toBeDefined();
-      expect(vendorPrefixedProperties.transform).toContain('-webkit-transform');
-      expect(vendorPrefixedProperties.transform).toContain('-moz-transform');
-    });
-
-    it('should have transition properties', () => {
-      expect(vendorPrefixedProperties.transition).toBeDefined();
-      expect(vendorPrefixedProperties.transition).toContain(
-        '-webkit-transition'
+    it('should have webkit-only properties that still need prefixes', () => {
+      expect(vendorPrefixedProperties.textFillColor).toBeDefined();
+      expect(vendorPrefixedProperties.textFillColor).toContain(
+        '-webkit-text-fill-color'
       );
     });
 
-    it('should have flexbox properties', () => {
-      expect(vendorPrefixedProperties.flex).toBeDefined();
-      expect(vendorPrefixedProperties.flexDirection).toBeDefined();
-      expect(vendorPrefixedProperties.justifyContent).toBeDefined();
+    it('should have backgroundClip with webkit prefix', () => {
+      expect(vendorPrefixedProperties.backgroundClip).toBeDefined();
+      expect(vendorPrefixedProperties.backgroundClip).toContain(
+        '-webkit-background-clip'
+      );
+    });
+
+    it('should have lineClamp with webkit prefix', () => {
+      expect(vendorPrefixedProperties.lineClamp).toBeDefined();
+      expect(vendorPrefixedProperties.lineClamp).toContain(
+        '-webkit-line-clamp'
+      );
+    });
+
+    it('should NOT have animation properties (no longer needed)', () => {
+      expect(vendorPrefixedProperties.animation).toBeUndefined();
+    });
+
+    it('should NOT have transform properties (no longer needed)', () => {
+      expect(vendorPrefixedProperties.transform).toBeUndefined();
+    });
+
+    it('should NOT have transition properties (no longer needed)', () => {
+      expect(vendorPrefixedProperties.transition).toBeUndefined();
+    });
+
+    it('should NOT have flexbox properties (no longer needed)', () => {
+      expect(vendorPrefixedProperties.flex).toBeUndefined();
+      expect(vendorPrefixedProperties.flexDirection).toBeUndefined();
+      expect(vendorPrefixedProperties.justifyContent).toBeUndefined();
     });
   });
 
@@ -62,17 +81,16 @@ describe('Vendor Prefixes', () => {
   });
 
   describe('getVendorPrefixedProperties', () => {
-    it('should return standard property and prefixed versions for animation', () => {
+    it('should return only standard property for animation (no prefixes needed)', () => {
       const result = getVendorPrefixedProperties('animation');
       expect(result).toContain('animation');
-      expect(result).toContain('-webkit-animation');
+      expect(result.length).toBe(1);
     });
 
-    it('should return standard property and prefixed versions for transform', () => {
+    it('should return only standard property for transform (no prefixes needed)', () => {
       const result = getVendorPrefixedProperties('transform');
       expect(result).toContain('transform');
-      expect(result).toContain('-webkit-transform');
-      expect(result).toContain('-moz-transform');
+      expect(result.length).toBe(1);
     });
 
     it('should return property in kebab-case', () => {
@@ -80,46 +98,47 @@ describe('Vendor Prefixes', () => {
       expect(result[0]).toBe('background-color');
     });
 
-    it('should return empty array for non-vendor-prefixed properties', () => {
+    it('should return single entry for non-vendor-prefixed properties', () => {
       const result = getVendorPrefixedProperties('display');
       expect(Array.isArray(result)).toBe(true);
       expect(result[0]).toBe('display');
+      expect(result.length).toBe(1);
     });
 
-    it('should include all vendor prefixes for transform', () => {
-      const result = getVendorPrefixedProperties('transform');
+    it('should include webkit prefix for textFillColor', () => {
+      const result = getVendorPrefixedProperties('textFillColor');
       expect(result.length).toBeGreaterThan(1);
+      expect(result).toContain('-webkit-text-fill-color');
       result.forEach((prop) => {
         expect(typeof prop).toBe('string');
       });
     });
+
+    it('should include webkit prefix for backgroundClip', () => {
+      const result = getVendorPrefixedProperties('backgroundClip');
+      expect(result).toContain('background-clip');
+      expect(result).toContain('-webkit-background-clip');
+    });
   });
 
   describe('needsVendorPrefix', () => {
-    it('should return true for animation', () => {
-      expect(needsVendorPrefix('animation')).toBe(true);
+    // Properties that no longer need vendor prefixes in modern browsers
+    it('should return false for animation (modern browsers)', () => {
+      expect(needsVendorPrefix('animation')).toBe(false);
     });
 
-    it('should return true for transform', () => {
-      expect(needsVendorPrefix('transform')).toBe(true);
+    it('should return false for transform (modern browsers)', () => {
+      expect(needsVendorPrefix('transform')).toBe(false);
     });
 
-    it('should return true for transition', () => {
-      expect(needsVendorPrefix('transition')).toBe(true);
+    it('should return false for transition (modern browsers)', () => {
+      expect(needsVendorPrefix('transition')).toBe(false);
     });
 
-    it('should return true for flex properties', () => {
-      expect(needsVendorPrefix('flex')).toBe(true);
-      expect(needsVendorPrefix('flexDirection')).toBe(true);
-      expect(needsVendorPrefix('justifyContent')).toBe(true);
-    });
-
-    it('should return true for appearance', () => {
-      expect(needsVendorPrefix('appearance')).toBe(true);
-    });
-
-    it('should return true for userSelect', () => {
-      expect(needsVendorPrefix('userSelect')).toBe(true);
+    it('should return false for flex properties (modern browsers)', () => {
+      expect(needsVendorPrefix('flex')).toBe(false);
+      expect(needsVendorPrefix('flexDirection')).toBe(false);
+      expect(needsVendorPrefix('justifyContent')).toBe(false);
     });
 
     it('should return false for standard properties', () => {
@@ -128,12 +147,21 @@ describe('Vendor Prefixes', () => {
       expect(needsVendorPrefix('margin')).toBe(false);
     });
 
-    it('should return true for boxShadow', () => {
-      expect(needsVendorPrefix('boxShadow')).toBe(true);
+    // Properties that still need -webkit- prefix
+    it('should return true for textFillColor', () => {
+      expect(needsVendorPrefix('textFillColor')).toBe(true);
     });
 
-    it('should return true for filter', () => {
-      expect(needsVendorPrefix('filter')).toBe(true);
+    it('should return true for backgroundClip', () => {
+      expect(needsVendorPrefix('backgroundClip')).toBe(true);
+    });
+
+    it('should return true for lineClamp', () => {
+      expect(needsVendorPrefix('lineClamp')).toBe(true);
+    });
+
+    it('should return true for maskImage', () => {
+      expect(needsVendorPrefix('maskImage')).toBe(true);
     });
   });
 });

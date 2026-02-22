@@ -9,6 +9,7 @@
   "module": "dist/app-studio.esm.js",
   "unpkg": "dist/app-studio.umd.production.min.js",
   "typings": "dist/index.d.ts",
+  "sideEffects": false,
   "keywords": [
     "react",
     "typescript",
