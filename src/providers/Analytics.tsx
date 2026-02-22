@@ -1,5 +1,5 @@
 // analytics/AnalyticsContext.tsx
-import React, { createContext, ReactNode, useContext } from 'react';
+import React, { createContext, ReactNode, useContext, useMemo } from 'react';
 
 export type AnalyticsConfig = {
   trackEvent?: (event: any) => void;
@@ -16,8 +16,10 @@ export const AnalyticsProvider = ({
 }: AnalyticsConfig & {
   children?: ReactNode;
 }): React.ReactElement => {
+  const value = useMemo(() => ({ trackEvent }), [trackEvent]);
+
   return (
-    <AnalyticsContext.Provider value={{ trackEvent }}>
+    <AnalyticsContext.Provider value={value}>
       {children}
     </AnalyticsContext.Provider>
   );

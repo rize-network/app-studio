@@ -52,9 +52,16 @@ export const Input = React.forwardRef<
 export const Button = React.forwardRef<
   HTMLElement,
   React.ComponentPropsWithRef<typeof Element> & ButtonProps
->((props, ref) => (
-  <Element as="button" {...props} ref={ref} />
-)) as unknown as React.ForwardRefExoticComponent<
+>((props, ref) => {
+  if (process.env.NODE_ENV !== 'production') {
+    if (!props.children && !props['aria-label']) {
+      console.warn(
+        'Accessibility Warning: Button is missing an accessible name. If it is an icon-only button, please provide an `aria-label`.'
+      );
+    }
+  }
+  return <Element as="button" {...props} ref={ref} />;
+}) as unknown as React.ForwardRefExoticComponent<
   React.ComponentPropsWithRef<typeof Element> &
     ButtonProps &
     React.RefAttributes<HTMLElement>

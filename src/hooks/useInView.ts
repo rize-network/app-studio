@@ -6,12 +6,14 @@ interface InViewOptions extends IntersectionObserverInit {
   targetWindow?: Window;
 }
 
+const DEFAULT_IN_VIEW_OPTIONS: InViewOptions = {};
+
 export function useInView(options?: InViewOptions) {
   const {
     triggerOnce = false,
     targetWindow,
     ...observerOptions
-  } = options || {};
+  } = options || DEFAULT_IN_VIEW_OPTIONS;
   const ref = useRef<HTMLElement>(null);
   const [inView, setInView] = useState(false);
 
@@ -51,7 +53,13 @@ export function useInView(options?: InViewOptions) {
     return () => {
       observer.disconnect();
     };
-  }, [triggerOnce, targetWindow, ...Object.values(observerOptions || {})]);
+  }, [
+    triggerOnce,
+    targetWindow,
+    observerOptions.root,
+    observerOptions.rootMargin,
+    observerOptions.threshold,
+  ]);
 
   return { ref, inView };
 }

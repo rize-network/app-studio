@@ -219,10 +219,231 @@ const commonEventHandlers = new Set([
 // Cache for CSS.supports results to avoid repeated DOM queries
 const cssSupportCache = new Map<string, boolean>();
 
+// Non-hyphenated HTML/SVG attributes that must never be treated as style props.
+// Hyphenated attributes (aria-*, data-*, etc.) are caught by a prefix/hyphen check below.
+const htmlOnlyAttributes = new Set([
+  // Accessibility
+  'role',
+  'tabIndex',
+
+  // Global HTML attributes
+  'id',
+  'title',
+  'lang',
+  'dir',
+  'hidden',
+  'draggable',
+  'contentEditable',
+  'spellCheck',
+  'nonce',
+  'slot',
+  'is',
+  'inputMode',
+  'enterKeyHint',
+  'autofocus',
+  'autoFocus',
+  'translate',
+
+  // Form attributes
+  'autoComplete',
+  'name',
+  'disabled',
+  'readOnly',
+  'required',
+  'checked',
+  'selected',
+  'multiple',
+  'value',
+  'defaultValue',
+  'defaultChecked',
+  'placeholder',
+  'htmlFor',
+  'type',
+  'accept',
+  'maxLength',
+  'minLength',
+  'pattern',
+  'noValidate',
+  'formAction',
+  'formEncType',
+  'formMethod',
+  'formNoValidate',
+  'formTarget',
+
+  // Link/navigation attributes
+  'href',
+  'target',
+  'rel',
+  'download',
+  'referrerPolicy',
+  'integrity',
+  'crossOrigin',
+
+  // Form container attributes
+  'action',
+  'method',
+  'encType',
+
+  // Media attributes
+  'autoPlay',
+  'controls',
+  'loop',
+  'muted',
+  'playsInline',
+  'poster',
+  'preload',
+  'mediaGroup',
+
+  // Image/embed attributes
+  'loading',
+  'decoding',
+  'sizes',
+  'srcDoc',
+  'srcLang',
+  'srcSet',
+  'useMap',
+
+  // Table attributes
+  'colSpan',
+  'rowSpan',
+  'cols',
+  'rows',
+  'headers',
+  'scope',
+  'span',
+
+  // Iframe/embed attributes
+  'sandbox',
+  'allowFullScreen',
+  'frameBorder',
+  'scrolling',
+  'seamless',
+  'allow',
+
+  // Interactive attributes
+  'open',
+  'cite',
+  'dateTime',
+  'reversed',
+  'start',
+  'high',
+  'low',
+  'optimum',
+  'wrap',
+  'shape',
+  'size',
+  'summary',
+
+  // Script/resource attributes
+  'async',
+  'defer',
+  'noModule',
+  'charSet',
+  'httpEquiv',
+  'manifest',
+
+  // Microdata/RDFa attributes
+  'about',
+  'datatype',
+  'inlist',
+  'prefix',
+  'property',
+  'resource',
+  'typeof',
+  'vocab',
+  'itemProp',
+  'itemScope',
+  'itemType',
+  'itemID',
+  'itemRef',
+
+  // Deprecated but still used
+  'classID',
+  'contextMenu',
+  'keyParams',
+  'keyType',
+  'kind',
+  'label',
+  'list',
+  'profile',
+  'radioGroup',
+  'wmode',
+  'capture',
+  'challenge',
+  'scoped',
+  'step',
+  'form',
+
+  // SVG-only attributes (not CSS properties)
+  'viewBox',
+  'preserveAspectRatio',
+  'xmlns',
+  'xlinkHref',
+  'xmlBase',
+  'xmlLang',
+  'xmlSpace',
+  'd',
+  'pathLength',
+  'points',
+  'markerEnd',
+  'markerMid',
+  'markerStart',
+  'clipPathUnits',
+  'gradientUnits',
+  'gradientTransform',
+  'patternUnits',
+  'patternTransform',
+  'patternContentUnits',
+  'spreadMethod',
+  'startOffset',
+  'stdDeviation',
+  'stitchTiles',
+  'surfaceScale',
+  'textLength',
+  'lengthAdjust',
+  'maskUnits',
+  'maskContentUnits',
+  'filterUnits',
+  'primitiveUnits',
+  'numOctaves',
+  'baseFrequency',
+  'seed',
+  'result',
+  'in2',
+  'values',
+  'keyTimes',
+  'keySplines',
+  'repeatCount',
+  'repeatDur',
+  'calcMode',
+  'attributeName',
+  'attributeType',
+  'begin',
+  'dur',
+  'end',
+  'by',
+]);
+
 // Improved style prop detection
 export const isStyleProp = (prop: string): boolean => {
   // First check if it's a common event handler (these should never be treated as style props)
   if (commonEventHandlers.has(prop)) {
+    return false;
+  }
+
+  // HTML attributes should never be treated as style props
+  if (htmlOnlyAttributes.has(prop)) {
+    return false;
+  }
+
+  // Any prop containing a hyphen is an HTML attribute (aria-*, data-*, accept-charset, etc.)
+  // In React, CSS properties are always camelCase — only CSS custom properties use hyphens (--*),
+  // and data-style-* is a special convention handled separately below.
+  if (
+    prop.includes('-') &&
+    !prop.startsWith('--') &&
+    !prop.startsWith('data-style-')
+  ) {
     return false;
   }
 

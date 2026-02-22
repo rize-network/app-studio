@@ -54,6 +54,12 @@ interface ScrollDimensions {
   scrollLeft: number;
 }
 
+// Stable default references to prevent unnecessary re-renders
+const DEFAULT_SCROLL_OFFSET: [number, number] = [0, 0];
+const DEFAULT_SCROLL_OPTIONS: UseScrollOptions = {};
+const DEFAULT_SCROLL_ANIMATION_OPTIONS: UseScrollAnimationOptions = {};
+const DEFAULT_INFINITE_SCROLL_OPTIONS: UseInfiniteScrollOptions = {};
+
 // Helper to check if element is a Window object (works across iframes)
 const isWindow = (obj: any): obj is Window => {
   return obj && obj.window === obj;
@@ -92,10 +98,10 @@ const getScrollDimensions = (
 // Enhanced useScroll hook with better performance and iframe support
 export const useScroll = ({
   container,
-  offset = [0, 0],
+  offset = DEFAULT_SCROLL_OFFSET,
   throttleMs = 100,
   disabled = false,
-}: UseScrollOptions = {}): ScrollPosition => {
+}: UseScrollOptions = DEFAULT_SCROLL_OPTIONS): ScrollPosition => {
   const [scrollPosition, setScrollPosition] = useState<ScrollPosition>({
     x: 0,
     y: 0,
@@ -258,7 +264,7 @@ export const useScroll = ({
 // Enhanced useScrollAnimation with callback support and iframe support
 export const useScrollAnimation = (
   ref: RefObject<HTMLElement>,
-  options: UseScrollAnimationOptions = {}
+  options: UseScrollAnimationOptions = DEFAULT_SCROLL_ANIMATION_OPTIONS
 ) => {
   const [isInView, setIsInView] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -351,7 +357,7 @@ export const useSmoothScroll = (targetWindow?: Window) => {
 // Enhanced useInfiniteScroll with debouncing
 export const useInfiniteScroll = (
   callback: () => void,
-  options: UseInfiniteScrollOptions = {}
+  options: UseInfiniteScrollOptions = DEFAULT_INFINITE_SCROLL_OPTIONS
 ) => {
   const [sentinel, setSentinel] = useState<HTMLDivElement | null>(null);
   const callbackRef = useRef(callback);

@@ -5,12 +5,15 @@ export interface UseOnScreenOptions extends IntersectionObserverInit {
   targetWindow?: Window;
 }
 
+const DEFAULT_ON_SCREEN_OPTIONS: UseOnScreenOptions = {};
+
 export function useOnScreen<T extends HTMLElement = HTMLElement>(
   options?: UseOnScreenOptions
 ): [React.RefObject<T>, boolean] {
   const ref = useRef<T>(null);
   const [isOnScreen, setOnScreen] = useState(false);
-  const { targetWindow, ...observerOptions } = options || {};
+  const { targetWindow, ...observerOptions } =
+    options || DEFAULT_ON_SCREEN_OPTIONS;
 
   useEffect(() => {
     const node = ref.current;
@@ -38,7 +41,12 @@ export function useOnScreen<T extends HTMLElement = HTMLElement>(
     return () => {
       observer.disconnect();
     };
-  }, [targetWindow, options]);
+  }, [
+    targetWindow,
+    observerOptions.root,
+    observerOptions.rootMargin,
+    observerOptions.threshold,
+  ]);
 
   return [ref, isOnScreen];
 }

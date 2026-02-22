@@ -5,12 +5,14 @@ export interface UseClickOutsideOptions {
   targetWindow?: Window;
 }
 
+const DEFAULT_CLICK_OUTSIDE_OPTIONS: UseClickOutsideOptions = {};
+
 export function useClickOutside<T extends HTMLElement = HTMLElement>(
   options?: UseClickOutsideOptions
 ): [React.RefObject<T>, boolean] {
   const [clickedOutside, setClickedOutside] = useState(false);
   const ref = useRef<T>(null);
-  const { targetWindow } = options || {};
+  const { targetWindow } = options || DEFAULT_CLICK_OUTSIDE_OPTIONS;
 
   useEffect(() => {
     const win = targetWindow || (typeof window !== 'undefined' ? window : null);
