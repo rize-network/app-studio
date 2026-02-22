@@ -1,154 +1,26 @@
 /**
  * Mapping of standard CSS properties to their vendor-prefixed equivalents.
- * This helps ensure cross-browser compatibility by automatically applying
- * the appropriate vendor prefixes when needed.
+ *
+ * Optimized for modern browsers (Chrome 100+, Safari 15+, Firefox 91+).
+ * Most properties no longer need vendor prefixes in these browsers.
+ * Only -webkit- prefixes are kept where still needed by Safari/WebKit.
+ *
+ * Removed prefixes:
+ * - -moz- (Firefox 91+ supports all standard properties unprefixed)
+ * - -ms- (IE/Edge Legacy no longer supported)
+ * - -o- (Opera uses Blink engine, same as Chrome)
+ * - -webkit- for animation, transform, transition, flexbox, boxShadow,
+ *   boxSizing, columns, borderImage, backgroundSize, backgroundOrigin,
+ *   perspective, hyphens (all unprefixed in Safari 15+)
  */
 
-// Properties that commonly need vendor prefixes across browsers
+// Properties that still need vendor prefixes in modern browsers
 export const vendorPrefixedProperties: Record<string, string[]> = {
-  // Animation properties
-  animation: ['-webkit-animation', '-moz-animation', '-o-animation'],
-  animationDelay: [
-    '-webkit-animation-delay',
-    '-moz-animation-delay',
-    '-o-animation-delay',
-  ],
-  animationDirection: [
-    '-webkit-animation-direction',
-    '-moz-animation-direction',
-    '-o-animation-direction',
-  ],
-  animationDuration: [
-    '-webkit-animation-duration',
-    '-moz-animation-duration',
-    '-o-animation-duration',
-  ],
-  animationFillMode: [
-    '-webkit-animation-fill-mode',
-    '-moz-animation-fill-mode',
-    '-o-animation-fill-mode',
-  ],
-  animationIterationCount: [
-    '-webkit-animation-iteration-count',
-    '-moz-animation-iteration-count',
-    '-o-animation-iteration-count',
-  ],
-  animationName: [
-    '-webkit-animation-name',
-    '-moz-animation-name',
-    '-o-animation-name',
-  ],
-  animationPlayState: [
-    '-webkit-animation-play-state',
-    '-moz-animation-play-state',
-    '-o-animation-play-state',
-  ],
-  animationTimingFunction: [
-    '-webkit-animation-timing-function',
-    '-moz-animation-timing-function',
-    '-o-animation-timing-function',
-  ],
-
-  // Transform properties
-  transform: [
-    '-webkit-transform',
-    '-moz-transform',
-    '-ms-transform',
-    '-o-transform',
-  ],
-  transformOrigin: [
-    '-webkit-transform-origin',
-    '-moz-transform-origin',
-    '-ms-transform-origin',
-    '-o-transform-origin',
-  ],
-  transformStyle: [
-    '-webkit-transform-style',
-    '-moz-transform-style',
-    '-ms-transform-style',
-  ],
-
-  // Transition properties
-  transition: [
-    '-webkit-transition',
-    '-moz-transition',
-    '-ms-transition',
-    '-o-transition',
-  ],
-  transitionDelay: [
-    '-webkit-transition-delay',
-    '-moz-transition-delay',
-    '-ms-transition-delay',
-    '-o-transition-delay',
-  ],
-  transitionDuration: [
-    '-webkit-transition-duration',
-    '-moz-transition-duration',
-    '-ms-transition-duration',
-    '-o-transition-duration',
-  ],
-  transitionProperty: [
-    '-webkit-transition-property',
-    '-moz-transition-property',
-    '-ms-transition-property',
-    '-o-transition-property',
-  ],
-  transitionTimingFunction: [
-    '-webkit-transition-timing-function',
-    '-moz-transition-timing-function',
-    '-ms-transition-timing-function',
-    '-o-transition-timing-function',
-  ],
-
-  // Flexbox properties
-  flex: ['-webkit-flex', '-ms-flex'],
-  flexBasis: ['-webkit-flex-basis', '-ms-flex-basis'],
-  flexDirection: ['-webkit-flex-direction', '-ms-flex-direction'],
-  flexFlow: ['-webkit-flex-flow', '-ms-flex-flow'],
-  flexGrow: ['-webkit-flex-grow', '-ms-flex-positive'],
-  flexShrink: ['-webkit-flex-shrink', '-ms-flex-negative'],
-  flexWrap: ['-webkit-flex-wrap', '-ms-flex-wrap'],
-  justifyContent: ['-webkit-justify-content', '-ms-flex-pack'],
-  alignItems: ['-webkit-align-items', '-ms-flex-align'],
-  alignContent: ['-webkit-align-content', '-ms-flex-line-pack'],
-  alignSelf: ['-webkit-align-self', '-ms-flex-item-align'],
-  order: ['-webkit-order', '-ms-flex-order'],
-
-  // Other commonly prefixed properties
-  appearance: ['-webkit-appearance', '-moz-appearance', '-ms-appearance'],
-  backfaceVisibility: [
-    '-webkit-backface-visibility',
-    '-moz-backface-visibility',
-  ],
-  backgroundClip: ['-webkit-background-clip', '-moz-background-clip'],
-  backgroundOrigin: ['-webkit-background-origin', '-moz-background-origin'],
-  backgroundSize: [
-    '-webkit-background-size',
-    '-moz-background-size',
-    '-o-background-size',
-  ],
-  borderImage: ['-webkit-border-image', '-moz-border-image', '-o-border-image'],
-  boxShadow: ['-webkit-box-shadow', '-moz-box-shadow'],
-  boxSizing: ['-webkit-box-sizing', '-moz-box-sizing'],
-  columns: ['-webkit-columns', '-moz-columns'],
-  columnCount: ['-webkit-column-count', '-moz-column-count'],
-  columnGap: ['-webkit-column-gap', '-moz-column-gap'],
-  columnRule: ['-webkit-column-rule', '-moz-column-rule'],
-  columnWidth: ['-webkit-column-width', '-moz-column-width'],
-  filter: ['-webkit-filter'],
-  fontSmoothing: ['-webkit-font-smoothing', '-moz-osx-font-smoothing'],
-  hyphens: ['-webkit-hyphens', '-moz-hyphens', '-ms-hyphens'],
+  // Properties that still need -webkit- in Safari
+  backgroundClip: ['-webkit-background-clip'],
   maskImage: ['-webkit-mask-image'],
-  perspective: ['-webkit-perspective', '-moz-perspective'],
-  perspectiveOrigin: ['-webkit-perspective-origin', '-moz-perspective-origin'],
-  textSizeAdjust: [
-    '-webkit-text-size-adjust',
-    '-moz-text-size-adjust',
-    '-ms-text-size-adjust',
-  ],
-  userSelect: ['-webkit-user-select', '-moz-user-select', '-ms-user-select'],
 
-  // Special webkit-only properties
+  // Webkit-only properties (no unprefixed equivalent)
   textFillColor: ['-webkit-text-fill-color'],
   textStroke: ['-webkit-text-stroke'],
   textStrokeColor: ['-webkit-text-stroke-color'],

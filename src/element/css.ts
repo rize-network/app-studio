@@ -253,41 +253,20 @@ const ValueUtils = {
   },
 
   normalizeCssValue(value: any): string {
+    const str = typeof value === 'string' ? value : String(value);
+
     // Handle CSS variables in values
-    if (typeof value === 'string' && value.startsWith('--')) {
-      // For CSS variable values, use a special prefix to avoid conflicts
-      return `var-${value.substring(2)}`;
+    if (str.charCodeAt(0) === 45 && str.charCodeAt(1) === 45) { // starts with '--'
+      return `var-${str.substring(2)}`;
     }
 
     // Handle vendor-prefixed values
-    if (typeof value === 'string' && value.startsWith('-webkit-')) {
-      // For webkit values, preserve the prefix but normalize the rest
-      const prefix = '-webkit-';
-      const rest = value.substring(prefix.length);
-
-      const normalizedRest = rest
-        .replace(/\./g, 'p')
-        .replace(/\s+/g, '-')
-        .replace(/[^a-zA-Z0-9\-]/g, '')
-        .replace(/%/g, 'pct')
-        .replace(/vw/g, 'vw')
-        .replace(/vh/g, 'vh')
-        .replace(/em/g, 'em')
-        .replace(/rem/g, 'rem');
-
-      return `webkit-${normalizedRest}`;
+    if (str.startsWith('-webkit-')) {
+      return `webkit-${str.substring(8).replace(/\./g, 'p').replace(/\s+/g, '-').replace(/[^a-zA-Z0-9-]/g, '')}`;
     }
 
-    return value
-      .toString()
-      .replace(/\./g, 'p')
-      .replace(/\s+/g, '-')
-      .replace(/[^a-zA-Z0-9\-]/g, '')
-      .replace(/%/g, 'pct')
-      .replace(/vw/g, 'vw')
-      .replace(/vh/g, 'vh')
-      .replace(/em/g, 'em')
-      .replace(/rem/g, 'rem');
+    // Single-pass normalization: replace dots with 'p', spaces with '-', strip non-alphanumeric
+    return str.replace(/\./g, 'p').replace(/\s+/g, '-').replace(/[^a-zA-Z0-9-]/g, '');
   },
 
   generateUniqueClassName(css: string): string {
@@ -729,24 +708,26 @@ function processStyles(
   manager?: UtilityClassManager
 ): string[] {
   const classes: string[] = [];
+  const activeManager = manager || utilityClassManager;
 
-  Object.keys(styles).forEach((property) => {
-    const value = styles[property];
-    let mediaQueriesForClass: string[] = [];
-
-    if (context === 'media') {
-      if (mediaQueries[modifier]) {
-        mediaQueriesForClass = [mediaQueries[modifier]];
-      } else if (devices[modifier]) {
-        mediaQueriesForClass = devices[modifier]
-          .map((mq) => mediaQueries[mq])
-          .filter((mq) => mq);
-      }
+  // Pre-compute media queries for this modifier (only done once per call)
+  let mediaQueriesForClass: string[] = [];
+  if (context === 'media') {
+    if (mediaQueries[modifier]) {
+      mediaQueriesForClass = [mediaQueries[modifier]];
+    } else if (devices[modifier]) {
+      mediaQueriesForClass = devices[modifier]
+        .map((mq) => mediaQueries[mq])
+        .filter((mq) => mq);
     }
+  }
 
+  const keys = Object.keys(styles);
+  for (let i = 0; i < keys.length; i++) {
+    const value = styles[keys[i]];
     if (value !== undefined && value !== '') {
-      const classNames = (manager || utilityClassManager).getClassNames(
-        property,
+      const classNames = activeManager.getClassNames(
+        keys[i],
         value,
         context,
         modifier,
@@ -755,7 +736,7 @@ function processStyles(
       );
       classes.push(...classNames);
     }
-  });
+  }
 
   return classes;
 }
@@ -936,6 +917,7 @@ export const extractUtilityClasses = (
 ): string[] => {
   const classes: string[] = [];
   const computedStyles: Record<string, any> = {};
+  const activeManager = manager || utilityClassManager;
 
   // Handle widthHeight (shorthand for both width and height)
   if (
@@ -953,22 +935,30 @@ export const extractUtilityClasses = (
     computedStyles.height = formattedValue;
   }
 
-  // Handle padding and margin shorthands
-  const shorthandProps = {
-    paddingHorizontal: ['paddingLeft', 'paddingRight'],
-    paddingVertical: ['paddingTop', 'paddingBottom'],
-    marginHorizontal: ['marginLeft', 'marginRight'],
-    marginVertical: ['marginTop', 'marginBottom'],
-  };
-
-  for (const [shorthand, properties] of Object.entries(shorthandProps)) {
-    const value = (props as any)[shorthand];
-    if (value !== undefined) {
-      const formattedValue = typeof value === 'number' ? `${value}px` : value;
-      properties.forEach((prop) => {
-        computedStyles[prop] = formattedValue;
-      });
-    }
+  // Handle padding and margin shorthands (inlined to avoid Object.entries overhead)
+  const ph = (props as any).paddingHorizontal;
+  if (ph !== undefined) {
+    const v = typeof ph === 'number' ? `${ph}px` : ph;
+    computedStyles.paddingLeft = v;
+    computedStyles.paddingRight = v;
+  }
+  const pv = (props as any).paddingVertical;
+  if (pv !== undefined) {
+    const v = typeof pv === 'number' ? `${pv}px` : pv;
+    computedStyles.paddingTop = v;
+    computedStyles.paddingBottom = v;
+  }
+  const mh = (props as any).marginHorizontal;
+  if (mh !== undefined) {
+    const v = typeof mh === 'number' ? `${mh}px` : mh;
+    computedStyles.marginLeft = v;
+    computedStyles.marginRight = v;
+  }
+  const mv = (props as any).marginVertical;
+  if (mv !== undefined) {
+    const v = typeof mv === 'number' ? `${mv}px` : mv;
+    computedStyles.marginTop = v;
+    computedStyles.marginBottom = v;
   }
 
   // Handle shadows
@@ -1006,87 +996,116 @@ export const extractUtilityClasses = (
     );
   }
 
-  const blendConfig = {
-    mode: 'difference',
-    color: 'white',
-    modeWithBg: 'overlay',
-  };
-
-  const setBlend = (props: any, style: any) => {
-    if (props.bgColor) {
-      style.mixBlendMode = blendConfig.modeWithBg;
-      style.color = 'white';
-    } else {
-      style.mixBlendMode = blendConfig.mode;
-      style.color = blendConfig.color;
-    }
-  };
   // Handle default blend
   if (props.blend === true) {
-    setBlend(props, computedStyles);
-
-    Object.keys(props).forEach((property) => {
-      if (
-        (props as any)[property]?.color === undefined &&
-        (property.startsWith('_') || property === 'on' || property === 'media')
-      ) {
-        setBlend((props as any)[property], (props as any)[property]);
-      }
-    });
+    if ((props as any).bgColor) {
+      computedStyles.mixBlendMode = 'overlay';
+      computedStyles.color = 'white';
+    } else {
+      computedStyles.mixBlendMode = 'difference';
+      computedStyles.color = 'white';
+    }
   }
 
-  // Process base styles
+  // Process base computed styles
   classes.push(
     ...processStyles(computedStyles, 'base', '', getColor, {}, {}, manager)
   );
 
-  // Collect underscore-prefixed properties (_hover, _focus, etc.)
-  const underscoreProps: Record<string, any> = {};
-  Object.keys(props).forEach((property) => {
-    if (property.startsWith('_') && property.length > 1) {
+  // SINGLE PASS over props: classify each prop into style, event, or underscore
+  const propKeys = Object.keys(props);
+  for (let i = 0; i < propKeys.length; i++) {
+    const property = propKeys[i];
+    const value = (props as any)[property];
+
+    // Handle underscore-prefixed event properties (_hover, _focus, etc.)
+    if (property.charCodeAt(0) === 95 && property.length > 1) { // 95 = '_'
       const eventName = property.substring(1);
-      underscoreProps[eventName] = (props as any)[property];
-    }
-  });
+      classes.push(
+        ...processEventStyles(eventName, value, getColor, manager)
+      );
 
-  // Process standard style props
-  Object.keys(props).forEach((property) => {
-    if (
-      property !== 'style' &&
-      property !== 'css' &&
-      !property.startsWith('_') &&
-      (isStyleProp(property) || ['on', 'media'].includes(property))
-    ) {
-      const value = (props as any)[property];
-
-      if (typeof value === 'object' && value !== null) {
-        if (property === 'on') {
-          // Process event-based styles
-          Object.keys(value).forEach((event) => {
-            classes.push(
-              ...processEventStyles(event, value[event], getColor, manager)
-            );
-          });
-        } else if (property === 'media') {
-          // Process media query styles
-          Object.keys(value).forEach((screenOrDevice) => {
-            classes.push(
-              ...processStyles(
-                value[screenOrDevice],
-                'media',
-                screenOrDevice,
-                getColor,
-                mediaQueries,
-                devices,
-                manager
-              )
-            );
-          });
+      // Handle blend for underscore props
+      if (props.blend === true && value?.color === undefined) {
+        if ((props as any).bgColor) {
+          value.mixBlendMode = 'overlay';
+          value.color = 'white';
+        } else {
+          value.mixBlendMode = 'difference';
+          value.color = 'white';
         }
-      } else if (value !== undefined && value !== '') {
-        // Direct style property
+      }
+      continue;
+    }
+
+    // Skip non-style props
+    if (property === 'style' || property === 'css') continue;
+
+    if (property === 'on') {
+      // Process event-based styles
+      if (typeof value === 'object' && value !== null) {
+        const events = Object.keys(value);
+        for (let j = 0; j < events.length; j++) {
+          classes.push(
+            ...processEventStyles(events[j], value[events[j]], getColor, manager)
+          );
+        }
+
+        // Handle blend for 'on' prop
+        if (props.blend === true && value?.color === undefined) {
+          if ((props as any).bgColor) {
+            value.mixBlendMode = 'overlay';
+            value.color = 'white';
+          } else {
+            value.mixBlendMode = 'difference';
+            value.color = 'white';
+          }
+        }
+      }
+      continue;
+    }
+
+    if (property === 'media') {
+      // Process media query styles
+      if (typeof value === 'object' && value !== null) {
+        const screens = Object.keys(value);
+        for (let j = 0; j < screens.length; j++) {
+          classes.push(
+            ...processStyles(
+              value[screens[j]],
+              'media',
+              screens[j],
+              getColor,
+              mediaQueries,
+              devices,
+              manager
+            )
+          );
+        }
+
+        // Handle blend for 'media' prop
+        if (props.blend === true && value?.color === undefined) {
+          if ((props as any).bgColor) {
+            value.mixBlendMode = 'overlay';
+            value.color = 'white';
+          } else {
+            value.mixBlendMode = 'difference';
+            value.color = 'white';
+          }
+        }
+      }
+      continue;
+    }
+
+    // Standard style props
+    if (isStyleProp(property)) {
+      if (value !== undefined && value !== '') {
+        if (typeof value === 'object' && value !== null) {
+          // Object-style props are not directly processed as base styles
+          continue;
+        }
         classes.push(
-          ...(manager || utilityClassManager).getClassNames(
+          ...activeManager.getClassNames(
             property,
             value,
             'base',
@@ -1097,34 +1116,22 @@ export const extractUtilityClasses = (
         );
       }
     }
-  });
+  }
 
   // Handle raw CSS - uses 'override' context for higher specificity
   if (props.css) {
     if (typeof props.css === 'object') {
-      // Object-style CSS gets processed with override context for higher priority
-      Object.assign(computedStyles, props.css);
       classes.push(
         ...processStyles(props.css, 'override', '', getColor, {}, {}, manager)
       );
     } else if (typeof props.css === 'string') {
-      // String-style CSS gets its own class in override context
       const uniqueClassName = ValueUtils.generateUniqueClassName(props.css);
-      (manager || utilityClassManager).injectRule(
+      activeManager.injectRule(
         `.${uniqueClassName} { ${props.css} }`,
         'override'
       );
       classes.push(uniqueClassName);
     }
-  }
-
-  // Process underscore-prefixed event properties
-  if (Object.keys(underscoreProps).length > 0) {
-    Object.keys(underscoreProps).forEach((event) => {
-      classes.push(
-        ...processEventStyles(event, underscoreProps[event], getColor, manager)
-      );
-    });
   }
 
   return classes;
