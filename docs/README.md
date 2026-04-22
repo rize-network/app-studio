@@ -80,7 +80,8 @@ Explore these guides to learn more about App-Studio:
 
 - [Components](Components.md) - Detailed documentation of all available components
 - [Hooks](Hooks.md) - Guide to the React hooks provided by App-Studio
-- [Theming](Theming.md) - How to customize the look and feel of your app
+- [Theming](Theming.md) - How to customize colors and themes with theme colors and color palettes
+- [Styling](Styling.md) - Advanced styling guide covering state modifiers, pseudo-elements, media queries, and the CSS system
 - [Animation](Animation.md) - Creating animations with App-Studio
 - [Responsive Design](Responsive.md) - Building responsive layouts
 - [Design System](Design.md) - Understanding the design system

@@ -635,6 +635,236 @@ Each palette has these shades: `50, 100, 200, 300, 400, 500, 600, 700, 800, 900`
 - Colors automatically switch based on `themeMode` unless using `light-*` or `dark-*` prefix
 - Color values are inverted for dark mode (e.g., `color-white` becomes black in dark mode)
 
+## Using Colors with State Modifiers
+
+App-Studio allows you to define different colors for interactive states using underscore-prefixed state modifiers. These provide a clean, declarative way to style components based on user interaction.
+
+### Available State Modifiers
+
+**Interaction States**:
+- `_hover` - Hover state (mouse over)
+- `_active` - Active/pressed state
+- `_focus` - Focus state (keyboard/click)
+- `_visited` - Visited state (for links)
+
+**Form States**:
+- `_disabled` - Disabled state
+- `_enabled` - Enabled state
+- `_checked` - Checked state (radio/checkbox)
+- `_unchecked` - Unchecked state
+- `_invalid` - Invalid form state
+- `_valid` - Valid form state
+- `_required` - Required form field
+- `_optional` - Optional form field
+
+**Element States**:
+- `_selected` - Selected state
+- `_target` - Target state (URL hash)
+- `_empty` - Empty state
+- `_focusVisible` - Visible focus (keyboard)
+- `_focusWithin` - Focus within element
+- `_placeholder` - Placeholder text state
+
+**Child States**:
+- `_firstChild` - First child element
+- `_lastChild` - Last child element
+- `_onlyChild` - Only child element
+- `_firstOfType` - First of type element
+- `_lastOfType` - Last of type element
+
+**Group & Peer Modifiers**:
+- `_groupHover` - Applied when parent `.group` is hovered
+- `_groupFocus` - Applied when parent `.group` is focused
+- `_groupActive` - Applied when parent `.group` is active
+- `_groupDisabled` - Applied when parent `.group` is disabled
+- `_peerHover` - Applied when sibling `.peer` is hovered
+- `_peerFocus` - Applied when sibling `.peer` is focused
+- `_peerActive` - Applied when sibling `.peer` is active
+- `_peerDisabled` - Applied when sibling `.peer` is disabled
+- `_peerChecked` - Applied when sibling `.peer` is checked
+
+### Color Examples with State Modifiers
+
+```javascript
+import { View, Text, Element } from 'app-studio';
+
+function InteractiveButton() {
+  return (
+    <Element
+      as="button"
+      backgroundColor="theme-primary"
+      color="color-white"
+      padding={16}
+      borderRadius={8}
+      cursor="pointer"
+      transition="all 200ms ease"
+      
+      // Hover state - lighter color
+      _hover={{
+        backgroundColor: "theme-primary-600",
+        transform: "translateY(-2px)",
+      }}
+      
+      // Active/pressed state - darker color
+      _active={{
+        backgroundColor: "theme-primary-700",
+        transform: "translateY(0)",
+      }}
+      
+      // Focus state - add outline
+      _focus={{
+        outline: "2px solid",
+        outlineColor: "theme-primary",
+        outlineOffset: "2px",
+      }}
+      
+      // Disabled state - gray out
+      _disabled={{
+        backgroundColor: "color-gray-400",
+        color: "color-gray-600",
+        cursor: "not-allowed",
+        opacity: 0.6,
+      }}
+    >
+      Click me
+    </Element>
+  );
+}
+```
+
+### Form Control Examples
+
+```javascript
+import { Element, View, Text } from 'app-studio';
+
+function CheckboxExample() {
+  return (
+    <label style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <Element
+        as="input"
+        type="checkbox"
+        // Default state
+        accentColor="theme-primary"
+        
+        // Checked state - different color
+        _checked={{
+          accentColor: "theme-success",
+        }}
+        
+        // Disabled state
+        _disabled={{
+          accentColor: "color-gray-400",
+          cursor: "not-allowed",
+        }}
+        
+        // Focus state - add glow
+        _focus={{
+          boxShadow: "0 0 0 3px rgba(var(--theme-primary), 0.1)",
+        }}
+      />
+      <Text color="color-gray-800">Accept terms</Text>
+    </label>
+  );
+}
+```
+
+### Group Modifiers Example
+
+Group modifiers allow you to style child elements based on parent state:
+
+```javascript
+import { View, Element } from 'app-studio';
+
+function CardWithGroupHover() {
+  return (
+    <View
+      className="group"
+      backgroundColor="color-white"
+      borderRadius={12}
+      padding={16}
+      transition="all 200ms"
+      cursor="pointer"
+      
+      // Parent hover
+      _hover={{
+        boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
+      }}
+    >
+      {/* Child text changes color when parent is hovered */}
+      <Element
+        color="color-gray-600"
+        transition="color 200ms"
+        _groupHover={{
+          color: "theme-primary",
+        }}
+      >
+        Hover the card to change text color
+      </Element>
+      
+      {/* Child background changes when parent is hovered */}
+      <Element
+        as="button"
+        backgroundColor="color-gray-100"
+        marginTop={12}
+        padding={8}
+        borderRadius={6}
+        transition="all 200ms"
+        
+        _groupHover={{
+          backgroundColor: "theme-primary",
+          color: "color-white",
+        }}
+      >
+        Action Button
+      </Element>
+    </View>
+  );
+}
+```
+
+### Pseudo-Elements with Colors
+
+You can also style pseudo-elements like `::before` and `::after` with colors:
+
+```javascript
+import { Element } from 'app-studio';
+
+function PseudoElementButton() {
+  return (
+    <Element
+      as="button"
+      position="relative"
+      color="theme-primary"
+      fontWeight="bold"
+      paddingBottom={8}
+      
+      // Create underline effect with ::after
+      _after={{
+        content: '""',
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        height: 2,
+        backgroundColor: "theme-primary",
+        transform: 'scaleX(0)',
+        transition: 'transform 200ms',
+        transformOrigin: 'center',
+      }}
+      
+      // Expand underline on hover
+      _hover={{
+        _after: {
+          transform: 'scaleX(1)',
+        },
+      }}
+    >
+      Underline Effect
+    </Element>
+  );
+}
+```
+
 ## Using Colors with Animations
 
 When using colors in CSS animations or gradients, you can reference theme variables directly using the `var(--color-*)` syntax. This is especially useful for scroll-driven animations like `fillTextScroll()`.
@@ -724,3 +954,234 @@ All color palettes have CSS variables available:
 | `gray` | `var(--color-gray-800)` | Text on light backgrounds |
 
 See [docs/Animation.md](./Animation.md) for complete animation examples with theming.
+
+## Responsive Colors with Media Queries
+
+Use the `media` prop to define different colors for different screen sizes:
+
+```javascript
+import { View, Text } from 'app-studio';
+
+function ResponsiveCard() {
+  return (
+    <View
+      backgroundColor="theme-primary"
+      padding={16}
+      
+      // Responsive backgrounds based on screen size
+      media={{
+        mobile: {
+          backgroundColor: "color-blue-500",
+          padding: 8,
+        },
+        tablet: {
+          backgroundColor: "color-blue-600",
+          padding: 12,
+        },
+        desktop: {
+          backgroundColor: "color-blue-700",
+          padding: 20,
+        },
+      }}
+    >
+      <Text color="color-white">Responsive colors</Text>
+    </View>
+  );
+}
+```
+
+## Color Accessibility Guidelines
+
+### Text Contrast
+
+Always ensure sufficient contrast between text and background colors:
+
+```javascript
+// Good: High contrast
+<View backgroundColor="color-white">
+  <Text color="color-gray-900">Good contrast</Text>
+</View>
+
+// Poor: Low contrast - avoid
+<View backgroundColor="color-gray-100">
+  <Text color="color-gray-200">Poor contrast</Text>
+</View>
+```
+
+### Using Semantic Colors
+
+Use theme colors semantically for consistency:
+
+```javascript
+const theme = {
+  colors: {
+    success: "color-emerald-500",    // For positive actions
+    error: "color-red-500",          // For errors/warnings
+    warning: "color-amber-500",      // For warnings
+    info: "color-blue-500",          // For information
+    disabled: "color-gray-400",      // For disabled states
+  },
+};
+```
+
+### Color Opacity for Subtle Effects
+
+Use alpha transparency for less intrusive elements:
+
+```javascript
+import { View, Text } from 'app-studio';
+
+function SuccessMessage() {
+  return (
+    <View
+      backgroundColor="color-emerald-500-100"  // 10% opacity
+      borderColor="color-emerald-500"
+      borderWidth={1}
+      borderRadius={8}
+      padding={12}
+    >
+      <Text color="color-emerald-900">Success!</Text>
+    </View>
+  );
+}
+```
+
+## Advanced Color Patterns
+
+### Dynamic Theme Switching
+
+```javascript
+import { ThemeProvider, View, Button, Text } from 'app-studio';
+import { useState } from 'react';
+
+function AppWithThemeToggle() {
+  const [mode, setMode] = useState('light');
+  
+  const theme = {
+    primary: mode === 'light' ? 'color-blue-600' : 'color-blue-400',
+    background: mode === 'light' ? 'color-white' : 'color-gray-900',
+    text: mode === 'light' ? 'color-gray-900' : 'color-white',
+  };
+  
+  return (
+    <ThemeProvider theme={theme} mode={mode}>
+      <View
+        backgroundColor="theme-background"
+        color="theme-text"
+        padding={20}
+        minHeight="100vh"
+      >
+        <Button 
+          onClick={() => setMode(mode === 'light' ? 'dark' : 'light')}
+          backgroundColor="theme-primary"
+        >
+          Toggle {mode === 'light' ? 'Dark' : 'Light'} Mode
+        </Button>
+      </View>
+    </ThemeProvider>
+  );
+}
+```
+
+### Gradient Colors with Transparency
+
+```javascript
+import { View } from 'app-studio';
+
+function GradientCard() {
+  return (
+    <View
+      background={`
+        linear-gradient(
+          135deg,
+          color-mix(in srgb, var(--color-blue-500) 100%, transparent) 0%,
+          color-mix(in srgb, var(--color-purple-500) 100%, transparent) 100%
+        )
+      `}
+      padding={24}
+      borderRadius={12}
+    >
+      {/* content */}
+    </View>
+  );
+}
+```
+
+### Stacked State Modifiers
+
+You can nest state modifiers for complex interactions:
+
+```javascript
+import { Element } from 'app-studio';
+
+function ComplexButton() {
+  return (
+    <Element
+      as="button"
+      backgroundColor="theme-primary"
+      color="color-white"
+      
+      _hover={{
+        backgroundColor: "theme-primary-600",
+        
+        // Nested focus state
+        _focus: {
+          outline: "2px solid",
+          outlineColor: "color-white",
+        },
+      }}
+      
+      _active={{
+        backgroundColor: "theme-primary-700",
+        transform: "scale(0.98)",
+      }}
+      
+      _disabled={{
+        backgroundColor: "color-gray-400",
+        opacity: 0.5,
+      }}
+    >
+      Complex State
+    </Element>
+  );
+}
+```
+
+## Color Debugging Tips
+
+### Using CSS Variables Directly
+
+If you need to inspect theme colors:
+
+```javascript
+// In browser console:
+// getComputedStyle(document.documentElement)
+//   .getPropertyValue('--color-blue-500')
+// or
+// getComputedStyle(document.documentElement)
+//   .getPropertyValue('--theme-primary')
+```
+
+### Checking Color Availability
+
+See what colors are available in your theme:
+
+```javascript
+import { useTheme } from 'app-studio';
+
+function ColorDebugger() {
+  const { colors } = useTheme();
+  
+  return (
+    <pre>{JSON.stringify(colors, null, 2)}</pre>
+  );
+}
+```
+
+## Color Performance Tips
+
+1. **Use CSS Variables** - Reference theme colors via CSS variables for optimal performance
+2. **Limit Color Computations** - Pre-define commonly used color combinations
+3. **Leverage Inheritance** - Set colors on parent elements and inherit to children
+4. **Cache Color Mix Operations** - The browser caches `color-mix()` results
+5. **Avoid Inline Computations** - Use theme colors directly instead of computing colors in JavaScript
