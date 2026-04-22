@@ -191,7 +191,7 @@ function MyStyledElement() {
 }
 ```
 
-In addition to global theming via `ThemeProvider`, the `Element` component offers granular control through the `themeMode`, `colors`, and `theme` props. When specified, these props locally override the context provided by `ThemeProvider` for this specific element instance and how its style props (like `backgroundColor="theme.primary"` or `color="color-blue-500"`) resolve color values. `themeMode` forces 'light' or 'dark' mode resolution, `colors` provides a custom `{ main, palette }` object, and `theme` supplies custom token mappings (e.g., `{ primary: 'color-purple-500' }`). This allows creating distinctly styled sections or components without altering the global theme, useful for sidebars, specific UI states, or component variations.
+In addition to global theming via `ThemeProvider`, the `Element` component offers granular control through the `themeMode`, `colors`, and `theme` props. When specified, these props locally override the context provided by `ThemeProvider` for this specific element instance and how its style props (like `backgroundColor="theme-primary"` or `color="color-blue-500"`) resolve color values. `themeMode` forces 'light' or 'dark' mode resolution, `colors` provides a custom `{ main, palette }` object, and `theme` supplies custom token mappings (e.g., `{ primary: 'color-purple-500' }`). This allows creating distinctly styled sections or components without altering the global theme, useful for sidebars, specific UI states, or component variations.
 
 **Example (Local Theme Override):**
 
@@ -218,7 +218,7 @@ function LocallyThemedSection() {
       theme={localThemeOverride}
       colors={localDarkColorsOverride}
       // Styles below will resolve using the LOCAL dark theme override defined above:
-      backgroundColor="theme.secondary" // Resolves to 'color-teal-300' via localThemeOverride in dark mode
+      backgroundColor="theme-secondary" // Resolves to 'color-teal-300' via localThemeOverride in dark mode
       borderRadius={8}
     >
       <Text color="color-white"
@@ -226,7 +226,7 @@ function LocallyThemedSection() {
         This section forces dark mode with an orange primary, even if the app is light-
       </Text>
       <Element marginTop={8} padding={10} backgroundColor="color-gray-700"> {/* Uses local dark palette */}
-         <Text color="theme.primary">Nested Primary (Orange)</Text> {/* Still uses local override */}
+         <Text color="theme-primary">Nested Primary (Orange)</Text> {/* Still uses local override */}
       </Element>
     </Element>
   );
@@ -298,7 +298,7 @@ function MyText() {
     <Text
       fontSize="xl"
       fontWeight="bold"
-      color="theme.primary"
+      color="theme-primary"
       textAlign="center"
       toUpperCase
     >
@@ -658,7 +658,7 @@ Manages the application's theme, including color palettes, light/dark modes, and
 
 **Context Values (via `useTheme`)**
 
-*   `getColor(colorName, mode?)`: Resolves a color string (e.g., `color-blue.500`, `theme.primary`, `blackAlpha.500`) to its CSS value for the specified or current theme mode.
+*   `getColor(colorName, mode?)`: Resolves a color string (e.g., `color-blue-500`, `theme-primary`, `blackAlpha-500`) to its CSS value for the specified or current theme mode.
 *   `theme`: The merged theme configuration object.
 *   `themeMode`: The current mode ('light' or 'dark').
 *   `setThemeMode(mode)`: Function to change the theme mode.
