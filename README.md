@@ -85,15 +85,54 @@ The `Element` component is the cornerstone of App-Studio. Most other components 
 *   **Animation:** Integrates with the animation system via the `animate` prop.
 *   **Theming:** Automatically resolves theme colors (e.g., `color="theme.primary"`).
 
-## Utility-First Styling
+## Styling System
 
+App-Studio uses a powerful, declarative styling system with multiple levels:
+
+### Utility-First Styling
 App-Studio generates CSS utility classes based on the props you provide to `Element` and its derived components. This approach keeps styles co-located with the component logic and optimizes performance by reusing generated classes.
 
-## Theming
+### State Modifiers
+Control styles for interactive states using underscore-prefixed props:
+- **Interaction**: `_hover`, `_active`, `_focus`, `_visited`
+- **Form**: `_disabled`, `_enabled`, `_checked`, `_invalid`, `_valid`
+- **Children**: `_firstChild`, `_lastChild`, `_onlyChild`
+- **Group/Peer**: `_groupHover`, `_peerHover`, `_peerActive`, `_peerChecked`
+- **Pseudo-elements**: `_before`, `_after`, `_firstLetter`, `_selection`
 
-Use `ThemeProvider` to define global theme settings, including light/dark mode colors and custom theme tokens (e.g., `primary`, `secondary`). The `useTheme` hook provides access to the current theme mode (`themeMode`), theme configuration (`theme`), a function to switch modes (`setThemeMode`), and the essential `getColor` function to resolve color strings (like `color-blue.500` or `theme.primary`) into actual CSS color values for the current mode.
+```jsx
+<Element
+  backgroundColor="color-blue-500"
+  _hover={{ backgroundColor: "color-blue-600" }}
+  _disabled={{ opacity: 0.5 }}
+  _focus={{ outline: "2px solid color-blue-400" }}
+/>
+```
 
-You can also directly access specific theme mode colors using the `light-` or `dark-` prefix (e.g., `light-white` or `dark-red.200`), which will always use that specific theme mode's color regardless of the current theme setting.
+### Media Queries
+Define responsive styles with the `media` prop for different breakpoints:
+```jsx
+<View
+  padding={8}
+  media={{
+    tablet: { padding: 16 },
+    desktop: { padding: 24 }
+  }}
+/>
+```
+
+## Theming & Colors
+
+Use `ThemeProvider` to define global theme settings, including light/dark mode colors and custom theme tokens (e.g., `primary`, `secondary`). The `useTheme` hook provides access to the current theme mode (`themeMode`), theme configuration (`theme`), a function to switch modes (`setThemeMode`), and the essential `getColor` function to resolve color strings (like `color-blue-500` or `theme-primary`) into actual CSS color values for the current mode.
+
+**Color System Features:**
+- **Color Palettes**: 34 palettes with 9 shades each (50, 100, 200...900) - e.g., `color-blue-500`
+- **Singleton Colors**: 30 named colors like `color-white`, `color-gold`, `color-turquoise`
+- **Theme Colors**: Custom theme tokens like `theme-primary`, `theme-secondary`
+- **Alpha Transparency**: Add opacity to any color - `color-blue-500-200` (20% opacity) 
+- **Mode-Specific**: Direct access via `light-white` or `dark-blue-500` (ignores current theme mode)
+
+You can also directly access specific theme mode colors using the `light-` or `dark-` prefix (e.g., `light-white` or `dark-red-200`), which will always use that specific theme mode's color regardless of the current theme setting.
 
 ## Responsiveness
 
@@ -789,7 +828,8 @@ Explore our comprehensive documentation to learn more about App-Studio:
 - [Getting Started](docs/README.md) - Quick start guide and core concepts
 - [Components](docs/Components.md) - Detailed documentation of all available components
 - [Hooks](docs/Hooks.md) - Guide to the React hooks provided by App-Studio
-- [Theming](docs/Theming.md) - How to customize the look and feel of your app
+- [Theming](docs/Theming.md) - Color systems, theme colors, palettes, and light/dark modes
+- [Styling](docs/Styling.md) - Advanced guide to state modifiers, pseudo-elements, media queries, and CSS system
 - [Animation](docs/Animation.md) - Creating animations with App-Studio
 - [Responsive Design](docs/Responsive.md) - Building responsive layouts
 - [Design System](docs/Design.md) - Understanding the design system
