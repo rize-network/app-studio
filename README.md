@@ -134,6 +134,28 @@ Use `ThemeProvider` to define global theme settings, including light/dark mode c
 
 You can also directly access specific theme mode colors using the `light-` or `dark-` prefix (e.g., `light-white` or `dark-red-200`), which will always use that specific theme mode's color regardless of the current theme setting.
 
+### Color System Hierarchy
+
+```
+color-*           → Direct color access (current theme mode)
+  ├─ color-white  → Singleton colors
+  ├─ color-blue-500 → Palette colors with shades
+  └─ color-blue-500-200 → Palette colors with alpha (20% opacity)
+
+theme-*           → Custom theme configuration
+  ├─ theme-primary → Theme color
+  ├─ theme-primary-100 → Theme color with alpha (10% opacity)
+  └─ theme-button-background → Nested theme path
+
+light-*           → Always use light mode colors
+  ├─ light-white
+  └─ light-blue-500
+
+dark-*            → Always use dark mode colors
+  ├─ dark-white
+  └─ dark-red-200
+```
+
 ## Responsiveness
 
 Wrap your app in `ResponsiveProvider` (optionally configuring custom `breakpoints` and `devices`). Use the `useResponsive` hook to access the current breakpoint (`screen`), device type (`currentDevice`), orientation, and helper functions (`on`, `is`) to conditionally render components or apply styles. You can also use the `media` prop on `Element` components for responsive styling.
