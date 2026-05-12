@@ -229,6 +229,45 @@ const EVENT_TO_PSEUDO: Record<string, string> = {
 };
 
 /**
+ * Pseudo-elements require the `::` prefix, pseudo-classes require `:`.
+ * `EVENT_TO_PSEUDO` mixes both, so we centralize the distinction here.
+ */
+const PSEUDO_ELEMENTS = new Set<string>([
+  'before',
+  'after',
+  'first-letter',
+  'first-line',
+  'placeholder',
+  'selection',
+  'backdrop',
+  'marker',
+  '-moz-placeholder',
+  '-moz-focus-inner',
+  '-webkit-contacts-auto-fill-button',
+  '-webkit-inner-spin-button',
+  '-webkit-outer-spin-button',
+  '-webkit-search-cancel-button',
+]);
+
+const isPseudoElement = (pseudo: string): boolean =>
+  PSEUDO_ELEMENTS.has(pseudo);
+
+const pseudoPrefix = (pseudo: string): string =>
+  isPseudoElement(pseudo) ? '::' : ':';
+
+/**
+ * Build a complete pseudo selector string (e.g. `:focus::placeholder`) from
+ * a chain of pseudo identifiers joined with `::`. Each part is prefixed with
+ * `:` or `::` depending on whether it is a pseudo-class or pseudo-element.
+ */
+const buildPseudoSelector = (chain: string): string =>
+  chain
+    .split('::')
+    .filter(Boolean)
+    .map((part) => `${pseudoPrefix(part)}${part}`)
+    .join('');
+
+/**
  * Utility functions for animation handling
  */
 export const AnimationUtils = {
@@ -645,10 +684,13 @@ export class UtilityClassManager {
           });
         });
       } else {
-        // Standard pseudo-class
+        // Standard pseudo-class or pseudo-element. Pseudo-elements like
+        // `placeholder`, `before`, `selection` require `::` while
+        // pseudo-classes like `focus`, `hover` require `:`.
+        const colon = pseudoPrefix(modifier);
         cssProperties.forEach((prefixedProperty) => {
           rules.push({
-            rule: `.${escapedClassName}:${modifier} { ${prefixedProperty}: ${valueForCss}; }`,
+            rule: `.${escapedClassName}${colon}${modifier} { ${prefixedProperty}: ${valueForCss}; }`,
             context: 'pseudo',
           });
         });
@@ -976,10 +1018,13 @@ function processPseudoStyles(
         // Format the value
         const processedValue = ValueUtils.formatValue(value, key, getColor);
 
-        // Create and inject the rule
-        const rule = `.${escapedClassName}::${parentPseudo} { ${propertyToKebabCase(
-          key
-        )}: ${processedValue}; }`;
+        // Create and inject the rule. The parentPseudo chain may contain
+        // a mix of pseudo-classes (`:focus`) and pseudo-elements
+        // (`::placeholder`); buildPseudoSelector prefixes each part with the
+        // correct colon count.
+        const rule = `.${escapedClassName}${buildPseudoSelector(
+          parentPseudo
+        )} { ${propertyToKebabCase(key)}: ${processedValue}; }`;
         (manager || utilityClassManager).injectRule(rule, 'pseudo');
 
         classes.push(escapedClassName);
