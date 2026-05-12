@@ -1,4 +1,9 @@
-import { CSSProperties, HTMLAttributes } from 'react';
+import {
+  CSSProperties,
+  HTMLAttributes,
+  HTMLAttributeReferrerPolicy,
+  JSX,
+} from 'react';
 import { AnimationProps } from '../utils/constants';
 import { Shadow } from '../utils/shadow';
 import { ViewStyleProps } from '../types/style';
@@ -89,6 +94,83 @@ export interface ElementProps
       HTMLAttributes<HTMLElement>,
       'color' | 'style' | 'content' | 'translate'
     > {
+  // --- Native HTML attributes that depend on `as`
+  // Surfaced explicitly so consumers can pass <View as="video"|"audio"|"img"|"iframe"|"button"|"input"|"select"|"textarea"|"svg">
+  // without TS complaining. Listed here rather than via AllHTMLAttributes
+  // because AllHTMLAttributes would collide with CSS props (width, height,
+  // size, start, etc.) that are part of ViewStyleProps.
+
+  // Media (img / video / audio / iframe / source / track)
+  src?: string;
+  alt?: string;
+  controls?: boolean;
+  muted?: boolean;
+  autoPlay?: boolean;
+  loop?: boolean;
+  poster?: string;
+  playsInline?: boolean;
+  preload?: 'none' | 'metadata' | 'auto' | '';
+  crossOrigin?: 'anonymous' | 'use-credentials' | '';
+  srcSet?: string;
+  sizes?: string;
+  loading?: 'eager' | 'lazy';
+  referrerPolicy?: HTMLAttributeReferrerPolicy;
+  decoding?: 'async' | 'auto' | 'sync';
+
+  // Form controls (button / input / select / textarea / form / fieldset)
+  // INTENTIONALLY EXCLUDED — they conflict with domain components that narrow
+  // these to discriminated unions or specific shapes:
+  //   - `name`     → Icon narrows it to an icon-id union
+  //   - `value`    → Switch (boolean), Select (string|string[])
+  //   - `defaultValue` / `checked` / `defaultChecked` / `multiple` → same idea
+  // Components that need an actual HTML input attribute should use the
+  // specialized `Input` component (which accepts them via InputProps),
+  // not a polymorphic `<View as="input">`.
+  disabled?: boolean;
+  readOnly?: boolean;
+  required?: boolean;
+  autoComplete?: string;
+  autoFocus?: boolean;
+  pattern?: string;
+  min?: number | string;
+  max?: number | string;
+  minLength?: number;
+  maxLength?: number;
+  step?: number | string;
+  form?: string;
+  formAction?: string;
+  formEncType?: string;
+  formMethod?: 'get' | 'post' | 'dialog';
+  formNoValidate?: boolean;
+  formTarget?: string;
+  rows?: number;
+  cols?: number;
+  wrap?: 'hard' | 'soft' | 'off';
+  list?: string;
+  accept?: string;
+  capture?: boolean | 'user' | 'environment';
+
+  // Links / nav (a / area)
+  href?: string;
+  target?: string;
+  rel?: string;
+  hrefLang?: string;
+  download?: string | boolean;
+
+  // SVG
+  xmlns?: string;
+  viewBox?: string;
+  preserveAspectRatio?: string;
+  fill?: string;
+  stroke?: string;
+  strokeWidth?: string | number;
+
+  // Misc
+  open?: boolean;
+  scoped?: boolean;
+  reversed?: boolean;
+  start?: number;
+  htmlFor?: string;
   // Event handling props
   on?: Record<string, CssProps>;
   media?: Record<string, CssProps>;
@@ -114,6 +196,7 @@ export interface ElementProps
    * (`color-red-500`, `theme-secondary`) or a raw color (`#ff0000`).
    */
   theme?: Partial<Theme>;
+  themeMode?: 'light' | 'dark';
 
   animateOn?: 'View' | 'Mount' | 'Both' | 'Scroll';
 

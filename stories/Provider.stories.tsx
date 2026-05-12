@@ -2,7 +2,7 @@
 
 import React from 'react';
 
-import { ComponentStory, ComponentMeta } from '@storybook/react';
+import type { Meta, StoryFn } from '@storybook/react';
 import {
   ThemeProvider,
   AnalyticsProvider,
@@ -14,9 +14,9 @@ import {
 export default {
   title: 'Providers',
   component: ThemeProvider, // We can use ThemeProvider as a placeholder for demonstration
-} as ComponentMeta<typeof ThemeProvider>;
+} as Meta<typeof ThemeProvider>;
 
-export const ThemeMode: ComponentStory<typeof ThemeProvider> = () => {
+export const ThemeMode: StoryFn<typeof ThemeProvider> = () => {
   const [mode, setMode] = React.useState<'light' | 'dark'>('light');
 
   return (
@@ -53,7 +53,7 @@ export const ThemeMode: ComponentStory<typeof ThemeProvider> = () => {
   );
 };
 
-export const Analytics: ComponentStory<typeof AnalyticsProvider> = () => {
+export const Analytics: StoryFn<typeof AnalyticsProvider> = () => {
   const trackEvent = (event: any) => {
     console.log('Track Event:', event);
     // Here you would typically send the event to your analytics service

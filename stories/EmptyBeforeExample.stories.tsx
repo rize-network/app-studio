@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ComponentStory, ComponentMeta } from '@storybook/react';
+import type { Meta, StoryFn } from '@storybook/react';
 import { View, Text, Vertical, Button } from '../src';
 
 export default {
@@ -13,9 +13,9 @@ export default {
       },
     },
   },
-} as ComponentMeta<typeof View>;
+} as Meta<typeof View>;
 
-export const EmptyBeforePattern: ComponentStory<typeof View> = () => {
+export const EmptyBeforePattern: StoryFn<typeof View> = () => {
   const [hasContent, setHasContent] = useState(false);
 
   return (
@@ -106,7 +106,7 @@ export const EmptyBeforePattern: ComponentStory<typeof View> = () => {
   );
 };
 
-export const MultipleNestedPseudos: ComponentStory<typeof View> = () => (
+export const MultipleNestedPseudos: StoryFn<typeof View> = () => (
   <Vertical gap={20} padding={20}>
     <Text fontSize="xl" fontWeight="bold">
       Multiple Nested Pseudo-Classes

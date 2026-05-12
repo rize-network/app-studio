@@ -25,7 +25,7 @@ export const WindowSizeProvider = ({
     height: win?.innerHeight || 0,
   });
 
-  const timeoutRef = useRef<NodeJS.Timeout>();
+  const timeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
   useEffect(() => {
     if (!win) return;

@@ -2,7 +2,7 @@
 
 import React from 'react';
 
-import { ComponentStory, ComponentMeta } from '@storybook/react';
+import type { Meta, StoryFn } from '@storybook/react';
 
 import { Skeleton, View } from '../src/index';
 
@@ -13,9 +13,9 @@ export default {
    */
   title: 'Skeleton',
   component: Skeleton,
-} as ComponentMeta<typeof Skeleton>;
+} as Meta<typeof Skeleton>;
 
-export const Exemple: ComponentStory<typeof Skeleton> = () => {
+export const Exemple: StoryFn<typeof Skeleton> = () => {
   return (
     <View>
       <View widthHeight={100} backgroundColor="red"></View>

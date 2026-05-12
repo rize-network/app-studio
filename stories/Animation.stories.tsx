@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ComponentStory, ComponentMeta } from '@storybook/react';
+import type { Meta, StoryFn } from '@storybook/react';
 import {
   View,
   Button,
@@ -38,9 +38,9 @@ export default {
       defaultValue: '1',
     },
   },
-} as ComponentMeta<typeof View>;
+} as Meta<typeof View>;
 
-const Template: ComponentStory<typeof View> = (args) => {
+const Template: StoryFn<typeof View> = (args) => {
   const {
     animationName,
     duration,
@@ -90,7 +90,7 @@ const animationSequence: any = [
   },
 ];
 
-export const SequencesAnimation: ComponentStory<typeof View> = () => (
+export const SequencesAnimation: StoryFn<typeof View> = () => (
   <View>
     <View
       animate={animationSequence}
@@ -100,7 +100,7 @@ export const SequencesAnimation: ComponentStory<typeof View> = () => (
   </View>
 );
 
-export const TranslationAnimation: ComponentStory<typeof View> = () => (
+export const TranslationAnimation: StoryFn<typeof View> = () => (
   <View
     widthHeight={100}
     backgroundColor="color-blue"
@@ -112,7 +112,7 @@ export const TranslationAnimation: ComponentStory<typeof View> = () => (
   />
 );
 
-export const RotationOnHover: ComponentStory<typeof View> = () => (
+export const RotationOnHover: StoryFn<typeof View> = () => (
   <View>
     <View
       widthHeight={100}
@@ -126,7 +126,7 @@ export const RotationOnHover: ComponentStory<typeof View> = () => (
   </View>
 );
 
-export const ScalingAnimation: ComponentStory<typeof View> = () => {
+export const ScalingAnimation: StoryFn<typeof View> = () => {
   const [visible, setVisible] = useState(true);
 
   return (
@@ -151,7 +151,7 @@ export const ScalingAnimation: ComponentStory<typeof View> = () => {
   );
 };
 
-export const ColorChangeAnimation: ComponentStory<typeof View> = () => (
+export const ColorChangeAnimation: StoryFn<typeof View> = () => (
   <View
     widthHeight={100}
     animate={{
@@ -163,7 +163,7 @@ export const ColorChangeAnimation: ComponentStory<typeof View> = () => (
   />
 );
 
-export const InfiniteRotation: ComponentStory<typeof View> = () => (
+export const InfiniteRotation: StoryFn<typeof View> = () => (
   <View
     widthHeight={100}
     backgroundColor="color-orange"
@@ -177,7 +177,7 @@ export const InfiniteRotation: ComponentStory<typeof View> = () => (
   />
 );
 
-export const ResponsiveAnimation: ComponentStory<typeof View> = () => (
+export const ResponsiveAnimation: StoryFn<typeof View> = () => (
   <View
     widthHeight={100}
     backgroundColor="color-pink"
@@ -208,7 +208,7 @@ export const ResponsiveAnimation: ComponentStory<typeof View> = () => (
   />
 );
 
-export const BlinkAnimation: ComponentStory<typeof View> = () => (
+export const BlinkAnimation: StoryFn<typeof View> = () => (
   <View
     widthHeight={100}
     backgroundColor="color-black"
@@ -224,7 +224,7 @@ export const BlinkAnimation: ComponentStory<typeof View> = () => (
   />
 );
 
-export const ComplexAnimation: ComponentStory<typeof View> = () => (
+export const ComplexAnimation: StoryFn<typeof View> = () => (
   <View
     widthHeight={100}
     backgroundColor="color-black"
@@ -243,7 +243,7 @@ export const ComplexAnimation: ComponentStory<typeof View> = () => (
   />
 );
 
-export const CustomTiming: ComponentStory<typeof View> = () => (
+export const CustomTiming: StoryFn<typeof View> = () => (
   <View
     widthHeight={100}
     backgroundColor="color-black"
@@ -256,7 +256,7 @@ export const CustomTiming: ComponentStory<typeof View> = () => (
   />
 );
 
-export const ClickAnimation: ComponentStory<typeof View> = () => {
+export const ClickAnimation: StoryFn<typeof View> = () => {
   const [animate, setAnimate] = useState(false);
 
   return (
@@ -285,7 +285,7 @@ export const ClickAnimation: ComponentStory<typeof View> = () => {
   );
 };
 
-export const AnimateInExample: ComponentStory<typeof View> = () => {
+export const AnimateInExample: StoryFn<typeof View> = () => {
   const [visible, setVisible] = useState(false);
   const [render, setRender] = useState(false);
 
@@ -321,7 +321,7 @@ export const AnimateInExample: ComponentStory<typeof View> = () => {
   );
 };
 
-export const AnimateOutExample: ComponentStory<typeof View> = () => {
+export const AnimateOutExample: StoryFn<typeof View> = () => {
   const [visible, setVisible] = useState(true);
   const [render, setRender] = useState(true);
 
@@ -357,7 +357,7 @@ export const AnimateOutExample: ComponentStory<typeof View> = () => {
   );
 };
 
-export const VisibleAnimation: ComponentStory<typeof View> = () => (
+export const VisibleAnimation: StoryFn<typeof View> = () => (
   <View
     style={{
       width: '100%',
@@ -399,7 +399,7 @@ export const VisibleAnimation: ComponentStory<typeof View> = () => (
  * Special Use Cases: Scroll-Driven Animations using Scroll Timeline
  * These animations progress as the user scrolls, rather than just triggering on view.
  */
-export const ScrollDrivenAnimations: ComponentStory<typeof View> = () => (
+export const ScrollDrivenAnimations: StoryFn<typeof View> = () => (
   <View width="100%" height="300vh" padding={20}>
     <View
       position="sticky"
@@ -496,7 +496,7 @@ export const ScrollDrivenAnimations: ComponentStory<typeof View> = () => (
  * Special Use Cases: View Timeline Presets
  * Performant, pure-CSS animations that trigger when elements enter the viewport.
  */
-export const ViewDrivenPresets: ComponentStory<typeof View> = () => (
+export const ViewDrivenPresets: StoryFn<typeof View> = () => (
   <View width="100%" minHeight="300vh" padding={20}>
     <View
       position="sticky"
@@ -587,7 +587,7 @@ export const ViewDrivenPresets: ComponentStory<typeof View> = () => (
  * Typewriter Effect
  * Demonstrates a classic typewriter animation with a blinking cursor.
  */
-export const TypewriterEffect: ComponentStory<typeof View> = () => {
+export const TypewriterEffect: StoryFn<typeof View> = () => {
   const [isAnimating, setIsAnimating] = useState(false);
   const [showCursor, setShowCursor] = useState(true);
   const text = 'Hello, this is a typewriter effect!';

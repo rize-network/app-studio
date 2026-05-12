@@ -1,7 +1,7 @@
 // src/stories/Theming.stories.tsx (or adjust path as needed)
 
 import React from 'react';
-import { ComponentStory, ComponentMeta } from '@storybook/react';
+import type { Meta, StoryFn } from '@storybook/react';
 
 // Import necessary components and types from your framework
 import {
@@ -25,7 +25,7 @@ export default {
       },
     },
   },
-} as ComponentMeta<typeof View>;
+} as Meta<typeof View>;
 
 // --- Define a Custom Color Palette for the Story ---
 // Let's create a palette where 'blue' is actually shades of purple,
@@ -61,7 +61,7 @@ const customComponentColors: Partial<Colors> = {
 };
 
 // --- Story Template ---
-const Template: ComponentStory<typeof View> = () => (
+const Template: StoryFn<typeof View> = () => (
   <Vertical
     gap={20}
     padding={20}

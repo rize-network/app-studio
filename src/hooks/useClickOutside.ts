@@ -9,7 +9,7 @@ const DEFAULT_CLICK_OUTSIDE_OPTIONS: UseClickOutsideOptions = {};
 
 export function useClickOutside<T extends HTMLElement = HTMLElement>(
   options?: UseClickOutsideOptions
-): [React.RefObject<T>, boolean] {
+): [React.RefObject<T | null>, boolean] {
   const [clickedOutside, setClickedOutside] = useState(false);
   const ref = useRef<T>(null);
   const { targetWindow } = options || DEFAULT_CLICK_OUTSIDE_OPTIONS;

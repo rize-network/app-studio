@@ -1,5 +1,5 @@
 import React from 'react';
-import { ComponentStory, ComponentMeta } from '@storybook/react';
+import type { Meta, StoryFn } from '@storybook/react';
 import { View, Text, Vertical, Horizontal } from '../src';
 import { ThemeProvider } from '../src/providers/Theme';
 
@@ -14,14 +14,14 @@ export default {
       },
     },
   },
-} as ComponentMeta<typeof View>;
+} as Meta<typeof View>;
 
 // The case from the user's report:
 //   `borderTop: '1px solid'` + `borderColor: 'color-gray-100'`
 // `border-top` shorthand resets `border-top-color` to `currentcolor`.
 // `border-color` sets all four `*-color` longhands.
 // Expected: a single 1px solid gray-100 line on top, no other borders.
-export const BorderTopPlusBorderColor: ComponentStory<typeof View> = () => (
+export const BorderTopPlusBorderColor: StoryFn<typeof View> = () => (
   <ThemeProvider>
     <Vertical gap={16} padding={20}>
       <Text fontSize={20} fontWeight="bold">
@@ -72,7 +72,7 @@ export const BorderTopPlusBorderColor: ComponentStory<typeof View> = () => (
 // `border: '1px solid'` resets all four side colors to currentcolor.
 // `borderColor: 'color-blue-500'` then overrides the color on all four sides.
 // Expected: a 1px solid blue-500 box.
-export const BorderShorthandPlusBorderColor: ComponentStory<typeof View> = () => (
+export const BorderShorthandPlusBorderColor: StoryFn<typeof View> = () => (
   <ThemeProvider>
     <Vertical gap={16} padding={20}>
       <Text fontSize={20} fontWeight="bold">
@@ -104,7 +104,7 @@ export const BorderShorthandPlusBorderColor: ComponentStory<typeof View> = () =>
 // `border` shorthand vs per-side `borderTop`. The side-shorthand should win
 // for the side it targets and leave the rest as the general `border` set.
 // Expected: thick red top, thin gray on the other three sides.
-export const BorderShorthandPlusSideShorthand: ComponentStory<typeof View> = () => (
+export const BorderShorthandPlusSideShorthand: StoryFn<typeof View> = () => (
   <ThemeProvider>
     <Vertical gap={16} padding={20}>
       <Text fontSize={20} fontWeight="bold">
@@ -137,7 +137,7 @@ export const BorderShorthandPlusSideShorthand: ComponentStory<typeof View> = () 
 // override the previous for its slice of the box.
 // Expected: green top edge (3px from borderTop, color from borderTopColor),
 // gray-300 1px on other sides.
-export const FullCascadeStack: ComponentStory<typeof View> = () => (
+export const FullCascadeStack: StoryFn<typeof View> = () => (
   <ThemeProvider>
     <Vertical gap={16} padding={20}>
       <Text fontSize={20} fontWeight="bold">
@@ -170,7 +170,7 @@ export const FullCascadeStack: ComponentStory<typeof View> = () => (
 );
 
 // The button-in-footer pattern from the user's bug report.
-export const ButtonFooterRepro: ComponentStory<typeof View> = () => (
+export const ButtonFooterRepro: StoryFn<typeof View> = () => (
   <ThemeProvider>
     <View
       display="flex"

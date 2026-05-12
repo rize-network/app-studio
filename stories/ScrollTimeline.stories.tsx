@@ -1,5 +1,5 @@
 import React from 'react';
-import { ComponentStory, ComponentMeta } from '@storybook/react';
+import type { Meta, StoryFn } from '@storybook/react';
 import { View, Text, Vertical, Image, Button, Animation } from '../src';
 
 export default {
@@ -13,9 +13,9 @@ export default {
       },
     },
   },
-} as ComponentMeta<typeof View>;
+} as Meta<typeof View>;
 
-export const ScrollTimeline: ComponentStory<typeof View> = () => {
+export const ScrollTimeline: StoryFn<typeof View> = () => {
   return (
     <Vertical gap={20} padding={20} height="100vh">
       <Text fontSize={24} fontWeight="bold">

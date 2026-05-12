@@ -68,7 +68,7 @@ const TextView = React.forwardRef<HTMLElement, Props>(
         ? 'sub'
         : isSup
           ? 'sup'
-          : 'span') as keyof JSX.IntrinsicElements,
+          : 'span') as keyof React.JSX.IntrinsicElements,
       fontStyle: isItalic ? 'italic' : 'normal',
       textDecoration: isStriked
         ? 'line-through'

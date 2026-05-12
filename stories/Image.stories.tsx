@@ -2,7 +2,7 @@
 
 import React from 'react';
 
-import { ComponentStory, ComponentMeta } from '@storybook/react';
+import type { Meta, StoryFn } from '@storybook/react';
 
 import { Image } from '../src/index';
 
@@ -13,9 +13,9 @@ export default {
    */
   title: 'Image',
   component: Image,
-} as ComponentMeta<typeof Image>;
+} as Meta<typeof Image>;
 
-export const Exemple: ComponentStory<typeof Image> = () => {
+export const Exemple: StoryFn<typeof Image> = () => {
   return (
     <Image
       widthHeight={100}

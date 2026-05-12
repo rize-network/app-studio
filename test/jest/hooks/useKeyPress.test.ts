@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook } from '@testing-library/react';
 import { useKeyPress } from '../../../src/hooks/useKeyPress';
 
 describe('useKeyPress', () => {

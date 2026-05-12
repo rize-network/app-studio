@@ -30,7 +30,7 @@ export interface UseElementPositionOptions {
 // Return type of the hook
 export interface UseElementPositionReturn {
   /** React ref to attach to the target HTML element. */
-  ref: React.RefObject<HTMLElement>;
+  ref: React.RefObject<HTMLElement | null>;
   /**
    * The calculated viewport relation data, or null if not yet calculated
    * or element not found.

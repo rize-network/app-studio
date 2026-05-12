@@ -2,7 +2,7 @@
 
 import React from 'react';
 
-import { ComponentStory, ComponentMeta } from '@storybook/react';
+import type { Meta, StoryFn } from '@storybook/react';
 
 import {
   Horizontal,
@@ -19,9 +19,9 @@ export default {
    */
   title: 'View',
   component: View,
-} as ComponentMeta<typeof View>;
+} as Meta<typeof View>;
 
-export const Exemple: ComponentStory<typeof View> = () => {
+export const Exemple: StoryFn<typeof View> = () => {
   return (
     <View display="flex" flexWrap="wrap" width={100} height={200}>
       <View
@@ -79,7 +79,7 @@ export const Exemple: ComponentStory<typeof View> = () => {
   );
 };
 
-export const VerticalExemple: ComponentStory<typeof View> = () => {
+export const VerticalExemple: StoryFn<typeof View> = () => {
   return (
     <Vertical>
       <View
@@ -99,7 +99,7 @@ export const VerticalExemple: ComponentStory<typeof View> = () => {
   );
 };
 
-export const VerticalResponsiveExemple: ComponentStory<typeof View> = () => {
+export const VerticalResponsiveExemple: StoryFn<typeof View> = () => {
   return (
     <VerticalResponsive>
       <View
@@ -119,7 +119,7 @@ export const VerticalResponsiveExemple: ComponentStory<typeof View> = () => {
   );
 };
 
-export const HorizontalExemple: ComponentStory<typeof View> = () => {
+export const HorizontalExemple: StoryFn<typeof View> = () => {
   return (
     <Horizontal>
       <View
@@ -139,7 +139,7 @@ export const HorizontalExemple: ComponentStory<typeof View> = () => {
   );
 };
 
-export const HorizontalResponsiveExemple: ComponentStory<typeof View> = () => {
+export const HorizontalResponsiveExemple: StoryFn<typeof View> = () => {
   return (
     <HorizontalResponsive>
       <View

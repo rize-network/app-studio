@@ -2,7 +2,7 @@
 
 import React from 'react';
 
-import { ComponentStory, ComponentMeta } from '@storybook/react';
+import type { Meta, StoryFn } from '@storybook/react';
 
 import { Text, View, Vertical, useResponsive } from '../src/index';
 
@@ -13,9 +13,9 @@ export default {
    */
   title: 'Text',
   component: Text,
-} as ComponentMeta<typeof Text>;
+} as Meta<typeof Text>;
 
-export const Exemple: ComponentStory<typeof Text> = () => {
+export const Exemple: StoryFn<typeof Text> = () => {
   const res = useResponsive();
   const responsive = {
     xs: {
@@ -42,7 +42,7 @@ export const Exemple: ComponentStory<typeof Text> = () => {
   );
 };
 
-export const blend: ComponentStory<typeof Text> = () => {
+export const blend: StoryFn<typeof Text> = () => {
   return (
     <View>
       <View backgroundColor="black" padding={20}>
@@ -58,7 +58,7 @@ export const blend: ComponentStory<typeof Text> = () => {
   );
 };
 
-export const DarkLightMode: ComponentStory<typeof Text> = () => {
+export const DarkLightMode: StoryFn<typeof Text> = () => {
   return (
     <View>
       <View padding={20}>
@@ -260,7 +260,7 @@ export const DesignSystemText = () => (
   </View>
 );
 
-export const BlendModes: ComponentStory<typeof Text> = () => {
+export const BlendModes: StoryFn<typeof Text> = () => {
   return (
     <Vertical gap={20} padding={20} backgroundColor="#888">
       <Text heading="h3" color="white">

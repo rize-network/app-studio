@@ -1,4 +1,5 @@
-import { renderHook } from '@testing-library/react-hooks';
+import type React from 'react';
+import { renderHook } from '@testing-library/react';
 import {
   useScroll,
   useScrollAnimation,
@@ -58,7 +59,7 @@ describe('useScroll', () => {
 
 describe('useScrollAnimation', () => {
   it('should return isInView and progress', () => {
-    const ref = { current: null };
+    const ref: React.RefObject<HTMLElement | null> = { current: null };
     const { result } = renderHook(() => useScrollAnimation(ref));
 
     expect(result.current).toHaveProperty('isInView');
@@ -66,21 +67,21 @@ describe('useScrollAnimation', () => {
   });
 
   it('should return false for isInView initially', () => {
-    const ref = { current: null };
+    const ref: React.RefObject<HTMLElement | null> = { current: null };
     const { result } = renderHook(() => useScrollAnimation(ref));
 
     expect(result.current.isInView).toBe(false);
   });
 
   it('should return 0 for progress initially', () => {
-    const ref = { current: null };
+    const ref: React.RefObject<HTMLElement | null> = { current: null };
     const { result } = renderHook(() => useScrollAnimation(ref));
 
     expect(result.current.progress).toBe(0);
   });
 
   it('should accept options', () => {
-    const ref = { current: null };
+    const ref: React.RefObject<HTMLElement | null> = { current: null };
 
     expect(() => {
       renderHook(() =>

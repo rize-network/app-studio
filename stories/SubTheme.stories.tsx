@@ -1,5 +1,5 @@
 import React from 'react';
-import { ComponentStory, ComponentMeta } from '@storybook/react';
+import type { Meta, StoryFn } from '@storybook/react';
 import { View, Text, Vertical, Horizontal } from '../src';
 import { ThemeProvider, useTheme } from '../src/providers/Theme';
 
@@ -14,7 +14,7 @@ export default {
       },
     },
   },
-} as ComponentMeta<typeof ThemeProvider>;
+} as Meta<typeof ThemeProvider>;
 
 const Card = ({
   label,
@@ -30,7 +30,7 @@ const Card = ({
   </View>
 );
 
-export const Basic: ComponentStory<typeof ThemeProvider> = () => {
+export const Basic: StoryFn<typeof ThemeProvider> = () => {
   return (
     <ThemeProvider>
       <Vertical gap={16} padding={20}>
@@ -59,7 +59,7 @@ export const Basic: ComponentStory<typeof ThemeProvider> = () => {
   );
 };
 
-export const AlphaSuffix: ComponentStory<typeof ThemeProvider> = () => {
+export const AlphaSuffix: StoryFn<typeof ThemeProvider> = () => {
   return (
     <ThemeProvider>
       <Vertical gap={16} padding={20}>
@@ -93,7 +93,7 @@ export const AlphaSuffix: ComponentStory<typeof ThemeProvider> = () => {
   );
 };
 
-export const ScopedToSubtree: ComponentStory<typeof ThemeProvider> = () => {
+export const ScopedToSubtree: StoryFn<typeof ThemeProvider> = () => {
   return (
     <ThemeProvider>
       <Vertical gap={16} padding={20}>
@@ -140,7 +140,7 @@ export const ScopedToSubtree: ComponentStory<typeof ThemeProvider> = () => {
   );
 };
 
-export const MultipleSlots: ComponentStory<typeof ThemeProvider> = () => {
+export const MultipleSlots: StoryFn<typeof ThemeProvider> = () => {
   return (
     <ThemeProvider>
       <Vertical gap={16} padding={20}>
@@ -244,7 +244,7 @@ const DarkModeBody = () => {
   );
 };
 
-export const DarkModeInteraction: ComponentStory<typeof ThemeProvider> = () => {
+export const DarkModeInteraction: StoryFn<typeof ThemeProvider> = () => {
   return (
     <ThemeProvider>
       <DarkModeBody />

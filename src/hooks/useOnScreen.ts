@@ -9,7 +9,7 @@ const DEFAULT_ON_SCREEN_OPTIONS: UseOnScreenOptions = {};
 
 export function useOnScreen<T extends HTMLElement = HTMLElement>(
   options?: UseOnScreenOptions
-): [React.RefObject<T>, boolean] {
+): [React.RefObject<T | null>, boolean] {
   const ref = useRef<T>(null);
   const [isOnScreen, setOnScreen] = useState(false);
   const { targetWindow, ...observerOptions } =

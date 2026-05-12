@@ -1,5 +1,5 @@
 import React from 'react';
-import { ComponentStory, ComponentMeta } from '@storybook/react';
+import type { Meta, StoryFn } from '@storybook/react';
 import { View, Text } from '../src/index';
 import { useRef, useMemo } from 'react';
 import {
@@ -133,7 +133,7 @@ export default {
       },
     },
   },
-} as ComponentMeta<typeof View>;
+} as Meta<typeof View>;
 
 // =============================================================================
 // useScrollAnimation HOOK STORIES
@@ -143,7 +143,7 @@ export default {
  * Demonstrates the useScrollAnimation hook with various configurations.
  * This hook uses IntersectionObserver to track element visibility and progress.
  */
-export const UseScrollAnimationHook: ComponentStory<typeof View> = () => {
+export const UseScrollAnimationHook: StoryFn<typeof View> = () => {
   const fadeRef = useRef<HTMLDivElement>(null);
   const slideRef = useRef<HTMLDivElement>(null);
   const scaleRef = useRef<HTMLDivElement>(null);
@@ -401,7 +401,7 @@ UseScrollAnimationHook.storyName = 'useScrollAnimation';
 /**
  * Demonstrates the useScroll hook for tracking scroll position and progress.
  */
-export const UseScrollHook: ComponentStory<typeof View> = () => {
+export const UseScrollHook: StoryFn<typeof View> = () => {
   const containerRef = useRef<HTMLDivElement>(null);
 
   const windowScroll = useScroll();
@@ -531,7 +531,7 @@ UseScrollHook.storyName = 'useScroll';
 /**
  * Demonstrates the useScrollDirection hook.
  */
-export const UseScrollDirectionHook: ComponentStory<typeof View> = () => {
+export const UseScrollDirectionHook: StoryFn<typeof View> = () => {
   const direction = useScrollDirection(10);
 
   return (
@@ -593,7 +593,7 @@ UseScrollDirectionHook.storyName = 'useScrollDirection';
 /**
  * Demonstrates the useSmoothScroll hook for programmatic smooth scrolling.
  */
-export const UseSmoothScrollHook: ComponentStory<typeof View> = () => {
+export const UseSmoothScrollHook: StoryFn<typeof View> = () => {
   const scrollTo = useSmoothScroll();
   const section1Ref = useRef<HTMLDivElement>(null);
   const section2Ref = useRef<HTMLDivElement>(null);
@@ -673,7 +673,7 @@ UseSmoothScrollHook.storyName = 'useSmoothScroll';
 /**
  * CSS View Timeline Animations - Pure CSS, no JavaScript state!
  */
-export const CSSViewTimelineAnimations: ComponentStory<typeof View> = () => (
+export const CSSViewTimelineAnimations: StoryFn<typeof View> = () => (
   <View padding={20} minHeight="400vh">
     <StickyHeader
       title="CSS View Timeline Animations"
@@ -792,7 +792,7 @@ CSSViewTimelineAnimations.storyName = 'CSS Animations';
 /**
  * Entry + Exit animations combined
  */
-export const EntryExitAnimations: ComponentStory<typeof View> = () => (
+export const EntryExitAnimations: StoryFn<typeof View> = () => (
   <View padding={20} minHeight="300vh">
     <StickyHeader
       title="Entry & Exit Animations"
@@ -1163,7 +1163,7 @@ const FillTextScrollReveal = ({
 // STORIES
 // =============================================================================
 
-export const ScrollTextRevealStory: ComponentStory<typeof View> = () => {
+export const ScrollTextRevealStory: StoryFn<typeof View> = () => {
   const demoParagraphs = [
     "Small businesses don't need more software, they need ones built around how they actually work.",
     "We build focused apps that solve one problem perfectly and connect to the rest of their stack.",
@@ -1265,7 +1265,7 @@ export const ScrollTextRevealStory: ComponentStory<typeof View> = () => {
 };
 ScrollTextRevealStory.storyName = 'JS Scroll Text Reveal';
 
-export const FillTextScrollRevealStory: ComponentStory<typeof View> = () => {
+export const FillTextScrollRevealStory: StoryFn<typeof View> = () => {
     // Section wrapper with view-timeline
   // Section wrapper with view-timeline
   const Section: React.FC<{
@@ -1355,7 +1355,7 @@ FillTextScrollRevealStory.storyName = 'CSS Scroll Text Reveal';
 /**
  * All scroll-driven animation presets
  */
-export const ScrollDrivenAnimationPresets: ComponentStory<typeof View> = () => {
+export const ScrollDrivenAnimationPresets: StoryFn<typeof View> = () => {
   const AnimationBlock: React.FC<{
     title: string;
     animate: any;

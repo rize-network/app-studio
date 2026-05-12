@@ -1,5 +1,5 @@
 import React from 'react';
-import { Meta, Story } from '@storybook/react';
+import type { Meta, StoryFn } from '@storybook/react';
 import { Text, View, useResponsive } from '../src';
 import { useActive } from '../src/hooks/useActive';
 import { useClickOutside } from '../src/hooks/useClickOutside';
@@ -779,23 +779,23 @@ const meta: Meta = {
   title: 'Hooks',
 };
 
-export const ActiveHook: Story = () => <ActiveExample />;
-export const ClickOutsideHook: Story = () => <ClickOutsideExample />;
-export const ElementPositionBasicHook: Story = () => (
+export const ActiveHook: StoryFn = () => <ActiveExample />;
+export const ClickOutsideHook: StoryFn = () => <ClickOutsideExample />;
+export const ElementPositionBasicHook: StoryFn = () => (
   <BasicElementPositionExample />
 );
-export const ElementPositionConfigurableHook: Story = () => (
+export const ElementPositionConfigurableHook: StoryFn = () => (
   <ConfigurableEventsExample />
 );
-export const ElementPositionHook: Story = () => <ElementPositionExample />;
-export const FocusHook: Story = () => <FocusExample />;
-export const HoverHook: Story = () => <HoverExample />;
-export const InViewHook: Story = () => <InViewExample />;
-export const KeyPressHook: Story = () => <KeyPressExample />;
-export const MountHook: Story = () => <MountExample />;
-export const ScrollHook: Story = () => <ScrollExample />;
-export const OnScreenHook: Story = () => <OnScreenExample />;
-export const WindowSizeHook: Story = () => <WindowSizeExample />;
-export const ResponsiveHook: Story = () => <ResponsiveExample />;
+export const ElementPositionHook: StoryFn = () => <ElementPositionExample />;
+export const FocusHook: StoryFn = () => <FocusExample />;
+export const HoverHook: StoryFn = () => <HoverExample />;
+export const InViewHook: StoryFn = () => <InViewExample />;
+export const KeyPressHook: StoryFn = () => <KeyPressExample />;
+export const MountHook: StoryFn = () => <MountExample />;
+export const ScrollHook: StoryFn = () => <ScrollExample />;
+export const OnScreenHook: StoryFn = () => <OnScreenExample />;
+export const WindowSizeHook: StoryFn = () => <WindowSizeExample />;
+export const ResponsiveHook: StoryFn = () => <ResponsiveExample />;
 
 export default meta;

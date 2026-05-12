@@ -1,6 +1,6 @@
 // Button.stories.ts|tsx
 
-import { ComponentStory, ComponentMeta } from '@storybook/react';
+import type { Meta, StoryFn } from '@storybook/react';
 import { createPortal } from 'react-dom';
 
 import { Input as $Input, Button, Text, Vertical, View } from '../src/index';
@@ -182,9 +182,9 @@ export default {
    * to learn how to generate automatic titles
    */
   title: 'Scroll',
-} as ComponentMeta<any>;
+} as Meta<any>;
 
-export const Scroll: ComponentStory<typeof $Input> = () => {
+export const Scroll: StoryFn<typeof $Input> = () => {
   return <ScrollExample />;
 };
 
@@ -249,7 +249,7 @@ const IframeContent = () => {
   );
 };
 
-export const IframeScroll: ComponentStory<typeof $Input> = () => {
+export const IframeScroll: StoryFn<typeof $Input> = () => {
   const [frameRef, setFrameRef] = useState<HTMLIFrameElement | null>(null);
   const [mountNode, setMountNode] = useState<HTMLElement | null>(null);
 
@@ -334,7 +334,7 @@ const IframeWindowContent = () => {
   );
 };
 
-export const IframeWindowScroll: ComponentStory<typeof $Input> = () => {
+export const IframeWindowScroll: StoryFn<typeof $Input> = () => {
   const [frameRef, setFrameRef] = useState<HTMLIFrameElement | null>(null);
   const [mountNode, setMountNode] = useState<HTMLElement | null>(null);
 

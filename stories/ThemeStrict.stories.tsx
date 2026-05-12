@@ -1,5 +1,5 @@
 import React from 'react';
-import { ComponentStory, ComponentMeta } from '@storybook/react';
+import type { Meta, StoryFn } from '@storybook/react';
 import { View, Text, Vertical } from '../src';
 import { ThemeProvider } from '../src/providers/Theme';
 
@@ -14,9 +14,9 @@ export default {
       },
     },
   },
-} as ComponentMeta<typeof ThemeProvider>;
+} as Meta<typeof ThemeProvider>;
 
-export const StrictModeWarning: ComponentStory<typeof ThemeProvider> = () => {
+export const StrictModeWarning: StoryFn<typeof ThemeProvider> = () => {
   return (
     <ThemeProvider strict={true}>
       <Vertical gap={20} padding={20}>

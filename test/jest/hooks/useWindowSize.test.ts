@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook } from '@testing-library/react';
 import { useWindowSize } from '../../../src/hooks/useWindowSize';
 import { WindowSizeProvider } from '../../../src/providers/WindowSize';
 

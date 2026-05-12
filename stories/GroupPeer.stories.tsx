@@ -1,5 +1,5 @@
 import React from 'react';
-import { ComponentStory, ComponentMeta } from '@storybook/react';
+import type { Meta, StoryFn } from '@storybook/react';
 import { View, Text, Vertical } from '../src';
 
 export default {
@@ -13,9 +13,9 @@ export default {
       },
     },
   },
-} as ComponentMeta<typeof View>;
+} as Meta<typeof View>;
 
-export const GroupHover: ComponentStory<typeof View> = () => {
+export const GroupHover: StoryFn<typeof View> = () => {
   return (
     <Vertical gap={20} padding={20}>
       <Text fontSize={24} fontWeight="bold">
@@ -59,7 +59,7 @@ export const GroupHover: ComponentStory<typeof View> = () => {
   );
 };
 
-export const PeerHover: ComponentStory<typeof View> = () => {
+export const PeerHover: StoryFn<typeof View> = () => {
   return (
     <Vertical gap={20} padding={20}>
       <Text fontSize={24} fontWeight="bold">

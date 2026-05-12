@@ -20,7 +20,7 @@ export interface ScrollPosition {
 }
 
 export interface UseScrollOptions {
-  container?: RefObject<HTMLElement>;
+  container?: RefObject<HTMLElement | null>;
   offset?: [number, number];
   throttleMs?: number;
   // Added disabled option to conditionally disable scroll tracking
@@ -112,7 +112,7 @@ export const useScroll = ({
   });
 
   const lastUpdateRef = useRef<number>(0);
-  const frameRef = useRef<number>();
+  const frameRef = useRef<number | undefined>(undefined);
   const ticking = useRef(false);
 
   // Resolve the window/document context. If the container is an iframe element, use its contentWindow.
@@ -263,7 +263,7 @@ export const useScroll = ({
 
 // Enhanced useScrollAnimation with callback support and iframe support
 export const useScrollAnimation = (
-  ref: RefObject<HTMLElement>,
+  ref: RefObject<HTMLElement | null>,
   options: UseScrollAnimationOptions = DEFAULT_SCROLL_ANIMATION_OPTIONS
 ) => {
   const [isInView, setIsInView] = useState(false);
@@ -361,7 +361,7 @@ export const useInfiniteScroll = (
 ) => {
   const [sentinel, setSentinel] = useState<HTMLDivElement | null>(null);
   const callbackRef = useRef(callback);
-  const timeoutRef = useRef<NodeJS.Timeout>();
+  const timeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
   useEffect(() => {
     callbackRef.current = callback;
@@ -416,7 +416,7 @@ export const useScrollDirection = (threshold = 5, targetWindow?: Window) => {
   const [scrollDirection, setScrollDirection] = useState<'up' | 'down'>('up');
   const lastScrollY = useRef(0);
   const lastDirection = useRef<'up' | 'down'>('up');
-  const animationFrame = useRef<number>();
+  const animationFrame = useRef<number | undefined>(undefined);
   const ticking = useRef(false);
 
   const updateDirection = useCallback(() => {

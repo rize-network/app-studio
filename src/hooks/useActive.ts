@@ -1,7 +1,7 @@
 import { useRef, useState, useEffect } from 'react';
 
 export function useActive<T extends HTMLElement = HTMLElement>(): [
-  React.RefObject<T>,
+  React.RefObject<T | null>,
   boolean,
 ] {
   const [active, setActive] = useState(false);

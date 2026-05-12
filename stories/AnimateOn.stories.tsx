@@ -1,5 +1,5 @@
 import React from 'react';
-import { ComponentStory, ComponentMeta } from '@storybook/react';
+import type { Meta, StoryFn } from '@storybook/react';
 import { View, Text } from '../src/index';
 import * as Animations from '../src/element/Animation';
 
@@ -21,12 +21,12 @@ The Both approach provides the best UX - immediate animation on mount plus re-an
       },
     },
   },
-} as ComponentMeta<typeof View>;
+} as Meta<typeof View>;
 
 /**
  * Default behavior: animations trigger on Both (mount + scroll into viewport)
  */
-export const DefaultBehavior: ComponentStory<typeof View> = () => (
+export const DefaultBehavior: StoryFn<typeof View> = () => (
   <View padding={20} minHeight="300vh">
     <View
       position="sticky"
@@ -101,7 +101,7 @@ export const DefaultBehavior: ComponentStory<typeof View> = () => (
 /**
  * Explicitly set animateOn="View"
  */
-export const ExplicitView: ComponentStory<typeof View> = () => (
+export const ExplicitView: StoryFn<typeof View> = () => (
   <View padding={20} minHeight="300vh">
     <View
       position="sticky"
@@ -143,7 +143,7 @@ export const ExplicitView: ComponentStory<typeof View> = () => (
 /**
  * Using animateOn="Mount" for immediate animations
  */
-export const MountBehavior: ComponentStory<typeof View> = () => (
+export const MountBehavior: StoryFn<typeof View> = () => (
   <View padding={20}>
     <Text fontSize={24} fontWeight="bold" marginBottom={16}>
       animateOn="Mount"
@@ -205,7 +205,7 @@ export const MountBehavior: ComponentStory<typeof View> = () => (
 /**
  * Comparison of Both vs Mount vs View
  */
-export const Comparison: ComponentStory<typeof View> = () => (
+export const Comparison: StoryFn<typeof View> = () => (
   <View padding={20} minHeight="250vh">
     <View
       position="sticky"
@@ -304,7 +304,7 @@ export const Comparison: ComponentStory<typeof View> = () => (
 /**
  * Multiple animations with mixed triggers
  */
-export const MixedTriggers: ComponentStory<typeof View> = () => (
+export const MixedTriggers: StoryFn<typeof View> = () => (
   <View padding={20} minHeight="300vh">
     <Text fontSize={24} fontWeight="bold" marginBottom={16}>
       Mixed Animation Triggers
@@ -366,7 +366,7 @@ export const MixedTriggers: ComponentStory<typeof View> = () => (
  * Special Case: Timeline Override
  * If you provide an explicit timeline (e.g. scroll()), it is respected even if animateOn="View" is set.
  */
-export const TimelineOverride: ComponentStory<typeof View> = () => (
+export const TimelineOverride: StoryFn<typeof View> = () => (
   <View padding={20} minHeight="300vh">
     <View
       position="sticky"

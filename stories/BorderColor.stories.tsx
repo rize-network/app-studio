@@ -1,5 +1,5 @@
 import React from 'react';
-import { ComponentStory, ComponentMeta } from '@storybook/react';
+import type { Meta, StoryFn } from '@storybook/react';
 import { View, Text, Vertical, Horizontal } from '../src';
 import { ThemeProvider } from '../src/providers/Theme';
 
@@ -14,9 +14,9 @@ export default {
       },
     },
   },
-} as ComponentMeta<typeof View>;
+} as Meta<typeof View>;
 
-const Template: ComponentStory<typeof View> = () => (
+const Template: StoryFn<typeof View> = () => (
   <ThemeProvider>
     <Vertical
       gap={20}

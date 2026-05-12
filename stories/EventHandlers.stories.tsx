@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ComponentStory, ComponentMeta } from '@storybook/react';
+import type { Meta, StoryFn } from '@storybook/react';
 import { View, Text, Vertical, Button } from '../src';
 
 export default {
@@ -13,9 +13,9 @@ export default {
       },
     },
   },
-} as ComponentMeta<typeof View>;
+} as Meta<typeof View>;
 
-export const EventHandlersTest: ComponentStory<typeof View> = () => {
+export const EventHandlersTest: StoryFn<typeof View> = () => {
   const [clickCount, setClickCount] = useState(0);
   const [hoverCount, setHoverCount] = useState(0);
   const [changeValue, setChangeValue] = useState('');

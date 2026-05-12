@@ -1,5 +1,5 @@
 import React from 'react';
-import { ComponentStory, ComponentMeta } from '@storybook/react';
+import type { Meta, StoryFn } from '@storybook/react';
 import { View, Text } from '../src/index';
 import {
   // Preset functions
@@ -51,7 +51,7 @@ Performant scroll-driven animations using CSS \`animation-timeline: view()\`.
       },
     },
   },
-} as ComponentMeta<typeof View>;
+} as Meta<typeof View>;
 
 // Helper component for demo cards
 const AnimationCard: React.FC<{
@@ -80,7 +80,7 @@ const AnimationCard: React.FC<{
 /**
  * All preset view animations in one demo
  */
-export const AllPresets: ComponentStory<typeof View> = () => (
+export const AllPresets: StoryFn<typeof View> = () => (
   <View padding={20} minHeight="400vh">
     <View
       position="sticky"
@@ -259,7 +259,7 @@ export const AllPresets: ComponentStory<typeof View> = () => (
 /**
  * Custom JSON-configured animation
  */
-export const CustomAnimation: ComponentStory<typeof View> = () => {
+export const CustomAnimation: StoryFn<typeof View> = () => {
   // Define custom animations as JSON
   const bounceIn: ViewAnimationConfig = {
     keyframes: {
@@ -394,7 +394,7 @@ export const CustomAnimation: ComponentStory<typeof View> = () => {
 /**
  * Using viewAnimationPresets - JSON configs
  */
-export const UsingPresets: ComponentStory<typeof View> = () => (
+export const UsingPresets: StoryFn<typeof View> = () => (
   <View padding={20} minHeight="400vh">
     <View
       position="sticky"
@@ -451,7 +451,7 @@ export const UsingPresets: ComponentStory<typeof View> = () => (
 /**
  * Staggered animations with delay
  */
-export const StaggeredAnimations: ComponentStory<typeof View> = () => (
+export const StaggeredAnimations: StoryFn<typeof View> = () => (
   <View padding={20} minHeight="300vh">
     <View
       position="sticky"
@@ -523,7 +523,7 @@ export const StaggeredAnimations: ComponentStory<typeof View> = () => (
 /**
  * Performance comparison demonstration
  */
-export const PerformanceBenefits: ComponentStory<typeof View> = () => (
+export const PerformanceBenefits: StoryFn<typeof View> = () => (
   <View padding={20} minHeight="200vh">
     <View
       position="sticky"
@@ -635,7 +635,7 @@ export const PerformanceBenefits: ComponentStory<typeof View> = () => (
 /**
  * Grid layout with mixed animations
  */
-export const AnimatedGrid: ComponentStory<typeof View> = () => {
+export const AnimatedGrid: StoryFn<typeof View> = () => {
   const animations = [
     { fn: fadeInOnView, name: 'Fade' },
     { fn: slideUpOnView, name: 'Slide Up' },
@@ -722,7 +722,7 @@ export const AnimatedGrid: ComponentStory<typeof View> = () => {
 /**
  * Entry and Exit animations
  */
-export const EntryAndExit: ComponentStory<typeof View> = () => (
+export const EntryAndExit: StoryFn<typeof View> = () => (
   <View padding={20} minHeight="400vh">
     <View
       position="sticky"

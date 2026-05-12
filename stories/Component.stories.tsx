@@ -2,7 +2,7 @@
 
 import React from 'react';
 
-import { ComponentStory, ComponentMeta } from '@storybook/react';
+import type { Meta, StoryFn } from '@storybook/react';
 
 import { Input as $Input, Image as $Image, Form as $Form } from '../src/index';
 
@@ -12,9 +12,9 @@ export default {
    * to learn how to generate automatic titles
    */
   title: 'Component',
-} as ComponentMeta<any>;
+} as Meta<any>;
 
-export const Input: ComponentStory<typeof $Input> = () => {
+export const Input: StoryFn<typeof $Input> = () => {
   return (
     <$Input
       width={100}
@@ -24,7 +24,7 @@ export const Input: ComponentStory<typeof $Input> = () => {
   );
 };
 
-export const Form: ComponentStory<typeof $Form> = () => {
+export const Form: StoryFn<typeof $Form> = () => {
   return (
     <$Form
       widthHeight={100}
@@ -35,7 +35,7 @@ export const Form: ComponentStory<typeof $Form> = () => {
   );
 };
 
-export const Image: ComponentStory<typeof $Image> = () => {
+export const Image: StoryFn<typeof $Image> = () => {
   return (
     <$Image
       widthHeight={100}

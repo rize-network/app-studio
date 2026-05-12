@@ -1,6 +1,6 @@
 // Color Alpha Parameter Test Stories
 import React from 'react';
-import { ComponentStory, ComponentMeta } from '@storybook/react';
+import type { Meta, StoryFn } from '@storybook/react';
 import { View, Text, Vertical, Horizontal } from '../src';
 
 export default {
@@ -14,10 +14,10 @@ export default {
       },
     },
   },
-} as ComponentMeta<typeof View>;
+} as Meta<typeof View>;
 
 // Template for Alpha Transparency Examples
-const AlphaTemplate: ComponentStory<typeof View> = () => (
+const AlphaTemplate: StoryFn<typeof View> = () => (
   <Vertical gap={30} padding={20} backgroundColor="color-gray-100">
     <Text fontSize={24} fontWeight="bold">
       Alpha Parameter Examples
@@ -269,7 +269,7 @@ const AlphaTemplate: ComponentStory<typeof View> = () => (
 );
 
 // Template for New Color Palettes
-const NewPalettesTemplate: ComponentStory<typeof View> = () => (
+const NewPalettesTemplate: StoryFn<typeof View> = () => (
   <Vertical gap={30} padding={20} backgroundColor="color-gray-50">
     <Text fontSize={24} fontWeight="bold">
       New Color Palettes
