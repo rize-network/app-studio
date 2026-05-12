@@ -12,6 +12,7 @@ App-Studio is a React library designed to streamline the development of modern w
 *   **Animation System:** A declarative `Animation` object for easily applying and sequencing CSS animations and transitions, including scroll-driven effects.
 *   **Helpful Hooks:** A collection of hooks for managing state, detecting interactions (`useHover`, `useActive`, `useFocus`), tracking viewport status (`useInView`, `useOnScreen`), handling events (`useClickOutside`, `useKeyPress`), and more.
 *   **Analytics Integration:** `AnalyticsProvider` to easily integrate event tracking.
+*   **React Native Support:** A dedicated native build ships alongside the web build. Metro picks it automatically through the `react-native` export condition — the same import paths and prop API work on iOS, Android, and web, with web-only props (`_hover`, pseudo-elements, CSS animations) accepted as no-ops on native.
 *   **TypeScript Support:** Fully typed for a better development experience.
 
 ---
@@ -71,6 +72,63 @@ Get started with App-Studio by installing it via npm and setting up the necessar
     export default App;
     ```
 
+### React Native
+
+The same package name works in React Native 0.79+ through Metro package exports:
+
+```tsx
+import { View, Text, Button, ThemeProvider, ResponsiveProvider } from 'app-studio';
+```
+
+Metro resolves `app-studio` to the native build automatically. The explicit `app-studio/native` and `app-studio/web` subpaths are also available for debugging or tooling. Native supports the cross-platform primitives and providers; web-only styling props such as `_hover`, pseudo-elements, CSS animations, and HTML `as` values are accepted as no-ops in React Native.
+
+A typical RN entrypoint looks identical to the web one — same providers, same import paths:
+
+```tsx
+import React from 'react';
+import {
+  ThemeProvider,
+  ResponsiveProvider,
+  WindowSizeProvider,
+  View,
+  Text,
+  Button,
+} from 'app-studio';
+
+export default function App() {
+  return (
+    <ThemeProvider>
+      <WindowSizeProvider>
+        <ResponsiveProvider>
+          <View padding={20} backgroundColor="theme-primary" widthHeight="100%">
+            <Text color="color-white" fontSize={20} fontWeight="bold" maxLines={1}>
+              Hello, native!
+            </Text>
+            <Button
+              marginTop={16}
+              paddingHorizontal={20}
+              paddingVertical={12}
+              backgroundColor="color-white"
+              borderRadius={8}
+              shadow={0.3}
+              onPress={() => console.log('Pressed')}
+            >
+              <Text color="theme-primary" fontWeight="bold">Press me</Text>
+            </Button>
+          </View>
+        </ResponsiveProvider>
+      </WindowSizeProvider>
+    </ThemeProvider>
+  );
+}
+```
+
+**What carries over from web:** direct style props, the `media` map, theme/palette color strings (`theme-primary`, `color-blue-500`, `light-white`, `dark-red-200`, alpha shorthand like `theme-primary-300`), the `widthHeight` and `shadow` shorthands, `data-testid` (rewritten to `testID`), `aria-label` (rewritten to `accessibilityLabel`), all four providers, and the `useResponsive` / `useWindowSize` / `useBreakpoint` / `useTheme` hooks.
+
+**What's web-only on native (silently dropped):** state modifiers (`_hover`, `_focus`, `_active`, `_disabled`, …), pseudo-elements (`_before`, `_after`, …), the `on={{ hover, focus, ... }}` map, raw-string `css`, the `as` prop, `className`, and the `Animation.*` / `animate` system. Hooks that depend on DOM APIs (`useHover`, `useFocus`, `useClickOutside`, `useScroll`, `useInView`, `useOnScreen`, `useElementPosition`, `useKeyPress`, `useIframeStyles`) are exported as safe stubs so shared component code keeps compiling — but you should branch when meaningful interaction state is needed.
+
+For the full component mapping table, native-only props, per-hook breakdown, and a side-by-side web/native cheat sheet, see [docs/Native.md](docs/Native.md).
+
 ---
 
 # Core Concepts
@@ -83,7 +141,7 @@ The `Element` component is the cornerstone of App-Studio. Most other components 
 *   **Responsive Styles:** Use the `media` prop to define styles for specific breakpoints (e.g., `media={{ mobile: { padding: 8 }, desktop: { padding: 16 } }}`).
 *   **State-Based Styles:** Use the `on` prop to apply styles based on interaction states like hover, focus, or active (e.g., `on={{ hover: { backgroundColor: 'lightgray' } }}`).
 *   **Animation:** Integrates with the animation system via the `animate` prop.
-*   **Theming:** Automatically resolves theme colors (e.g., `color="theme.primary"`).
+*   **Theming:** Automatically resolves theme colors (e.g., `color="theme-primary"`).
 
 ## Styling System
 
@@ -123,7 +181,9 @@ Define responsive styles with the `media` prop for different breakpoints:
 
 ## Theming & Colors
 
-Use `ThemeProvider` to define global theme settings, including light/dark mode colors and custom theme tokens (e.g., `primary`, `secondary`). The `useTheme` hook provides access to the current theme mode (`themeMode`), theme configuration (`theme`), a function to switch modes (`setThemeMode`), and the essential `getColor` function to resolve color strings (like `color-blue-500` or `theme-primary`) into actual CSS color values for the current mode.
+Use `ThemeProvider` to define global theme settings, including light/dark mode colors and custom theme tokens (e.g., `primary`, `secondary`). The `useTheme` hook provides access to the current theme mode (`themeMode`), theme configuration (`theme`), and a function to switch modes (`setThemeMode`).
+
+**App-Studio components resolve color strings automatically.** Pass color strings like `"color-blue-500"` or `"theme-primary"` directly as props (e.g., `backgroundColor="theme-primary"`) — no manual resolution required. `useTheme` also exposes a `getColor` function, but you only need it when passing a color to a non-App-Studio element (e.g., a third-party library, an inline `style`, or a computed value outside the prop system).
 
 **Color System Features:**
 - **Color Palettes**: 34 palettes with 9 shades each (50, 100, 200...900) - e.g., `color-blue-500`
@@ -154,6 +214,62 @@ light-*           → Always use light mode colors
 dark-*            → Always use dark mode colors
   ├─ dark-white
   └─ dark-red-200
+```
+
+### Alpha Transparency
+
+Append a 4th parameter (0–1000, mapping to 0%–100% opacity) to any palette or theme color to apply transparency. Under the hood this compiles to `color-mix(in srgb, var(--color-…) N%, transparent)`, so colors stay theme-aware and update automatically on mode switch.
+
+**Syntax:** `color-{palette}-{shade}-{alpha}` or `theme-{token}-{alpha}`
+
+- `0` → fully transparent
+- `500` → 50% opacity
+- `1000` → fully opaque
+
+**Example — using transparency directly on App-Studio components:**
+
+```jsx
+import { View, Text, Button } from 'app-studio';
+
+function TransparencyShowcase() {
+  return (
+    <View padding={20} backgroundColor="color-gray-100" gap={12}>
+      {/* Translucent overlay card */}
+      <View
+        padding={16}
+        backgroundColor="color-black-900-200"  // black at 20% opacity
+        borderRadius={8}
+      >
+        <Text color="color-white">Glass-style overlay</Text>
+      </View>
+
+      {/* Subtle border using a theme color at 30% opacity */}
+      <View
+        padding={16}
+        borderWidth={1}
+        borderStyle="solid"
+        borderColor="theme-primary-300"        // primary at 30% opacity
+        backgroundColor="theme-primary-100"    // primary at 10% opacity
+        borderRadius={8}
+      >
+        <Text color="theme-primary">Tinted panel</Text>
+      </View>
+
+      {/* Hover state with softened background */}
+      <Button
+        padding={10}
+        backgroundColor="color-blue-500"
+        color="color-white"
+        borderRadius={6}
+        on={{
+          hover: { backgroundColor: 'color-blue-500-700' }, // 70% opacity on hover
+        }}
+      >
+        Hover me
+      </Button>
+    </View>
+  );
+}
 ```
 
 ## Responsiveness
@@ -213,7 +329,9 @@ function MyStyledElement() {
 }
 ```
 
-In addition to global theming via `ThemeProvider`, the `Element` component offers granular control through the `themeMode`, `colors`, and `theme` props. When specified, these props locally override the context provided by `ThemeProvider` for this specific element instance and how its style props (like `backgroundColor="theme-primary"` or `color="color-blue-500"`) resolve color values. `themeMode` forces 'light' or 'dark' mode resolution, `colors` provides a custom `{ main, palette }` object, and `theme` supplies custom token mappings (e.g., `{ primary: 'color-purple-500' }`). This allows creating distinctly styled sections or components without altering the global theme, useful for sidebars, specific UI states, or component variations.
+In addition to global theming via `ThemeProvider`, every component that extends `Element` (`View`, `Text`, `Button`, etc.) accepts a `theme` prop that remaps `theme-*` tokens **for that single component**, without altering the global theme. This is useful for creating distinctly styled sections or one-off branded components (a launch button, a callout card, a status chip) while the rest of the UI keeps the global palette.
+
+The `theme` prop takes a `Partial<Theme>` mapping any of the global theme slots (`primary`, `secondary`, `success`, `error`, `warning`, `disabled`, `loading`) to another color token (`'color-red-500'`, `'theme-secondary'`) or a raw color string (`'#ff0000'`). See [docs/Theming.md](docs/Theming.md#component-level-sub-theming) for the full reference, including dark-mode behavior and scope caveats.
 
 **Example (Local Theme Override):**
 
@@ -221,35 +339,21 @@ In addition to global theming via `ThemeProvider`, the `Element` component offer
 import { Element, Text } from 'app-studio';
 
 function LocallyThemedSection() {
-  // Assume the global theme is currently 'light' mode.
-
-  // Define a local override theme and colors for this specific section
-  const localThemeOverride = { primary: 'color-orange-500', secondary: 'color-teal-300' };
-  const localDarkColorsOverride = {
-    main: {
-      white: '#EEE'
-    }
-  }; // Using defaults for demonstration
-
   return (
     <Element
       padding={20}
       marginVertical={10}
-      // Force dark mode and provide specific theme/color definitions JUST for this Element
-      themeMode="dark"
-      theme={localThemeOverride}
-      colors={localDarkColorsOverride}
-      // Styles below will resolve using the LOCAL dark theme override defined above:
-      backgroundColor="theme-secondary" // Resolves to 'color-teal-300' via localThemeOverride in dark mode
+      // Remap theme-primary / theme-secondary just for this Element:
+      theme={{ primary: 'color-orange-500', secondary: 'color-teal-300' }}
+      backgroundColor="theme-secondary" // -> color-teal-300
+      borderColor="theme-primary"       // -> color-orange-500
+      borderWidth={2}
+      borderStyle="solid"
       borderRadius={8}
     >
-      <Text color="color-white"
-      colors={localDarkColorsOverride}> {/* 'color-white' from localDarkColorsOverride.main */}
-        This section forces dark mode with an orange primary, even if the app is light-
+      <Text color="color-white">
+        This section uses an orange primary, even though the global theme is unchanged.
       </Text>
-      <Element marginTop={8} padding={10} backgroundColor="color-gray-700"> {/* Uses local dark palette */}
-         <Text color="theme-primary">Nested Primary (Orange)</Text> {/* Still uses local override */}
-      </Element>
     </Element>
   );
 }
@@ -671,18 +775,25 @@ Manages the application's theme, including color palettes, light/dark modes, and
 
 **Props:**
 
-| Prop    | Type               | Default                             | Description                                                                       |
-| :------ | :----------------- | :---------------------------------- | :-------------------------------------------------------------------------------- |
-| `theme` | `object`           | `{ primary: 'color-black', ... }`   | Custom theme tokens (e.g., `primary`, `secondary`) that map to color strings.     |
-| `mode`  | `'light' \| 'dark'`| `'light'`                           | Sets the initial theme mode.                                                      |
-| `dark`  | `Colors`           | Default dark palette & main colors  | Configuration object for dark mode containing `main` (singleton colors) and `palette`. |
-| `light` | `Colors`           | Default light palette & main colors | Configuration object for light mode containing `main` (singleton colors) and `palette`.|
+| Prop           | Type                | Default                             | Description                                                                       |
+| :------------- | :------------------ | :---------------------------------- | :-------------------------------------------------------------------------------- |
+| `theme`        | `Partial<Theme>`    | `{ primary: 'color-black', ... }`   | Custom theme tokens (e.g., `primary`, `secondary`) that map to color strings.     |
+| `mode`         | `'light' \| 'dark'` | `'light'`                           | Sets the initial theme mode.                                                      |
+| `dark`         | `Partial<Colors>`   | Default dark palette & main colors  | Configuration object for dark mode containing `main` (singleton colors) and `palette`. |
+| `light`        | `Partial<Colors>`   | Default light palette & main colors | Configuration object for light mode containing `main` (singleton colors) and `palette`.|
+| `strict`       | `boolean`           | `false`                             | When `true`, logs a console warning whenever a color prop is passed a value that isn't a dash-notation token (`color-*`, `theme-*`, `light-*`, `dark-*`). Useful in dev to catch raw hex/CSS colors leaking into the design system. |
+| `targetWindow` | `Window`            | `undefined`                         | When set, the generated `<style>` tag with CSS variables is injected into the given window's document instead of the current one. Used for iframe support — pass the iframe's `contentWindow` so its `data-theme` selectors see the variables. |
 
 **Context Values (via `useTheme`)**
 
-*   `getColor(colorName, mode?)`: Resolves a color string (e.g., `color-blue-500`, `theme-primary`, `blackAlpha-500`) to its CSS value for the specified or current theme mode.
+*   `getColor(name, override?)`: Resolves a color token (e.g., `color-blue-500`, `theme-primary`, `color-blue-500-200`) to its CSS value. Returns a `var(--…)` reference for palette/theme tokens, a `color-mix(...)` expression for alpha-suffixed tokens, or the raw value for direct colors (`#hex`, `rgb()`). The optional `override` is `{ theme?, colors?, themeMode? }` — pass it to resolve a token against a one-off theme/palette/mode without mutating the global one. Most of the time you don't need to call this directly — App-Studio components resolve color strings passed as props automatically. Use it for non-App-Studio elements or computed styles.
+*   `getColorHex(name, override?)`: Resolves a token down to a concrete `#rrggbb[aa]` hex string. Useful when a third-party library demands a literal color (no `var(--…)`).
+*   `getColorRGBA(name, alpha?, override?)`: Same idea as `getColorHex`, but returns `rgba(r, g, b, a)`. The optional `alpha` is on the 0–1000 scale (matches the alpha-suffix syntax).
+*   `getColorScheme(name, override?)`: Given a token or a hex literal, returns the closest palette name (`'blue'`, `'rose'`, …) or `undefined`. Useful for picking matching icons/illustrations from a color.
+*   `getContrastColor(name, override?)`: Returns `'black'` or `'white'` for the most readable foreground on the given background color, using the WCAG luminance formula.
 *   `theme`: The merged theme configuration object.
-*   `themeMode`: The current mode ('light' or 'dark').
+*   `colors`: The current mode's resolved `{ main, palette }` color objects.
+*   `themeMode`: The current mode (`'light'` or `'dark'`).
 *   `setThemeMode(mode)`: Function to change the theme mode.
 
 ## ResponsiveProvider
@@ -741,27 +852,38 @@ App-Studio exports utility objects and functions.
 
 ## Colors (`utils/colors.ts`)
 
-Defines the default color palettes (`defaultLightPalette`, `defaultDarkPalette`) and singleton colors (`defaultLightColors`, `defaultDarkColors`) used by `ThemeProvider`. You can import these if needed for custom theme configurations. Colors are accessed within components primarily via the `getColor` function from `useTheme`.
+Defines the default color palettes (`defaultLightPalette`, `defaultDarkPalette`) and singleton colors (`defaultLightColors`, `defaultDarkColors`) used by `ThemeProvider`. You can import these if needed for custom theme configurations.
 
 **Accessing Colors:**
 
+App-Studio components resolve color strings automatically — just pass them as props:
+
 ```jsx
-import { useTheme } from 'app-studio';
-import { View } from './components/View';
+import { View } from 'app-studio';
 
 function ThemedComponent() {
-  const { getColor } = useTheme();
-
   return (
     <View
-      backgroundColor={getColor('theme.primary')} // Get theme color
-      color={getColor('color-white')}            // Get singleton color
-      borderColor={getColor('color-blue-300')}     // Get palette color
+      backgroundColor="theme-primary"   // Theme color
+      color="color-white"               // Singleton color
+      borderColor="color-blue-300"      // Palette color
       padding={10}
     >
       My Themed Content
     </View>
   );
+}
+```
+
+If you need the raw CSS value (e.g., to pass to a non-App-Studio element or a third-party library), use `getColor` from `useTheme`:
+
+```jsx
+import { useTheme } from 'app-studio';
+
+function CustomChart() {
+  const { getColor } = useTheme();
+  // Pass resolved CSS color to a third-party component
+  return <ThirdPartyChart color={getColor('theme-primary')} />;
 }
 ```
 
@@ -850,13 +972,14 @@ Explore our comprehensive documentation to learn more about App-Studio:
 - [Getting Started](docs/README.md) - Quick start guide and core concepts
 - [Components](docs/Components.md) - Detailed documentation of all available components
 - [Hooks](docs/Hooks.md) - Guide to the React hooks provided by App-Studio
-- [Theming](docs/Theming.md) - Color systems, theme colors, palettes, and light/dark modes
+- [Theming](docs/Theming.md) - Color systems, theme tokens, palettes, light/dark modes, and component-level sub-theming via the `theme` prop
 - [Styling](docs/Styling.md) - Advanced guide to state modifiers, pseudo-elements, media queries, and CSS system
 - [Animation](docs/Animation.md) - Creating animations with App-Studio
 - [Responsive Design](docs/Responsive.md) - Building responsive layouts
 - [Design System](docs/Design.md) - Understanding the design system
 - [Event Handling](docs/Events.md) - Working with events and interactions
 - [Providers](docs/Providers.md) - Context providers for global state
+- [React Native](docs/Native.md) - Using App-Studio in React Native projects: component mapping, native-only props, hook differences, and a web/native cheat sheet
 - [Migration Guide](codemod/README.md) - Migrating to App-Studio
 
 ---

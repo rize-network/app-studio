@@ -25,7 +25,22 @@ export interface InputProps
   extends
     ElementProps,
     CommonProps,
-    Omit<Partial<HTMLInputElement>, keyof ElementProps> {}
+    Omit<Partial<HTMLInputElement>, keyof ElementProps> {
+  /**
+   * Visible label rendered alongside the input. Form-library wrappers (Switch,
+   * TextField, Checkbox, …) consume this. Not a native HTML attribute on
+   * <input>, but conventionally part of the form-control prop surface.
+   */
+  label?: React.ReactNode;
+  /**
+   * Helper text rendered below the input (hint / error / explanation).
+   */
+  helperText?: React.ReactNode;
+  /**
+   * Error state — usually a string for the error message, or a boolean toggle.
+   */
+  error?: boolean | string;
+}
 
 export const Form = React.forwardRef<
   HTMLElement,

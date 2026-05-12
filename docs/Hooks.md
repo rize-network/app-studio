@@ -2,6 +2,8 @@
 
 App-Studio provides a comprehensive set of React hooks to help you build interactive and responsive applications. This guide covers all the available hooks and their usage.
 
+> **React Native:** the hooks below are listed by their web behavior. Most have native counterparts; some are exported as **no-op stubs** so shared component code keeps compiling (e.g. `useHover`, `useFocus`, `useClickOutside`, `useElementPosition`, `useKeyPress`, `useOnScreen`, `useInView`, `useIframeStyles`, `useScroll`). The full per-hook breakdown lives in [Native.md → Hooks on Native](Native.md#hooks-on-native).
+
 ## Iframe Support
 
 Many hooks in App-Studio support working inside iframes for micro-frontend architectures, preview environments, and embedded widgets.
@@ -334,14 +336,15 @@ Access and modify theme settings.
 import { useTheme } from 'app-studio';
 
 function ThemeComponent() {
-  const { themeMode, setThemeMode, getColor } = useTheme();
+  const { themeMode, setThemeMode } = useTheme();
 
   return (
     <>
       <Button onClick={() => setThemeMode(themeMode === 'light' ? 'dark' : 'light')}>
         Toggle Theme
       </Button>
-      <View backgroundColor={getColor('theme-primary')}>
+      {/* App-Studio components resolve color strings automatically — no getColor needed */}
+      <View backgroundColor="theme-primary">
         Themed content
       </View>
     </>

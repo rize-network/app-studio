@@ -344,7 +344,7 @@ export const MixedTriggers: ComponentStory<typeof View> = () => (
         animate={Animations.slideInUp({ duration: '0.6s' })}
         backgroundColor={`color-${
           ['blue', 'green', 'orange', 'red'][i - 1]
-        }.500`}
+        }-500`}
         padding={30}
         borderRadius={12}
         marginBottom={40}

@@ -2,6 +2,8 @@
 
 This guide covers advanced styling techniques in App-Studio, including state modifiers, pseudo-elements, media queries, and the underlying CSS system.
 
+> **React Native:** state modifiers (`_hover`, `_focus`, `_disabled`, …), pseudo-elements (`_before`, `_after`, …), the `on={{ ... }}` map, and raw-string `css` are **web-only**. They are accepted on native but produce no output — express equivalent behavior with `Pressable`'s event props or RN's `Animated` API. Direct style props, the `media` map, object-form `css`, theme color strings, the `widthHeight` shorthand, and the `shadow` prop all work the same on native. See [Native.md → Styling Props on Native](Native.md#styling-props-on-native).
+
 ## Table of Contents
 
 1. [State Modifiers](#state-modifiers)
@@ -408,21 +410,22 @@ Combine multiple state modifiers:
 
 ### Dynamic Theming
 
+App-Studio components resolve theme color strings automatically. Pass the color name directly — no need for `getColor`:
+
 ```javascript
-import { useTheme } from 'app-studio';
 import { View } from 'app-studio';
 
 function DynamicThemedComponent() {
-  const { getColor } = useTheme();
-  
   return (
     <View
-      backgroundColor={getColor('theme-primary')}
-      borderColor={getColor('theme-secondary')}
+      backgroundColor="theme-primary"
+      borderColor="theme-secondary"
     />
   );
 }
 ```
+
+`getColor` from `useTheme` is only needed when passing a resolved CSS color to a non-App-Studio element (e.g., a third-party chart library) or to a computed value outside the prop system.
 
 ### CSS-in-JS Patterns
 

@@ -48,6 +48,18 @@ function App() {
 }
 ```
 
+### React Native
+
+React Native 0.79+ apps can use the same package name:
+
+```tsx
+import { View, Text, Button, ThemeProvider, ResponsiveProvider } from 'app-studio';
+```
+
+Metro resolves the package to App-Studio's native build through the `react-native` export condition. Use `app-studio/native` or `app-studio/web` only when you need an explicit platform subpath. Native exposes the cross-platform primitives/providers; web-only props such as `_hover`, pseudo-elements, CSS animations, and HTML `as` values are accepted as no-ops.
+
+See the [React Native guide](Native.md) for component mapping, native-only props, hook behavior on native, and a side-by-side cheat sheet.
+
 ## Core Concepts
 
 ### Element Component
@@ -80,13 +92,14 @@ Explore these guides to learn more about App-Studio:
 
 - [Components](Components.md) - Detailed documentation of all available components
 - [Hooks](Hooks.md) - Guide to the React hooks provided by App-Studio
-- [Theming](Theming.md) - How to customize colors and themes with theme colors and color palettes
+- [Theming](Theming.md) - Customize colors, theme tokens, color palettes, and component-level sub-theming via the `theme` prop
 - [Styling](Styling.md) - Advanced styling guide covering state modifiers, pseudo-elements, media queries, and the CSS system
 - [Animation](Animation.md) - Creating animations with App-Studio
 - [Responsive Design](Responsive.md) - Building responsive layouts
 - [Design System](Design.md) - Understanding the design system
 - [Event Handling](Events.md) - Working with events and interactions
 - [Providers](Providers.md) - Context providers for global state
+- [React Native](Native.md) - Using App-Studio in React Native projects (component mapping, native-only props, hook differences)
 - [Migration Guide](../codemod/README.md) - Migrating to App-Studio
 
 ---
@@ -561,7 +574,7 @@ Manages the application's theme, including color palettes, light/dark modes, and
 
 **Context Values (via `useTheme`)**
 
-*   `getColor(colorName, mode?)`: Resolves a color string (e.g., `color-blue-500`, `theme-primary`) to its CSS value for the specified or current theme mode. You can also directly access specific theme mode colors using the `light-` or `dark-` prefix (e.g., `light-white` or `dark-red-200`), which will always use that specific theme mode's color regardless of the current theme setting.
+*   `getColor(colorName, mode?)`: Resolves a color string (e.g., `color-blue-500`, `theme-primary`) to its CSS value for the specified or current theme mode. You rarely need to call this — App-Studio components resolve color strings passed as props automatically. Use `getColor` only when passing a color to a non-App-Studio element or when you need the raw CSS value for a computed style. You can also directly access specific theme mode colors using the `light-` or `dark-` prefix (e.g., `light-white` or `dark-red-200`), which will always use that specific theme mode's color regardless of the current theme setting.
 *   `theme`: The merged theme configuration object.
 *   `themeMode`: The current mode ('light' or 'dark').
 *   `setThemeMode(mode)`: Function to change the theme mode.
@@ -622,32 +635,31 @@ App-Studio exports utility objects and functions.
 
 ## Colors (`utils/colors.ts`)
 
-Defines the default color palettes (`defaultLightPalette`, `defaultDarkPalette`) and singleton colors (`defaultLightColors`, `defaultDarkColors`) used by `ThemeProvider`. You can import these if needed for custom theme configurations. Colors are accessed within components primarily via the `getColor` function from `useTheme`.
+Defines the default color palettes (`defaultLightPalette`, `defaultDarkPalette`) and singleton colors (`defaultLightColors`, `defaultDarkColors`) used by `ThemeProvider`. You can import these if needed for custom theme configurations.
 
 **Accessing Colors:**
 
+App-Studio components resolve color strings automatically — just pass them as props. You don't need `getColor` for this:
+
 ```jsx
-import { useTheme } from 'app-studio';
-import { View, Text } from './components/Components';
+import { View, Text } from 'app-studio';
 
 function ThemedComponent() {
-  const { getColor } = useTheme();
-
   return (
     <View
-      backgroundColor={getColor('theme-primary')} // Get theme color
-      color={getColor('color-white')}            // Get singleton color
+      backgroundColor="theme-primary"   // Theme color
+      color="color-white"               // Singleton color
       borderRadius={8}
       padding={10}
     >
       <Text>My Themed Content</Text>
 
-      {/* Direct access to specific theme mode colors */}
+      {/* Mode-locked colors work the same way */}
       <View
         marginTop={10}
         padding={8}
-        backgroundColor={getColor('light-blue-200')} // Always light mode blue
-        borderColor={getColor('dark-red-500')}       // Always dark mode red
+        backgroundColor="light-blue-200" // Always light mode blue
+        borderColor="dark-red-500"       // Always dark mode red
         borderWidth={2}
         borderStyle="solid"
         borderRadius={4}
@@ -655,7 +667,6 @@ function ThemedComponent() {
         <Text>Mixed theme mode colors</Text>
       </View>
 
-      {/* Direct usage in component props without getColor */}
       <View marginTop={10} padding={8}>
         <Text color="light-white">Always light mode white text</Text>
         <Text color="dark-blue-700" marginTop={4}>Always dark mode blue text</Text>

@@ -1,11 +1,12 @@
 import React, {
   forwardRef,
   useEffect,
+  useMemo,
   useRef,
   useCallback,
   useState,
 } from 'react';
-import { useTheme } from '../providers/Theme';
+import { useTheme, Theme } from '../providers/Theme';
 import { useBreakpointContext } from '../providers/Responsive';
 import { useStyleRegistry } from '../providers/StyleRegistry';
 
@@ -118,6 +119,44 @@ import { ElementProps, CssProps } from './Element.types';
 
 export type { ElementProps, CssProps };
 
+const THEME_PREFIX = 'theme-';
+
+// Build a getColor that resolves `theme-*` tokens against a component-scoped
+// theme override before falling back to the global getColor. Tokens not
+// covered by the override (color-*, light-*, dark-*, theme-* keys not in the
+// override) pass straight through.
+function makeScopedGetColor(
+  componentTheme: Partial<Theme>,
+  baseGetColor: (name: string) => string
+): (name: string) => string {
+  return (name: string) => {
+    if (!name || typeof name !== 'string') return String(name);
+    if (!name.startsWith(THEME_PREFIX)) return baseGetColor(name);
+
+    const parts = name.substring(THEME_PREFIX.length).split('-');
+    const lastPart = parts[parts.length - 1];
+    const maybeAlpha = parseInt(lastPart, 10);
+    const hasAlpha =
+      parts.length >= 2 &&
+      !isNaN(maybeAlpha) &&
+      maybeAlpha >= 0 &&
+      maybeAlpha <= 1000;
+
+    const themeKey = (
+      hasAlpha ? parts.slice(0, -1).join('-') : parts.join('-')
+    ) as keyof Theme;
+
+    const overrideValue = componentTheme[themeKey];
+    if (typeof overrideValue !== 'string') return baseGetColor(name);
+
+    const resolved = baseGetColor(overrideValue);
+    if (!hasAlpha) return resolved;
+
+    const percentage = Math.round((maybeAlpha / 1000) * 100);
+    return `color-mix(in srgb, ${resolved} ${percentage}%, transparent)`;
+  };
+}
+
 export const Element = React.memo(
   forwardRef<HTMLElement, ElementProps>(
     ({ as = 'div', animateIn, animateOut, ...props }: ElementProps, ref) => {
@@ -125,7 +164,13 @@ export const Element = React.memo(
         props.cursor = 'pointer';
       }
 
-      const { onPress, blend, animateOn = 'Both', ...rest } = props;
+      const {
+        onPress,
+        blend,
+        animateOn = 'Both',
+        theme: componentTheme,
+        ...rest
+      } = props;
       const elementRef = useRef<HTMLElement | null>(null);
       const setRef = useCallback(
         (node: HTMLElement | null) => {
@@ -139,6 +184,23 @@ export const Element = React.memo(
         [ref]
       );
       const { getColor, theme } = useTheme();
+
+      // When a component-level `theme` prop is supplied, wrap getColor so
+      // `theme-*` tokens resolve against the override first. Memoize on a
+      // serialized signature so the function identity stays stable across
+      // renders that don't change the override.
+      const componentThemeKey = componentTheme
+        ? Object.entries(componentTheme)
+            .map(([k, v]) => `${k}=${v}`)
+            .join('|')
+        : '';
+      const scopedGetColor = useMemo(
+        () =>
+          componentTheme
+            ? makeScopedGetColor(componentTheme, getColor)
+            : getColor,
+        [componentTheme, componentThemeKey, getColor]
+      );
       const { trackEvent } = useAnalytics();
       const { mediaQueries, devices } = useBreakpointContext();
       const { manager } = useStyleRegistry();
@@ -247,14 +309,16 @@ export const Element = React.memo(
         });
       }
 
-      // Use hash-based memoization for style extraction
+      // Use hash-based memoization for style extraction. Mix the component
+      // theme signature into the `theme` argument so the cache invalidates
+      // when an override changes between renders.
       const utilityClasses = useStableStyleMemo(
         propsToProcess,
-        getColor,
+        scopedGetColor,
         mediaQueries,
         devices,
         manager,
-        theme
+        componentTheme ? { ...theme, __scope: componentThemeKey } : theme
       );
 
       const newProps: any = { ref: setRef };

@@ -525,6 +525,11 @@ export const processStyleProperty = (
 
   // Convert numbers to pixels for appropriate properties
   if (typeof value === 'number') {
+    // lineHeight only accepts integers: 1-3 are unitless multipliers, 4+ are pixel sizes
+    if (property === 'lineHeight' && Number.isInteger(value) && value <= 3) {
+      return value;
+    }
+
     // Check if this is a property that should have px units
     // First check the property as is, then check with vendor prefixes removed
     const shouldAddPx =

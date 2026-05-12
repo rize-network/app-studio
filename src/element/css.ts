@@ -18,7 +18,88 @@ import {
 } from '../utils/vendorPrefixes';
 import { hash } from '../utils/hash';
 
-type StyleContext = 'base' | 'pseudo' | 'media' | 'modifier' | 'override';
+type StyleContext =
+  | 'base-shorthand'
+  | 'base-side'
+  | 'base-cross'
+  | 'base'
+  | 'pseudo'
+  | 'media'
+  | 'modifier'
+  | 'override-shorthand'
+  | 'override-side'
+  | 'override-cross'
+  | 'override';
+
+// Top-level CSS shorthands that reset a wide set of longhands on conflict.
+// Rules for these properties are injected into a stylesheet that appears
+// FIRST in the document, so longhand overrides written later in source order
+// win the cascade regardless of which element first instantiated each class.
+const TIER2_SHORTHANDS = new Set<string>([
+  'all',
+  'background',
+  'border',
+  'borderRadius',
+  'font',
+  'margin',
+  'padding',
+  'animation',
+  'transition',
+  'flex',
+  'grid',
+  'gridTemplate',
+  'gridArea',
+  'outline',
+  'inset',
+  'gap',
+  'gridGap',
+  'listStyle',
+  'textDecoration',
+  'placeItems',
+  'placeContent',
+  'placeSelf',
+  'overflow',
+  'mask',
+  'columns',
+  'columnRule',
+]);
+
+// Side-shorthands: target a single side of the box and override tier-2
+// shorthands for that side. Example: `borderTop` overrides the top piece of
+// `border`. They MUST cascade before tier-4 cross-property shorthands so
+// that `borderColor` wins the per-side color slot when both are written.
+const TIER3_SIDE_SHORTHANDS = new Set<string>([
+  'borderTop',
+  'borderRight',
+  'borderBottom',
+  'borderLeft',
+]);
+
+// Cross-property shorthands: span all sides for one CSS property and reset
+// the per-side longhands. Example: `borderColor` resets all four
+// `border-*-color` longhands. These intersect with side-shorthands at
+// `border-{side}-{prop}` (e.g. `border-top-color`), so they must cascade
+// AFTER side-shorthands to win that intersection.
+const TIER4_CROSS_SHORTHANDS = new Set<string>([
+  'borderColor',
+  'borderStyle',
+  'borderWidth',
+  'borderImage',
+]);
+
+function baseContextForProperty(property: string): StyleContext {
+  if (TIER2_SHORTHANDS.has(property)) return 'base-shorthand';
+  if (TIER3_SIDE_SHORTHANDS.has(property)) return 'base-side';
+  if (TIER4_CROSS_SHORTHANDS.has(property)) return 'base-cross';
+  return 'base';
+}
+
+function overrideContextForProperty(property: string): StyleContext {
+  if (TIER2_SHORTHANDS.has(property)) return 'override-shorthand';
+  if (TIER3_SIDE_SHORTHANDS.has(property)) return 'override-side';
+  if (TIER4_CROSS_SHORTHANDS.has(property)) return 'override-cross';
+  return 'override';
+}
 
 // Implement a simple LRU cache for classCache
 class LRUCache<K, V> {
@@ -126,6 +207,14 @@ const EVENT_TO_PSEUDO: Record<string, string> = {
   selection: 'selection',
   backdrop: 'backdrop',
   marker: 'marker',
+  // Browser-specific pseudo-classes for form-control polish
+  webkitAutofill: '-webkit-autofill',
+  webkitContactsAutoFillButton: '-webkit-contacts-auto-fill-button',
+  webkitInnerSpinButton: '-webkit-inner-spin-button',
+  webkitOuterSpinButton: '-webkit-outer-spin-button',
+  webkitSearchCancelButton: '-webkit-search-cancel-button',
+  mozPlaceholder: '-moz-placeholder',
+  mozFocusInner: '-moz-focus-inner',
   // Group modifiers
   groupHover: 'group-hover',
   groupFocus: 'group-focus',
@@ -324,11 +413,22 @@ export class UtilityClassManager {
       const sheetMap: Record<StyleContext, CSSStyleSheet> = {} as any;
 
       // Initialize all style sheets at once
+      // Order matters: <style> tags are appended to <head> in the order
+      // listed here, and the cascade resolves equal-specificity rules by
+      // source order. Earlier entries cascade FIRST (lower priority), so
+      // top-level shorthands like `border` are listed before their
+      // sub-shorthands and longhands.
       const contextIds: Record<StyleContext, string> = {
+        'base-shorthand': 'utility-classes-base-shorthand',
+        'base-side': 'utility-classes-base-side',
+        'base-cross': 'utility-classes-base-cross',
         base: 'utility-classes-base',
         pseudo: 'utility-classes-pseudo',
         media: 'utility-classes-media',
         modifier: 'utility-classes-modifier',
+        'override-shorthand': 'utility-classes-override-shorthand',
+        'override-side': 'utility-classes-override-side',
+        'override-cross': 'utility-classes-override-cross',
         override: 'utility-classes-override',
       };
 
@@ -418,10 +518,16 @@ export class UtilityClassManager {
 
   public getServerStyles(): string {
     const contexts: StyleContext[] = [
+      'base-shorthand',
+      'base-side',
+      'base-cross',
       'base',
       'pseudo',
       'media',
       'modifier',
+      'override-shorthand',
+      'override-side',
+      'override-cross',
       'override',
     ];
     let css = '';
@@ -500,11 +606,13 @@ export class UtilityClassManager {
     let valueForCss = processedValue;
 
     // Handle numeric values for CSS
-    if (
-      typeof valueForCss === 'number' &&
-      numericCssProperties.has(cssProperty)
-    ) {
-      valueForCss = `${valueForCss}px`;
+    if (typeof valueForCss === 'number') {
+      // lineHeight
+      if (property === 'lineHeight' && Number.isInteger(valueForCss)) {
+        // Keep as unitless
+      } else if (numericCssProperties.has(cssProperty)) {
+        valueForCss = `${valueForCss}px`;
+      }
     }
 
     // Check if this property needs vendor prefixes
@@ -562,12 +670,19 @@ export class UtilityClassManager {
     } else {
       const escapedClassName = this.escapeClassName(baseClassName);
 
-      // Add rules for all necessary vendor prefixes
-      // Use the passed context (base or override) for proper specificity
+      // Add rules for all necessary vendor prefixes.
+      // Route to a tiered sheet (shorthand → sub → longhand) within the
+      // passed context (base or override), so shorthand properties cascade
+      // BEFORE their longhands regardless of which element first
+      // instantiated each utility class.
+      const tier =
+        context === 'override'
+          ? overrideContextForProperty(property)
+          : baseContextForProperty(property);
       cssProperties.forEach((prefixedProperty) => {
         rules.push({
           rule: `.${escapedClassName} { ${prefixedProperty}: ${valueForCss}; }`,
-          context: context === 'override' ? 'override' : 'base',
+          context: tier,
         });
       });
     }
@@ -730,9 +845,11 @@ function processStyles(
     }
   }
 
-  const keys = Object.keys(styles);
+  const expandedStyles = expandShorthandStyles(styles);
+
+  const keys = Object.keys(expandedStyles);
   for (let i = 0; i < keys.length; i++) {
-    const value = styles[keys[i]];
+    const value = expandedStyles[keys[i]];
     if (value !== undefined && value !== '') {
       const classNames = activeManager.getClassNames(
         keys[i],
@@ -747,6 +864,75 @@ function processStyles(
   }
 
   return classes;
+}
+
+/**
+ * Expand shorthand props (widthHeight, paddingHorizontal, marginVertical, ...)
+ * into their canonical CSS properties. Returns a new object so the caller's
+ * input is not mutated. Keeps unknown shorthands only if their value is set.
+ */
+function expandShorthandStyles(
+  styles: Record<string, any>
+): Record<string, any> {
+  const wh = styles.widthHeight;
+  const ph = styles.paddingHorizontal;
+  const pv = styles.paddingVertical;
+  const mh = styles.marginHorizontal;
+  const mv = styles.marginVertical;
+
+  if (
+    wh === undefined &&
+    ph === undefined &&
+    pv === undefined &&
+    mh === undefined &&
+    mv === undefined
+  ) {
+    return styles;
+  }
+
+  const out: Record<string, any> = {};
+  const keys = Object.keys(styles);
+  for (let i = 0; i < keys.length; i++) {
+    const k = keys[i];
+    if (
+      k === 'widthHeight' ||
+      k === 'paddingHorizontal' ||
+      k === 'paddingVertical' ||
+      k === 'marginHorizontal' ||
+      k === 'marginVertical'
+    ) {
+      continue;
+    }
+    out[k] = styles[k];
+  }
+
+  if (wh !== undefined) {
+    const v = typeof wh === 'number' ? `${wh}px` : wh;
+    if (out.width === undefined) out.width = v;
+    if (out.height === undefined) out.height = v;
+  }
+  if (ph !== undefined) {
+    const v = typeof ph === 'number' ? `${ph}px` : ph;
+    if (out.paddingLeft === undefined) out.paddingLeft = v;
+    if (out.paddingRight === undefined) out.paddingRight = v;
+  }
+  if (pv !== undefined) {
+    const v = typeof pv === 'number' ? `${pv}px` : pv;
+    if (out.paddingTop === undefined) out.paddingTop = v;
+    if (out.paddingBottom === undefined) out.paddingBottom = v;
+  }
+  if (mh !== undefined) {
+    const v = typeof mh === 'number' ? `${mh}px` : mh;
+    if (out.marginLeft === undefined) out.marginLeft = v;
+    if (out.marginRight === undefined) out.marginRight = v;
+  }
+  if (mv !== undefined) {
+    const v = typeof mv === 'number' ? `${mv}px` : mv;
+    if (out.marginTop === undefined) out.marginTop = v;
+    if (out.marginBottom === undefined) out.marginBottom = v;
+  }
+
+  return out;
 }
 
 // Add a function to handle nested pseudo-classes
@@ -941,6 +1127,20 @@ export const extractUtilityClasses = (
         : widthHeightValue;
     computedStyles.width = formattedValue;
     computedStyles.height = formattedValue;
+  }
+
+  if (props.lineHeight) {
+    const lh = props.lineHeight as string | number;
+    if (typeof lh === 'number') {
+      computedStyles.lineHeight = `${lh.toFixed(0)}px`;
+    } else if (lh.indexOf('px') === -1) {
+      const numericValue = parseFloat(lh);
+      if (!isNaN(numericValue) && Number.isInteger(numericValue)) {
+        computedStyles.lineHeight = `${numericValue.toFixed(0)}px`;
+      } else {
+        computedStyles.lineHeight = lh;
+      }
+    }
   }
 
   // Handle padding and margin shorthands (inlined to avoid Object.entries overhead)

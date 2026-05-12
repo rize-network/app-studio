@@ -40,6 +40,16 @@ export interface Theme {
   warning?: string;
   disabled?: string;
   loading?: string;
+  // Optional surface/ink slots — used by design-system style brand themes.
+  // Iterated and emitted as `--theme-<key>` CSS variables alongside the rest.
+  canvas?: string;
+  surface?: string;
+  text?: string;
+  muted?: string;
+  border?: string;
+  onPrimary?: string;
+  info?: string;
+  [extra: string]: string | undefined;
 }
 
 interface Override {
@@ -369,6 +379,12 @@ export const deepMerge = (target: any, source: any): any => {
 // --- CSS Variable Injection Helper (Deprecated/Replaced) ---
 // The new logic generates CSS variables within the component and applies them to the container style.
 
+// Detects whether a ThemeProvider is being nested inside another. Nested
+// providers skip the wrapper's background/color/sizing so they can override
+// theme variables for a subtree (e.g. a design-system brand context) without
+// repainting the page or breaking the host layout.
+const ThemeNestingContext = createContext<boolean>(false);
+
 // --- ThemeProvider Component ---
 interface ThemeProviderProps {
   theme?: Partial<Theme>;
@@ -378,6 +394,14 @@ interface ThemeProviderProps {
   children: ReactNode;
   strict?: boolean;
   targetWindow?: Window;
+  /**
+   * When `true`, the wrapper renders as `display: contents` (no background,
+   * color, sizing, or transition). Useful when nesting a ThemeProvider inside
+   * an existing themed subtree — the inner provider only contributes its CSS
+   * variables and `data-theme` attribute. Automatically inferred when a parent
+   * ThemeProvider exists in the React tree.
+   */
+  transparentWrapper?: boolean;
 }
 
 // Stable default references to prevent unnecessary re-renders and cache invalidation
@@ -392,7 +416,10 @@ export const ThemeProvider = ({
   children,
   strict = false,
   targetWindow,
+  transparentWrapper,
 }: ThemeProviderProps): React.ReactElement => {
+  const isNested = useContext(ThemeNestingContext);
+  const wrapperIsTransparent = transparentWrapper ?? isNested;
   const [themeMode, setThemeMode] = useState<'light' | 'dark'>(initialMode);
   const colorCache = useRef(new Map<string, string>()).current;
 
@@ -918,20 +945,24 @@ export const ThemeProvider = ({
     };
   }, [targetWindow, cssVariables]);
 
+  const wrapperStyle: React.CSSProperties = wrapperIsTransparent
+    ? { display: 'contents' }
+    : {
+        backgroundColor: 'var(--color-white)',
+        color: 'var(--color-black)',
+        width: '100%',
+        height: '100%',
+        transition: 'background-color 0.2s, color 0.2s',
+      };
+
   return (
-    <ThemeContext.Provider value={contextValue}>
-      {!targetWindow && <style>{cssVariables}</style>}
-      <div
-        data-theme={themeMode}
-        style={{
-          backgroundColor: 'white',
-          width: '100%',
-          height: '100%',
-          transition: 'background-color 0.2s, color 0.2s',
-        }}
-      >
-        {children}
-      </div>
-    </ThemeContext.Provider>
+    <ThemeNestingContext.Provider value={true}>
+      <ThemeContext.Provider value={contextValue}>
+        {!targetWindow && <style>{cssVariables}</style>}
+        <div data-theme={themeMode} style={wrapperStyle}>
+          {children}
+        </div>
+      </ThemeContext.Provider>
+    </ThemeNestingContext.Provider>
   );
 };

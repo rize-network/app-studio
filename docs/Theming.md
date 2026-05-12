@@ -2,6 +2,8 @@
 
 Theming is an essential part of any application. It allows you to maintain a consistent look and feel across your app. With App-Studio, theming becomes effortless through its `ThemeProvider` component. This document shows you how to set up theming in App-Studio.
 
+> **React Native:** the entire color system documented here (singletons, palettes, theme tokens, `light-`/`dark-` prefixes, alpha shorthand, component-level `theme` overrides) works identically on native. The only implementation difference: on web, alpha colors compile to `color-mix(...)` CSS; on native the theme provider returns concrete hex/rgba strings that get substituted into RN style props. See [Native.md → Theme & Color Resolution](Native.md#theme--color-resolution).
+
 ## Available Colors Reference
 
 App-Studio provides an extensive color system with three types of colors:
@@ -412,6 +414,57 @@ function Example() {
 ```
 
 This direct access syntax works with all color-related properties and can be used with both singleton colors (like `white`, `black`) and palette colors (like `red-200`, `blue-500`). It provides a convenient way to reference specific theme colors without having to use the `getColor` function from the `useTheme` hook.
+
+### Component-Level Sub-Theming
+
+Any component that extends `Element` (`View`, `Text`, `Button`, etc.) accepts a `theme` prop that remaps `theme-*` tokens **for that single component**, without touching the global `ThemeProvider`. Useful when a screen needs one "branded" element (a Startup Studio launch button, a special card, a colored chip) while the rest of the UI keeps the global palette.
+
+```javascript
+import { View, Text } from 'app-studio';
+
+function Example() {
+  return (
+    <View>
+      {/* Global theme-primary (no override) */}
+      <View backgroundColor="theme-primary" padding={20}>
+        <Text color="color-white">Global primary</Text>
+      </View>
+
+      {/* Same component, locally remapped to red */}
+      <View
+        backgroundColor="theme-primary"
+        theme={{ primary: 'color-red-500' }}
+        padding={20}
+      >
+        <Text color="color-white">Local primary = red-500</Text>
+      </View>
+
+      {/* Multiple slots at once */}
+      <View
+        backgroundColor="theme-primary"
+        borderColor="theme-secondary"
+        borderWidth={2}
+        borderStyle="solid"
+        theme={{
+          primary: 'color-indigo-600',
+          secondary: 'color-yellow-400',
+        }}
+        padding={20}
+      >
+        <Text color="color-white">indigo bg, yellow border</Text>
+      </View>
+    </View>
+  );
+}
+```
+
+**What the `theme` prop accepts**: a `Partial<Theme>` where each value is itself a color token (`'color-red-500'`, `'theme-secondary'`) or a direct color string (`'#ff0000'`). The keys match the global `Theme` shape (`primary`, `secondary`, `success`, `error`, `warning`, `disabled`, `loading`).
+
+**Alpha suffix works**: `theme-primary-200` on a component with `theme={{ primary: 'color-red-500' }}` resolves to `color-red-500` at 20% opacity via `color-mix()`.
+
+**Dark mode**: overrides that point at palette tokens (e.g., `'color-red-500'`) keep responding to global dark-mode switching, because the resolution returns the underlying CSS variable. Overrides that point at raw hex literals (`'#ff0000'`) bypass the palette and do **not** swap with dark mode — use palette tokens whenever you need dark-mode reactivity.
+
+**Scope**: the override applies only to the Element receiving the `theme` prop. Children that re-use `theme-primary` resolve against the global theme, not the parent's override. To remap an entire subtree, wrap it in a nested `ThemeProvider` instead, or set the `theme` prop on each child.
 
 ### Smart Text Contrast
 

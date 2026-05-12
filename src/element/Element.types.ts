@@ -2,12 +2,14 @@ import { CSSProperties, HTMLAttributes } from 'react';
 import { AnimationProps } from '../utils/constants';
 import { Shadow } from '../utils/shadow';
 import { ViewStyleProps } from '../types/style';
+import type { Theme } from '../providers/Theme';
 
 export interface CssProps extends CSSProperties {
   paddingHorizontal?: number | string;
   marginHorizontal?: number | string;
   paddingVertical?: number | string;
   marginVertical?: number | string;
+  widthHeight?: number | string;
   animate?: AnimationProps[] | AnimationProps;
   animateIn?: AnimationProps[] | AnimationProps;
   animateOut?: AnimationProps[] | AnimationProps;
@@ -62,6 +64,15 @@ export interface CssProps extends CSSProperties {
   _backdrop?: CSSProperties;
   _marker?: CSSProperties;
 
+  // Browser-specific pseudo-classes for form-control polish
+  _webkitAutofill?: CSSProperties | string;
+  _webkitContactsAutoFillButton?: CSSProperties | string;
+  _webkitInnerSpinButton?: CSSProperties | string;
+  _webkitOuterSpinButton?: CSSProperties | string;
+  _webkitSearchCancelButton?: CSSProperties | string;
+  _mozPlaceholder?: CSSProperties | string;
+  _mozFocusInner?: CSSProperties | string;
+
   // Vendor specific
   WebkitUserDrag?: CSSProperties['userSelect']; // Using userSelect type as approximation or just string
   webkitUserDrag?: CSSProperties['userSelect'];
@@ -95,6 +106,14 @@ export interface ElementProps
   children?: React.ReactNode;
   before?: React.ReactNode;
   after?: React.ReactNode;
+
+  /**
+   * Component-scoped theme override. Remaps `theme-*` tokens used by this
+   * component (and its style props) to different color tokens, without
+   * affecting the global ThemeProvider. Each value is a color token string
+   * (`color-red-500`, `theme-secondary`) or a raw color (`#ff0000`).
+   */
+  theme?: Partial<Theme>;
 
   animateOn?: 'View' | 'Mount' | 'Both' | 'Scroll';
 
@@ -144,4 +163,13 @@ export interface ElementProps
   _selection?: CssProps;
   _backdrop?: CssProps;
   _marker?: CssProps;
+
+  // Browser-specific pseudo-classes for form-control polish
+  _webkitAutofill?: CssProps | string;
+  _webkitContactsAutoFillButton?: CssProps | string;
+  _webkitInnerSpinButton?: CssProps | string;
+  _webkitOuterSpinButton?: CssProps | string;
+  _webkitSearchCancelButton?: CssProps | string;
+  _mozPlaceholder?: CssProps | string;
+  _mozFocusInner?: CssProps | string;
 }

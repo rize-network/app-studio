@@ -74,8 +74,8 @@ In app-studio, CSS properties are passed directly as props to components. This e
 3. **Color and Background Props**
 ```jsx
 <View
-  backgroundColor="theme.primary"
-  color="theme.text"
+  backgroundColor="theme-primary"
+  color="theme-text"
   opacity={0.8}
 />
 ```
@@ -102,7 +102,7 @@ In app-studio, CSS properties are passed directly as props to components. This e
 ```jsx
 <Text
   fontSize={16}
-  color="theme.primary"
+  color="theme-primary"
   margin={10}
 >
   Hello World
@@ -112,7 +112,7 @@ In app-studio, CSS properties are passed directly as props to components. This e
 ### 3. Button Component
 ```jsx
 <Button
-  backgroundColor="theme.primary"
+  backgroundColor="theme-primary"
   padding={[10, 20]}
   margin={10}
 >
@@ -148,7 +148,7 @@ Animations use the same props-based approach:
 1. **Use Theme Values**
 ```jsx
 // Good
-<View backgroundColor="theme.primary">
+<View backgroundColor="theme-primary">
 
 // Avoid
 <View backgroundColor="#ff0000">
@@ -207,7 +207,7 @@ const FormComponentsDemo = () => {
     <View padding={24} backgroundColor="color-gray.50">
       <form onSubmit={handleSubmit}>
         <Vertical gap={32}>
-          <Text color="theme.primary">Form Components</Text>
+          <Text color="theme-primary">Form Components</Text>
 
           {/* Text Input Fields */}
           <Vertical gap={16}>
@@ -293,7 +293,7 @@ const DisplayComponentsDemo = () => {
   return (
     <View padding={24}>
       <Vertical gap={32}>
-        <Text color="theme.primary">Display Components</Text>
+        <Text color="theme-primary">Display Components</Text>
 
         {/* Avatar & Badge */}
         <Horizontal gap={24} alignItems="center">
@@ -305,15 +305,15 @@ const DisplayComponentsDemo = () => {
             />
             <Badge 
               content="3" 
-              colorScheme="theme.error"
+              colorScheme="theme-error"
               position="top-right"
             />
           </View>
 
           {/* Badge variants */}
           <Horizontal gap={8}>
-            <Badge content="New" colorScheme="theme.success" />
-            <Badge content="Pending" colorScheme="theme.warning" />
+            <Badge content="New" colorScheme="theme-success" />
+            <Badge content="Pending" colorScheme="theme-warning" />
           </Horizontal>
         </Horizontal>
 
@@ -334,7 +334,7 @@ const DisplayComponentsDemo = () => {
         {/* Loaders */}
         <Horizontal gap={24} alignItems="center">
           <Loader widthHeight="md" />
-          <Loader type="dotted" widthHeight="lg" color="theme.primary" />
+          <Loader type="dotted" widthHeight="lg" color="theme-primary" />
         </Horizontal>
 
         {/* Table */}
@@ -378,13 +378,13 @@ const InteractiveComponentsDemo = () => {
   return (
     <View padding={24}>
       <Vertical gap={24}>
-        <Text color="theme.primary">Interactive Components</Text>
+        <Text color="theme-primary">Interactive Components</Text>
         
         {/* Buttons */}
         <Horizontal gap={16}>
           <Button 
             variant="filled" 
-            colorScheme="theme.primary"
+            colorScheme="theme-primary"
             isLoading={isLoading}
           >
             Primary Action
@@ -410,7 +410,7 @@ const InteractiveComponentsDemo = () => {
             { id: 'daily', value: 'Daily' },
             { id: 'weekly', value: 'Weekly' }
           ]}
-          colorScheme="theme.primary"
+          colorScheme="theme-primary"
         />
 
         {/* Modal */}
@@ -461,7 +461,7 @@ function Example() {
   return (
     <View
       animate={Animation.fadeIn()}
-      backgroundColor="theme.primary"
+      backgroundColor="theme-primary"
       padding={20}
     >
       This view will fade in
@@ -517,7 +517,7 @@ const AnimationExamples = () => {
       {/* Hover Effect */}
       <View
         padding={16}
-        backgroundColor="theme.primary"
+        backgroundColor="theme-primary"
         on={{
           hover: {
             animate: {

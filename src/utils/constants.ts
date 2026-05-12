@@ -43,6 +43,7 @@ export const excludedKeys = new Set<string>([
   'animate',
   'animateIn',
   'animateOut',
+  'theme',
 
   // Underscore-prefixed event props
   '_hover',
@@ -76,6 +77,14 @@ export const excludedKeys = new Set<string>([
   '_selection',
   '_backdrop',
   '_marker',
+  // Browser-specific pseudo-classes for form-control polish
+  '_webkitAutofill',
+  '_webkitContactsAutoFillButton',
+  '_webkitInnerSpinButton',
+  '_webkitOuterSpinButton',
+  '_webkitSearchCancelButton',
+  '_mozPlaceholder',
+  '_mozFocusInner',
   // Add more styling props here if needed
 ]);
 

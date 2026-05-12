@@ -1,14 +1,53 @@
 {
-  "version": "0.7.11",
+  "version": "0.8.1",
   "name": "app-studio",
   "description": "App Studio is a responsive and themeable framework to build cross platform applications",
   "repository": "git@github.com:rize-network/app-studio.git",
   "license": "MIT",
   "bugs": "https://github.com/rize-network/app-studio/issues",
-  "main": "dist/index.js",
-  "module": "dist/app-studio.esm.js",
-  "unpkg": "dist/app-studio.umd.production.min.js",
-  "typings": "dist/index.d.ts",
+  "main": "dist/web/index.cjs",
+  "module": "dist/web/index.js",
+  "unpkg": "dist/web/app-studio.umd.production.min.global.js",
+  "typings": "dist/web/index.d.ts",
+  "types": "dist/web/index.d.ts",
+  "react-native": "dist/native/index.js",
+  "exports": {
+    ".": {
+      "react-native": {
+        "types": "./dist/native/index.d.ts",
+        "import": "./dist/native/index.js",
+        "require": "./dist/native/index.cjs",
+        "default": "./dist/native/index.js"
+      },
+      "browser": {
+        "types": "./dist/web/index.d.ts",
+        "import": "./dist/web/index.js",
+        "require": "./dist/web/index.cjs",
+        "default": "./dist/web/index.js"
+      },
+      "import": {
+        "types": "./dist/web/index.d.ts",
+        "default": "./dist/web/index.js"
+      },
+      "require": {
+        "types": "./dist/web/index.d.ts",
+        "default": "./dist/web/index.cjs"
+      }
+    },
+    "./web": {
+      "types": "./dist/web/index.d.ts",
+      "import": "./dist/web/index.js",
+      "require": "./dist/web/index.cjs",
+      "default": "./dist/web/index.js"
+    },
+    "./native": {
+      "types": "./dist/native/index.d.ts",
+      "import": "./dist/native/index.js",
+      "require": "./dist/native/index.cjs",
+      "default": "./dist/native/index.js"
+    },
+    "./package.json": "./package.json"
+  },
   "sideEffects": false,
   "keywords": [
     "react",
@@ -29,8 +68,11 @@
     "node": ">=10"
   },
   "scripts": {
-    "start": "tsdx watch --format cjs,esm,umd",
-    "build": "tsdx build --format cjs,esm,umd",
+    "start": "tsup --watch",
+    "build": "tsup",
+    "typecheck": "npm run typecheck:web && npm run typecheck:native",
+    "typecheck:web": "tsc -p tsconfig.web.json --noEmit",
+    "typecheck:native": "tsc -p tsconfig.native.json --noEmit",
     "test": "tsdx test --passWithNoTests",
     "test:e2e": "ts-node test/webdriver/data-testid.test.ts && ts-node test/webdriver/component-tests.test.ts && ts-node test/webdriver/form-components.test.ts",
     "lint": "npm run eslint && npm run prettier",
@@ -53,6 +95,12 @@
     "setupFilesAfterEnv": [
       "./test/setupTests.ts"
     ],
+    "moduleNameMapper": {
+      "^react-native$": "<rootDir>/test/jest/native/reactNativeMock.tsx"
+    },
+    "transformIgnorePatterns": [
+      "node_modules/(?!(@react-native|react-native|@testing-library/react-native)/)"
+    ],
     "testMatch": [
       "<rootDir>/test/jest/**/*.test.{ts,tsx}"
     ]
@@ -74,16 +122,16 @@
   },
   "size-limit": [
     {
-      "path": "dist/app-studio.cjs.production.min.js",
-      "limit": "25 KB"
+      "path": "dist/web/index.cjs",
+      "limit": "180 KB"
     },
     {
-      "path": "dist/app-studio.esm.js",
-      "limit": "25 KB"
+      "path": "dist/web/index.js",
+      "limit": "180 KB"
     },
     {
-      "path": "dist/app-studio.umd.production.min.js",
-      "limit": "25 KB"
+      "path": "dist/web/app-studio.umd.production.min.global.js",
+      "limit": "125 KB"
     }
   ],
   "dependencies": {
@@ -112,7 +160,10 @@
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^12.1.5",
     "@testing-library/react-hooks": "^8.0.1",
+    "@testing-library/react-native": "^13.3.3",
     "@types/color": "^3.0.6",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^20.19.39",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
     "@types/selenium-webdriver": "^4.35.5",
@@ -139,6 +190,7 @@
     "prettier": "^3.0.3",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
+    "react-native": "^0.79.7",
     "react-test-renderer": "^17.0.2",
     "release-it": "^16.2.1",
     "rollup-plugin-terser": "^7.0.2",
@@ -148,10 +200,20 @@
     "ts-node": "^10.9.2",
     "tsdx": "^0.14.1",
     "tslib": "^2.6.2",
+    "tsup": "^8.5.1",
     "typescript": "^5.2.2"
   },
   "peerDependencies": {
     "react": ">=17",
-    "react-dom": ">=17"
+    "react-dom": ">=17",
+    "react-native": ">=0.79"
+  },
+  "peerDependenciesMeta": {
+    "react-dom": {
+      "optional": true
+    },
+    "react-native": {
+      "optional": true
+    }
   }
 }

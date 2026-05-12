@@ -2,6 +2,8 @@
 
 App-Studio provides a comprehensive set of components built on the `Element` base component. This guide covers all the available components and their usage.
 
+> **React Native:** every component on this page also ships in the native build, rendered with the matching RN primitive (`View`, `Pressable`, `Text`, `Image`, `TextInput`, `ScrollView`, `SafeAreaView`). See [Native.md](Native.md) for the full mapping table and a list of native-only / web-only props.
+
 ## Element
 
 The `Element` component is the foundation of App-Studio. It is responsible for handling a large part of the styles of the other components. It takes care of responsiveness, shadow, margins, and padding among other properties.
@@ -75,6 +77,8 @@ import { Vertical, Horizontal, Center } from 'app-studio';
 ### Text
 For displaying text content with theme support. Extends the basic `span` HTML element.
 
+> **React Native:** renders `<Text>`. Adds `maxLines` (→ `numberOfLines`), `toUpperCase`, `isItalic`, `isStriked`, `isUnderlined`, `isSub`/`isSup`.
+
 ```tsx
 import { Text } from 'app-studio';
 
@@ -117,6 +121,8 @@ import { Image } from 'app-studio';
 />
 ```
 
+> **React Native:** `src` is translated to `{ uri: src }` automatically. To use a bundled asset, pass `source={require('./logo.png')}` instead. `alt` becomes `accessibilityLabel`.
+
 ## Form Components
 
 ### Form
@@ -128,6 +134,8 @@ Extends the basic `form` HTML element. It's used for creating forms and provides
   <Button>Submit</Button>
 </Form>
 ```
+
+> **React Native:** `Form` is an alias for `View` — there is no `form` element on native. Drive submission manually from a `Button`'s `onPress` handler.
 
 ### Input
 Extends the basic `input` HTML element with additional styling properties.
@@ -150,6 +158,8 @@ import { Input } from 'app-studio';
 />
 ```
 
+> **React Native:** renders `<TextInput>`. Prefer `onChangeText={value => ...}` over `onChange`. The `on` map (hover/focus/etc.) is a no-op — use `TextInput`'s `onFocus`/`onBlur` props for focus styling.
+
 ### Button
 Interactive button component with built-in states and animations.
 
@@ -171,6 +181,8 @@ import { Button } from 'app-studio';
   Click Me
 </Button>
 ```
+
+> **React Native:** renders `<Pressable accessibilityRole="button">`. Use `onPress` (or keep `onClick` — it is forwarded to `onPress`). String/number children are wrapped in `<Text>` automatically. The `on` map is dropped — express press feedback via `Pressable`'s `({ pressed }) => style` callback or RN's `Animated` API.
 
 ## Feedback Components
 

@@ -1,5 +1,7 @@
 # Animation
 
+> **React Native:** the entire animation system on this page compiles to CSS keyframes and `animation-timeline` rules, which **don't run** in React Native. The `Animation.*` helpers and the `animate` / `animateIn` / `animateOut` / `animateOn` props are accepted on native but have no visual effect. For motion on native, use `Animated` (RN core), `react-native-reanimated`, `LayoutAnimation`, or `moti`. See [Native.md → Animations](Native.md#animations).
+
 ## 1. Introduction
 
 App-Studio provides a powerful animation system through the `Animation` object and the `Element` component. This system allows you to easily add dynamic and engaging animations, including:

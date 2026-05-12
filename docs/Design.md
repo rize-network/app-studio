@@ -4,6 +4,8 @@
 
 The `app-studio` library provides a set of design props that simplify styling and enhance design integration. These props offer a more streamlined and efficient way to manage styling compared to using inline styles or CSS classes directly. They are particularly beneficial for implementing responsive and theme-aware styling, allowing you to easily adapt your components to different screen sizes and themes.
 
+> **React Native:** the design props on this page (direct style props, `widthHeight`, `shadow`, `media`, theme color strings, the component-level `theme` override) all work the same on native. The `shadow` prop expands to RN's `shadowColor` / `shadowOffset` / `shadowOpacity` / `shadowRadius` plus an Android `elevation`. See [Native.md → Styling Props on Native](Native.md#styling-props-on-native) for the supported-property list and native-only behavior.
+
 Here is an example:
 
 ```jsx

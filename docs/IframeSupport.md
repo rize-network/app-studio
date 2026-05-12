@@ -1,5 +1,7 @@
 # Iframe Support
 
+> **React Native:** iframes don't exist on native — everything on this page is **web-only**. The hooks listed below (`useScroll`, `useScrollAnimation`, `useScrollDirection`, `useSmoothScroll`, `useClickOutside`, `useIframeStyles`) and the `targetWindow` provider option have no native counterpart. On native, drive scroll behavior from `ScrollView` / `FlatList` `onScroll` callbacks instead. See [Native.md → Hooks on Native](Native.md#hooks-on-native).
+
 App-Studio provides first-class support for rendering components inside iframes. This enables use cases like:
 
 - **Micro-frontend architectures** - Isolate different parts of your application

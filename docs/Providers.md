@@ -2,6 +2,8 @@
 
 App-Studio includes several context providers to manage global state and functionality.
 
+> **React Native:** all four providers (`ThemeProvider`, `ResponsiveProvider`, `WindowSizeProvider`, `AnalyticsProvider`) are exported from the native build with the same API. On native, `ResponsiveProvider` and `WindowSizeProvider` are driven by RN's `useWindowDimensions()`, so they react to rotation and split-screen automatically. See [Native.md → Setup](Native.md#setup) for the recommended provider tree.
+
 ## ThemeProvider
 
 Manages theme context including colors, dark/light mode, and design tokens.

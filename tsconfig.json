@@ -18,6 +18,7 @@
     "noUnusedParameters": true,
     "moduleResolution": "bundler",
     "jsx": "react",
+    "types": ["jest", "node", "@testing-library/jest-dom"],
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,

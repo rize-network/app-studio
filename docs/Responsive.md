@@ -2,6 +2,8 @@
 
 Creating a responsive design is an essential part of modern web development. In App-Studio, two primary features help you achieve this: `useResponsive` hook and the `media` prop. This document provides an overview and examples for both approaches.
 
+> **React Native:** both the `media` prop and `useResponsive` work on native. Width tracking is backed by RN's `useWindowDimensions`, so values update on rotation and split-screen. The default breakpoints (`xs: 0`, `sm: 340`, `md: 560`, `lg: 1080`, `xl: 1300`) and devices (`mobile`, `tablet`, `desktop`) are shared with web — override them by passing `breakpoints` / `devices` to `ResponsiveProvider`. See [Native.md → Responsive & Media Queries](Native.md#responsive--media-queries).
+
 ---
 
 ## 1. Media Prop for Responsive Design
