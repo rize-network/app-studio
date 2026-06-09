@@ -1,5 +1,17 @@
-import React, { ReactNode, createContext, useContext, useMemo } from 'react';
-import { useWindowDimensions as useRNWindowDimensions } from 'react-native';
+import React, {
+  ReactNode,
+  createContext,
+  useContext,
+  useMemo,
+  useState,
+} from 'react';
+import {
+  LayoutChangeEvent,
+  View as RNView,
+  StyleProp,
+  ViewStyle,
+  useWindowDimensions as useRNWindowDimensions,
+} from 'react-native';
 
 export type ResponsiveConfig = Record<string, number>;
 export type DeviceConfig = Record<string, string[]>;
@@ -14,6 +26,12 @@ export type BreakpointConfig = {
   currentBreakpoint: keyof ResponsiveConfig;
   currentDevice: DeviceType;
   orientation: ScreenOrientation;
+  /**
+   * True when the responsive values come from a measured container
+   * (`<Responsive container>`) rather than the screen. Mirrors the web flag so
+   * the cross-platform contract stays identical.
+   */
+  containerScoped?: boolean;
 };
 
 export type WindowDimensions = {
@@ -167,5 +185,150 @@ export const ResponsiveProvider = ({
         </ResponsiveContext.Provider>
       </WindowDimensionsContext.Provider>
     </BreakpointContext.Provider>
+  );
+};
+
+export interface ResponsiveProps {
+  children?: ReactNode;
+  /**
+   * Drive responsiveness from this boundary's own measured width (via
+   * `onLayout`) instead of the screen. The `media` prop and hooks
+   * (`useResponsive`, `useBreakpoint`) inside then follow this box.
+   */
+  container?: boolean;
+  /** Pin the breakpoint for this subtree. Takes precedence over `container`. */
+  forceBreakpoint?: string;
+  /** Pin the device for this subtree. Takes precedence over `container`. */
+  responsiveMode?: DeviceType;
+  /** Override the breakpoint thresholds for this scope (defaults to inherited). */
+  breakpoints?: ResponsiveConfig;
+  /** Override the device map for this scope (defaults to inherited). */
+  devices?: DeviceConfig;
+  /** Style applied to the wrapper view (container mode only). */
+  style?: StyleProp<ViewStyle>;
+}
+
+/**
+ * Native counterpart of the web `<Responsive>` boundary. Scopes responsive
+ * behavior to a measured container (`onLayout`) or a forced value, instead of
+ * the screen. The native `media` prop is JS-resolved (see `useNativeStyle`), so
+ * overriding the context here is enough for both styles and hooks to adapt.
+ */
+export const Responsive = ({
+  children,
+  container = false,
+  forceBreakpoint,
+  responsiveMode,
+  breakpoints: breakpointsProp,
+  devices: devicesProp,
+  style,
+}: ResponsiveProps) => {
+  const parent = useContext(BreakpointContext);
+  const parentDimensions = useContext(WindowDimensionsContext);
+
+  const breakpoints = breakpointsProp || parent.breakpoints;
+  const devices = devicesProp || parent.devices;
+  const mediaQueries = breakpointsProp
+    ? getMediaQueries(breakpointsProp)
+    : parent.mediaQueries;
+
+  const isForced = forceBreakpoint != null || responsiveMode != null;
+  const isContainer = container && !isForced;
+
+  const [measured, setMeasured] = useState<WindowDimensions | null>(null);
+
+  const onLayout = (event: LayoutChangeEvent) => {
+    const { width, height } = event.nativeEvent.layout;
+    setMeasured((prev) =>
+      prev && prev.width === width && prev.height === height
+        ? prev
+        : { width, height }
+    );
+  };
+
+  let currentBreakpoint: string;
+  let currentDevice: DeviceType;
+  if (forceBreakpoint != null) {
+    currentBreakpoint = forceBreakpoint;
+    currentDevice = getDeviceFromBreakpoint(forceBreakpoint, devices);
+  } else if (responsiveMode != null) {
+    currentDevice = responsiveMode;
+    const list = devices[responsiveMode];
+    currentBreakpoint =
+      (list && list[0]) || (parent.currentBreakpoint as string);
+  } else if (isContainer) {
+    currentBreakpoint = getBreakpointFromWidth(
+      measured?.width ?? 0,
+      breakpoints
+    );
+    currentDevice = getDeviceFromBreakpoint(currentBreakpoint, devices);
+  } else {
+    currentBreakpoint = parent.currentBreakpoint as string;
+    currentDevice = parent.currentDevice;
+  }
+
+  const width = isContainer ? (measured?.width ?? 0) : parentDimensions.width;
+  const height = isContainer
+    ? (measured?.height ?? 0)
+    : parentDimensions.height;
+  const orientation: ScreenOrientation = isContainer
+    ? width >= height
+      ? 'landscape'
+      : 'portrait'
+    : parent.orientation;
+
+  const breakpointValue = useMemo<BreakpointConfig>(
+    () => ({
+      breakpoints,
+      devices,
+      mediaQueries,
+      currentBreakpoint,
+      currentDevice,
+      orientation,
+      containerScoped: isContainer,
+    }),
+    [
+      breakpoints,
+      devices,
+      mediaQueries,
+      currentBreakpoint,
+      currentDevice,
+      orientation,
+      isContainer,
+    ]
+  );
+
+  const windowValue = useMemo<WindowDimensions>(
+    () => ({ width, height }),
+    [width, height]
+  );
+
+  const responsiveValue = useMemo<ScreenConfig>(
+    () => ({
+      ...breakpointValue,
+      currentWidth: width,
+      currentHeight: height,
+    }),
+    [breakpointValue, width, height]
+  );
+
+  const content = (
+    <BreakpointContext.Provider value={breakpointValue}>
+      <WindowDimensionsContext.Provider value={windowValue}>
+        <ResponsiveContext.Provider value={responsiveValue}>
+          {children}
+        </ResponsiveContext.Provider>
+      </WindowDimensionsContext.Provider>
+    </BreakpointContext.Provider>
+  );
+
+  if (!isContainer) {
+    return content;
+  }
+
+  return (
+    <RNView style={style} onLayout={onLayout}>
+      {content}
+    </RNView>
   );
 };

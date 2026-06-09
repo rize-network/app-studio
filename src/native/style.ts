@@ -321,7 +321,7 @@ export function splitNativeProps(props: NativeElementProps) {
 }
 
 export function useNativeStyle(props: NativeElementProps) {
-  const { getColor, theme } = useTheme();
+  const { getColor } = useTheme();
   const responsive = useResponsiveContext();
   const dimensions = useWindowDimensions();
 
@@ -346,7 +346,9 @@ export function useNativeStyle(props: NativeElementProps) {
         if (
           matchesMedia(
             target,
-            dimensions.width || responsive.currentWidth,
+            // Context width wins so <Responsive container> / force overrides
+            // flow through; fall back to the RN window when no provider is set.
+            responsive.currentWidth || dimensions.width,
             responsive.breakpoints,
             responsive.devices
           )
@@ -369,7 +371,6 @@ export function useNativeStyle(props: NativeElementProps) {
     responsive.currentWidth,
     responsive.breakpoints,
     responsive.devices,
-    theme,
   ]);
 
   return style;

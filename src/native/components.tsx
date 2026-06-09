@@ -16,6 +16,7 @@ import {
   splitNativeProps,
   useNativeStyle,
 } from './style';
+import { useAnimation } from './useAnimation';
 
 export type CssProps = NativeStyleProps;
 export type ElementProps = NativeElementProps;
@@ -66,10 +67,35 @@ export const Element = React.forwardRef<any, ElementProps>((props, ref) => {
   const style = useNativeStyle(props);
   const nativeProps = splitNativeProps(props);
   const onPress = props.onPress || props.onClick;
-  const Component = onPress ? Pressable : RNView;
+
+  // `animate` is an array or single `AnimationProps` produced by
+  // `Animation.fadeIn()` etc. When set on RN we route the render through
+  // `react-native-reanimated`'s Animated.View (lazy-required) so the
+  // animation actually plays. When the peer is missing the hook returns
+  // {style: undefined, AnimatedView: undefined} and we render the regular
+  // RN primitive.
+  const animateProp = (props as any).animate as
+    | undefined
+    | Parameters<typeof useAnimation>[0];
+  const {
+    style: animatedStyle,
+    AnimatedView,
+    AnimatedPressable,
+  } = useAnimation(animateProp);
+
+  const isAnimated = !!animatedStyle && !!AnimatedView;
+  const Component = isAnimated
+    ? onPress
+      ? AnimatedPressable
+      : AnimatedView
+    : onPress
+      ? Pressable
+      : RNView;
+
+  const finalStyle = isAnimated ? [style, animatedStyle] : style;
 
   return (
-    <Component {...nativeProps} ref={ref} onPress={onPress} style={style}>
+    <Component {...nativeProps} ref={ref} onPress={onPress} style={finalStyle}>
       {props.before}
       {props.children}
       {props.after}
@@ -104,37 +130,37 @@ export const Center = React.forwardRef<any, ViewProps>((props, ref) => (
 Center.displayName = 'Center';
 
 export const HorizontalResponsive = React.forwardRef<any, ViewProps>(
-  ({ media = {}, ...props }, ref) => (
-    <Horizontal
-      media={{
+  ({ media = {}, ...props }, ref) => {
+    const mergedMedia = React.useMemo(
+      () => ({
         ...media,
         mobile: {
           ...(media as any).mobile,
-          flexDirection: 'column',
+          flexDirection: 'column' as const,
         },
-      }}
-      {...props}
-      ref={ref}
-    />
-  )
+      }),
+      [media]
+    );
+    return <Horizontal media={mergedMedia} {...props} ref={ref} />;
+  }
 );
 
 HorizontalResponsive.displayName = 'HorizontalResponsive';
 
 export const VerticalResponsive = React.forwardRef<any, ViewProps>(
-  ({ media = {}, ...props }, ref) => (
-    <Vertical
-      media={{
+  ({ media = {}, ...props }, ref) => {
+    const mergedMedia = React.useMemo(
+      () => ({
         ...media,
         mobile: {
           ...(media as any).mobile,
-          flexDirection: 'row',
+          flexDirection: 'row' as const,
         },
-      }}
-      {...props}
-      ref={ref}
-    />
-  )
+      }),
+      [media]
+    );
+    return <Vertical media={mergedMedia} {...props} ref={ref} />;
+  }
 );
 
 VerticalResponsive.displayName = 'VerticalResponsive';

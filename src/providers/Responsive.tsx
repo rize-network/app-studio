@@ -43,6 +43,12 @@ export type BreakpointConfig = {
   currentBreakpoint: keyof ResponsiveConfig;
   currentDevice: DeviceType;
   orientation: ScreenOrientation;
+  /**
+   * True when the responsive values come from a measured container
+   * (`<Responsive container>`) rather than the window. When set, the `media`
+   * prop compiles to CSS container queries (`@container`) instead of `@media`.
+   */
+  containerScoped?: boolean;
 };
 
 // WindowDimensions changes often (on every resize)
@@ -61,10 +67,11 @@ export type ScreenConfig = {
   currentBreakpoint: keyof ResponsiveConfig;
   currentDevice: DeviceType;
   orientation: ScreenOrientation;
+  containerScoped?: boolean;
 };
 
 // Helper Function to Generate Media Queries
-const getMediaQueries = (breakpoints: ResponsiveConfig): QueryConfig => {
+export const getMediaQueries = (breakpoints: ResponsiveConfig): QueryConfig => {
   const sortedBreakpoints = Object.keys(breakpoints)
     .map((key) => ({
       breakpoint: key as keyof ResponsiveConfig,
@@ -94,12 +101,14 @@ const getMediaQueries = (breakpoints: ResponsiveConfig): QueryConfig => {
 };
 
 // Utility Function to Determine Current Device Type
-const determineCurrentDevice = (
+export const determineCurrentDevice = (
   breakpoint: keyof ResponsiveConfig,
   devices: DeviceConfig
 ): DeviceType => {
   for (const device in devices) {
-    if (devices[device as DeviceType].includes(breakpoint)) {
+    const deviceBreakpoints = devices[device as DeviceType];
+    const breakpointSet = new Set(deviceBreakpoints);
+    if (breakpointSet.has(breakpoint)) {
       return device as DeviceType;
     }
   }
@@ -116,7 +125,7 @@ export const debounce = (func: Function, wait: number) => {
 };
 
 // Helper to compute breakpoint from width
-const getBreakpointFromWidth = (
+export const getBreakpointFromWidth = (
   width: number,
   breakpoints: ResponsiveConfig
 ): string => {

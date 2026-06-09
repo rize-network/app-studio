@@ -787,3 +787,157 @@ export const replaceColorTokens = (
     return resolver(token);
   });
 };
+
+// --- Literal color -> palette token mapping --------------------------------
+// Users frequently configure theme slots with literal colors (`#ef4444`,
+// `rgb(239, 68, 68)`) instead of tokens. Literals are emitted verbatim, so they
+// never flip between light and dark mode and break theming. To keep a theme
+// adaptive, we snap each literal to the nearest palette token, which DOES flip
+// per mode.
+
+interface RGBA {
+  r: number;
+  g: number;
+  b: number;
+  a: number;
+}
+
+const parseColorToRgba = (color: string): RGBA | null => {
+  if (!color || typeof color !== 'string') return null;
+  const trimmed = color.trim().toLowerCase();
+  if (trimmed === 'transparent') return { r: 0, g: 0, b: 0, a: 0 };
+
+  if (trimmed.startsWith('#')) {
+    let hex = trimmed.slice(1);
+    if (hex.length === 3 || hex.length === 4) {
+      hex = hex
+        .split('')
+        .map((ch) => ch + ch)
+        .join('');
+    }
+    if (hex.length !== 6 && hex.length !== 8) return null;
+    const r = parseInt(hex.slice(0, 2), 16);
+    const g = parseInt(hex.slice(2, 4), 16);
+    const b = parseInt(hex.slice(4, 6), 16);
+    const a = hex.length === 8 ? parseInt(hex.slice(6, 8), 16) / 255 : 1;
+    if ([r, g, b].some((v) => Number.isNaN(v))) return null;
+    return { r, g, b, a };
+  }
+
+  if (trimmed.startsWith('rgb')) {
+    const match = trimmed.match(/rgba?\(([^)]+)\)/);
+    if (!match) return null;
+    const parts = match[1]
+      .split(',')
+      .map((p) => p.trim())
+      .filter(Boolean);
+    const r = Number(parts[0]);
+    const g = Number(parts[1]);
+    const b = Number(parts[2]);
+    const a = parts.length >= 4 ? Number(parts[3]) : 1;
+    if ([r, g, b, a].some((v) => Number.isNaN(v))) return null;
+    return { r, g, b, a };
+  }
+
+  return null;
+};
+
+// Perceptual distance (redmean approximation) — cheap and noticeably better
+// than plain RGB Euclidean for picking the closest swatch. Returns the squared
+// distance (no sqrt), which is monotonic and fine for comparisons.
+const colorDistance = (a: RGBA, b: RGBA): number => {
+  const rmean = (a.r + b.r) / 2;
+  const dr = a.r - b.r;
+  const dg = a.g - b.g;
+  const db = a.b - b.b;
+  return (
+    (2 + rmean / 256) * dr * dr +
+    4 * dg * dg +
+    (2 + (255 - rmean) / 256) * db * db
+  );
+};
+
+/**
+ * Returns true when a value is already a color token / keyword and should be
+ * left untouched by {@link normalizeThemeColors}.
+ */
+export const isColorToken = (value: string): boolean =>
+  value.startsWith('color-') ||
+  value.startsWith('theme-') ||
+  value.startsWith('light-') ||
+  value.startsWith('dark-') ||
+  value === 'transparent';
+
+/**
+ * Snaps a literal color (hex / rgb / rgba) to the nearest palette token so the
+ * resulting value adapts to light/dark mode. Returns null when the input is not
+ * a parseable literal (e.g. a CSS named color or an unknown format).
+ *
+ * Candidates are the palette shades plus the auto-flipping `white`/`black` main
+ * colors. Other main colors are intentionally excluded because they are static
+ * across modes and would defeat the point of converting to a token. Translucent
+ * inputs are preserved as an alpha-suffixed token (`color-blue-500-500`).
+ */
+export const nearestColorToken = (
+  color: string,
+  colors: { main: ColorSingleton; palette: ColorPalette }
+): string | null => {
+  const target = parseColorToRgba(color);
+  if (!target) return null;
+
+  let bestToken: string | null = null;
+  let bestDistance = Infinity;
+
+  const consider = (token: string, value: string) => {
+    const rgba = parseColorToRgba(value);
+    if (!rgba || rgba.a < 1) return; // skip translucent swatches (white/black ramps)
+    const d = colorDistance(target, rgba);
+    if (d < bestDistance) {
+      bestDistance = d;
+      bestToken = token;
+    }
+  };
+
+  // Pure white/black main colors flip cleanly (white <-> black), giving the
+  // best result for literal #fff / #000.
+  if (typeof colors.main.white === 'string')
+    consider('color-white', colors.main.white);
+  if (typeof colors.main.black === 'string')
+    consider('color-black', colors.main.black);
+
+  for (const name of Object.keys(colors.palette)) {
+    const shades = colors.palette[name];
+    for (const shade of Object.keys(shades)) {
+      consider(`color-${name}-${shade}`, shades[Number(shade)]);
+    }
+  }
+
+  if (!bestToken) return null;
+
+  // Preserve translucency as an alpha-suffixed token (0–1000 scale).
+  if (target.a < 1) {
+    return `${bestToken}-${Math.round(target.a * 1000)}`;
+  }
+  return bestToken;
+};
+
+/**
+ * Returns a copy of `theme` with every literal color value snapped to the
+ * nearest palette token (see {@link nearestColorToken}). Existing tokens,
+ * `transparent`, and non-parseable values are left untouched. This keeps
+ * user-supplied themes adaptive to light/dark mode even when configured with
+ * raw colors.
+ */
+export const normalizeThemeColors = <T extends Record<string, any>>(
+  theme: T,
+  lightColors: { main: ColorSingleton; palette: ColorPalette }
+): T => {
+  const result: Record<string, any> = { ...theme };
+  for (const key of Object.keys(result)) {
+    const value = result[key];
+    if (typeof value !== 'string' || isColorToken(value)) continue;
+    const token = nearestColorToken(value, lightColors);
+    if (token) result[key] = token;
+  }
+  return result as T;
+};

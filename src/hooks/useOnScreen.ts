@@ -41,6 +41,9 @@ export function useOnScreen<T extends HTMLElement = HTMLElement>(
     return () => {
       observer.disconnect();
     };
+    // observerOptions is a rest-spread object — depend on its primitive fields
+    // to keep the effect stable across renders that pass a new options literal.
+    // react-doctor-disable-next-line react-doctor/exhaustive-deps
   }, [
     targetWindow,
     observerOptions.root,

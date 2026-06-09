@@ -1,14 +1,5 @@
-// analytics/AnalyticsContext.tsx
-import React, { createContext, ReactNode, useContext, useMemo } from 'react';
-
-export type AnalyticsConfig = {
-  trackEvent?: (event: any) => void;
-};
-
-// Create the context with a default no-op implementation
-export const AnalyticsContext = createContext<AnalyticsConfig>({});
-
-export const useAnalytics = (): AnalyticsConfig => useContext(AnalyticsContext);
+import React, { ReactNode, useMemo } from 'react';
+import { AnalyticsConfig, AnalyticsContext } from './AnalyticsContext';
 
 export const AnalyticsProvider = ({
   trackEvent,

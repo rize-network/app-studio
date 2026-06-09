@@ -46,6 +46,8 @@ export interface CssProps extends CSSProperties {
   _focusVisible?: CSSProperties | string;
   _focusWithin?: CSSProperties | string;
   _placeholder?: CSSProperties | string;
+  _odd?: CSSProperties | string;
+  _even?: CSSProperties | string;
 
   // Group modifiers
   _groupHover?: CSSProperties | string;
@@ -126,11 +128,24 @@ export interface ElementProps
   // Components that need an actual HTML input attribute should use the
   // specialized `Input` component (which accepts them via InputProps),
   // not a polymorphic `<View as="input">`.
+  //
+  // `name` IS included because consumers use `<Element as="textarea|select"
+  // name=...>` directly for form submission. Components that narrow `name`
+  // (e.g. Icon's icon-id union) must Omit it when extending ViewProps.
+  name?: string;
+  // `value` / `defaultValue` / `multiple` are also re-exposed because polymorphic
+  // `<View as="select|input|textarea">` callers need them. Domain components
+  // that narrow these (Switch -> boolean, Select -> string|string[]) Omit them
+  // when extending InputProps. Default HTMLInputElement-style typing.
+  value?: string | number | readonly string[];
+  defaultValue?: string | number | readonly string[];
+  multiple?: boolean;
   disabled?: boolean;
   readOnly?: boolean;
   required?: boolean;
   autoComplete?: string;
   autoFocus?: boolean;
+  placeholder?: string;
   pattern?: string;
   min?: number | string;
   max?: number | string;
@@ -145,10 +160,18 @@ export interface ElementProps
   formTarget?: string;
   rows?: number;
   cols?: number;
-  wrap?: 'hard' | 'soft' | 'off';
+  /** HTML textarea wrap attribute. Browsers accept 'hard' | 'soft' | 'off' but
+   * the DOM type widens to plain `string`, so we mirror that here. */
+  wrap?: string;
   list?: string;
   accept?: string;
   capture?: boolean | 'user' | 'environment';
+
+  // Table cells (td / th)
+  colSpan?: number;
+  rowSpan?: number;
+  headers?: string;
+  scope?: string;
 
   // Links / nav (a / area)
   href?: string;
@@ -157,13 +180,15 @@ export interface ElementProps
   hrefLang?: string;
   download?: string | boolean;
 
-  // SVG
+  // SVG-specific attributes for <View as="svg"> usage.
+  // NOTE: `fill`, `stroke`, `strokeWidth`, `strokeLinecap`, `strokeLinejoin`,
+  // `strokeDasharray`, `strokeDashoffset`, `strokeOpacity`, `fillOpacity`,
+  // `fillRule` are intentionally NOT redeclared — they already flow in via
+  // CssProps -> CSSProperties (csstype). Redeclaring them here narrows the
+  // type and breaks consumers that pass CSSProperties through.
   xmlns?: string;
   viewBox?: string;
   preserveAspectRatio?: string;
-  fill?: string;
-  stroke?: string;
-  strokeWidth?: string | number;
 
   // Misc
   open?: boolean;
@@ -186,6 +211,34 @@ export interface ElementProps
   style?: CSSProperties;
   widthHeight?: number | string;
   children?: React.ReactNode;
+  // iframe-specific attributes — surfaced for <View as="iframe"> usage
+  srcDoc?: string;
+  sandbox?: string;
+  // Polymorphic-link helper — translated to <a href> when present on a clickable element
+  to?: string;
+  // Editor-driven prop: list of i18n / location keys associated with this node.
+  // Consumed by tooling (page editor, content extractor) but inert at runtime.
+  keys?: any[];
+  // Material-UI compatibility shim — alternate style sink (merged with style).
+  sx?: any;
+  // Skeleton-component compatibility shim — per-item style override.
+  itemStyle?: any;
+  // Spacing shorthands — convenience aliases for paddingHorizontal/Vertical
+  paddingX?: number | string;
+  paddingY?: number | string;
+  marginX?: number | string;
+  marginY?: number | string;
+  // Hover-style shorthand — convenience alias for on={{ hover: { backgroundColor: ... } }}
+  hoverBackgroundColor?: string;
+  // Hover-state style sink — convenience alias for on={{ hover: {...} }} (or `true` for default elevated style)
+  hover?: boolean | Record<string, any>;
+  // Hover-state style sink alternate alias
+  hoverStyle?: Record<string, any>;
+  // HTML input attribute — surfaced for <View as="input" type="checkbox|radio"> usage
+  checked?: boolean;
+  defaultChecked?: boolean;
+  // CSS transition shorthand (also flows through `style`, this is the prop alias)
+  transition?: string;
   before?: React.ReactNode;
   after?: React.ReactNode;
 
@@ -224,6 +277,8 @@ export interface ElementProps
   _focusVisible?: CssProps | string;
   _focusWithin?: CssProps | string;
   _placeholder?: CssProps | string;
+  _odd?: CssProps | string;
+  _even?: CssProps | string;
 
   // Group modifiers
   _groupHover?: CssProps | string;

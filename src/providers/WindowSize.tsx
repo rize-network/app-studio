@@ -1,12 +1,5 @@
-import React, {
-  ReactNode,
-  createContext,
-  useState,
-  useEffect,
-  useRef,
-} from 'react';
-
-export const WindowSizeContext = createContext({ width: 0, height: 0 });
+import React, { ReactNode, useState, useEffect } from 'react';
+import { WindowSizeContext } from './WindowSizeContext';
 
 export interface WindowSizeProviderProps {
   children: ReactNode;
@@ -25,14 +18,14 @@ export const WindowSizeProvider = ({
     height: win?.innerHeight || 0,
   });
 
-  const timeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
-
   useEffect(() => {
     if (!win) return;
 
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
+
     const handleResize = () => {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-      timeoutRef.current = setTimeout(() => {
+      if (timeoutId) clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
         const newWidth = win.innerWidth;
         const newHeight = win.innerHeight;
         setSize((prev) => {
@@ -45,7 +38,7 @@ export const WindowSizeProvider = ({
     win.addEventListener('resize', handleResize);
     return () => {
       win.removeEventListener('resize', handleResize);
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      if (timeoutId) clearTimeout(timeoutId);
     };
   }, [win]);
 

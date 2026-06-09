@@ -4,6 +4,9 @@ import {
   defaultColors,
   defaultLightColors,
   defaultDarkColors,
+  nearestColorToken,
+  normalizeThemeColors,
+  isColorToken,
 } from '../../../src/utils/colors';
 
 describe('Colors', () => {
@@ -190,6 +193,88 @@ describe('Colors', () => {
       expect(defaultDarkColors.red).toBe('#FF0000');
       expect(defaultDarkColors.green).toBe('#00FF00');
       expect(defaultDarkColors.blue).toBe('#0000FF');
+    });
+  });
+
+  describe('isColorToken', () => {
+    it('recognizes dash-notation tokens and keywords', () => {
+      expect(isColorToken('color-blue-500')).toBe(true);
+      expect(isColorToken('theme-primary')).toBe(true);
+      expect(isColorToken('light-red-200')).toBe(true);
+      expect(isColorToken('dark-red-200')).toBe(true);
+      expect(isColorToken('transparent')).toBe(true);
+    });
+
+    it('rejects literal colors', () => {
+      expect(isColorToken('#ef4444')).toBe(false);
+      expect(isColorToken('rgb(239, 68, 68)')).toBe(false);
+    });
+  });
+
+  describe('nearestColorToken', () => {
+    const light = { main: defaultLightColors, palette: defaultLightPalette };
+
+    it('maps an exact palette hex to its token', () => {
+      expect(nearestColorToken('#ef4444', light)).toBe('color-red-500');
+      expect(nearestColorToken('#3b82f6', light)).toBe('color-blue-500');
+      expect(nearestColorToken('#22c55e', light)).toBe('color-green-500');
+    });
+
+    it('maps pure white/black to the auto-flipping main tokens', () => {
+      expect(nearestColorToken('#FFFFFF', light)).toBe('color-white');
+      expect(nearestColorToken('#000000', light)).toBe('color-black');
+    });
+
+    it('snaps a near color to the closest token', () => {
+      expect(nearestColorToken('#ee4545', light)).toBe('color-red-500');
+    });
+
+    it('parses rgb() input', () => {
+      expect(nearestColorToken('rgb(59, 130, 246)', light)).toBe(
+        'color-blue-500'
+      );
+    });
+
+    it('preserves alpha as an alpha-suffixed token', () => {
+      expect(nearestColorToken('rgba(239, 68, 68, 0.5)', light)).toBe(
+        'color-red-500-500'
+      );
+    });
+
+    it('returns null for unparseable input (named colors)', () => {
+      expect(nearestColorToken('cornflowerblue', light)).toBeNull();
+      expect(nearestColorToken('not-a-color', light)).toBeNull();
+    });
+  });
+
+  describe('normalizeThemeColors', () => {
+    const light = { main: defaultLightColors, palette: defaultLightPalette };
+
+    it('converts literal colors to tokens while leaving tokens untouched', () => {
+      const result = normalizeThemeColors(
+        {
+          primary: '#ef4444',
+          secondary: 'color-blue-500',
+          success: 'rgb(34, 197, 94)',
+          warning: 'transparent',
+          custom: 'cornflowerblue',
+        },
+        light
+      );
+
+      expect(result).toEqual({
+        primary: 'color-red-500',
+        secondary: 'color-blue-500',
+        success: 'color-green-500',
+        warning: 'transparent',
+        custom: 'cornflowerblue',
+      });
+    });
+
+    it('does not mutate the input object', () => {
+      const theme = { primary: '#ef4444' };
+      normalizeThemeColors(theme, light);
+      expect(theme.primary).toBe('#ef4444');
     });
   });
 });

@@ -19,8 +19,8 @@ export function useActive<T extends HTMLElement = HTMLElement>(): [
     node.addEventListener('mousedown', handleMouseDown);
     node.addEventListener('mouseup', handleMouseUp);
     node.addEventListener('mouseleave', handleMouseUp);
-    node.addEventListener('touchstart', handleTouchStart);
-    node.addEventListener('touchend', handleTouchEnd);
+    node.addEventListener('touchstart', handleTouchStart, { passive: true });
+    node.addEventListener('touchend', handleTouchEnd, { passive: true });
 
     return () => {
       node.removeEventListener('mousedown', handleMouseDown);

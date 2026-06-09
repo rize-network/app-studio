@@ -1,3 +1,4 @@
+// Web-only vendor-prefix smoke test — uses raw text intentionally.
 import React from 'react';
 import { Element } from '../element/Element';
 

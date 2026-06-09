@@ -13,7 +13,7 @@ import { useStyleRegistry } from '../providers/StyleRegistry';
 import { isStyleProp } from '../utils/style';
 import { excludedKeys, includeKeys } from '../utils/constants';
 import { extractUtilityClasses, AnimationUtils } from './css';
-import { useAnalytics } from '../providers/Analytics';
+import { useAnalytics } from '../providers/AnalyticsContext';
 import { hash } from '../utils/hash';
 
 // Set of special prop names that affect CSS generation
@@ -90,15 +90,23 @@ function useStableStyleMemo(
   mediaQueries: Record<string, string>,
   devices: Record<string, string[]>,
   manager: any,
-  theme: any
+  theme: any,
+  containerScoped: boolean
 ): string[] {
   const cacheRef = useRef<{ hash: string; classes: string[] } | null>(null);
 
   // Compute hash directly — no useMemo since propsToProcess is always a new
   // reference (from destructuring), so the memo deps would always change.
-  // Theme hash uses Object.values() concatenation instead of JSON.stringify
+  // Theme hash uses Object.values() concatenation instead of JSON.stringify.
+  // `containerScoped` is folded in so the `media` prop re-resolves to
+  // @container vs @media classes when an element moves in/out of a
+  // <Responsive container> boundary.
   const themeHash = theme ? hash(Object.values(theme).join('|')) : '';
-  const currentHash = hashStyleProps(propsToProcess) + '|' + themeHash;
+  const currentHash =
+    hashStyleProps(propsToProcess) +
+    '|' +
+    themeHash +
+    (containerScoped ? '|cq' : '');
 
   // Only recompute classes if hash changed
   if (!cacheRef.current || cacheRef.current.hash !== currentHash) {
@@ -107,7 +115,8 @@ function useStableStyleMemo(
       getColor,
       mediaQueries,
       devices,
-      manager
+      manager,
+      containerScoped
     );
     cacheRef.current = { hash: currentHash, classes };
   }
@@ -199,10 +208,13 @@ export const Element = React.memo(
           componentTheme
             ? makeScopedGetColor(componentTheme, getColor)
             : getColor,
-        [componentTheme, componentThemeKey, getColor]
+        // componentThemeKey drives memoization by-value; componentTheme is read
+        // inside the callback but reads identically whenever the key matches.
+        // react-doctor-disable-next-line react-doctor/exhaustive-deps
+        [componentThemeKey, getColor]
       );
       const { trackEvent } = useAnalytics();
-      const { mediaQueries, devices } = useBreakpointContext();
+      const { mediaQueries, devices, containerScoped } = useBreakpointContext();
       const { manager } = useStyleRegistry();
       const [isVisible, setIsVisible] = useState(false);
 
@@ -318,7 +330,8 @@ export const Element = React.memo(
         mediaQueries,
         devices,
         manager,
-        componentTheme ? { ...theme, __scope: componentThemeKey } : theme
+        componentTheme ? { ...theme, __scope: componentThemeKey } : theme,
+        !!containerScoped
       );
 
       const newProps: any = { ref: setRef };

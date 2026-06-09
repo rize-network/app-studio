@@ -124,6 +124,9 @@ export function useElementPosition<T extends HTMLElement = HTMLElement>(
     }, throttleMs);
   }, [calculateRelation, throttleMs]);
 
+  // throttleTimerRef is shared with throttledUpdate (useCallback above); the
+  // cleanup must reach the latest pending timer, not a snapshot from setup.
+  // react-doctor-disable-next-line react-doctor/exhaustive-deps
   useEffect(() => {
     // Initial calculation
     calculateRelation();

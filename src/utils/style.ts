@@ -484,19 +484,13 @@ export const isStyleProp = (prop: string): boolean => {
  * @returns A CSS string with properly formatted properties
  */
 export function styleObjectToCss(styleObject: Record<string, any>): string {
-  return Object.entries(styleObject)
-    .filter(([key]) => isStyleProp(key))
-    .map(([property, value]) => {
-      if (value === undefined || value === null) return '';
-
-      // Convert property to kebab-case with vendor prefix handling
-      const cssProperty = propertyToKebabCase(property);
-
-      // Return formatted CSS declaration
-      return `${cssProperty}: ${value};`;
-    })
-    .filter(Boolean)
-    .join(' ');
+  const declarations: string[] = [];
+  for (const [property, value] of Object.entries(styleObject)) {
+    if (!isStyleProp(property)) continue;
+    if (value === undefined || value === null) continue;
+    declarations.push(`${propertyToKebabCase(property)}: ${value};`);
+  }
+  return declarations.join(' ');
 }
 
 export const toKebabCase = (str: string): string => {

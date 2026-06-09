@@ -18,6 +18,25 @@ export interface TextProps
   isSub?: boolean;
   isSup?: boolean;
   maxLines?: number;
+  /**
+   * Shorthand for fontWeight; accepts numeric (100-900) or named weights
+   * ("normal", "bold", "semibold", etc.). Convenience alias for the
+   * underlying fontWeight CSS property.
+   */
+  weight?: string | number;
+  /**
+   * Optional style variant identifier. Free-form string used by component
+   * wrappers and design systems to dispatch typography presets.
+   */
+  variant?: string;
+  /**
+   * Shorthand for fontSize; accepts numeric or named sizes (e.g. 'sm', 14, '14px').
+   */
+  size?: string | number;
+  /**
+   * Shorthand for letterSpacing; accepts numeric or named tracking values.
+   */
+  spacing?: string | number;
 }
 export interface ContentProps {
   children?: React.ReactNode;

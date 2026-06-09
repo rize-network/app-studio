@@ -17,6 +17,7 @@ import {
   normalizeHex,
   resolveThemeColor,
 } from '../../shared/theme';
+import { normalizeThemeColors } from '../../utils/colors';
 
 interface ThemeContextProps {
   getColor: (name: string) => string;
@@ -88,11 +89,6 @@ export const ThemeProvider = ({
 }: ThemeProviderProps) => {
   const [themeMode, setThemeMode] = useState<ThemeMode>(initialMode);
 
-  const mergedTheme = useMemo(
-    () => deepMerge(defaultThemeMain, theme),
-    [theme]
-  );
-
   const mergedColors = useMemo<ThemeColorConfig>(
     () => ({
       light: deepMerge(
@@ -105,6 +101,17 @@ export const ThemeProvider = ({
       ),
     }),
     [colors, lightColors, darkColors]
+  );
+
+  // Snap any literal colors configured in the theme to the nearest palette
+  // token so the theme keeps adapting to light/dark mode.
+  const mergedTheme = useMemo(
+    () =>
+      normalizeThemeColors(
+        deepMerge(defaultThemeMain, theme),
+        mergedColors.light
+      ),
+    [theme, mergedColors.light]
   );
 
   const getColor = useCallback(

@@ -34,6 +34,13 @@ yarn add app-studio
 
 App-Studio's only runtime dependencies (`color-convert`, `hyphenate-style-name`) are shared between web and native and require no extra Metro configuration.
 
+#### Optional native peer
+
+- **`react-native-reanimated`** — enables the `Animation.*` presets on
+  native. Without it, `animate={…}` props are silently ignored. See the
+  [Animations](#animations-react-native-reanimated) section for setup
+  details (babel plugin + pod install).
+
 ### Import paths
 
 Use the bare package name from any RN file — Metro resolves it to the native build:
@@ -246,7 +253,7 @@ To keep the prop API uniform across platforms, the native build *accepts* the fo
 - `as` — RN components don't have HTML tags; the underlying primitive is fixed.
 - `className` — ignored.
 - `css` raw CSS strings — only object-form `css` is read on native.
-- CSS animations declared via `animate` / `animateIn` / `animateOut` / `animateOn` — see [Animations](#animations).
+- `animateIn` / `animateOut` / `animateOn` — web-only. The plain `animate` prop **does** work on native via `react-native-reanimated`; see [Animations](#animations-react-native-reanimated).
 
 If you write a component that's truly platform-divergent, the cleanest path is to split it into `MyComponent.tsx` (web) and `MyComponent.native.tsx` (native) — Metro will pick the `.native` file automatically.
 
@@ -339,6 +346,27 @@ function AdaptiveCard() {
 
 `screen` (alias for `currentBreakpoint`), `currentDevice`, `orientation`, `on(name)`, and `is(name)` behave identically to web.
 
+### `<Responsive>` — container & forced scoping
+
+The `<Responsive>` boundary works on native, mirroring the web API. Use it to scope responsiveness to a measured container or a forced value, instead of the screen.
+
+```tsx
+import { Responsive, View } from 'app-studio/native';
+
+// Adapt to the container's width (measured via onLayout)
+<Responsive container style={{ width: '50%' }}>
+  <View media={{ mobile: { flexDirection: 'column' } }}>
+    <Chat />
+  </View>
+</Responsive>
+
+// Force a breakpoint / device for the subtree
+<Responsive forceBreakpoint="sm"><Panel /></Responsive>
+<Responsive responsiveMode="mobile"><Sidebar /></Responsive>
+```
+
+On native, `container` mode renders a wrapping RN `<View>` that measures itself with `onLayout`; the `media` prop (already JS-resolved on native) and the hooks then follow the container's width. Force props (`forceBreakpoint` / `responsiveMode`) override both the container and the screen, and `responsiveMode` only accepts real device names.
+
 ---
 
 ## Hooks on Native
@@ -354,9 +382,9 @@ Some hooks are inherently web-only (DOM events, IntersectionObserver, keyboard l
 | `useTheme`            | ✅ Works (covered above).                                                                      |
 | `useAnalytics`        | ✅ Works.                                                                                      |
 | `useMount`            | ✅ Works.                                                                                      |
-| `useHover`            | ⚠️ Stub. Returns `{ isHovered: false, hoverProps: {} }`. Use RN's `Pressable` `onHoverIn`/`onHoverOut` if you need hover on a mouse-capable device. |
-| `useActive`           | ⚠️ Stub. Returns `{ isActive: false, activeProps: {} }`. Use `Pressable` `onPressIn`/`onPressOut`. |
-| `useFocus`            | ⚠️ Stub. Returns `{ isFocused: false, focusProps: {} }`. Use `TextInput`'s `onFocus`/`onBlur` directly. |
+| `useHover`            | ⚠️ Stub. Returns the same **tuple** as web (`[ref, false]`) so shared component code that destructures `const [ref, hover] = useHover<HTMLDivElement>()` keeps compiling. The boolean is always `false` on RN; use `Pressable` `onHoverIn`/`onHoverOut` for real hover. |
+| `useActive`           | ⚠️ Stub. Returns `[ref, false]`. Use `Pressable` `onPressIn`/`onPressOut`. |
+| `useFocus`            | ⚠️ Stub. Returns `[ref, false]`. Use `TextInput`'s `onFocus`/`onBlur` directly. |
 | `useClickOutside`     | ⚠️ Stub. Returns a ref and `isOutside: false`. Patterns like outside-tap dismissal need a `Pressable` overlay in RN. |
 | `useElementPosition`  | ⚠️ Stub. RN equivalent is `measure()` on a `ref`. |
 | `useKeyPress`         | ⚠️ Stub. Returns `false`. Use `react-native-keyboard-events` or platform-specific code. |
@@ -391,18 +419,102 @@ For RN-specific a11y APIs (`accessibilityRole`, `accessibilityState`, `accessibi
 
 ---
 
-## Animations
+## Animations (`react-native-reanimated`)
 
-The `Animation.*` presets and the `animate` / `animateIn` / `animateOut` / `animateOn` props compile to CSS keyframes, which **don't run** in React Native. On native these props are accepted but have no visual effect.
+`Animation.fadeIn()`, `Animation.slideInLeft()`, `Animation.pulse()` etc.
+**do play on React Native** through a built-in port of the same
+`AnimationProps` shape to
+[`react-native-reanimated`](https://docs.swmansion.com/react-native-reanimated/).
+Pass them to the `animate` prop on `<Element/>`, `<View/>`, `<Horizontal/>`,
+`<Vertical/>`, `<Center/>` etc. exactly as you do on web — the native build
+will run them on the UI thread via Reanimated worklets.
 
-For motion on native, use one of:
+### Setup
 
-- **`Animated` API** (`react-native` core) for simple interpolations.
-- **`react-native-reanimated`** for performant, gesture-driven animations.
-- **`LayoutAnimation`** for automatic layout transitions.
-- **`moti`** for a declarative API similar to App-Studio's `animate` prop.
+```bash
+npm install react-native-reanimated
+# babel.config.js — REQUIRED, must be the last plugin
+# plugins: ['react-native-reanimated/plugin']
+cd ios && pod install
+```
 
-A native-flavored animation system is on the roadmap — see [next.md](../next.md) for status. Until then, drop down to the libraries above for native motion.
+`react-native-reanimated` is declared as an **optional** peer dependency. If
+it isn't installed, the `animate` prop is silently ignored and the element
+renders statically — no crash.
+
+### Usage
+
+```tsx
+import { Animation, View } from 'app-studio';
+
+// One-shot fade-in on mount
+<View animate={Animation.fadeIn({ duration: '0.6s' })}>
+  …
+</View>
+
+// Looped pulse, ping-pong
+<View animate={Animation.pulse({
+  duration: '1.2s',
+  iterationCount: 'infinite',
+  direction: 'alternate',
+})} />
+```
+
+### What gets translated
+
+| `AnimationProps` field   | RN handling                                                                 |
+| :----------------------- | :-------------------------------------------------------------------------- |
+| `duration` (`"1s"`, `"500ms"`, number) | Parsed to milliseconds                                            |
+| `delay`                  | `withDelay(ms, …)`                                                          |
+| `timingFunction`         | `linear` / `ease` / `ease-in` / `ease-out` / `ease-in-out` / `cubic-bezier(...)` → `Easing.bezier(...)` |
+| `iterationCount`         | `'infinite'` → `withRepeat(_, -1)`, number → `withRepeat(_, n)`             |
+| `direction: 'alternate'` (or `'alternate-reverse'`) | 3rd arg of `withRepeat` (`true`)                 |
+| Keyframe stops `'20%'` / `'40%'` … | Unrolled to a `withSequence(withTiming, …)` chain                 |
+| `transform: 'translateX(-100%)'` | Resolved against `Dimensions.get('window').width` (good for slide-from-edge) |
+| `transform: 'translateY(50%)'` | Resolved against window height                                        |
+| `transform: 'scale(0.5)'`, `scaleX`, `scaleY` | Direct                                                   |
+| `transform: 'rotate(180deg)'`, `skewX`, `skewY` | Direct (string form, RN accepts)                       |
+| `opacity`, `backgroundColor`, `color`, `borderRadius`, `width`, `height` | Animated as shared values |
+
+The set of animated properties (the "roster") is fixed — `opacity`,
+`translateX`, `translateY`, `scale`, `scaleX`, `scaleY`, `rotate`, `skewX`,
+`skewY`, `backgroundColor`, `color`, `borderRadius`, `width`, `height` — so
+the hook order stays stable across renders (Rules of Hooks).
+
+### `useAnimation` hook
+
+If you want to drive the animated style yourself (e.g., on a custom component
+that wraps `Animated.View` from another lib), import the hook:
+
+```tsx
+import Animated from 'react-native-reanimated';
+import { Animation, useAnimation } from 'app-studio';
+
+function MyAnim() {
+  const { style, AnimatedView } = useAnimation(
+    Animation.slideInUp({ duration: '0.5s' })
+  );
+  const Container = AnimatedView ?? Animated.View;
+  return <Container style={[{ padding: 16 }, style]}>…</Container>;
+}
+```
+
+`useAnimation(animate)` returns `{ style, AnimatedView, AnimatedPressable }`.
+`AnimatedView` is `Animated.View` and `AnimatedPressable` is
+`createAnimatedComponent(Pressable)` for the cases where you need both an
+animation and `onPress`. All three are `undefined` when Reanimated is not
+installed.
+
+### Limits / what still doesn't work on native
+
+| Web feature                                                | Native status                                                                 |
+| :--------------------------------------------------------- | :---------------------------------------------------------------------------- |
+| Scroll-driven timelines (`timeline: 'view()' / 'scroll()'`) | ❌ Web-only. Use Reanimated's `useAnimatedScrollHandler` manually.            |
+| `animateIn` / `animateOut` / `animateOn` props              | ❌ Web-only. Pass `animate={…}` directly.                                     |
+| Multiple animations on the same element                     | ⚠️ Only the first array entry is played (Rules of Hooks). Nest Views to compose. |
+| Percentage transforms                                       | ⚠️ Resolved against window dimensions, not the element's own size.            |
+| `playState`, `--fill`, `range` props                        | ❌ Ignored.                                                                   |
+| CSS filter / backdrop / mask animations                     | ❌ Not animatable on RN.                                                      |
 
 ---
 
@@ -417,7 +529,7 @@ A native-flavored animation system is on the roadmap — see [next.md](../next.m
 | `className`                   | Applied to DOM element                         | Ignored                                                                 |
 | `css` raw string              | Injected into stylesheet                       | Ignored (object form still works)                                       |
 | `style`                       | Standard CSSProperties                         | RN `StyleProp` (object, array, or `StyleSheet` reference)               |
-| Animations                    | CSS keyframes via `Animation.*`                | No-op — bring `Animated` / Reanimated / Moti                            |
+| Animations                    | CSS keyframes via `Animation.*`                | Same `Animation.*` API, played through `react-native-reanimated` (optional peer) |
 | `Image` source                | `src` / `srcSet`                               | `src` (URI shorthand) or `source={...}`                                 |
 | `Input` change handler        | `onChange`                                     | `onChangeText` (RN-native) — `onChange` is also forwarded               |
 | Click handlers                | `onClick`                                      | `onPress` (preferred); `onClick` forwards to `onPress`                  |

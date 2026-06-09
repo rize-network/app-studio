@@ -1,7 +1,6 @@
-import React, { ReactNode, createContext } from 'react';
+import React, { ReactNode, useMemo } from 'react';
 import { useWindowDimensions as useRNWindowDimensions } from 'react-native';
-
-export const WindowSizeContext = createContext({ width: 0, height: 0 });
+import { WindowSizeContext } from './WindowSizeContext';
 
 export interface WindowSizeProviderProps {
   children: ReactNode;
@@ -10,9 +9,10 @@ export interface WindowSizeProviderProps {
 
 export const WindowSizeProvider = ({ children }: WindowSizeProviderProps) => {
   const { width, height } = useRNWindowDimensions();
+  const value = useMemo(() => ({ width, height }), [width, height]);
 
   return (
-    <WindowSizeContext.Provider value={{ width, height }}>
+    <WindowSizeContext.Provider value={value}>
       {children}
     </WindowSizeContext.Provider>
   );

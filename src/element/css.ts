@@ -25,6 +25,7 @@ type StyleContext =
   | 'base'
   | 'pseudo'
   | 'media'
+  | 'container'
   | 'modifier'
   | 'override-shorthand'
   | 'override-side'
@@ -268,6 +269,27 @@ const buildPseudoSelector = (chain: string): string =>
     .join('');
 
 /**
+ * Convert a viewport media-query string into a CSS container-query condition.
+ *
+ * `getMediaQueries` emits strings like `only screen and (min-width: 560px) and
+ * (max-width: 1079px)`. Container queries (`@container`) take only the feature
+ * conditions, so we strip the leading media-type (`only screen` / `screen`) and
+ * the connecting `and`. The numeric `(min-width|max-width)` features are valid
+ * inside `@container` (resolved against the container's inline size).
+ *
+ * Falls back to `(min-width: 0px)` (always-true) when no condition remains —
+ * e.g. a single-breakpoint config where the query is just `only screen`.
+ */
+const toContainerCondition = (mediaQuery: string): string => {
+  const condition = mediaQuery
+    .replace(/^\s*only\s+screen\s*/i, '')
+    .replace(/^\s*screen\s*/i, '')
+    .replace(/^\s*and\s+/i, '')
+    .trim();
+  return condition || '(min-width: 0px)';
+};
+
+/**
  * Utility functions for animation handling
  */
 export const AnimationUtils = {
@@ -464,6 +486,7 @@ export class UtilityClassManager {
         base: 'utility-classes-base',
         pseudo: 'utility-classes-pseudo',
         media: 'utility-classes-media',
+        container: 'utility-classes-container',
         modifier: 'utility-classes-modifier',
         'override-shorthand': 'utility-classes-override-shorthand',
         'override-side': 'utility-classes-override-side',
@@ -563,6 +586,7 @@ export class UtilityClassManager {
       'base',
       'pseudo',
       'media',
+      'container',
       'modifier',
       'override-shorthand',
       'override-side',
@@ -599,7 +623,8 @@ export class UtilityClassManager {
     context: StyleContext = 'base',
     modifier: string = '',
     getColor: (color: string) => string,
-    mediaQueries: string[] = []
+    mediaQueries: string[] = [],
+    containerQuery: boolean = false
   ): string[] {
     // Format value
     let processedValue = ValueUtils.formatValue(value, property, getColor);
@@ -608,6 +633,11 @@ export class UtilityClassManager {
     let key = `${property}:${formattedValue}`;
     if (modifier && context !== 'base') {
       key = `${property}:${formattedValue}|${context}:${modifier}`;
+      // Container-query variants compile to different CSS (@container vs
+      // @media) and a different class name, so they need a distinct cache key.
+      if (containerQuery && context === 'media') {
+        key += '|cq';
+      }
     }
 
     // Check cache
@@ -695,6 +725,25 @@ export class UtilityClassManager {
           });
         });
       }
+    } else if (context === 'media' && modifier && containerQuery) {
+      // Container-scoped responsive styles. The `cq-` prefix keeps these
+      // classes distinct from their viewport `@media` counterparts so both can
+      // coexist for the same property/value. Rules are unnamed `@container`
+      // queries, which resolve against the nearest ancestor that established a
+      // containment context (rendered by <Responsive container>).
+      const containerClassName = `cq-${modifier}--${baseClassName}`;
+      classNames = [containerClassName];
+      const escapedClassName = this.escapeClassName(containerClassName);
+
+      mediaQueries.forEach((mq) => {
+        const condition = toContainerCondition(mq);
+        cssProperties.forEach((prefixedProperty) => {
+          rules.push({
+            rule: `@container ${condition} { .${escapedClassName} { ${prefixedProperty}: ${valueForCss}; } }`,
+            context: 'container',
+          });
+        });
+      });
     } else if (context === 'media' && modifier) {
       const mediaClassName = `${modifier}--${baseClassName}`;
       classNames = [mediaClassName];
@@ -870,7 +919,8 @@ function processStyles(
   getColor: (color: string) => string,
   mediaQueries: Record<string, string> = {},
   devices: Record<string, string[]> = {},
-  manager?: UtilityClassManager
+  manager?: UtilityClassManager,
+  containerQuery: boolean = false
 ): string[] {
   const classes: string[] = [];
   const activeManager = manager || utilityClassManager;
@@ -881,9 +931,9 @@ function processStyles(
     if (mediaQueries[modifier]) {
       mediaQueriesForClass = [mediaQueries[modifier]];
     } else if (devices[modifier]) {
-      mediaQueriesForClass = devices[modifier]
-        .map((mq) => mediaQueries[mq])
-        .filter((mq) => mq);
+      mediaQueriesForClass = devices[modifier].flatMap((mq) =>
+        mediaQueries[mq] ? [mediaQueries[mq]] : []
+      );
     }
   }
 
@@ -899,7 +949,8 @@ function processStyles(
         context,
         modifier,
         getColor,
-        mediaQueriesForClass
+        mediaQueriesForClass,
+        containerQuery
       );
       classes.push(...classNames);
     }
@@ -1152,7 +1203,8 @@ export const extractUtilityClasses = (
   getColor: (color: string) => string,
   mediaQueries: Record<string, string>,
   devices: Record<string, string[]>,
-  manager?: UtilityClassManager
+  manager?: UtilityClassManager,
+  containerQuery: boolean = false
 ): string[] => {
   const classes: string[] = [];
   const computedStyles: Record<string, any> = {};
@@ -1335,7 +1387,8 @@ export const extractUtilityClasses = (
               getColor,
               mediaQueries,
               devices,
-              manager
+              manager,
+              containerQuery
             )
           );
         }

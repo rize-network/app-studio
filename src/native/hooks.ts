@@ -1,4 +1,4 @@
-import {
+import React, {
   useCallback,
   useContext,
   useEffect,
@@ -6,7 +6,7 @@ import {
   useRef,
   useState,
 } from 'react';
-import { WindowSizeContext } from './providers/WindowSize';
+import { WindowSizeContext } from './providers/WindowSizeContext';
 import {
   BreakpointConfig,
   WindowDimensions,
@@ -56,20 +56,24 @@ export const useMount = (callback: () => void) => {
   }, [callback]);
 };
 
-export const useHover = () => {
-  const [isHovered] = useState(false);
-  return { isHovered, hoverProps: {} };
-};
+// Tuple signature, aligned with web: [ref, isHovered]
+export function useHover<T = any>(): [React.RefObject<T | null>, boolean] {
+  const ref = useRef<T>(null);
+  const [hover] = useState(false);
+  return [ref, hover];
+}
 
-export const useActive = () => {
-  const [isActive] = useState(false);
-  return { isActive, activeProps: {} };
-};
+export function useActive<T = any>(): [React.RefObject<T | null>, boolean] {
+  const ref = useRef<T>(null);
+  const [active] = useState(false);
+  return [ref, active];
+}
 
-export const useFocus = () => {
-  const [isFocused] = useState(false);
-  return { isFocused, focusProps: {} };
-};
+export function useFocus<T = any>(): [React.RefObject<T | null>, boolean] {
+  const ref = useRef<T>(null);
+  const [focused] = useState(false);
+  return [ref, focused];
+}
 
 export const useClickOutside = () => ({ ref: useRef(null), isOutside: false });
 export const useElementPosition = () => ({ ref: useRef(null), position: null });

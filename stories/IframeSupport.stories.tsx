@@ -202,6 +202,7 @@ function IframePortal({ children }: IframePortalProps) {
     <>
       <iframe
         ref={iframeRef}
+        title="Iframe Support demo"
         style={{
           width: '100%',
           height: '600px',
@@ -1016,6 +1017,7 @@ const { iframeWindow, iframeDocument, isLoaded } = useIframe(iframeRef);
 
         <iframe
           ref={iframeRef}
+          title="Direct portal iframe demo"
           style={{
             width: '100%',
             height: '600px',

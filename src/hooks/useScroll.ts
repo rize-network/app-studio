@@ -216,6 +216,9 @@ export const useScroll = ({
     }
   }, [disabled, updateScrollPosition]);
 
+  // frameRef is shared with handleScroll (useCallback above); cleanup must
+  // cancel the latest pending frame, not a snapshot taken at effect setup.
+  // react-doctor-disable-next-line react-doctor/exhaustive-deps
   useEffect(() => {
     if (disabled) return;
 
@@ -361,7 +364,6 @@ export const useInfiniteScroll = (
 ) => {
   const [sentinel, setSentinel] = useState<HTMLDivElement | null>(null);
   const callbackRef = useRef(callback);
-  const timeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
   useEffect(() => {
     callbackRef.current = callback;
@@ -370,16 +372,15 @@ export const useInfiniteScroll = (
   useEffect(() => {
     if (!sentinel || options.isLoading) return;
 
+    let debounceTimer: ReturnType<typeof setTimeout> | undefined;
+
     const handleIntersection = (entries: IntersectionObserverEntry[]) => {
       if (entries[0].isIntersecting) {
         if (options.debounceMs) {
-          if (timeoutRef.current) {
-            clearTimeout(timeoutRef.current);
+          if (debounceTimer) {
+            clearTimeout(debounceTimer);
           }
-          timeoutRef.current = setTimeout(
-            callbackRef.current,
-            options.debounceMs
-          );
+          debounceTimer = setTimeout(callbackRef.current, options.debounceMs);
         } else {
           callbackRef.current();
         }
@@ -396,8 +397,8 @@ export const useInfiniteScroll = (
 
     return () => {
       observer.disconnect();
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
+      if (debounceTimer) {
+        clearTimeout(debounceTimer);
       }
     };
   }, [
@@ -416,7 +417,6 @@ export const useScrollDirection = (threshold = 5, targetWindow?: Window) => {
   const [scrollDirection, setScrollDirection] = useState<'up' | 'down'>('up');
   const lastScrollY = useRef(0);
   const lastDirection = useRef<'up' | 'down'>('up');
-  const animationFrame = useRef<number | undefined>(undefined);
   const ticking = useRef(false);
 
   const updateDirection = useCallback(() => {
@@ -448,9 +448,11 @@ export const useScrollDirection = (threshold = 5, targetWindow?: Window) => {
     const win = targetWindow || (typeof window !== 'undefined' ? window : null);
     if (!win) return;
 
+    let animationFrameId: number | undefined;
+
     const handleScroll = () => {
       if (!ticking.current) {
-        animationFrame.current = requestAnimationFrame(() => {
+        animationFrameId = requestAnimationFrame(() => {
           updateDirection();
           ticking.current = false;
         });
@@ -461,8 +463,8 @@ export const useScrollDirection = (threshold = 5, targetWindow?: Window) => {
     win.addEventListener('scroll', handleScroll, { passive: true });
     return () => {
       win.removeEventListener('scroll', handleScroll);
-      if (animationFrame.current) {
-        cancelAnimationFrame(animationFrame.current);
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
       }
     };
   }, [updateDirection, targetWindow]);

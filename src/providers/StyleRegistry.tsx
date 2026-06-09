@@ -63,6 +63,10 @@ export const useServerInsertedHTML = (registry: UtilityClassManager) => {
     return (
       <style
         id="app-studio-server-css"
+        // SSR-only: emits the framework's own serialized utility CSS — the
+        // payload is produced by UtilityClassManager and never includes
+        // user-provided HTML, so XSS isn't reachable here.
+        // react-doctor-disable-next-line react-doctor/no-danger
         dangerouslySetInnerHTML={{ __html: registry.getServerStyles() }}
       />
     );

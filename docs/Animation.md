@@ -1,6 +1,19 @@
 # Animation
 
-> **React Native:** the entire animation system on this page compiles to CSS keyframes and `animation-timeline` rules, which **don't run** in React Native. The `Animation.*` helpers and the `animate` / `animateIn` / `animateOut` / `animateOn` props are accepted on native but have no visual effect. For motion on native, use `Animated` (RN core), `react-native-reanimated`, `LayoutAnimation`, or `moti`. See [Native.md → Animations](Native.md#animations).
+> **React Native:** `Animation.fadeIn()` / `Animation.slideInLeft()` /
+> `Animation.pulse()` etc. **now play on React Native** through an internal
+> port of the same `AnimationProps` shape to
+> [`react-native-reanimated`](https://docs.swmansion.com/react-native-reanimated/).
+> Install `react-native-reanimated` as a peer (and add
+> `'react-native-reanimated/plugin'` to `babel.config.js`) and the `animate`
+> prop will animate on both platforms with the same code. Without the peer,
+> the element renders statically — no crash.
+>
+> Scroll-driven timelines (`view()` / `scroll()`) and the `animateIn` /
+> `animateOut` / `animateOn` props are still **web-only**. On native pass
+> `animate={…}` directly. See
+> [Native.md → Animations](Native.md#animations-react-native-reanimated)
+> for what is supported, what degrades, and the parser limits.
 
 ## 1. Introduction
 

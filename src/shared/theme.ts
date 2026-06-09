@@ -50,6 +50,15 @@ export const defaultThemeMain: Theme = {
   warning: 'color-orange-500',
   disabled: 'color-gray-500',
   loading: 'color-dark-500',
+  // Neutral surface/ink slots map to auto-flipping `color-*` tokens so
+  // `theme-canvas` / `theme-text` / etc. resolve and adapt to dark mode out of
+  // the box. A user theme still overrides these.
+  canvas: 'color-white',
+  surface: 'color-gray-50',
+  text: 'color-black',
+  muted: 'color-gray-500',
+  border: 'color-gray-200',
+  onPrimary: 'color-white',
 };
 
 export const defaultThemeColors: ThemeColorConfig = {

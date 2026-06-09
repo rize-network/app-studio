@@ -666,7 +666,7 @@ export default function transform(file, api, options) {
     }
 
     if (componentImport.length > 0)
-      addImportStatement(root, j, componentImport, '@app-studio/web');
+      addImportStatement(root, j, componentImport, '@app-studio/components');
 
     if (appImport.length > 0)
       addImportStatement(root, j, appImport, 'app-studio');

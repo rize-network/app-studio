@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useStyleRegistry } from '../providers/StyleRegistry';
 
 /**
@@ -17,11 +17,12 @@ import { useStyleRegistry } from '../providers/StyleRegistry';
  */
 export function useIframeStyles(iframeRef: React.RefObject<HTMLIFrameElement>) {
   const { manager } = useStyleRegistry();
-  const registeredDocRef = useRef<Document | null>(null);
 
   useEffect(() => {
     const iframe = iframeRef.current;
     if (!iframe) return;
+
+    let registeredDoc: Document | null = null;
 
     const registerDocument = () => {
       const iframeDoc =
@@ -29,9 +30,9 @@ export function useIframeStyles(iframeRef: React.RefObject<HTMLIFrameElement>) {
       if (!iframeDoc) return;
 
       // Only register if not already registered
-      if (registeredDocRef.current !== iframeDoc) {
+      if (registeredDoc !== iframeDoc) {
         manager.addDocument(iframeDoc);
-        registeredDocRef.current = iframeDoc;
+        registeredDoc = iframeDoc;
       }
     };
 
@@ -47,9 +48,9 @@ export function useIframeStyles(iframeRef: React.RefObject<HTMLIFrameElement>) {
       iframe.removeEventListener('load', registerDocument);
 
       // Clean up when unmounting
-      if (registeredDocRef.current) {
-        manager.removeDocument(registeredDocRef.current);
-        registeredDocRef.current = null;
+      if (registeredDoc) {
+        manager.removeDocument(registeredDoc);
+        registeredDoc = null;
       }
     };
   }, [manager, iframeRef]);

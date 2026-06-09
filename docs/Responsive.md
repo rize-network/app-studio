@@ -134,4 +134,70 @@ These can then be used to dynamically apply styles to your components, as demons
 
 ---
 
-By combining the `media` prop and `useResponsive`, you can create robust, efficient, and responsive designs with App-Studio.
+## 3. Container-Scoped & Forced Responsiveness with `<Responsive>`
+
+By default, both the `media` prop and `useResponsive` respond to the **browser window**. That breaks down when a component is rendered inside a smaller container — a split view, side panel, half-width chat, embedded preview, or constrained modal. The window is still desktop-sized, so the component keeps rendering as desktop even though it only has a fraction of the space.
+
+The `<Responsive>` boundary fixes this. Wrap a constrained region with it to scope responsiveness to **the container** (measured) or to a **forced** value — overriding the window for everything inside, including hooks **and** the `media` prop.
+
+> `<Responsive>` is a scoped boundary. The app-root `ResponsiveProvider` stays exactly as before — keep it at the top of your app, and reach for `<Responsive>` only around regions that need their own responsive context.
+
+### Container mode — adapt to the box, not the window
+
+```jsx
+import { Responsive, View } from 'app-studio';
+
+// This chat takes half the window, but renders as mobile because the
+// CONTAINER is narrow — not the window.
+<Responsive container style={{ width: '50%' }}>
+  <View
+    media={{
+      mobile: { flexDirection: 'column' },
+      desktop: { flexDirection: 'row' },
+    }}
+  >
+    <Chat />
+  </View>
+</Responsive>
+```
+
+In `container` mode, `<Responsive>` renders a wrapper element that:
+
+- measures its own width with a `ResizeObserver`, and
+- establishes a CSS containment context (`container-type: inline-size`).
+
+As a result:
+
+- `useResponsive()` / `useBreakpoint()` inside report the **container's** breakpoint and re-render when it crosses a threshold.
+- The `media` prop compiles to **CSS container queries** (`@container`) instead of `@media`, so container-driven styles apply with **no re-render** — exactly like the window-based `media` prop, but scoped to the box.
+
+You can pass `as`, `style`, and `className` to shape the wrapper element, and per-scope `breakpoints` / `devices` to override the thresholds for just this region.
+
+### Forced mode — pin a breakpoint or device
+
+When you want a region to render at a fixed size regardless of window or container, force it:
+
+```jsx
+<Responsive forceBreakpoint="sm">
+  <Panel /> {/* everything inside behaves as the `sm` breakpoint */}
+</Responsive>
+
+<Responsive responsiveMode="mobile">
+  <Sidebar /> {/* everything inside behaves as the `mobile` device */}
+</Responsive>
+```
+
+- `forceBreakpoint` pins `currentBreakpoint` (and derives the device from your `devices` map).
+- `responsiveMode` pins `currentDevice` and selects a representative breakpoint for it.
+- `responsiveMode` only accepts real device names (`mobile` / `tablet` / `desktop`); unknown values like `"compact"` are a TypeScript error.
+
+Forced mode does no measurement and renders no wrapper element. If you set both a force prop and `container`, **the force prop wins**.
+
+### Notes
+
+- **Browser support:** container queries are supported in all modern evergreen browsers (Chrome/Edge 105+, Safari 16+, Firefox 110+). In a browser without `@container`, container-mode `media` styles degrade gracefully (they simply don't apply) — the JS hooks (`useResponsive`) still work everywhere.
+- **React Native:** `<Responsive>` works on native too. `container` mode measures via `onLayout`, and the force props behave identically. See [Native.md → Responsive & Media Queries](Native.md#responsive--media-queries).
+
+---
+
+By combining the `media` prop, `useResponsive`, and the `<Responsive>` boundary, you can create robust, efficient, and responsive designs that adapt to the window **or** to any container — with App-Studio.

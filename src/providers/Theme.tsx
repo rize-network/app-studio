@@ -15,6 +15,7 @@ import {
   defaultDarkPalette,
   defaultLightColors,
   defaultLightPalette,
+  normalizeThemeColors,
 } from '../utils/colors'; // Assuming this path is correct
 
 // --- Constants ---
@@ -58,6 +59,28 @@ interface Override {
   themeMode?: 'light' | 'dark';
 }
 
+// Converts a dash-notation color/theme token into a CSS value: a plain token
+// maps to `var(--token)`, while an alpha-suffixed token (e.g.
+// `color-blue-500-500` or `theme-primary-200`) maps to a `color-mix()` so the
+// alpha is applied against the base CSS variable (which still flips per mode).
+const colorTokenToCss = (value: string): string => {
+  const parts = value.split('-');
+  const maybeAlpha = parseInt(parts[parts.length - 1], 10);
+  // color-<name>-<shade>-<alpha> needs 4+ parts; theme-<key>-<alpha> needs 3+.
+  const minPartsForAlpha = value.startsWith(COLOR_PREFIX) ? 4 : 3;
+  if (
+    parts.length >= minPartsForAlpha &&
+    !isNaN(maybeAlpha) &&
+    maybeAlpha >= 0 &&
+    maybeAlpha <= 1000
+  ) {
+    const baseVar = parts.slice(0, -1).join('-');
+    const percentage = Math.round((maybeAlpha / 1000) * 100);
+    return `color-mix(in srgb, var(--${baseVar}) ${percentage}%, transparent)`;
+  }
+  return `var(--${value})`;
+};
+
 // --- CSS Variable Injection Helper ---
 // Optimized: single-pass processing, minimal string allocations, minified output
 const generateCSSVariables = (
@@ -98,23 +121,44 @@ const generateCSSVariables = (
   processColors(lightColors.main, darkColors.main, 'color');
   processColors(lightColors.palette, darkColors.palette, 'color');
 
-  // Process theme variables
+  // Process theme variables.
+  // A theme var that references a color/theme token (e.g.
+  // `--theme-primary: var(--color-black)`) MUST be re-declared inside the
+  // `[data-theme]` blocks. CSS substitutes a custom property that references
+  // another at its DECLARING element and inherits the result frozen — so a var
+  // declared only in `:root` is substituted in light context and never flips in
+  // a dark subtree (while `--color-*` flips because it IS re-declared per mode).
+  // Re-declaring the token-referencing theme vars in each mode block makes them
+  // re-substitute in that mode's context, so `theme-primary`/`theme-text`/… flip
+  // exactly like the `color-*` tokens they point at — including in nested,
+  // mode-pinned providers.
   const themeVars: string[] = [];
+  const themeFlipVars: string[] = [];
   const themeKeys = Object.keys(theme);
   for (let i = 0; i < themeKeys.length; i++) {
     const key = themeKeys[i];
     const value = (theme as any)[key];
     if (typeof value === 'string') {
-      themeVars.push(
-        value.startsWith('color-') || value.startsWith('theme-')
-          ? `--theme-${key}:var(--${value})`
-          : `--theme-${key}:${value}`
-      );
+      const isToken = value.startsWith('color-') || value.startsWith('theme-');
+      const decl = isToken
+        ? `--theme-${key}:${colorTokenToCss(value)}`
+        : `--theme-${key}:${value}`;
+      themeVars.push(decl);
+      // Only token-referencing vars change between modes; literals are constant.
+      if (isToken) themeFlipVars.push(decl);
     }
   }
 
   // Build minified CSS (no unnecessary whitespace)
-  return `:root{${rootVars.join(';')};${themeVars.join(';')}}[data-theme='light']{${lightMappings.join(';')}}[data-theme='dark']{${darkMappings.join(';')}}`;
+  const lightBlock = themeFlipVars.length
+    ? `${lightMappings.join(';')};${themeFlipVars.join(';')}`
+    : lightMappings.join(';');
+  const darkBlock = themeFlipVars.length
+    ? `${darkMappings.join(';')};${themeFlipVars.join(';')}`
+    : darkMappings.join(';');
+  return `:root{${rootVars.join(';')};${themeVars.join(
+    ';'
+  )}}[data-theme='light']{${lightBlock}}[data-theme='dark']{${darkBlock}}`;
 };
 
 interface ThemeContextProps {
@@ -145,6 +189,17 @@ export const defaultThemeMain: Theme = {
   warning: 'color-orange-500',
   disabled: 'color-gray-500',
   loading: 'color-dark-500',
+  // Neutral surface/ink slots map to auto-flipping `color-*` tokens, so
+  // `theme-canvas` / `theme-surface` / `theme-text` / `theme-muted` /
+  // `theme-border` / `theme-on-primary` resolve AND adapt to dark mode out of
+  // the box — even without a custom theme. (`color-white` -> black in dark,
+  // `color-black` -> white, the gray ramp inverts.) A user theme still overrides.
+  canvas: 'color-white',
+  surface: 'color-gray-50',
+  text: 'color-black',
+  muted: 'color-gray-500',
+  border: 'color-gray-200',
+  onPrimary: 'color-white',
 };
 
 const defaultLightColorConfig: Colors = {
@@ -260,10 +315,10 @@ const normalizeToHex = (color: string): string => {
     const match = trimmed.match(/rgba?\(([^)]+)\)/i);
     if (!match) return trimmed;
 
-    const parts = match[1]
-      .split(',')
-      .map((p) => p.trim())
-      .filter(Boolean);
+    const parts = match[1].split(',').flatMap((p) => {
+      const t = p.trim();
+      return t ? [t] : [];
+    });
 
     const r = Number(parts[0]);
     const g = Number(parts[1]);
@@ -324,10 +379,10 @@ const normalizeToRgba = (color: string, alphaOverride?: number): string => {
     const match = trimmed.match(/rgba?\(([^)]+)\)/i);
     if (!match) return trimmed;
 
-    const parts = match[1]
-      .split(',')
-      .map((p) => p.trim())
-      .filter(Boolean);
+    const parts = match[1].split(',').flatMap((p) => {
+      const t = p.trim();
+      return t ? [t] : [];
+    });
 
     const r = Number(parts[0]);
     const g = Number(parts[1]);
@@ -434,17 +489,24 @@ export const ThemeProvider = ({
   }, [lightOverride, darkOverride, themeOverride, colorCache]);
 
   // --- Memoize derived values ---
-  const mergedTheme = useMemo<Theme>(
-    () => deepMerge(defaultThemeMain, themeOverride),
-    [themeOverride]
-  );
-
   const themeColors = useMemo<{ light: Colors; dark: Colors }>(
     () => ({
       light: deepMerge(defaultLightColorConfig, lightOverride),
       dark: deepMerge(defaultDarkColorConfig, darkOverride),
     }),
     [lightOverride, darkOverride]
+  );
+
+  // Snap any literal colors configured in the theme (e.g. `#ef4444`) to the
+  // nearest palette token, so user themes keep flipping between light/dark mode
+  // instead of being frozen to a single value.
+  const mergedTheme = useMemo<Theme>(
+    () =>
+      normalizeThemeColors(
+        deepMerge(defaultThemeMain, themeOverride),
+        themeColors.light
+      ),
+    [themeOverride, themeColors.light]
   );
 
   const currentColors = useMemo(
