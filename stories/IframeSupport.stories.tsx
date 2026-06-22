@@ -627,7 +627,7 @@ function StickyScrollIframeContent() {
               {Math.round(progress * 100)}%
             </div>
             
-            <p style={{ marginTop: '20px', color: '#666', lineHeight: '1.6' }}>
+            <p style={{ marginTop: '20px', color: '#666' }}>
               This element is <strong>sticky</strong>. The progress is calculated relative to its parent container's scroll position using <code>useScroll</code> inside this iframe.
             </p>
             
@@ -730,7 +730,6 @@ function FillTextIframeContent() {
              textAlign: 'center',
              fontSize: '32px',
              fontWeight: 'bold',
-             lineHeight: '1.6',
            }}>
              {words.map((word, wIndex) => (
                 <span key={wIndex} style={{ display: 'inline-block', whiteSpace: 'nowrap' }}>
@@ -868,7 +867,6 @@ function DirectPortalContent() {
                 <p key={sIndex} style={{ 
                   fontSize: '32px', 
                   fontWeight: 'bold', 
-                  lineHeight: '1.6',
                   margin: '0 0 20px 0'
                 }}>
                   {words.map((word, wIndex) => (

@@ -251,6 +251,19 @@ function normalizeValue(
 ) {
   if (typeof value === 'string') {
     if (isColorStyle(property)) {
+      // CSS color keywords with no RN equivalent ("inherit"/"currentColor"/…)
+      // throw on native ("'inherit' is not a valid color or brush"). Drop them
+      // so the element falls back to its default instead of crashing.
+      const lower = value.toLowerCase();
+      if (
+        lower === 'inherit' ||
+        lower === 'currentcolor' ||
+        lower === 'initial' ||
+        lower === 'unset' ||
+        lower === 'revert'
+      ) {
+        return undefined;
+      }
       return getColor(value);
     }
     // React Native expects unitless numbers for dimensions/spacing; a raw

@@ -142,12 +142,21 @@ const ElementBase = React.forwardRef<any, ElementProps>((props, ref) => {
     AnimatedPressable,
   } = useAnimation(animateProp);
 
+  // Render a Pressable when ANY press handler is set — not just onPress/onClick.
+  // `onLongPress` alone (e.g. a context-menu trigger) must still upgrade the
+  // node to a Pressable, otherwise RNView silently ignores it.
+  const isPressable = !!(
+    onPress ||
+    (props as any).onLongPress ||
+    (props as any).onPressIn ||
+    (props as any).onPressOut
+  );
   const isAnimated = !!animatedStyle && !!AnimatedView;
   const Component = isAnimated
-    ? onPress
+    ? isPressable
       ? AnimatedPressable
       : AnimatedView
-    : onPress
+    : isPressable
       ? Pressable
       : RNView;
 

@@ -37,6 +37,11 @@ export interface TextProps
    * Shorthand for letterSpacing; accepts numeric or named tracking values.
    */
   spacing?: string | number;
+  /**
+   * Renders a heading preset (h1–h6): sets the semantic element along with a
+   * matching font size, weight, and line height from the design-system scale.
+   */
+  heading?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
 }
 export interface ContentProps {
   children?: React.ReactNode;

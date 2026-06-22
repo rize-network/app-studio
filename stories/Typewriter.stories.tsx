@@ -33,7 +33,6 @@ export const Paragraphs: StoryFn<typeof Typewriter> = () => (
       pauseTime={700}
       paragraphGap={16}
       fontSize={16}
-      lineHeight={1.6}
       color="color-gray-800"
       text={[
         'App Studio lets you compose interfaces with a single, expressive style API — CSS properties are passed directly as props.',
@@ -51,7 +50,6 @@ export const LineBreaks: StoryFn<typeof Typewriter> = () => (
   <Typewriter
     typingSpeed={35}
     fontSize={18}
-    lineHeight={1.6}
     color="color-gray-800"
     text="Roses are red,|Violets are blue,|App Studio types|line by line for you."
   />
@@ -67,7 +65,6 @@ export const Mixed: StoryFn<typeof Typewriter> = () => (
       pauseTime={600}
       paragraphGap={24}
       fontSize={16}
-      lineHeight={1.6}
       color="color-gray-800"
       text={[
         'Chapter one|It started with a blank canvas.',
@@ -129,7 +126,6 @@ export const ReplayAndOnComplete: StoryFn<typeof Typewriter> = () => {
         typingSpeed={18}
         paragraphGap={14}
         fontSize={16}
-        lineHeight={1.6}
         color="color-gray-800"
         onComplete={() => setDone(true)}
         text={[
