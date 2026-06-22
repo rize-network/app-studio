@@ -9,6 +9,7 @@ module.exports = {
    */
   rules: {
     'header-max-length': [0, 'always', 150],
+    'body-max-line-length': [0, 'always', 500],
     'subject-case': [0, 'always', 'sentence-case'],
   },
   ignores: [

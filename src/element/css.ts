@@ -229,6 +229,67 @@ const EVENT_TO_PSEUDO: Record<string, string> = {
   peerChecked: 'peer-checked',
 };
 
+// Reverse map: pseudo-class/element name -> app-studio event prop, used only to
+// produce a helpful suggestion in the dev-mode css selector warning below.
+const PSEUDO_TO_EVENT: Record<string, string> = (() => {
+  const map: Record<string, string> = {};
+  for (const event of Object.keys(EVENT_TO_PSEUDO)) {
+    map[EVENT_TO_PSEUDO[event]] = event;
+  }
+  return map;
+})();
+
+// Tracks css objects already warned about, so a re-render doesn't spam the console.
+const warnedCssObjects = new WeakSet<object>();
+
+/**
+ * Dev-only guardrail. App-Studio has no nested CSS selectors — keys like
+ * `&:hover`, `& > div`, or `@media (...)` inside a `css` prop are silently
+ * ignored. Warn (once per object) and point to the correct prop. Stripped from
+ * production builds via the `process.env.NODE_ENV` guard at the call site.
+ */
+function warnOnCssSelectors(css: Record<string, any>): void {
+  if (warnedCssObjects.has(css)) return;
+  for (const key of Object.keys(css)) {
+    // Selector-ish keys: parent ref (&), combinators (>, +, ~, space),
+    // pseudo (:), or at-rules (@media / @container / @supports).
+    const isSelector =
+      key.includes('&') ||
+      key.startsWith('@') ||
+      key.includes(':') ||
+      /[>+~]/.test(key) ||
+      /\s/.test(key.trim());
+    if (!isSelector) continue;
+
+    warnedCssObjects.add(css);
+
+    if (key.startsWith('@media') || key.startsWith('@container')) {
+      console.warn(
+        `[app-studio] The css prop does not support "${key}". ` +
+          `App-Studio has no nested selectors. Use the \`media\` prop for ` +
+          `responsive styles, e.g. media={{ mobile: { ... } }}.`
+      );
+      return;
+    }
+
+    const pseudoMatch = key.match(/:{1,2}([a-z-]+)/i);
+    const pseudo = pseudoMatch ? pseudoMatch[1].toLowerCase() : '';
+    const event = PSEUDO_TO_EVENT[pseudo];
+    const suggestion = event
+      ? `Use the \`_${event}\` prop (or on={{ ${event}: { ... } }}) instead, ` +
+        `e.g. _${event}={{ ... }}.`
+      : `Use the matching underscore prop (e.g. _hover={{ ... }}) or ` +
+        `on={{ ... }} map instead.`;
+
+    console.warn(
+      `[app-studio] The css prop does not support nested selectors like "${key}" — ` +
+        `it is silently ignored. ${suggestion} ` +
+        `The css prop is only for raw CSS values / CSS variables.`
+    );
+    return;
+  }
+}
+
 /**
  * Pseudo-elements require the `::` prefix, pseudo-classes require `:`.
  * `EVENT_TO_PSEUDO` mixes both, so we centralize the distinction here.
@@ -1431,6 +1492,9 @@ export const extractUtilityClasses = (
   // Handle raw CSS - uses 'override' context for higher specificity
   if (props.css) {
     if (typeof props.css === 'object') {
+      if (process.env.NODE_ENV !== 'production') {
+        warnOnCssSelectors(props.css);
+      }
       classes.push(
         ...processStyles(props.css, 'override', '', getColor, {}, {}, manager)
       );

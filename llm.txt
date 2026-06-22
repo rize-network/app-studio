@@ -308,6 +308,8 @@ Provides current window dimensions via useWindowSize hook. Tracks width and heig
 
 ## Event Handling
 
+> IMPORTANT: App-Studio has NO nested CSS selectors. Never write `css={{ "&:hover": {...} }}`, `&:focus`, `& > div`, or `@media` strings — they are silently ignored. Express pseudo-class states with the underscore props (`_hover={{...}}`, `_focus={{...}}`, …) or the `on={{ hover: {...} }}` map. The `css` prop is only for raw CSS values / CSS variables, not selectors. Responsive values go through the `media` prop, not `@media`.
+
 ### On Prop
 
 Define styles for CSS pseudo-class events (hover, focus, active, etc.) using the `on` prop. Supports all standard CSS pseudo-classes including form states, selection states, and child position states.

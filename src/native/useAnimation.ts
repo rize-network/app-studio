@@ -86,14 +86,15 @@ const easingFor = (timingFunction?: string): any => {
   }
 };
 
-const WINDOW = Dimensions.get('window');
-
-// Parse a single CSS `transform` string into RN-style transform entries.
-// Handles translateX/Y (px and %), scale(s), scaleX/Y, rotate(deg), skewX/Y.
+// Read window dimensions at parse time (not a module-load snapshot) so
+// percentage translates resolve against the CURRENT screen size — correct after
+// rotation / entering split-view, rather than whatever orientation the module
+// happened to load in.
 const parseTransform = (
   value: string | undefined
 ): Array<Record<string, number | string>> => {
   if (!value || typeof value !== 'string') return [];
+  const win = Dimensions.get('window');
   const out: Array<Record<string, number | string>> = [];
   const re =
     /(translateX|translateY|translate|scaleX|scaleY|scale|rotate|skewX|skewY)\(([^)]+)\)/g;
@@ -108,15 +109,15 @@ const parseTransform = (
     };
     switch (fn) {
       case 'translateX':
-        out.push({ translateX: resolvePct(arg, WINDOW.width) });
+        out.push({ translateX: resolvePct(arg, win.width) });
         break;
       case 'translateY':
-        out.push({ translateY: resolvePct(arg, WINDOW.height) });
+        out.push({ translateY: resolvePct(arg, win.height) });
         break;
       case 'translate': {
         const [x, y = '0'] = arg.split(',').map((p) => p.trim());
-        out.push({ translateX: resolvePct(x, WINDOW.width) });
-        out.push({ translateY: resolvePct(y, WINDOW.height) });
+        out.push({ translateX: resolvePct(x, win.width) });
+        out.push({ translateY: resolvePct(y, win.height) });
         break;
       }
       case 'scale':
@@ -213,7 +214,27 @@ const initialValueFor = (
 
 // ---------- No-op fallback ----------------------------------------------------
 
-function useAnimationNoop(_animate?: AnimationProps | AnimationProps[]) {
+let warnedMissingReanimated = false;
+
+function useAnimationNoop(animate?: AnimationProps | AnimationProps[]) {
+  // Surface the most common native-animation pitfall: an `animate` prop is set
+  // but `react-native-reanimated` isn't installed/linked, so motion silently
+  // never plays. Warn once in dev.
+  if (
+    animate &&
+    !warnedMissingReanimated &&
+    typeof __DEV__ !== 'undefined' &&
+    __DEV__
+  ) {
+    warnedMissingReanimated = true;
+    // eslint-disable-next-line no-console
+    console.warn(
+      '[app-studio] `animate` was set but `react-native-reanimated` is not ' +
+        'available, so the view renders static. Install it and add its babel ' +
+        "plugin (last in the list) to enable native animations. See app-studio's " +
+        'docs/NATIVE_SETUP.md.'
+    );
+  }
   return {
     style: undefined as any,
     AnimatedView: undefined as any,

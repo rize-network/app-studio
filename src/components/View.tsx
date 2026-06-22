@@ -110,11 +110,16 @@ export const Scroll = React.forwardRef<
     React.RefAttributes<HTMLElement>
 >;
 
+// SafeArea insets all four edges by default (status bar / notch / home
+// indicator). On web this maps to `env(safe-area-inset-*)` (needs the page to
+// use `viewport-fit=cover`); on native it reads live insets from
+// `react-native-safe-area-context`. Override with `safeAreaEdges`,
+// `safeAreaMode`, per-edge booleans, or `ignoreSafeArea`.
 export const SafeArea = React.forwardRef<
   HTMLElement,
   React.ComponentPropsWithRef<typeof Element> & ViewProps
 >((props, ref) => (
-  <Element overflow="auto" {...props} ref={ref} />
+  <Element safeArea {...props} ref={ref} />
 )) as unknown as React.ForwardRefExoticComponent<
   React.ComponentPropsWithRef<typeof Element> &
     ViewProps &

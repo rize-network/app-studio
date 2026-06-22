@@ -15,6 +15,12 @@ import { excludedKeys, includeKeys } from '../utils/constants';
 import { extractUtilityClasses, AnimationUtils } from './css';
 import { useAnalytics } from '../providers/AnalyticsContext';
 import { hash } from '../utils/hash';
+import {
+  buildWebSafeAreaStyle,
+  hasSafeAreaProps,
+  resolveSafeAreaEdges,
+  anyEdgeEnabled,
+} from '../utils/safeArea';
 
 // Set of special prop names that affect CSS generation
 const styleRelevantProps = new Set([
@@ -29,6 +35,14 @@ const styleRelevantProps = new Set([
   'paddingVertical',
   'marginHorizontal',
   'marginVertical',
+  'safeArea',
+  'safeAreaTop',
+  'safeAreaBottom',
+  'safeAreaLeft',
+  'safeAreaRight',
+  'safeAreaEdges',
+  'ignoreSafeArea',
+  'safeAreaMode',
 ]);
 
 // Skip these props from hash computation
@@ -319,6 +333,24 @@ export const Element = React.memo(
           }
           return anim;
         });
+      }
+
+      // Safe-area: translate the declarative props into additive
+      // `padding<Edge>: calc(<existing> + env(safe-area-inset-<edge>, 0px))`
+      // (or margin) so content clears the status bar / notch / home indicator.
+      // Requires the page to opt into `viewport-fit=cover`; inert otherwise.
+      if (hasSafeAreaProps(propsToProcess)) {
+        const safeEdges = resolveSafeAreaEdges(propsToProcess);
+        if (anyEdgeEnabled(safeEdges)) {
+          Object.assign(
+            propsToProcess,
+            buildWebSafeAreaStyle(
+              propsToProcess,
+              safeEdges,
+              propsToProcess.safeAreaMode
+            )
+          );
+        }
       }
 
       // Use hash-based memoization for style extraction. Mix the component

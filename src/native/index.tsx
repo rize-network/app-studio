@@ -8,6 +8,8 @@ export * from '../providers/Analytics';
 export * from '../providers/AnalyticsContext';
 export * from './hooks';
 export * from './useAnimation';
+export * from './useSafeArea';
+export * from '../utils/safeArea';
 export * as Animation from '../element/Animation';
 export * from '../utils/typography';
 export * from '../utils/shadow';

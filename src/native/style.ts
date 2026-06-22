@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 import type React from 'react';
 import {
   ImageStyle,
@@ -8,8 +8,13 @@ import {
   ViewStyle,
   useWindowDimensions,
 } from 'react-native';
-import { useResponsiveContext } from './providers/Responsive';
+import {
+  getBreakpointFromWidth,
+  useResponsiveContext,
+} from './providers/Responsive';
 import { useTheme } from './providers/Theme';
+import type { SafeAreaProps } from '../utils/safeArea';
+import { hash } from '../utils/hash';
 
 type NativeStyle = ViewStyle & TextStyle & ImageStyle;
 type NativeStyleValue = NativeStyle[keyof NativeStyle] | string | number;
@@ -25,7 +30,7 @@ export type NativeStyleProps = Partial<
   shadow?: boolean | number;
 };
 
-export interface NativeElementProps extends NativeStyleProps {
+export interface NativeElementProps extends NativeStyleProps, SafeAreaProps {
   children?: React.ReactNode;
   style?: StyleProp<NativeStyle>;
   css?: NativeStyle;
@@ -179,6 +184,15 @@ const controlProps = new Set([
   'theme',
   'widthHeight',
   'shadow',
+  // Safe-area control props (consumed by useSafeArea, never passed to RN)
+  'safeArea',
+  'safeAreaTop',
+  'safeAreaBottom',
+  'safeAreaLeft',
+  'safeAreaRight',
+  'safeAreaEdges',
+  'ignoreSafeArea',
+  'safeAreaMode',
 ]);
 
 const webOnlyProps = new Set([
@@ -227,13 +241,25 @@ function isColorStyle(property: string) {
   return property === 'color' || property.toLowerCase().includes('color');
 }
 
+// Matches a plain pixel value like "8px", "100px", "-4.5px".
+const PX_VALUE = /^-?\d*\.?\d+px$/;
+
 function normalizeValue(
   property: string,
   value: any,
   getColor: (token: string) => string
 ) {
-  if (typeof value === 'string' && isColorStyle(property)) {
-    return getColor(value);
+  if (typeof value === 'string') {
+    if (isColorStyle(property)) {
+      return getColor(value);
+    }
+    // React Native expects unitless numbers for dimensions/spacing; a raw
+    // "8px"/"100px" string is silently dropped (zero-size boxes, missing dots).
+    // Strip the `px` unit so web-authored styles render on native. `%` and
+    // other units are left untouched (RN supports `%` on most layout props).
+    if (PX_VALUE.test(value)) {
+      return parseFloat(value);
+    }
   }
 
   return value;
@@ -320,6 +346,56 @@ export function splitNativeProps(props: NativeElementProps) {
   return nativeProps;
 }
 
+// Control props (not real CSS keys) that still change the computed style and so
+// must participate in the style hash.
+const styleAffectingControlProps = new Set<string>([
+  'media',
+  'css',
+  'style',
+  'shadow',
+  'widthHeight',
+  'theme',
+]);
+
+function fastSerialize(value: any): string {
+  if (value == null) return 'n';
+  const t = typeof value;
+  if (t === 'string') return 's' + value;
+  if (t === 'number') return 'd' + value;
+  if (t === 'boolean') return value ? 'T' : 'F';
+  return JSON.stringify(value);
+}
+
+/**
+ * Hash only the style-relevant props so we can detect, cheaply, whether the
+ * computed style would change. Non-style props (children, handlers, etc.) are
+ * ignored — they never affect the StyleSheet object.
+ */
+export function hashNativeStyleProps(props: NativeElementProps): string {
+  let input = '';
+  const keys = Object.keys(props);
+  for (let i = 0; i < keys.length; i++) {
+    const key = keys[i];
+    if (stylePropNames.has(key) || styleAffectingControlProps.has(key)) {
+      const value = (props as any)[key];
+      if (value !== undefined) input += '|' + key + ':' + fastSerialize(value);
+    }
+  }
+  return hash(input);
+}
+
+/**
+ * Compute the RN style object for an element.
+ *
+ * PERFORMANCE: callers always pass a fresh `props` object (spread), so a plain
+ * `useMemo([props])` would recompute every render and hand back a new style
+ * reference each time — defeating `React.memo`/host-prop bail-outs downstream.
+ * Instead we key a ref cache by a hash of only the STYLE-relevant props (plus
+ * the resolved theme and matched breakpoint), so:
+ *   - the StyleSheet object is recomputed only on a real change, and
+ *   - the returned reference is STABLE across renders, letting RN skip
+ *     re-diffing and memoized children bail out.
+ */
 export function useNativeStyle(props: NativeElementProps) {
   const { getColor } = useTheme();
   const responsive = useResponsiveContext();
@@ -336,7 +412,34 @@ export function useNativeStyle(props: NativeElementProps) {
     };
   }, [getColor, props.theme]);
 
-  const style = useMemo(() => {
+  // Context width wins so <Responsive container> / force overrides flow
+  // through; fall back to the RN window when no provider is set.
+  const mediaActive = !!props.media;
+  const widthForMedia = responsive.currentWidth || dimensions.width;
+  // Key media re-resolution on the matched BREAKPOINT, not raw width — so a
+  // resize within the same breakpoint doesn't bust the cache. Empty when the
+  // element has no `media` prop (then width changes never recompute).
+  const mediaBreakpoint = mediaActive
+    ? getBreakpointFromWidth(widthForMedia, responsive.breakpoints)
+    : '';
+
+  const cacheRef = useRef<{
+    key: string;
+    getColor: (token: string) => string;
+    devices: Record<string, string[]>;
+    style: Record<string, any>;
+  } | null>(null);
+
+  const key = hashNativeStyleProps(props) + '|' + mediaBreakpoint;
+
+  const cache = cacheRef.current;
+  const stale =
+    !cache ||
+    cache.key !== key ||
+    cache.getColor !== scopedGetColor ||
+    (mediaActive && cache.devices !== responsive.devices);
+
+  if (stale) {
     const next: Record<string, any> = {};
 
     appendStyleProps(props, next, scopedGetColor);
@@ -346,9 +449,7 @@ export function useNativeStyle(props: NativeElementProps) {
         if (
           matchesMedia(
             target,
-            // Context width wins so <Responsive container> / force overrides
-            // flow through; fall back to the RN window when no provider is set.
-            responsive.currentWidth || dimensions.width,
+            widthForMedia,
             responsive.breakpoints,
             responsive.devices
           )
@@ -363,15 +464,13 @@ export function useNativeStyle(props: NativeElementProps) {
     }
 
     const flattened = StyleSheet.flatten(props.style) || {};
-    return { ...next, ...flattened };
-  }, [
-    props,
-    scopedGetColor,
-    dimensions.width,
-    responsive.currentWidth,
-    responsive.breakpoints,
-    responsive.devices,
-  ]);
+    cacheRef.current = {
+      key,
+      getColor: scopedGetColor,
+      devices: responsive.devices,
+      style: { ...next, ...flattened },
+    };
+  }
 
-  return style;
+  return cacheRef.current!.style;
 }

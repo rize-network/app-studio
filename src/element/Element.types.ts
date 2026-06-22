@@ -8,8 +8,9 @@ import { AnimationProps } from '../utils/constants';
 import { Shadow } from '../utils/shadow';
 import { ViewStyleProps } from '../types/style';
 import type { Theme } from '../providers/Theme';
+import type { SafeAreaProps } from '../utils/safeArea';
 
-export interface CssProps extends CSSProperties {
+export interface CssProps extends CSSProperties, SafeAreaProps {
   paddingHorizontal?: number | string;
   marginHorizontal?: number | string;
   paddingVertical?: number | string;

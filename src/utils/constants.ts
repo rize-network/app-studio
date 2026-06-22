@@ -45,6 +45,16 @@ export const excludedKeys = new Set<string>([
   'animateOut',
   'theme',
 
+  // Safe-area control props (translated to padding/margin + env() in Element)
+  'safeArea',
+  'safeAreaTop',
+  'safeAreaBottom',
+  'safeAreaLeft',
+  'safeAreaRight',
+  'safeAreaEdges',
+  'ignoreSafeArea',
+  'safeAreaMode',
+
   // Underscore-prefixed event props
   '_hover',
   '_active',

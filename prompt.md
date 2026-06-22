@@ -80,6 +80,51 @@ In app-studio, CSS properties are passed directly as props to components. This e
 />
 ```
 
+## ⚠️ Pseudo-classes & State Styling — Use `_hover`, NOT `css={{ "&:hover" }}`
+
+App-Studio is **not** Emotion / styled-components / Tailwind. There are **no nested
+CSS selectors**. Do **NOT** write selector strings like `&:hover`, `&:focus`,
+`& > div`, or media queries inside a `css` prop — they will not be parsed and the
+styles will silently do nothing.
+
+Hover, focus, active, and every other pseudo-class state is expressed as a **prop**:
+use the underscore-prefixed prop (`_hover`, `_focus`, `_active`, `_disabled`, …) or
+the `on={{ ... }}` map.
+
+```jsx
+// ❌ WRONG — selector strings are not supported and are silently ignored
+<View
+  css={{
+    backgroundColor: "blue",
+    "&:hover": { backgroundColor: "darkblue" },
+    "&:focus": { outline: "2px solid red" },
+  }}
+/>
+
+// ✅ CORRECT — underscore-prefixed state props (preferred, most concise)
+<View
+  backgroundColor="blue"
+  _hover={{ backgroundColor: "darkblue" }}
+  _focus={{ outline: "2px solid red" }}
+/>
+
+// ✅ ALSO CORRECT — the `on` prop, for grouping several states
+<View
+  backgroundColor="blue"
+  on={{
+    hover: { backgroundColor: "darkblue" },
+    focus: { outline: "2px solid red" },
+  }}
+/>
+```
+
+Rules of thumb:
+- **State styling** (`:hover`, `:focus`, `:active`, `:disabled`, `:checked`, …) → `_hover={{...}}` / `on={{ hover: {...} }}`. Never `css={{ "&:hover" }}`.
+- **Responsive styling** → the `media` prop (e.g. `media={{ mobile: { ... } }}`), never `@media` strings.
+- The `css` prop is **only** for raw CSS values / CSS variables (e.g. `css={{ "--my-var": "8px" }}`), not for selectors.
+- `_hover` also accepts a shorthand string for a color: `_hover="color-blue-500"`.
+- Supported states: hover, active, focus, visited, disabled, enabled, checked, unchecked, invalid, valid, required, optional, placeholder, selected, target, firstChild, lastChild, onlyChild, firstOfType, lastOfType, empty, focusVisible, focusWithin.
+
 ## Component Examples
 
 ### 1. Layout Components

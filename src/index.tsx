@@ -2,6 +2,7 @@ export * from './components/View';
 export * from './components/Image';
 export * from './components/Text';
 export type { TextProps } from './components/Text/Text.props';
+export * from './components/Typewriter';
 
 export * from './components/Form';
 export * from './components/Responsive';
@@ -34,5 +35,6 @@ export * from './hooks/useWindowSize';
 export * from './hooks/useInView';
 export * from './hooks/useIframeStyles';
 export * from './utils/viewAnimation';
+export * from './utils/safeArea';
 export type { AnimationProps } from './utils/constants';
 export * from './types/scrollAnimation.types';

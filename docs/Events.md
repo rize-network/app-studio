@@ -2,6 +2,8 @@
 
 App-Studio provides intuitive ways to manage events in your CSS through the `on` prop and underscore-prefixed properties. These features are designed to offer convenient ways to style elements based on various interactive states, represented by CSS pseudo-classes like `hover`, `active`, and `focus`.
 
+> ⚠️ **Do not use nested CSS selectors.** App-Studio is not Emotion/styled-components/Tailwind — there are no selector strings. Writing `css={{ "&:hover": {...} }}` (or `&:focus`, `& > div`, `@media`) is **silently ignored**. Always express states with `_hover={{...}}` / `on={{ hover: {...} }}`, and responsive values with the `media` prop. The `css` prop is only for raw CSS values / CSS variables, never selectors.
+
 > **React Native:** the `on={{ hover, active, focus, ... }}` map and every underscore-prefixed state modifier (`_hover`, `_focus`, `_active`, `_disabled`, `_checked`, …) are **web-only** — they're accepted on native but produce no visual change. RN drives interaction state through `Pressable`'s render-prop API (`style={({ pressed, hovered }) => ...}`) and its `onPressIn` / `onPressOut` / `onHoverIn` / `onHoverOut` callbacks; for input focus, use `<TextInput>`'s `onFocus` / `onBlur` directly. The full list of no-op props is in [Native.md → Web-Only Props](Native.md#web-only-props-no-ops-on-native).
 
 ---

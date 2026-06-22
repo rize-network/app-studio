@@ -32,6 +32,17 @@
         "@typescript-eslint/explicit-function-return-type": 0,
         "@typescript-eslint/explicit-module-boundary-types": 0,
         "@typescript-eslint/ban-types": 0,
+        "no-restricted-syntax": [
+            "error",
+            {
+                "selector": "JSXAttribute[name.name='css'] Property[key.value=/^@(media|container|supports)/]",
+                "message": "App-Studio's `css` prop has no nested selectors/at-rules. For responsive styles use the `media` prop, e.g. media={{ mobile: { ... } }}."
+            },
+            {
+                "selector": "JSXAttribute[name.name='css'] Property[key.value=/^(?!@).*[&:>+~]/]",
+                "message": "App-Studio's `css` prop does not support nested selectors like `&:hover` (they are silently ignored). Use an underscore state prop instead, e.g. _hover={{ ... }} / _focus={{ ... }}, or the on={{ hover: { ... } }} map. The `css` prop is only for raw CSS values / variables."
+            }
+        ],
         "prettier/prettier": [
             "error"
         ]

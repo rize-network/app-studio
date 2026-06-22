@@ -4,7 +4,6 @@ import {
   ImageBackground as RNImageBackground,
   ImageSourcePropType,
   Pressable,
-  SafeAreaView,
   ScrollView as RNScrollView,
   Text as RNText,
   TextInput,
@@ -17,6 +16,7 @@ import {
   useNativeStyle,
 } from './style';
 import { useAnimation } from './useAnimation';
+import { useSafeArea } from './useSafeArea';
 
 export type CssProps = NativeStyleProps;
 export type ElementProps = NativeElementProps;
@@ -63,18 +63,77 @@ function sourceFromProps({ source, src }: ImageProps) {
   return undefined;
 }
 
-export const Element = React.forwardRef<any, ElementProps>((props, ref) => {
+// Text-style keys forwarded onto an auto-wrapped <RNText> so bare string
+// children inherit the element's color/typography (RN <Text> does NOT inherit
+// these from a parent <View>, unlike CSS on the web).
+const TEXT_STYLE_KEYS = [
+  'color',
+  'fontSize',
+  'fontWeight',
+  'fontFamily',
+  'fontStyle',
+  'letterSpacing',
+  'lineHeight',
+  'textAlign',
+  'textTransform',
+  'textDecorationLine',
+  'textShadowColor',
+  'textShadowOffset',
+  'textShadowRadius',
+] as const;
+
+function pickTextStyle(style: any): Record<string, any> | undefined {
+  const flat = Array.isArray(style)
+    ? Object.assign({}, ...style.filter(Boolean))
+    : style;
+  if (!flat) return undefined;
+  let out: Record<string, any> | undefined;
+  for (const k of TEXT_STYLE_KEYS) {
+    if (flat[k] != null) {
+      out = out || {};
+      out[k] = flat[k];
+    }
+  }
+  return out;
+}
+
+// On the web a `<div>` may contain bare text; on RN a raw string child throws
+// "Text strings must be rendered within a <Text> component". Wrap any
+// string/number child in <RNText> (carrying the parent's text style) so
+// app-studio Views render text the same way cross-platform.
+function wrapTextChildren(
+  children: React.ReactNode,
+  textStyle: Record<string, any> | undefined
+): React.ReactNode {
+  let wrappedAny = false;
+  const mapped = React.Children.map(children, (child) => {
+    if (typeof child === 'string' || typeof child === 'number') {
+      wrappedAny = true;
+      return <RNText style={textStyle}>{child}</RNText>;
+    }
+    return child;
+  });
+  return wrappedAny ? mapped : children;
+}
+
+const ElementBase = React.forwardRef<any, ElementProps>((props, ref) => {
   const style = useNativeStyle(props);
   const nativeProps = splitNativeProps(props);
   const onPress = props.onPress || props.onClick;
+
+  // Safe-area: additive padding/margin from the live device insets, merged on
+  // top of the computed style. No-op unless a safe-area prop is set AND a
+  // `<SafeAreaProvider>` is mounted.
+  const safeAreaStyle = useSafeArea(props, style as any);
 
   // `animate` is an array or single `AnimationProps` produced by
   // `Animation.fadeIn()` etc. When set on RN we route the render through
   // `react-native-reanimated`'s Animated.View (lazy-required) so the
   // animation actually plays. When the peer is missing the hook returns
   // {style: undefined, AnimatedView: undefined} and we render the regular
-  // RN primitive.
-  const animateProp = (props as any).animate as
+  // RN primitive. `animateIn` is treated as a mount animation (aliases
+  // `animate` on native) so mount-in motion authors identically to web.
+  const animateProp = ((props as any).animate ?? (props as any).animateIn) as
     | undefined
     | Parameters<typeof useAnimation>[0];
   const {
@@ -92,18 +151,31 @@ export const Element = React.forwardRef<any, ElementProps>((props, ref) => {
       ? Pressable
       : RNView;
 
-  const finalStyle = isAnimated ? [style, animatedStyle] : style;
+  const finalStyle =
+    isAnimated || safeAreaStyle
+      ? [style, safeAreaStyle, isAnimated ? animatedStyle : null].filter(
+          Boolean
+        )
+      : style;
+
+  const textStyle = pickTextStyle(finalStyle);
 
   return (
     <Component {...nativeProps} ref={ref} onPress={onPress} style={finalStyle}>
-      {props.before}
-      {props.children}
-      {props.after}
+      {wrapTextChildren(props.before, textStyle)}
+      {wrapTextChildren(props.children, textStyle)}
+      {wrapTextChildren(props.after, textStyle)}
     </Component>
   );
 });
 
-Element.displayName = 'Element';
+ElementBase.displayName = 'Element';
+
+// Memoized so a parent re-render with unchanged props skips the whole element
+// (and its style work). Context updates (theme / responsive / safe-area insets)
+// still re-render it — `React.memo` only blocks PARENT-driven re-renders, never
+// context-driven ones — so dynamic theming/responsiveness keep working.
+export const Element = React.memo(ElementBase);
 
 export const View = React.forwardRef<any, ViewProps>((props, ref) => (
   <Element {...props} ref={ref} />
@@ -178,23 +250,20 @@ export const Scroll = React.forwardRef<any, ViewProps>((props, ref) => {
 
 Scroll.displayName = 'Scroll';
 
-export const SafeArea = React.forwardRef<any, ViewProps>((props, ref) => {
-  const style = useNativeStyle(props);
-  const nativeProps = splitNativeProps(props);
-
-  return (
-    <SafeAreaView {...nativeProps} ref={ref} style={style}>
-      {props.children}
-    </SafeAreaView>
-  );
-});
+// SafeArea defaults to insetting all four edges. Unlike RN's built-in
+// `SafeAreaView` (iOS-only, top/bottom only) this routes through `Element`'s
+// per-edge `useSafeArea`, so it works on Android too and honours
+// `safeAreaEdges`, `safeAreaMode`, `ignoreSafeArea`, etc.
+export const SafeArea = React.forwardRef<any, ViewProps>((props, ref) => (
+  <Element safeArea {...props} ref={ref} />
+));
 
 SafeArea.displayName = 'SafeArea';
 
 export const Div = View;
 export const Span = View;
 
-export const Text = React.forwardRef<any, TextProps>(
+const TextBase = React.forwardRef<any, TextProps>(
   (
     {
       children,
@@ -229,9 +298,10 @@ export const Text = React.forwardRef<any, TextProps>(
   }
 );
 
-Text.displayName = 'Text';
+TextBase.displayName = 'Text';
+export const Text = React.memo(TextBase);
 
-export const Image = React.forwardRef<any, ImageProps>((props, ref) => {
+const ImageBase = React.forwardRef<any, ImageProps>((props, ref) => {
   const style = useNativeStyle(props);
   const nativeProps = splitNativeProps(props);
 
@@ -246,7 +316,8 @@ export const Image = React.forwardRef<any, ImageProps>((props, ref) => {
   );
 });
 
-Image.displayName = 'Image';
+ImageBase.displayName = 'Image';
+export const Image = React.memo(ImageBase);
 
 export const ImageBackground = React.forwardRef<any, ImageProps>(
   (props, ref) => {
@@ -280,7 +351,7 @@ export const Input = React.forwardRef<any, InputProps>((props, ref) => {
 
 Input.displayName = 'Input';
 
-export const Button = React.forwardRef<any, ButtonProps>(
+const ButtonBase = React.forwardRef<any, ButtonProps>(
   ({ children, disabled, ...props }, ref) => {
     const style = useNativeStyle(props);
     const nativeProps = splitNativeProps(props);
@@ -305,7 +376,8 @@ export const Button = React.forwardRef<any, ButtonProps>(
   }
 );
 
-Button.displayName = 'Button';
+ButtonBase.displayName = 'Button';
+export const Button = React.memo(ButtonBase);
 
 export const Skeleton = React.forwardRef<any, ViewProps>(
   ({ backgroundColor = 'color-gray-200', ...props }, ref) => (
