@@ -66,11 +66,60 @@ import { Vertical, Horizontal, Center } from 'app-studio';
 - `Horizontal`: flex row layout
 - `Vertical`: flex column layout
 - `Center`: flex layout centered both ways
+- `Grid`: CSS Grid via `columns`/`rows`/`gap` (flexbox fallback on native)
 - `HorizontalResponsive`: switches to column on mobile
 - `VerticalResponsive`: switches to row on mobile
 - `Scroll`: basic scrollable view
 - `SafeArea`: view with overflow auto
 - `Div`, `Span`: element aliases
+
+### Grid
+CSS Grid layout configured with intuitive `columns` / `rows` / `gap` props — the CSS-Grid sibling of `Vertical`/`Horizontal`.
+
+> **React Native:** RN has no CSS Grid, so `Grid` falls back to flexbox: it chunks its children into rows of N cells (parsing `columns` into per-column `flexGrow` weights) so you still get a real grid layout instead of a flat stacked list. `auto-fit`/`auto-fill` templates collapse to a single column (they need runtime width measurement). See [Native.md](Native.md).
+
+```tsx
+import { Grid, View } from 'app-studio';
+
+// N equal columns — a number expands to `repeat(n, 1fr)`
+<Grid columns={3} gap={16}>
+  <View />
+  <View />
+  <View />
+</Grid>
+
+// Custom tracks — a string is used verbatim
+<Grid columns="1fr 2fr 1fr" gap={16}>
+  <View />
+  <View />
+  <View />
+</Grid>
+
+// Independent row & column gaps
+<Grid columns={4} rowGap={24} columnGap={8}>
+  {items.map((item) => (
+    <View key={item.id} />
+  ))}
+</Grid>
+
+// Responsive — collapse columns per breakpoint with `media`
+<Grid
+  columns={4}
+  gap={16}
+  media={{
+    mobile: { gridTemplateColumns: 'repeat(1, 1fr)' },
+    md: { gridTemplateColumns: 'repeat(2, 1fr)' },
+  }}
+>
+  {/* ... */}
+</Grid>
+```
+
+**Props:**
+- `columns`: a number → `repeat(n, 1fr)`, or a raw track string (`"1fr 2fr"`, `"repeat(3, 1fr)"`).
+- `rows`: same shorthand as `columns` (web only — ignored on native, where rows follow from the column count).
+- `gap` / `rowGap` / `columnGap`: spacing between cells.
+- Any other CSS Grid prop (`gridTemplateAreas`, `gridAutoFlow`, `justifyItems`, `alignItems`, …) passes straight through on web.
 
 ## Text Components
 
@@ -97,6 +146,52 @@ import { Text } from 'app-studio';
   Dark mode text
 </Text>
 ```
+
+**Typography shorthands** map to the design-system scale (`utils/typography.ts`). Explicit props (`fontSize`, `fontWeight`, `letterSpacing`) override them; unknown values pass through unchanged.
+
+```tsx
+// heading: semantic <h1>–<h6> tag + matching size / weight / line-height
+<Text heading="h1">Heading 1</Text>
+
+// size: 'xs' | 'sm' | 'md' | 'lg' | 'xl' (or a number)
+<Text size="lg">Large (16px)</Text>
+
+// weight: 'hairline' … 'black' (100–900, or a number)
+<Text weight="semiBold">Semi Bold (600)</Text>
+
+// spacing: 'tighter' | 'tight' | 'normal' | 'wide' | 'wider' | 'widest'
+<Text spacing="wide">Tracked out</Text>
+```
+
+### Typewriter
+Types out one or several paragraphs character by character with a blinking cursor. Built on `Text`/`View`, so it works on web and native and forwards `Text` styling props to every paragraph.
+
+```tsx
+import { Typewriter } from 'app-studio';
+
+// Single paragraph
+<Typewriter text="Typed one character at a time." />
+
+// Multiple paragraphs (typed in sequence) + in-paragraph line break with "|"
+<Typewriter
+  typingSpeed={20}
+  pauseTime={700}
+  paragraphGap={16}
+  lineHeight="1.6"
+  text={[
+    'First paragraph.',
+    'Second paragraph after a pause.',
+    'Break a single paragraph|across lines with a pipe.',
+  ]}
+/>
+
+// Looping tagline
+<Typewriter loop text={['Build faster.', 'Ship anywhere.', 'Style with props.']} />
+```
+
+Props: `text`, `typingSpeed` (50), `pauseTime` (600), `paragraphGap` (8), `lineBreakChar` (`"|"`), `loop` (false), `loopDelay` (1500), `showCursor` (true), `cursorColor` (`'currentColor'`), `onComplete`. Remount with a changing `key` to replay.
+
+> ⚠️ Use a unitless string `lineHeight="1.6"` (or an integer `1`–`3`) — a fractional **number** like `lineHeight={1.6}` is converted to pixels and collapses the lines.
 
 ## Media Components
 

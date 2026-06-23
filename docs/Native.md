@@ -104,6 +104,7 @@ Every cross-platform primitive renders a familiar React Native node under the ho
 | `Horizontal`                        | `<View flexDirection="row">`                                               | |
 | `Vertical`                          | `<View flexDirection="column">`                                            | |
 | `Center`                            | `<View justifyContent="center" alignItems="center">`                       | |
+| `Grid`                              | `<View>` column of `<View flexDirection="row">` rows                       | No CSS Grid on RN — children are chunked into rows of N cells with `flexGrow` weights parsed from `columns`. `auto-fit`/`auto-fill` → 1 column; `rows` is ignored. |
 | `HorizontalResponsive`              | `<View flexDirection="row">` → `column` at `mobile` breakpoint             | Uses `useWindowDimensions` + `ResponsiveProvider`. |
 | `VerticalResponsive`                | `<View flexDirection="column">` → `row` at `mobile` breakpoint             | |
 | `Scroll`                            | `<ScrollView>`                                                             | Pass standard RN scroll props (e.g. `contentContainerStyle`, `horizontal`). |

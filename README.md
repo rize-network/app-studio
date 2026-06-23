@@ -5,7 +5,7 @@ App-Studio is a React library designed to streamline the development of modern w
 ## Key Features
 
 *   **Core `Element` Component:** A versatile base for all UI elements, offering extensive styling via props, including responsive (`media`) and state-based (`on`) styles.
-*   **Rich Component Library:** Includes components for layout (`View`, `Horizontal`, `Vertical`, etc.), text (`Text`), images (`Image`, `ImageBackground`), forms (`Form`, `Input`, `Button`), and loading states (`Skeleton`).
+*   **Rich Component Library:** Includes components for layout (`View`, `Horizontal`, `Vertical`, `Grid`, etc.), text (`Text`, `Typewriter`), images (`Image`, `ImageBackground`), forms (`Form`, `Input`, `Button`), and loading states (`Skeleton`).
 *   **Powerful Styling:** Utilizes a utility-prop system for direct styling, alongside support for standard CSS and the `css` prop.
 *   **Integrated Theming:** `ThemeProvider` and `useTheme` hook for managing light/dark modes, custom color palettes, and consistent design tokens.
 *   **Responsive Design:** `ResponsiveProvider` and `useResponsive` hook provide tools to adapt layouts and styles based on screen size and orientation.
@@ -373,6 +373,7 @@ A versatile container component extending `Element`, primarily used for layout. 
 *   `Horizontal`: A `View` with `display: flex`, `flexDirection: row`.
 *   `Vertical`: A `View` with `display: flex`, `flexDirection: column`.
 *   `Center`: A `View` with `display: flex`, `justifyContent: center`, `alignItems: center`.
+*   `Grid`: A `View` with `display: grid`; set tracks with `columns`/`rows` (a number → `repeat(n, 1fr)`, or a raw track string) plus `gap`. Falls back to flexbox rows on React Native.
 *   `HorizontalResponsive`: Switches from `row` to `column` on `mobile`.
 *   `VerticalResponsive`: Switches from `column` to `row` on `mobile`.
 *   `Scroll`: Basic scrollable view (might need explicit overflow styles).
@@ -404,15 +405,23 @@ A component for rendering text content, extending `Element`. Defaults to `span`.
 
 *   Inherits all `Element` props.
 *   Applies typography styles easily (`fontSize`, `fontWeight`, `lineHeight`, `textAlign`, etc.).
-*   Supports `toUpperCase` prop.
+*   Typography shorthands that map to the design-system scale: `heading`, `size`, `weight`, `spacing`.
+*   Supports `toUpperCase`, `isItalic`, `isUnderlined`, `isStriked`, `isSub`/`isSup`, and `maxLines` props.
 
 **Key Props (in addition to Element props):**
 
 | Prop          | Type      | Description                         |
 | :------------ | :-------- | :---------------------------------- |
 | `as`          | `string`  | HTML element tag (default: 'span'). |
+| `heading`     | `'h1'`–`'h6'` | Heading preset — sets the semantic tag plus a matching font size, weight, and line height. |
+| `size`        | `'xs' \| 'sm' \| 'md' \| 'lg' \| 'xl'` or number | Shorthand for `fontSize` from the type scale (`xs`=10 … `xl`=20). |
+| `weight`      | `'hairline' \| 'thin' \| 'light' \| 'normal' \| 'medium' \| 'semiBold' \| 'bold' \| 'extraBold' \| 'black'` or number | Shorthand for `fontWeight` (named weight → 100–900). |
+| `spacing`     | `'tighter' \| 'tight' \| 'normal' \| 'wide' \| 'wider' \| 'widest'` or number | Shorthand for `letterSpacing`. |
 | `toUpperCase` | `boolean` | Converts text content to uppercase. |
+| `maxLines`    | `number`  | Clamps the text to N lines with an ellipsis. |
 | `...rest`     | `CssProps` | Typography props like `fontSize`, `fontWeight`, `color`, etc. |
+
+> Explicit props win over shorthands: passing both `weight="bold"` and `fontWeight={400}` resolves to `400`. Unrecognized shorthand values pass through unchanged (e.g. `size={13}` → `fontSize: 13px`).
 
 **Example:**
 
@@ -421,15 +430,71 @@ import { Text } from 'app-studio';
 
 function MyText() {
   return (
-    <Text
-      fontSize="xl"
-      fontWeight="bold"
-      color="theme-primary"
-      textAlign="center"
-      toUpperCase
-    >
-      Important Heading
-    </Text>
+    <>
+      {/* Heading preset — renders an <h1> with the matching size/weight */}
+      <Text heading="h1">Page Title</Text>
+
+      {/* Typography shorthands */}
+      <Text size="lg" weight="semiBold" spacing="wide" color="theme-primary">
+        Section Label
+      </Text>
+
+      {/* Or set typography props directly */}
+      <Text fontSize={20} fontWeight="bold" textAlign="center" toUpperCase>
+        Important Heading
+      </Text>
+    </>
+  );
+}
+```
+
+## Typewriter
+
+Types out one or several paragraphs of text character by character, with a blinking cursor. Built on `Text`/`View`, so it works on web and native and accepts all `Text` styling props (forwarded to every paragraph).
+
+**Key Features:**
+
+*   Pass an array to `text` to type multiple paragraphs in sequence, with a pause between each.
+*   Use the `lineBreakChar` (default `"|"`) to force a line break *inside* a paragraph.
+*   Optional `loop`, blinking cursor, and `onComplete` callback.
+
+**Key Props (in addition to Text props):**
+
+| Prop            | Type                 | Description                                                        |
+| :-------------- | :------------------- | :---------------------------------------------------------------- |
+| `text`          | `string \| string[]` | A single paragraph, or an array of paragraphs typed sequentially. |
+| `typingSpeed`   | `number`             | Milliseconds per character (default: `50`).                       |
+| `pauseTime`     | `number`             | Milliseconds paused between paragraphs (default: `600`).          |
+| `paragraphGap`  | `number \| string`   | Vertical spacing between paragraphs (default: `8`).               |
+| `lineBreakChar` | `string`             | Character that forces a line break inside a paragraph (default: `"|"`). |
+| `loop`          | `boolean`            | Restart after the last paragraph finishes (default: `false`).     |
+| `loopDelay`     | `number`             | Milliseconds paused before restarting when `loop` is on (default: `1500`). |
+| `showCursor`    | `boolean`            | Show the blinking cursor (default: `true`).                       |
+| `cursorColor`   | `string`             | Cursor color (default: `'currentColor'`).                         |
+| `onComplete`    | `() => void`         | Fired once every paragraph has been typed (not called between loops). |
+
+> To restart the animation on demand, remount the component with a changing `key`.
+>
+> ⚠️ Avoid passing a fractional numeric `lineHeight` (e.g. `lineHeight={1.6}`) — numeric line-heights are converted to pixels. Use the unitless string form `lineHeight="1.6"` or an integer multiplier (`1`–`3`).
+
+**Example:**
+
+```jsx
+import { Typewriter } from 'app-studio';
+
+function MyTypewriter() {
+  return (
+    <Typewriter
+      typingSpeed={20}
+      pauseTime={700}
+      paragraphGap={16}
+      lineHeight="1.6"
+      text={[
+        'App Studio types this paragraph one character at a time.',
+        'Then it pauses and moves on to the next paragraph.',
+        'Break a single paragraph|across lines with a pipe.',
+      ]}
+    />
   );
 }
 ```
@@ -987,7 +1052,7 @@ Explore our comprehensive documentation to learn more about App-Studio:
 # API Reference Summary
 
 *   **Core:** `Element`
-*   **Components:** `View`, `Horizontal`, `Vertical`, `Center`, `HorizontalResponsive`, `VerticalResponsive`, `Scroll`, `SafeArea`, `Div`, `Span`, `Text`, `Image`, `ImageBackground`, `Form`, `Input`, `Button`, `Skeleton`.
+*   **Components:** `View`, `Horizontal`, `Vertical`, `Center`, `Grid`, `HorizontalResponsive`, `VerticalResponsive`, `Scroll`, `SafeArea`, `Div`, `Span`, `Text`, `Typewriter`, `Image`, `ImageBackground`, `Form`, `Input`, `Button`, `Skeleton`.
 *   **Animation:** `Animation` object with functions like `fadeIn`, `slideInLeft`, `pulse`, etc.
 *   **Hooks:** `useActive`, `useClickOutside`, `useElementPosition`, `useFocus`, `useHover`, `useInView`, `useKeyPress`, `useMount`, `useOnScreen`, `useResponsive`, `useScroll`, `useWindowSize`.
 *   **Providers:** `ThemeProvider`, `ResponsiveProvider`, `AnalyticsProvider`, `WindowSizeProvider`.

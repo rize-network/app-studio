@@ -210,6 +210,127 @@ export const Center = React.forwardRef<any, ViewProps>((props, ref) => (
 
 Center.displayName = 'Center';
 
+export interface GridProps extends ViewProps {
+  // Column track definition. A number renders that many equal columns; a string
+  // is parsed as a CSS grid-template ("1fr 2fr", "repeat(3, 1fr)").
+  columns?: number | string;
+  // Accepted for cross-platform API parity with web; ignored on native, where
+  // rows are implied by the column count and child order.
+  rows?: number | string;
+}
+
+// React Native has no CSS Grid, so <Grid> approximates one with flexbox: children
+// are chunked into rows of N cells. `columns` is either a count or a grid-template
+// string, which we parse into per-column flex weights. `auto-fit`/`auto-fill` need
+// width measurement we don't have here, so they collapse to a single column.
+const tokenizeTopLevel = (input: string): string[] => {
+  const out: string[] = [];
+  let depth = 0;
+  let cur = '';
+  for (const ch of input) {
+    if (ch === '(') {
+      depth += 1;
+      cur += ch;
+    } else if (ch === ')') {
+      depth = Math.max(0, depth - 1);
+      cur += ch;
+    } else if (/\s/.test(ch) && depth === 0) {
+      if (cur) {
+        out.push(cur);
+        cur = '';
+      }
+    } else {
+      cur += ch;
+    }
+  }
+  if (cur) out.push(cur);
+  return out;
+};
+
+const columnWeights = (columns?: number | string): number[] => {
+  if (typeof columns === 'number') {
+    return columns > 0 ? new Array(columns).fill(1) : [1];
+  }
+  if (typeof columns !== 'string') return [1];
+  const template = columns.trim();
+  if (!template || /auto-fit|auto-fill/i.test(template)) return [1];
+  const weights: number[] = [];
+  for (const token of tokenizeTopLevel(template)) {
+    const repeat = /^repeat\(\s*(\d+)\s*,(.+)\)$/i.exec(token);
+    if (repeat) {
+      const count = parseInt(repeat[1], 10);
+      const inner = columnWeights(repeat[2]);
+      for (let i = 0; i < count; i += 1) weights.push(...inner);
+      continue;
+    }
+    const fr = /^([\d.]+)fr$/i.exec(token);
+    weights.push(fr ? parseFloat(fr[1]) || 1 : 1);
+  }
+  return weights.length ? weights : [1];
+};
+
+const chunkRows = <T,>(items: T[], size: number): T[][] => {
+  const rows: T[][] = [];
+  const step = size > 0 ? size : 1;
+  for (let i = 0; i < items.length; i += step) {
+    rows.push(items.slice(i, i + step));
+  }
+  return rows;
+};
+
+export const Grid = React.forwardRef<any, GridProps>(
+  // `rows` is accepted for web API parity but unused on native; the leading
+  // underscore both satisfies no-unused-vars and keeps it out of `...props`.
+  (
+    { columns, rows: _rows, gap, rowGap, columnGap, children, ...props },
+    ref
+  ) => {
+    const weights = columnWeights(columns);
+    const cols = weights.length;
+    const resolvedRowGap = rowGap ?? gap ?? 0;
+    const resolvedColumnGap = columnGap ?? gap ?? 0;
+    const groups = chunkRows(React.Children.toArray(children), cols);
+    return (
+      <Element
+        flexDirection="column"
+        rowGap={resolvedRowGap}
+        {...props}
+        ref={ref}
+      >
+        {groups.map((row, rowIndex) => (
+          <Element
+            key={rowIndex}
+            flexDirection="row"
+            columnGap={resolvedColumnGap}
+          >
+            {row.map((child, colIndex) => (
+              <Element
+                key={colIndex}
+                flexGrow={weights[colIndex] ?? 1}
+                flexShrink={1}
+                flexBasis={0}
+                minWidth={0}
+              >
+                {child}
+              </Element>
+            ))}
+            {Array.from({ length: cols - row.length }).map((_, spacerIndex) => (
+              <Element
+                key={`spacer-${spacerIndex}`}
+                flexGrow={weights[row.length + spacerIndex] ?? 1}
+                flexShrink={1}
+                flexBasis={0}
+              />
+            ))}
+          </Element>
+        ))}
+      </Element>
+    );
+  }
+);
+
+Grid.displayName = 'Grid';
+
 export const HorizontalResponsive = React.forwardRef<any, ViewProps>(
   ({ media = {}, ...props }, ref) => {
     const mergedMedia = React.useMemo(

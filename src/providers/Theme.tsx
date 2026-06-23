@@ -4,6 +4,7 @@ import React, {
   useState,
   ReactNode,
   useEffect,
+  useInsertionEffect,
   useRef,
   useMemo,
   useCallback,
@@ -979,6 +980,24 @@ export const ThemeProvider = ({
     [mergedTheme, themeColors]
   );
 
+  // On the client, inject the theme CSS variables into the main document's head
+  // (rather than rendering an inline <style> in the React tree — see the render
+  // below). useInsertionEffect runs before the browser paints, so there is no
+  // flash, and keeping the <style> out of the hydrated tree lets a prerendered +
+  // hydrated page match the server HTML exactly. SSR has no document, so it
+  // renders the inline <style> instead (lifted into <head> by the prerenderer).
+  useInsertionEffect(() => {
+    if (typeof document === 'undefined' || targetWindow) return;
+    const styleId = 'app-studio-theme-vars';
+    let tag = document.getElementById(styleId) as HTMLStyleElement | null;
+    if (!tag) {
+      tag = document.createElement('style');
+      tag.id = styleId;
+      document.head.appendChild(tag);
+    }
+    tag.textContent = cssVariables;
+  }, [cssVariables, targetWindow]);
+
   // Inject CSS variables into target document (for iframe support)
   useEffect(() => {
     if (!targetWindow) return;
@@ -1020,7 +1039,13 @@ export const ThemeProvider = ({
   return (
     <ThemeNestingContext.Provider value={true}>
       <ThemeContext.Provider value={contextValue}>
-        {!targetWindow && <style>{cssVariables}</style>}
+        {/* SSR-only: on the client the variables are injected into <head> via
+            the insertion effect above, so this stays out of the hydrated tree.
+            During SSR (no window) it renders inline; the prerenderer lifts it
+            into <head>. */}
+        {typeof window === 'undefined' && !targetWindow && (
+          <style>{cssVariables}</style>
+        )}
         <div data-theme={themeMode} style={wrapperStyle}>
           {children}
         </div>

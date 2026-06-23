@@ -2,6 +2,7 @@ import React from 'react';
 import { fireEvent, render } from '@testing-library/react-native';
 import {
   Button,
+  Grid,
   Image,
   Input,
   ResponsiveProvider,
@@ -115,5 +116,39 @@ describe('native primitives', () => {
 
     expect(getByTestId('box').props._hover).toBeUndefined();
     expect(getByTestId('box').props.as).toBeUndefined();
+  });
+
+  it('lays Grid children out in flex rows by column count', () => {
+    const { getByTestId } = renderNative(
+      <ThemeProvider>
+        <Grid testID="grid" columns={2} gap={8}>
+          <View testID="cell-0" />
+          <View testID="cell-1" />
+          <View testID="cell-2" />
+        </Grid>
+      </ThemeProvider>
+    );
+
+    // Outer container stacks rows vertically...
+    expect(getByTestId('grid').props.style.flexDirection).toBe('column');
+    // ...and every child renders even when the final row is partial.
+    expect(getByTestId('cell-0')).toBeTruthy();
+    expect(getByTestId('cell-1')).toBeTruthy();
+    expect(getByTestId('cell-2')).toBeTruthy();
+  });
+
+  it('accepts a grid-template string for Grid columns', () => {
+    const { getByTestId } = renderNative(
+      <ThemeProvider>
+        <Grid testID="grid" columns="1fr 2fr">
+          <View testID="a" />
+          <View testID="b" />
+        </Grid>
+      </ThemeProvider>
+    );
+
+    expect(getByTestId('grid')).toBeTruthy();
+    expect(getByTestId('a')).toBeTruthy();
+    expect(getByTestId('b')).toBeTruthy();
   });
 });

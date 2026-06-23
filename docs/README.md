@@ -72,7 +72,7 @@ The `Element` component is the foundation of App-Studio. It provides:
 
 ### Component Categories
 
-- **Layout:** `View`, `Horizontal`, `Vertical`, `Scroll`, `SafeArea`
+- **Layout:** `View`, `Horizontal`, `Vertical`, `Grid`, `Scroll`, `SafeArea`
 - **Typography:** `Text`, `Heading`
 - **Media:** `Image`, `ImageBackground`
 - **Forms:** `Form`, `Input`, `Button`
@@ -163,6 +163,7 @@ A versatile container component extending `Element`, primarily used for layout. 
 *   `Horizontal`: A `View` with `display: flex`, `flexDirection: row`.
 *   `Vertical`: A `View` with `display: flex`, `flexDirection: column`.
 *   `Center`: A `View` with `display: flex`, `justifyContent: center`, `alignItems: center`.
+*   `Grid`: A `View` with `display: grid`; set tracks with `columns`/`rows` (a number → `repeat(n, 1fr)`, or a raw track string) plus `gap`. Falls back to flexbox rows on React Native.
 *   `HorizontalResponsive`: Switches from `row` to `column` on `mobile`.
 *   `VerticalResponsive`: Switches from `column` to `row` on `mobile`.
 *   `Scroll`: Basic scrollable view (might need explicit overflow styles).
@@ -757,7 +758,7 @@ function AnimatedButton() {
 # API Reference Summary
 
 *   **Core:** `Element`
-*   **Components:** `View`, `Horizontal`, `Vertical`, `Center`, `HorizontalResponsive`, `VerticalResponsive`, `Scroll`, `SafeArea`, `Div`, `Span`, `Text`, `Image`, `ImageBackground`, `Form`, `Input`, `Button`, `Skeleton`.
+*   **Components:** `View`, `Horizontal`, `Vertical`, `Center`, `Grid`, `HorizontalResponsive`, `VerticalResponsive`, `Scroll`, `SafeArea`, `Div`, `Span`, `Text`, `Image`, `ImageBackground`, `Form`, `Input`, `Button`, `Skeleton`.
 *   **Animation:** `Animation` object with functions like `fadeIn`, `slideInLeft`, `pulse`, etc.
 *   **Hooks:** `useActive`, `useClickOutside`, `useElementPosition`, `useFocus`, `useHover`, `useInView`, `useKeyPress`, `useMount`, `useOnScreen`, `useResponsive`, `useScroll`, `useWindowSize`.
 *   **Providers:** `ThemeProvider`, `ResponsiveProvider`, `AnalyticsProvider`, `WindowSizeProvider`.

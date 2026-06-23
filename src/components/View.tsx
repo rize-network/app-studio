@@ -57,6 +57,46 @@ export const Vertical = React.forwardRef<
     React.RefAttributes<HTMLElement>
 >;
 
+export interface GridProps extends Omit<ViewProps, 'columns' | 'rows'> {
+  // Column track definition. A number renders that many equal columns
+  // (`repeat(n, 1fr)`); a string is used verbatim ("1fr 2fr", "repeat(3, 1fr)").
+  columns?: number | string;
+  // Row track definition, same shorthand rules as `columns`.
+  rows?: number | string;
+}
+
+// Turn the `columns`/`rows` shorthand into a CSS grid-template value.
+const gridTracks = (value?: number | string): string | undefined =>
+  value == null
+    ? undefined
+    : typeof value === 'number'
+      ? `repeat(${value}, 1fr)`
+      : value;
+
+// Props Grid forwards to Element, minus the `columns`/`rows` shorthands it owns
+// (Element types `rows` as the numeric HTML attribute, hence the Omit).
+type GridElementProps = Omit<
+  React.ComponentPropsWithRef<typeof Element>,
+  'columns' | 'rows'
+>;
+
+// Grid is the CSS-Grid sibling of Vertical/Horizontal. Configure it with the
+// intuitive `columns`/`rows`/`gap` props; every other grid prop (gridTemplateAreas,
+// justifyItems, gridAutoFlow, …) still passes straight through to Element.
+export const Grid = React.forwardRef<HTMLElement, GridElementProps & GridProps>(
+  ({ columns, rows, ...props }, ref) => (
+    <Element
+      display="grid"
+      gridTemplateColumns={gridTracks(columns)}
+      gridTemplateRows={gridTracks(rows)}
+      {...props}
+      ref={ref}
+    />
+  )
+) as unknown as React.ForwardRefExoticComponent<
+  GridElementProps & GridProps & React.RefAttributes<HTMLElement>
+>;
+
 export const HorizontalResponsive = React.forwardRef<
   HTMLElement,
   React.ComponentPropsWithRef<typeof Element> & ViewProps
