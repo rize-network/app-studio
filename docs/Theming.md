@@ -23,7 +23,7 @@ Each palette has 9 shades (50, 100, 200, 300, 400, 500, 600, 700, 800, 900) acce
 - **Neutrals**: `white`, `black`, `gray`, `dark`, `light`, `warmGray`, `trueGray`, `coolGray`, `blueGray`
 - **Reds & Pinks**: `rose`, `pink`, `red`
 - **Purples**: `fuchsia`, `purple`, `violet`
-- **Blues**: `indigo`, `blue`, `lightBlue`, `cyan`
+- **Blues**: `indigo`, `blue`, `cyan`
 - **Greens**: `teal`, `emerald`, `green`, `lime`
 - **Yellows & Oranges**: `yellow`, `amber`, `orange`
 
@@ -340,7 +340,6 @@ Each palette below has shades: 50, 100, 200, 300, 400, 500, 600, 700, 800, 900
 **Blue Family**:
 - `color-indigo-{shade}` - Deep blue-purple
 - `color-blue-{shade}` - Blue tones
-- `color-lightBlue-{shade}` - Light blue tones
 - `color-cyan-{shade}` - Cyan tones
 
 **Green Family**:
@@ -672,7 +671,7 @@ darkGreen, salmon
 ### Available Color Palettes (34 total)
 ```
 whiteAlpha, blackAlpha, white, black, rose, pink, fuchsia, purple,
-violet, indigo, blue, lightBlue, cyan, teal, emerald, green, lime,
+violet, indigo, blue, blue, cyan, teal, emerald, green, lime,
 yellow, amber, orange, red, warmGray, trueGray, gray, dark, light,
 coolGray, blueGray, slate, zinc, neutral, stone
 ```

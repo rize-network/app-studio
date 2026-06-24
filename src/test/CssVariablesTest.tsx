@@ -12,7 +12,7 @@ const CssVariablesTest = () => {
         style={
           {
             '--primary-color': 'blue',
-            '--primary-bg': 'lightblue',
+            '--primary-bg': 'blue',
             '--spacing': '15px',
           } as React.CSSProperties
         }

@@ -224,7 +224,7 @@ const IframeContent = () => {
           style={{
             marginTop: '50vh',
             height: '20vh',
-            background: 'lightblue',
+            background: 'blue',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',

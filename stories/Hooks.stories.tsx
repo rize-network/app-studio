@@ -97,7 +97,7 @@ const InViewExample = () => {
       <View marginTop="40vh">
         {inView ? 'Element is in view' : 'Element is out of view'}
       </View>
-      <View ref={ref} backgroundColor="color-lightblue" margin="60vh">
+      <View ref={ref} backgroundColor="color-blue" margin="60vh">
         {inView ? 'Element is in view' : 'Element is out of view'}
       </View>
     </View>

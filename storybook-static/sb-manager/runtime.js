@@ -2567,7 +2567,7 @@ var namedColorMap = {
   lavenderblush: "fff0f5",
   lawngreen: "7cfc00",
   lemonchiffon: "fffacd",
-  lightblue: "add8e6",
+  blue: "add8e6",
   lightcoral: "f08080",
   lightcyan: "e0ffff",
   lightgoldenrodyellow: "fafad2",

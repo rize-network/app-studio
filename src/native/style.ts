@@ -266,6 +266,16 @@ function normalizeValue(
       }
       return getColor(value);
     }
+    // CSS intrinsic-size keywords have no RN equivalent; map to 'auto' so the
+    // box sizes to its content instead of being dropped (e.g. width:'fit-content').
+    const lowerVal = value.toLowerCase();
+    if (
+      lowerVal === 'fit-content' ||
+      lowerVal === 'max-content' ||
+      lowerVal === 'min-content'
+    ) {
+      return 'auto';
+    }
     // React Native expects unitless numbers for dimensions/spacing; a raw
     // "8px"/"100px" string is silently dropped (zero-size boxes, missing dots).
     // Strip the `px` unit so web-authored styles render on native. `%` and
@@ -276,6 +286,62 @@ function normalizeValue(
   }
 
   return value;
+}
+
+// Convert one CSS length token ("8px", "10", "50%") to the RN value.
+function lengthToken(tok: string): number | string {
+  const t = tok.trim();
+  if (PX_VALUE.test(t)) return parseFloat(t);
+  if (/^-?\d*\.?\d+$/.test(t)) return parseFloat(t);
+  return t; // leave %, auto, etc.
+}
+
+// Expand a CSS `padding`/`margin` shorthand (e.g. "0 6px", "12px 16px",
+// "4px 8px 4px 8px") into RN longhand props. RN does NOT accept multi-value
+// shorthand strings, so without this they are silently dropped (no spacing).
+function expandBox(
+  prefix: 'padding' | 'margin',
+  value: string,
+  output: Record<string, any>
+) {
+  const parts = value.trim().split(/\s+/).map(lengthToken);
+  let top, right, bottom, left;
+  if (parts.length === 1) {
+    top = right = bottom = left = parts[0];
+  } else if (parts.length === 2) {
+    top = bottom = parts[0];
+    right = left = parts[1];
+  } else if (parts.length === 3) {
+    top = parts[0];
+    right = left = parts[1];
+    bottom = parts[2];
+  } else {
+    [top, right, bottom, left] = parts;
+  }
+  output[`${prefix}Top`] = top;
+  output[`${prefix}Right`] = right;
+  output[`${prefix}Bottom`] = bottom;
+  output[`${prefix}Left`] = left;
+}
+
+// Expand a CSS `border` shorthand ("1px solid #ccc", "1px solid") into RN
+// borderWidth/borderStyle/borderColor. RN ignores the shorthand entirely.
+function expandBorder(
+  value: string,
+  output: Record<string, any>,
+  getColor: (token: string) => string
+) {
+  const tokens = value.trim().split(/\s+/);
+  const styleKeywords = ['solid', 'dashed', 'dotted', 'none'];
+  tokens.forEach((tok) => {
+    if (PX_VALUE.test(tok) || /^-?\d*\.?\d+$/.test(tok)) {
+      output.borderWidth = parseFloat(tok);
+    } else if (styleKeywords.includes(tok.toLowerCase())) {
+      output.borderStyle = tok.toLowerCase();
+    } else {
+      output.borderColor = getColor(tok);
+    }
+  });
 }
 
 function applyShadow(style: Record<string, any>, value: boolean | number) {
@@ -308,6 +374,22 @@ function appendStyleProps(
 
     if (property === 'shadow') {
       applyShadow(output, value);
+      return;
+    }
+
+    // Expand CSS shorthands RN can't parse (multi-value padding/margin, the
+    // `border` shorthand) into longhand so web-authored styles keep their
+    // spacing/borders on native.
+    if (
+      (property === 'padding' || property === 'margin') &&
+      typeof value === 'string' &&
+      value.trim().includes(' ')
+    ) {
+      expandBox(property, value, output);
+      return;
+    }
+    if (property === 'border' && typeof value === 'string') {
+      expandBorder(value, output, getColor);
       return;
     }
 

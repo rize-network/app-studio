@@ -27,16 +27,38 @@ let Reanimated: any = null;
 try {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   Reanimated = require('react-native-reanimated');
-} catch {
+} catch (e) {
   Reanimated = null;
+  // Surface WHY it failed — swallowing this hid the real cause (e.g. a missing
+  // worklets babel plugin or an interop mismatch) and made native animation
+  // problems undiagnosable.
+  // eslint-disable-next-line no-console
+  console.warn('[app-studio] react-native-reanimated failed to load:', e);
 }
 
-const HAS_REANIMATED = !!Reanimated;
+// The animated-component factory lives on `.default` in some builds and at the
+// top level in others — tolerate both.
+const ReanimatedApi: any =
+  Reanimated && Reanimated.default && Reanimated.default.createAnimatedComponent
+    ? Reanimated.default
+    : Reanimated;
+
+// Treat reanimated as available ONLY if every API we actually use is present.
+// A partial/untransformed module (worklets plugin didn't process this prebuilt
+// code) would otherwise crash later with "undefined is not a function" inside a
+// passive effect — far harder to diagnose than degrading to static here.
+const HAS_REANIMATED = !!(
+  ReanimatedApi &&
+  typeof ReanimatedApi.createAnimatedComponent === 'function' &&
+  typeof ReanimatedApi.useSharedValue === 'function' &&
+  typeof ReanimatedApi.useAnimatedStyle === 'function' &&
+  typeof ReanimatedApi.withTiming === 'function'
+);
 
 // Animated Pressable for the case where a host element is both animated AND
 // touchable. Created once at module load.
 const AnimatedPressable = HAS_REANIMATED
-  ? Reanimated.default.createAnimatedComponent(Pressable)
+  ? ReanimatedApi.createAnimatedComponent(Pressable)
   : undefined;
 
 // ---------- Parsers -----------------------------------------------------------
@@ -52,7 +74,7 @@ const parseDurationMs = (d?: string | number): number => {
 
 const easingFor = (timingFunction?: string): any => {
   if (!HAS_REANIMATED) return undefined;
-  const { Easing } = Reanimated;
+  const { Easing } = ReanimatedApi;
   switch (timingFunction) {
     case 'linear':
       return Easing.linear;
@@ -253,8 +275,8 @@ function useAnimationReanimated(animate?: AnimationProps | AnimationProps[]) {
     withRepeat,
     withSequence,
     cancelAnimation,
-    default: AnimatedDefault,
-  } = Reanimated;
+  } = ReanimatedApi;
+  const AnimatedDefault = ReanimatedApi;
 
   // Normalise to array form
   const animations: AnimationProps[] = animate
