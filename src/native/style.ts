@@ -243,6 +243,8 @@ function isColorStyle(property: string) {
 
 // Matches a plain pixel value like "8px", "100px", "-4.5px".
 const PX_VALUE = /^-?\d*\.?\d+px$/;
+const PLAIN_NUMBER = /^[+-]?(?:\d+\.?\d*|\.\d+)$/;
+const DEFAULT_NATIVE_FONT_SIZE = 14;
 
 function normalizeValue(
   property: string,
@@ -276,6 +278,13 @@ function normalizeValue(
     ) {
       return 'auto';
     }
+    // lineHeight is normalized after every base/media/css/style layer has
+    // merged, because a unitless multiplier depends on the final fontSize.
+    // Keep the raw value here so an explicit "2px" is not mistaken for a 2x
+    // multiplier later.
+    if (property === 'lineHeight') {
+      return value;
+    }
     // React Native expects unitless numbers for dimensions/spacing; a raw
     // "8px"/"100px" string is silently dropped (zero-size boxes, missing dots).
     // Strip the `px` unit so web-authored styles render on native. `%` and
@@ -286,6 +295,47 @@ function normalizeValue(
   }
 
   return value;
+}
+
+function numericFontSize(value: any): number {
+  if (typeof value === 'number' && Number.isFinite(value)) return value;
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    if (PLAIN_NUMBER.test(trimmed) || PX_VALUE.test(trimmed)) {
+      return parseFloat(trimmed);
+    }
+  }
+  return DEFAULT_NATIVE_FONT_SIZE;
+}
+
+function normalizeNativeLineHeight(style: Record<string, any>) {
+  const value = style.lineHeight;
+  if (value === undefined || value === null || value === '') return;
+
+  // Explicit px values are absolute even when they are small ("2px").
+  if (typeof value === 'string' && PX_VALUE.test(value.trim())) {
+    style.lineHeight = parseFloat(value);
+    return;
+  }
+
+  const source = typeof value === 'string' ? value.trim() : value;
+  if (
+    typeof source !== 'number' &&
+    (typeof source !== 'string' || !PLAIN_NUMBER.test(source))
+  ) {
+    return;
+  }
+
+  const numericValue = typeof source === 'number' ? source : Number(source);
+  if (!Number.isFinite(numericValue)) return;
+
+  // React Native only accepts an absolute line height. Mirror the web API by
+  // resolving bare values from 0..3 as font-size multipliers; larger bare
+  // values remain absolute device-independent pixels.
+  style.lineHeight =
+    numericValue >= 0 && numericValue <= 3
+      ? Number((numericValue * numericFontSize(style.fontSize)).toFixed(4))
+      : numericValue;
 }
 
 // Convert one CSS length token ("8px", "10", "50%") to the RN value.
@@ -559,11 +609,13 @@ export function useNativeStyle(props: NativeElementProps) {
     }
 
     const flattened = StyleSheet.flatten(props.style) || {};
+    const mergedStyle = { ...next, ...flattened };
+    normalizeNativeLineHeight(mergedStyle);
     cacheRef.current = {
       key,
       getColor: scopedGetColor,
       devices: responsive.devices,
-      style: { ...next, ...flattened },
+      style: mergedStyle,
     };
   }
 

@@ -1,17 +1,17 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import { Text } from '../../../src/components/Text';
 import { ThemeProvider } from '../../../src/providers/Theme';
 
 describe('Text Component', () => {
   it('should render text content', () => {
-    render(
+    const { getByText } = render(
       <ThemeProvider>
         <Text>Hello World</Text>
       </ThemeProvider>
     );
 
-    expect(screen.getByText('Hello World')).toBeInTheDocument();
+    expect(getByText('Hello World')).toBeInTheDocument();
   });
 
   it('should render as span element', () => {
@@ -26,13 +26,13 @@ describe('Text Component', () => {
   });
 
   it('should support toUpperCase prop', () => {
-    render(
+    const { getByText } = render(
       <ThemeProvider>
         <Text toUpperCase>hello world</Text>
       </ThemeProvider>
     );
 
-    expect(screen.getByText('HELLO WORLD')).toBeInTheDocument();
+    expect(getByText('HELLO WORLD')).toBeInTheDocument();
   });
 
   it('should not uppercase non-string children', () => {
@@ -44,11 +44,13 @@ describe('Text Component', () => {
       </ThemeProvider>
     );
 
-    expect(testContainer.querySelector('[data-testid="child-span"]')).toBeInTheDocument();
+    expect(
+      testContainer.querySelector('[data-testid="child-span"]')
+    ).toBeInTheDocument();
   });
 
   it('should support CSS styling props', () => {
-    render(
+    const { getByText } = render(
       <ThemeProvider>
         <Text fontSize={16} color="red">
           Styled Text
@@ -56,7 +58,38 @@ describe('Text Component', () => {
       </ThemeProvider>
     );
 
-    expect(screen.getByText('Styled Text')).toBeInTheDocument();
+    expect(getByText('Styled Text')).toBeInTheDocument();
+  });
+
+  it.each([
+    ['number', 1.6],
+    ['string', '1.6'],
+  ])('should render a %s line-height multiplier without pixels', (_, value) => {
+    const { getByTestId } = render(
+      <ThemeProvider>
+        <Text data-testid="line-height" fontSize={20} lineHeight={value}>
+          Two lines
+        </Text>
+      </ThemeProvider>
+    );
+
+    expect(window.getComputedStyle(getByTestId('line-height')).lineHeight).toBe(
+      '1.6'
+    );
+  });
+
+  it('should keep fractional absolute line-height precision', () => {
+    const { getByTestId } = render(
+      <ThemeProvider>
+        <Text data-testid="line-height" lineHeight={20.5}>
+          Precise line height
+        </Text>
+      </ThemeProvider>
+    );
+
+    expect(window.getComputedStyle(getByTestId('line-height')).lineHeight).toBe(
+      '20.5px'
+    );
   });
 
   it('should forward ref', () => {

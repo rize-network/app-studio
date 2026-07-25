@@ -380,6 +380,12 @@ A versatile container component extending `Element`, primarily used for layout. 
 *   `SafeArea`: A view with `overflow: auto`.
 *   `Div`, `Span`: Aliases for `Element` rendering `div` and `span` respectively.
 
+`Horizontal`, `Vertical`, and `Center` keep those layout contracts even if a
+conflicting direct prop is supplied. Use `View` for custom flex behavior.
+`Center` only centers inside its own bounds, so vertical centering needs a sized
+area (`minHeight="100vh"` for a page on web, or `flex={1}` inside a sized native
+parent). Centering a full-width `Text` child also requires `textAlign="center"`.
+
 **Example:**
 
 ```jsx
@@ -474,8 +480,11 @@ Types out one or several paragraphs of text character by character, with a blink
 | `onComplete`    | `() => void`         | Fired once every paragraph has been typed (not called between loops). |
 
 > To restart the animation on demand, remount the component with a changing `key`.
->
-> ⚠️ Avoid passing a fractional numeric `lineHeight` (e.g. `lineHeight={1.6}`) — numeric line-heights are converted to pixels. Use the unitless string form `lineHeight="1.6"` or an integer multiplier (`1`–`3`).
+
+Bare `lineHeight` values from `0` to `3` are font-size multipliers. Numeric and
+string forms are equivalent (`lineHeight={1.6}` and `lineHeight="1.6"`). Larger
+bare values are pixel sizes; explicit CSS units such as `"1.6rem"` and `"24px"`
+are preserved. On React Native, multipliers are resolved against `fontSize`.
 
 **Example:**
 

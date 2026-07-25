@@ -259,6 +259,22 @@ function App() {
 }
 ```
 
+### `strict` — require tokens everywhere
+
+`strict` (default `false`) makes `ThemeProvider` warn about **any** colour that is
+not a `color-*`, `theme-*`, `light-*` or `dark-*` token:
+
+```javascript
+<ThemeProvider theme={theme} colors={colors} strict>
+```
+
+Turn it on when your design system forbids raw colours and every value should
+come from the palette. It flags `#fff`, `rgb(...)` and named CSS colours too,
+which is why it is opt-in.
+
+You do not need `strict` to catch typos and dot notation — those are reported in
+development regardless. See [Color Reference Formats](#color-reference-formats).
+
 ## Using the Theme in Components
 
 Now that the theme is available, you can use it in your components. All color references are resolved automatically based on the current theme mode.
@@ -272,6 +288,32 @@ App-Studio supports multiple ways to reference colors:
 3. **Palette Colors**: `"color-blue-500"`, `"color-rose-200"`, `"color-gray-800"`
 4. **Theme Colors**: `"theme-primary"`, `"theme-button-background"`
 5. **Mode-Specific Colors**: `"light-white"`, `"dark-blue-500"`
+
+> **Tokens use dashes, never dots.** `color-gray-500` is a token;
+> `color.gray.500` is not. This is the single easiest mistake to make and the
+> hardest to notice, because a token that does not resolve **fails silently** —
+> nothing throws, no type is violated, and the element simply renders without
+> that colour. The same applies to a misspelling: `color-grey-500` becomes
+> `var(--color-grey-500)`, a variable that was never defined.
+>
+> Since colour props are typed as `string`, TypeScript cannot catch either case.
+> In development the `ThemeProvider` now warns instead:
+>
+> ```
+> [Theme] 'color.gray.500' uses dot notation, which is not supported and
+> applies no colour. Use dashes instead: 'color-gray-500'.
+>
+> [Theme] Unknown colour 'color-grey-500' — no palette named 'grey', so no
+> colour is applied. Available palettes: blue, blueGray, gray, green, ...
+> ```
+>
+> Each distinct token is reported once, so a bad token used on hundreds of nodes
+> produces one line. The check is skipped entirely when
+> `process.env.NODE_ENV === 'production'`, and stays quiet for legitimate CSS
+> values like `#fff`, `rgb(...)` and `transparent`.
+>
+> This is narrower than the opt-in `strict` prop (see below), which also flags
+> plain CSS colours and is therefore off by default.
 
 ### Examples
 

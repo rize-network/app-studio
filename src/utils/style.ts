@@ -488,13 +488,40 @@ export function styleObjectToCss(styleObject: Record<string, any>): string {
   for (const [property, value] of Object.entries(styleObject)) {
     if (!isStyleProp(property)) continue;
     if (value === undefined || value === null) continue;
-    declarations.push(`${propertyToKebabCase(property)}: ${value};`);
+    const normalizedValue =
+      property === 'lineHeight' ? normalizeLineHeight(value) : value;
+    declarations.push(`${propertyToKebabCase(property)}: ${normalizedValue};`);
   }
   return declarations.join(' ');
 }
 
 export const toKebabCase = (str: string): string => {
   return vendorPrefixToKebabCase(str);
+};
+
+// A bare line-height up to 3 is treated as a font-size multiplier. Larger bare
+// values keep App-Studio's existing convention and represent pixel sizes. The
+// exact-number check is important: parseFloat("1.2rem") must not turn a valid
+// CSS length into a multiplier.
+const PLAIN_CSS_NUMBER = /^[+-]?(?:\d+\.?\d*|\.\d+)$/;
+
+export const normalizeLineHeight = (value: any): any => {
+  if (typeof value !== 'number' && typeof value !== 'string') return value;
+
+  const source = typeof value === 'string' ? value.trim() : value;
+  if (
+    typeof source === 'string' &&
+    (!source || !PLAIN_CSS_NUMBER.test(source))
+  ) {
+    return value;
+  }
+
+  const numericValue = typeof source === 'number' ? source : Number(source);
+  if (!Number.isFinite(numericValue)) return value;
+
+  return numericValue >= 0 && numericValue <= 3
+    ? numericValue
+    : `${numericValue}px`;
 };
 
 // Process and normalize style properties
@@ -514,16 +541,15 @@ export const processStyleProperty = (
     return value;
   }
 
+  if (property === 'lineHeight') {
+    return normalizeLineHeight(value);
+  }
+
   // Convert kebab-case property to check against numericCssProperties
   const kebabProperty = toKebabCase(property);
 
   // Convert numbers to pixels for appropriate properties
   if (typeof value === 'number') {
-    // lineHeight only accepts integers: 1-3 are unitless multipliers, 4+ are pixel sizes
-    if (property === 'lineHeight' && Number.isInteger(value) && value <= 3) {
-      return value;
-    }
-
     // Check if this is a property that should have px units
     // First check the property as is, then check with vendor prefixes removed
     const shouldAddPx =

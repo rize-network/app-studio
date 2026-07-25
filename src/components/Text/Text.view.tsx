@@ -14,8 +14,8 @@ import { Element } from '../../element/Element';
 import { Typography } from '../../utils/typography';
 
 // Heading presets (h1–h6) mapped to a font-size / weight / unitless line-height
-// scale. `lineHeight` is a string so it stays a unitless multiplier — numeric
-// fractional line-heights would be turned into pixels.
+// scale. Numeric strings and numbers in the 0..3 range are normalized to the
+// same multiplier by the style pipeline.
 const HEADING_PRESETS: Record<
   string,
   { fontSize: number; fontWeight: number; lineHeight: string; as: string }

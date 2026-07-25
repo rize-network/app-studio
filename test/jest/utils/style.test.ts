@@ -141,6 +141,15 @@ describe('Style Utilities', () => {
       const result = styleObjectToCss(styles);
       expect(result).toMatch(/color: red;/);
     });
+
+    it('should normalize numeric line heights consistently', () => {
+      expect(styleObjectToCss({ lineHeight: '1.6' })).toContain(
+        'line-height: 1.6;'
+      );
+      expect(styleObjectToCss({ lineHeight: 20.5 })).toContain(
+        'line-height: 20.5px;'
+      );
+    });
   });
 
   describe('toKebabCase', () => {
@@ -177,6 +186,30 @@ describe('Style Utilities', () => {
     it('should not add px to unitless properties', () => {
       const result = processStyleProperty('flex', 1, mockGetColor);
       expect(result).toBe(1);
+    });
+
+    it.each([1.1, 1.2, 1.3, 1.6, 2.1])(
+      'should preserve lineHeight=%s as a unitless multiplier for numbers and strings',
+      (lineHeight) => {
+        expect(
+          processStyleProperty('lineHeight', lineHeight, mockGetColor)
+        ).toBe(lineHeight);
+        expect(
+          processStyleProperty('lineHeight', String(lineHeight), mockGetColor)
+        ).toBe(lineHeight);
+      }
+    );
+
+    it('should preserve fractional absolute line heights without rounding', () => {
+      expect(processStyleProperty('lineHeight', 20.5, mockGetColor)).toBe(
+        '20.5px'
+      );
+      expect(processStyleProperty('lineHeight', '20.5', mockGetColor)).toBe(
+        '20.5px'
+      );
+      expect(processStyleProperty('lineHeight', '1.2rem', mockGetColor)).toBe(
+        '1.2rem'
+      );
     });
 
     it('should process color properties', () => {

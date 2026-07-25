@@ -40,6 +40,28 @@ export interface InputProps
    * Error state — usually a string for the error message, or a boolean toggle.
    */
   error?: boolean | string;
+
+  // --- React Native <TextInput> props ---
+  // On the native build, `Input` renders a RN <TextInput>, which accepts these
+  // props (forwarded via splitNativeProps). They are declared here on the shared
+  // type so cross-platform call sites typecheck against `import { Input } from
+  // 'app-studio'`; on web they are simply inert.
+  multiline?: boolean;
+  numberOfLines?: number;
+  onChangeText?: (text: string) => void;
+  onSubmitEditing?: (..._args: any[]) => void;
+  keyboardType?: string;
+  secureTextEntry?: boolean;
+  editable?: boolean;
+  caretHidden?: boolean;
+  selectionColor?: string;
+  placeholderTextColor?: string;
+  returnKeyType?: string;
+  textAlignVertical?: 'auto' | 'top' | 'bottom' | 'center';
+  textContentType?: string;
+  blurOnSubmit?: boolean;
+  scrollEnabled?: boolean;
+  clearButtonMode?: string;
 }
 
 export const Form = React.forwardRef<

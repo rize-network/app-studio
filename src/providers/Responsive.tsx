@@ -286,24 +286,42 @@ export const ResponsiveProvider = ({
     const debouncedResize = debounce(handleResize, 100);
     win.addEventListener('resize', debouncedResize);
 
-    // Set up orientation listener
-    const orientationMql = win.matchMedia('(orientation: landscape)');
-    const onOrientationChange = () =>
-      setOrientation(orientationMql.matches ? 'landscape' : 'portrait');
+    // Set up orientation listener.
+    //
+    // `matchMedia` is not guaranteed to exist just because `window` does:
+    // jsdom — which is what almost every consumer unit-tests React in —
+    // declares the property but leaves it undefined. Without this guard the
+    // provider throws on mount, and since it is required for the `media` prop
+    // the entire responsive API becomes untestable outside a real browser.
+    const orientationMql =
+      typeof win.matchMedia === 'function'
+        ? win.matchMedia('(orientation: landscape)')
+        : null;
 
-    if (orientationMql.addEventListener) {
+    const onOrientationChange = () =>
+      setOrientation(orientationMql?.matches ? 'landscape' : 'portrait');
+
+    if (orientationMql?.addEventListener) {
       orientationMql.addEventListener('change', onOrientationChange);
-    } else {
+    } else if (orientationMql?.addListener) {
       orientationMql.addListener(onOrientationChange);
     }
 
-    onOrientationChange();
+    // Width-derived orientation is a reasonable fallback when the query is
+    // unavailable, and keeps the initial value correct either way.
+    if (orientationMql) {
+      onOrientationChange();
+    } else {
+      setOrientation(
+        win.innerWidth >= win.innerHeight ? 'landscape' : 'portrait'
+      );
+    }
 
     return () => {
       win.removeEventListener('resize', debouncedResize);
-      if (orientationMql.removeEventListener) {
+      if (orientationMql?.removeEventListener) {
         orientationMql.removeEventListener('change', onOrientationChange);
-      } else {
+      } else if (orientationMql?.removeListener) {
         orientationMql.removeListener(onOrientationChange);
       }
     };

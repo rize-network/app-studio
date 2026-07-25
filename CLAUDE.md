@@ -27,3 +27,15 @@ ignored — they do nothing.
 - Supported states: hover, active, focus, visited, disabled, enabled, checked, unchecked, invalid, valid, required, optional, placeholder, selected, target, firstChild, lastChild, onlyChild, firstOfType, lastOfType, empty, focusVisible, focusWithin.
 
 See [prompt.md](prompt.md) and [docs/Events.md](docs/Events.md) for the full styling guide.
+
+## Layout primitives and line height
+
+- `Horizontal` is always a flex row; `Vertical` is always a flex column.
+- `Center` centers children inside its own box. Give it real height
+  (`minHeight="100vh"` on web or `flex={1}` in a sized native parent) when
+  vertical centering should be visible. A full-width text child still needs
+  `textAlign="center"`.
+- Use `View` for a custom flex direction/alignment instead of contradicting a
+  semantic layout primitive.
+- Bare `lineHeight` values from `0` to `3` are multipliers. Numbers and numeric
+  strings are equivalent (`1.6` / `"1.6"`); larger bare values are pixels.

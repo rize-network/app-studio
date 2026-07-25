@@ -28,6 +28,101 @@ const DARK_PREFIX = 'dark-';
 
 const TRANSPARENT = 'transparent';
 
+// --- Development-time token validation ---------------------------------------
+// A colour token that does not resolve is the worst kind of bug this library
+// can produce: nothing throws, no type is violated, and the only symptom is a
+// colour that silently never applies. These helpers turn that into a console
+// warning during development. Each distinct token is reported once so a token
+// used on hundreds of nodes does not flood the console.
+
+const warnedColorTokens = new Set<string>();
+
+/** `color.gray.500` / `theme.primary` — the dot-notation mistake. */
+const DOTTED_TOKEN = /^(color|theme|light|dark)\./;
+
+const isAlphaSuffix = (part: string): boolean => {
+  const value = parseInt(part, 10);
+  return !isNaN(value) && value >= 0 && value <= 1000;
+};
+
+const warnOnce = (token: string, message: string): void => {
+  if (warnedColorTokens.has(token)) return;
+  warnedColorTokens.add(token);
+  console.warn(message);
+};
+
+/**
+ * Warns when a value looks like a design token but cannot resolve to a real
+ * colour. Deliberately silent for legitimate CSS values (`#fff`, `rgb(...)`,
+ * `currentColor`, named colours) — unlike `strict`, which flags those too and
+ * is therefore off by default.
+ */
+function warnIfUnresolvable(
+  name: string,
+  colors: { main: ColorSingleton; palette: ColorPalette },
+  theme: Theme
+): void {
+  if (DOTTED_TOKEN.test(name)) {
+    warnOnce(
+      name,
+      `[Theme] '${name}' uses dot notation, which is not supported and applies no colour. ` +
+        `Use dashes instead: '${name.replace(/\./g, '-')}'.`
+    );
+    return;
+  }
+
+  if (name.startsWith(THEME_PREFIX)) {
+    const parts = name.slice(THEME_PREFIX.length).split('-');
+    const slot =
+      parts.length >= 2 && isAlphaSuffix(parts[parts.length - 1])
+        ? parts.slice(0, -1).join('-')
+        : parts.join('-');
+
+    if (typeof theme[slot as keyof Theme] !== 'string') {
+      warnOnce(
+        name,
+        `[Theme] Unknown theme slot '${name}' — it resolves to var(--${name}), which is not defined, ` +
+          `so no colour is applied. Known slots: ${Object.keys(theme).sort().join(', ')}.`
+      );
+    }
+    return;
+  }
+
+  if (name.startsWith(COLOR_PREFIX)) {
+    let parts = name.slice(COLOR_PREFIX.length).split('-');
+    if (parts.length >= 3 && isAlphaSuffix(parts[parts.length - 1])) {
+      parts = parts.slice(0, -1);
+    }
+
+    // color-<name>-<shade>
+    if (parts.length >= 2) {
+      const shade = parts[parts.length - 1];
+      const family = parts.slice(0, -1).join('-');
+      if (typeof colors.palette[family]?.[Number(shade)] === 'string') return;
+
+      const known = Object.keys(colors.palette).sort().join(', ');
+      warnOnce(
+        name,
+        colors.palette[family]
+          ? `[Theme] '${name}' — palette '${family}' has no shade ${shade}, so no colour is applied. ` +
+              `Available: ${Object.keys(colors.palette[family]).join(', ')}.`
+          : `[Theme] Unknown colour '${name}' — no palette named '${family}', so no colour is applied. ` +
+              `Available palettes: ${known}.`
+      );
+      return;
+    }
+
+    // color-<singleton>
+    if (typeof colors.main[parts[0]] !== 'string') {
+      warnOnce(
+        name,
+        `[Theme] Unknown colour '${name}' — it resolves to var(--${name}), which is not defined, ` +
+          `so no colour is applied. Available: ${Object.keys(colors.main).sort().join(', ')}.`
+      );
+    }
+  }
+}
+
 // --- Interfaces ---
 export interface Colors {
   main: ColorSingleton;
@@ -713,6 +808,18 @@ export const ThemeProvider = ({
         );
       }
 
+      // Always-on development check for values that cannot be anything but a
+      // mistake. This is deliberately narrower than `strict`, which also fires
+      // on perfectly valid CSS like '#fff' and is therefore off by default.
+      //
+      // Both cases below fail *silently* in production: dotted notation is
+      // emitted verbatim as an invalid CSS value, and an unknown dash token
+      // becomes `var(--typo)`, which resolves to nothing. In neither case does
+      // anything throw, so the only symptom is a colour that never appears.
+      if (process.env.NODE_ENV !== 'production') {
+        warnIfUnresolvable(name, currentColors, mergedTheme);
+      }
+
       const parts = name.split('-');
       const lastPart = parts[parts.length - 1];
       const maybeAlpha = parseInt(lastPart, 10);
@@ -761,7 +868,7 @@ export const ThemeProvider = ({
       // Return as-is for direct values (#hex, rgb(), etc.)
       return name;
     },
-    [strict]
+    [strict, currentColors, mergedTheme]
   );
 
   const getColorHex = useCallback(

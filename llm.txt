@@ -78,6 +78,11 @@ App Studio can be installed manually by downloading the package from the GitHub 
 **Vertical** - Flex container with column direction for vertical stacking.
 [Documentation: docs/Components.md]
 
+**Center** - Flex container that centers its children on both axes inside its own box. Center does not create height; use minHeight="100vh" for viewport centering on web or flex={1} inside a sized native parent. A full-width Text child also needs textAlign="center" to center its text.
+[Documentation: docs/Components.md]
+
+Layout axis rules: Horizontal uses a row (justifyContent = horizontal, alignItems = vertical). Vertical uses a column (justifyContent = vertical, alignItems = horizontal). Do not contradict a semantic primitive's display/direction/alignment props; use View for a custom flex layout.
+
 **HorizontalResponsive** - Switches from row to column layout on mobile devices.
 [Documentation: docs/Components.md]
 
@@ -98,7 +103,7 @@ App Studio can be installed manually by downloading the package from the GitHub 
 
 ### Typography Components
 
-**Text** - Component for rendering text content with typography styling, extends Element with span default. Supports fontSize, fontWeight, lineHeight, textAlign, and toUpperCase transformation.
+**Text** - Component for rendering text content with typography styling, extends Element with span default. Supports fontSize, fontWeight, lineHeight, textAlign, and toUpperCase transformation. Bare lineHeight values from 0 to 3 are font-size multipliers, and number/string forms are equivalent (1.6 and "1.6"); larger bare values are pixel sizes.
 [Documentation: docs/Components.md]
 
 ### Media Components

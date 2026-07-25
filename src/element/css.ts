@@ -737,9 +737,10 @@ export class UtilityClassManager {
 
     // Handle numeric values for CSS
     if (typeof valueForCss === 'number') {
-      // lineHeight
-      if (property === 'lineHeight' && Number.isInteger(valueForCss)) {
-        // Keep as unitless
+      // processStyleProperty has already normalized lineHeight: multipliers are
+      // numbers and absolute sizes are strings with a px suffix.
+      if (property === 'lineHeight') {
+        // Keep as unitless.
       } else if (numericCssProperties.has(cssProperty)) {
         valueForCss = `${valueForCss}px`;
       }
@@ -1285,20 +1286,6 @@ export const extractUtilityClasses = (
         : widthHeightValue;
     computedStyles.width = formattedValue;
     computedStyles.height = formattedValue;
-  }
-
-  if (props.lineHeight) {
-    const lh = props.lineHeight as string | number;
-    if (typeof lh === 'number') {
-      computedStyles.lineHeight = `${lh.toFixed(0)}px`;
-    } else if (lh.indexOf('px') === -1) {
-      const numericValue = parseFloat(lh);
-      if (!isNaN(numericValue) && Number.isInteger(numericValue)) {
-        computedStyles.lineHeight = `${numericValue.toFixed(0)}px`;
-      } else {
-        computedStyles.lineHeight = lh;
-      }
-    }
   }
 
   // Handle padding and margin shorthands (inlined to avoid Object.entries overhead)

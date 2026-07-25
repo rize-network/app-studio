@@ -57,7 +57,7 @@ import { Vertical, Horizontal, Center } from 'app-studio';
 </Horizontal>
 
 // Centered content (both horizontally and vertically)
-<Center>
+<Center minHeight="100vh" width="100%">
   <View />
 </Center>
 ```
@@ -72,6 +72,13 @@ import { Vertical, Horizontal, Center } from 'app-studio';
 - `Scroll`: basic scrollable view
 - `SafeArea`: view with overflow auto
 - `Div`, `Span`: element aliases
+
+`Horizontal`, `Vertical`, and `Center` keep their semantic layout contracts;
+use `View` when you need a custom flex direction or alignment. `Center` centers
+children inside its own bounds—it does not create height—so page-level vertical
+centering needs a sized area such as `minHeight="100vh"` on web or `flex={1}`
+inside a sized native parent. If a centered child is a full-width `Text`, add
+`textAlign="center"` to center the text within that child.
 
 ### Grid
 CSS Grid layout configured with intuitive `columns` / `rows` / `gap` props — the CSS-Grid sibling of `Vertical`/`Horizontal`.
@@ -191,7 +198,10 @@ import { Typewriter } from 'app-studio';
 
 Props: `text`, `typingSpeed` (50), `pauseTime` (600), `paragraphGap` (8), `lineBreakChar` (`"|"`), `loop` (false), `loopDelay` (1500), `showCursor` (true), `cursorColor` (`'currentColor'`), `onComplete`. Remount with a changing `key` to replay.
 
-> ⚠️ Use a unitless string `lineHeight="1.6"` (or an integer `1`–`3`) — a fractional **number** like `lineHeight={1.6}` is converted to pixels and collapses the lines.
+Bare `lineHeight` values from `0` to `3` are font-size multipliers. Numbers and
+numeric strings are equivalent (`lineHeight={1.6}` and `lineHeight="1.6"`).
+Larger bare values are pixel sizes, while explicit CSS units are preserved. On
+React Native, multipliers are resolved to an absolute height using `fontSize`.
 
 ## Media Components
 

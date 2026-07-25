@@ -128,6 +128,24 @@ Rules of thumb:
 ## Component Examples
 
 ### 1. Layout Components
+
+`Horizontal`, `Vertical`, and `Center` are containers with semantic layout
+contracts:
+
+- `Horizontal` lays out its children in a row. `justifyContent` controls the
+  horizontal/main axis; `alignItems` controls the vertical/cross axis.
+- `Vertical` lays out its children in a column. `justifyContent` controls the
+  vertical/main axis; `alignItems` controls the horizontal/cross axis.
+- `Center` centers its children on both axes **inside its own box**. It does not
+  create height. For full-page centering, give it an actual area such as
+  `minHeight="100vh"` on web or `flex={1}` inside a sized native parent.
+- To center text inside a child that is itself full width, also set
+  `textAlign="center"` on the `Text`; centering the child box is not the same as
+  centering the text inside that box.
+- Do not pass `display`, `flexDirection`, `justifyContent`, or `alignItems` values
+  that contradict the selected primitive. Use `View` when you need a custom
+  flex layout.
+
 ```jsx
 // Basic layout structure
 <View padding={20}>
@@ -141,18 +159,29 @@ Rules of thumb:
     <View height={50}>Bottom</View>
   </Vertical>
 </View>
+
+// Full-page centered content: Center needs a box with real height
+<Center minHeight="100vh" width="100%">
+  <Text textAlign="center">Centered in the viewport</Text>
+</Center>
 ```
 
 ### 2. Text Component
 ```jsx
 <Text
   fontSize={16}
+  lineHeight={1.6}
   color="theme-primary"
   margin={10}
 >
   Hello World
 </Text>
 ```
+
+`lineHeight` accepts both numbers and numeric strings. Bare values from `0` to
+`3` are font-size multipliers (`lineHeight={1.6}` and `lineHeight="1.6"` are
+equivalent); larger bare values are pixel sizes. Use an explicit unit when
+needed, for example `lineHeight="1.6rem"` or `lineHeight="24px"`.
 
 ### 3. Button Component
 ```jsx

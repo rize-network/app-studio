@@ -22,7 +22,8 @@ export const Horizontal = React.forwardRef<
   HTMLElement,
   React.ComponentPropsWithRef<typeof Element> & ViewProps
 >((props, ref) => (
-  <Element display="flex" flexDirection="row" {...props} ref={ref} />
+  // Keep the named primitive semantic; use View for a custom direction.
+  <Element {...props} display="flex" flexDirection="row" ref={ref} />
 )) as unknown as React.ForwardRefExoticComponent<
   React.ComponentPropsWithRef<typeof Element> &
     ViewProps &
@@ -33,11 +34,13 @@ export const Center = React.forwardRef<
   HTMLElement,
   React.ComponentPropsWithRef<typeof Element> & ViewProps
 >((props, ref) => (
+  // Defaults come after the spread intentionally so conflicting direct props
+  // cannot silently turn Center into a non-centering container.
   <Element
+    {...props}
     display="flex"
     justifyContent="center"
     alignItems="center"
-    {...props}
     ref={ref}
   />
 )) as unknown as React.ForwardRefExoticComponent<
@@ -50,7 +53,8 @@ export const Vertical = React.forwardRef<
   HTMLElement,
   React.ComponentPropsWithRef<typeof Element> & ViewProps
 >((props, ref) => (
-  <Element display="flex" flexDirection="column" {...props} ref={ref} />
+  // Keep the named primitive semantic; use View for a custom direction.
+  <Element {...props} display="flex" flexDirection="column" ref={ref} />
 )) as unknown as React.ForwardRefExoticComponent<
   React.ComponentPropsWithRef<typeof Element> &
     ViewProps &

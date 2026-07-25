@@ -198,6 +198,37 @@ Forced mode does no measurement and renders no wrapper element. If you set both 
 - **Browser support:** container queries are supported in all modern evergreen browsers (Chrome/Edge 105+, Safari 16+, Firefox 110+). In a browser without `@container`, container-mode `media` styles degrade gracefully (they simply don't apply) — the JS hooks (`useResponsive`) still work everywhere.
 - **React Native:** `<Responsive>` works on native too. `container` mode measures via `onLayout`, and the force props behave identically. See [Native.md → Responsive & Media Queries](Native.md#responsive--media-queries).
 
+### Testing under jsdom
+
+`ResponsiveProvider` needs no polyfill. It feature-detects `window.matchMedia`
+and, when it is absent, derives orientation from `innerWidth`/`innerHeight`
+instead — so mounting it under jsdom (Jest, Vitest) works out of the box.
+
+This matters because jsdom declares `matchMedia` as an own property whose value
+is `undefined`. A guard written as `'matchMedia' in window` therefore passes and
+then throws on call; check for a function instead:
+
+```javascript
+if (typeof window.matchMedia !== 'function') {
+  // install a stub, or rely on the built-in fallback
+}
+```
+
+jsdom's default window is `1024×768`, so the provider resolves to whichever
+breakpoint your `breakpoints` map assigns to that width. To exercise a specific
+breakpoint in a test, prefer the force props on `<Responsive>` over stubbing
+globals — they need no measurement and no DOM APIs:
+
+```jsx
+<Responsive forceBreakpoint="sm">
+  <MyComponent />
+</Responsive>
+
+<Responsive responsiveMode="mobile">
+  <MyComponent />
+</Responsive>
+```
+
 ---
 
 By combining the `media` prop, `useResponsive`, and the `<Responsive>` boundary, you can create robust, efficient, and responsive designs that adapt to the window **or** to any container — with App-Studio.

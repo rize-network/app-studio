@@ -193,19 +193,22 @@ export const View = React.forwardRef<any, ViewProps>((props, ref) => (
 View.displayName = 'View';
 
 export const Horizontal = React.forwardRef<any, ViewProps>((props, ref) => (
-  <Element flexDirection="row" {...props} ref={ref} />
+  // Keep the named primitive semantic; use View for a custom direction.
+  <Element {...props} flexDirection="row" ref={ref} />
 ));
 
 Horizontal.displayName = 'Horizontal';
 
 export const Vertical = React.forwardRef<any, ViewProps>((props, ref) => (
-  <Element flexDirection="column" {...props} ref={ref} />
+  // Keep the named primitive semantic; use View for a custom direction.
+  <Element {...props} flexDirection="column" ref={ref} />
 ));
 
 Vertical.displayName = 'Vertical';
 
 export const Center = React.forwardRef<any, ViewProps>((props, ref) => (
-  <Element justifyContent="center" alignItems="center" {...props} ref={ref} />
+  // Defaults follow the spread so Center cannot be directly de-centered.
+  <Element {...props} justifyContent="center" alignItems="center" ref={ref} />
 ));
 
 Center.displayName = 'Center';
