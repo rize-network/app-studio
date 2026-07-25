@@ -153,6 +153,7 @@
     "@storybook/addon-webpack5-compiler-swc": "^4.0.3",
     "@storybook/react": "^10.3.6",
     "@storybook/react-webpack5": "^10.3.6",
+    "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.1.0",
     "@testing-library/react-native": "^13.3.3",

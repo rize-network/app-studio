@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { AnalyticsProvider, useAnalytics } from '../../../src/providers/Analytics';
+import { AnalyticsProvider } from '../../../src/providers/Analytics';
+import { useAnalytics } from '../../../src/providers/AnalyticsContext';
 
 describe('AnalyticsProvider', () => {
   const TestComponent = () => {

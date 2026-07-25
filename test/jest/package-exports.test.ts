@@ -10,10 +10,12 @@ describe('package exports', () => {
   });
 
   it('declares conditional React Native and web root exports', () => {
+    // Metro resolves the `react-native` condition and is happiest with CJS, so
+    // every condition under it points at the native CJS build on purpose.
     expect(pkg.exports['.']['react-native']).toEqual(
       expect.objectContaining({
         types: './dist/native/index.d.ts',
-        import: './dist/native/index.js',
+        import: './dist/native/index.cjs',
         require: './dist/native/index.cjs',
       })
     );
