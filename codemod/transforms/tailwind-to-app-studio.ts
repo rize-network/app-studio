@@ -1,461 +1,312 @@
 // @ts-nocheck
 'use strict';
 
-const DISPLAY = {
-  flex: ['display', 'flex'],
-  grid: ['display', 'grid'],
-  block: ['display', 'block'],
-  inline: ['display', 'inline'],
-  'inline-block': ['display', 'inline-block'],
-  'inline-flex': ['display', 'inline-flex'],
-  hidden: ['display', 'none'],
-};
+import { parseClass } from './tailwind/parser';
+import { analyzeClassAttribute } from './tailwind/expressions';
+import { place, responsiveKeys } from './tailwind/modifiers';
+import { darkPairs, pairKey } from './tailwind/mappings';
+import { compactSpacing, resolveLastWins } from './tailwind/conflicts';
+import {
+  addOrMergeImport, attributeName, collectBindings, getJSXTag, inspectAppStudioImport,
+  findLocalForwarders, proveParentMarker, provePreviousPeer, provenAttributeVariants, targetForTag,
+} from './tailwind/elements';
+import {
+  mediaAttribute, objectAttribute, residualClassAttribute, scalarAttribute,
+} from './tailwind/emitter';
+import { cleanupConsumed } from './tailwind/cleanup';
+import { createFileReport, publishReport, skip, unknown } from './tailwind/report';
 
-const POSITION = {
-  relative: ['position', 'relative'],
-  absolute: ['position', 'absolute'],
-  fixed: ['position', 'fixed'],
-  static: ['position', 'static'],
-  sticky: ['position', 'sticky'],
-};
+// Kept as a public compatibility export for callers which used the prototype's
+// exact table. The complete registry now lives under tailwind/mappings.
+export { exactMappings as CLASS_TO_PROP } from './tailwind/mappings';
 
-const FLEX_DIRECTION = {
-  'flex-row': ['flexDirection', 'row'],
-  'flex-row-reverse': ['flexDirection', 'row-reverse'],
-  'flex-col': ['flexDirection', 'column'],
-  'flex-col-reverse': ['flexDirection', 'column-reverse'],
-};
+const trueOption = (value: any, fallback = false) => value === undefined ? fallback : value === true || value === 'true';
+const conditionKey = (condition: any) => condition?.code || '';
 
-const FLEX_WRAP = {
-  'flex-wrap': ['flexWrap', 'wrap'],
-  'flex-wrap-reverse': ['flexWrap', 'wrap-reverse'],
-  'flex-nowrap': ['flexWrap', 'nowrap'],
-};
-
-const ALIGN_ITEMS = {
-  'items-start': ['alignItems', 'flex-start'],
-  'items-end': ['alignItems', 'flex-end'],
-  'items-center': ['alignItems', 'center'],
-  'items-baseline': ['alignItems', 'baseline'],
-  'items-stretch': ['alignItems', 'stretch'],
-};
-
-const JUSTIFY_CONTENT = {
-  'justify-normal': ['justifyContent', 'normal'],
-  'justify-start': ['justifyContent', 'flex-start'],
-  'justify-end': ['justifyContent', 'flex-end'],
-  'justify-center': ['justifyContent', 'center'],
-  'justify-between': ['justifyContent', 'space-between'],
-  'justify-around': ['justifyContent', 'space-around'],
-  'justify-evenly': ['justifyContent', 'space-evenly'],
-};
-
-const GROW_SHRINK = {
-  grow: ['flexGrow', 1],
-  'grow-0': ['flexGrow', 0],
-  shrink: ['flexShrink', 1],
-  'shrink-0': ['flexShrink', 0],
-};
-
-const DIMENSIONS = {
-  'min-w-0': ['minWidth', 0],
-  'min-h-0': ['minHeight', 0],
-  'h-full': ['height', '100%'],
-  'w-full': ['width', '100%'],
-  'max-w-full': ['maxWidth', '100%'],
-  'max-h-full': ['maxHeight', '100%'],
-};
-
-const OVERFLOW = {
-  'overflow-auto': ['overflow', 'auto'],
-  'overflow-hidden': ['overflow', 'hidden'],
-  'overflow-clip': ['overflow', 'clip'],
-  'overflow-visible': ['overflow', 'visible'],
-  'overflow-scroll': ['overflow', 'scroll'],
-  'overflow-x-auto': ['overflowX', 'auto'],
-  'overflow-x-hidden': ['overflowX', 'hidden'],
-  'overflow-x-clip': ['overflowX', 'clip'],
-  'overflow-x-visible': ['overflowX', 'visible'],
-  'overflow-x-scroll': ['overflowX', 'scroll'],
-  'overflow-y-auto': ['overflowY', 'auto'],
-  'overflow-y-hidden': ['overflowY', 'hidden'],
-  'overflow-y-clip': ['overflowY', 'clip'],
-  'overflow-y-visible': ['overflowY', 'visible'],
-  'overflow-y-scroll': ['overflowY', 'scroll'],
-};
-
-const TEXT_ALIGN = {
-  'text-left': ['textAlign', 'left'],
-  'text-center': ['textAlign', 'center'],
-  'text-right': ['textAlign', 'right'],
-  'text-justify': ['textAlign', 'justify'],
-  'text-start': ['textAlign', 'start'],
-  'text-end': ['textAlign', 'end'],
-};
-
-const WHITE_SPACE = {
-  'whitespace-normal': ['whiteSpace', 'normal'],
-  'whitespace-nowrap': ['whiteSpace', 'nowrap'],
-  'whitespace-pre': ['whiteSpace', 'pre'],
-  'whitespace-pre-line': ['whiteSpace', 'pre-line'],
-  'whitespace-pre-wrap': ['whiteSpace', 'pre-wrap'],
-  'whitespace-break-spaces': ['whiteSpace', 'break-spaces'],
-};
-
-const WORD_BREAK = {
-  'break-normal': ['wordBreak', 'normal'],
-  'break-words': ['overflowWrap', 'break-word'],
-  'break-all': ['wordBreak', 'break-all'],
-  'break-keep': ['wordBreak', 'keep-all'],
-};
-
-const CURSOR = [
-  'auto',
-  'default',
-  'pointer',
-  'wait',
-  'text',
-  'move',
-  'help',
-  'not-allowed',
-  'none',
-  'context-menu',
-  'progress',
-  'crosshair',
-  'grab',
-  'grabbing',
-  'col-resize',
-  'row-resize',
-  'ew-resize',
-  'ns-resize',
-  'nesw-resize',
-  'nwse-resize',
-  'zoom-in',
-  'zoom-out',
-].reduce((mapping, value) => {
-  mapping[`cursor-${value}`] = ['cursor', value];
-  return mapping;
-}, {});
-
-const POINTER_EVENTS = {
-  'pointer-events-none': ['pointerEvents', 'none'],
-  'pointer-events-auto': ['pointerEvents', 'auto'],
-};
-
-const USER_SELECT = {
-  'select-none': ['userSelect', 'none'],
-  'select-text': ['userSelect', 'text'],
-  'select-all': ['userSelect', 'all'],
-  'select-auto': ['userSelect', 'auto'],
-};
-
-export const CLASS_TO_PROP = Object.freeze({
-  ...DISPLAY,
-  ...POSITION,
-  ...FLEX_DIRECTION,
-  ...FLEX_WRAP,
-  ...ALIGN_ITEMS,
-  ...JUSTIFY_CONTENT,
-  ...GROW_SHRINK,
-  ...DIMENSIONS,
-  ...OVERFLOW,
-  ...TEXT_ALIGN,
-  ...WHITE_SPACE,
-  ...WORD_BREAK,
-  ...CURSOR,
-  ...POINTER_EVENTS,
-  ...USER_SELECT,
-});
-
-function getStaticClassName(attribute) {
-  if (!attribute || attribute.type !== 'JSXAttribute') return null;
-  const value = attribute.value;
-  if (!value) return null;
-
-  if (value.type === 'StringLiteral' || value.type === 'Literal') {
-    return typeof value.value === 'string' ? value.value : null;
-  }
-
-  if (value.type !== 'JSXExpressionContainer') return null;
-  const expression = value.expression;
-
-  if (
-    expression &&
-    (expression.type === 'StringLiteral' || expression.type === 'Literal')
-  ) {
-    return typeof expression.value === 'string' ? expression.value : null;
-  }
-
-  if (
-    expression &&
-    expression.type === 'TemplateLiteral' &&
-    expression.expressions.length === 0
-  ) {
-    return expression.quasis.map((quasi) => quasi.value.cooked ?? quasi.value.raw).join('');
-  }
-
-  return null;
+function existingPhysicalProps(existing: Set<string>) {
+  const result = new Set(existing);
+  const expand: Record<string, string[]> = {
+    padding:['paddingTop','paddingRight','paddingBottom','paddingLeft'],
+    paddingHorizontal:['paddingLeft','paddingRight'], paddingVertical:['paddingTop','paddingBottom'],
+    margin:['marginTop','marginRight','marginBottom','marginLeft'],
+    marginHorizontal:['marginLeft','marginRight'], marginVertical:['marginTop','marginBottom'],
+    gap:['rowGap','columnGap'],
+  };
+  for (const name of existing) (expand[name] || []).forEach((prop) => result.add(prop));
+  return result;
 }
 
-function getSimpleAttributeName(attribute) {
-  if (attribute.type !== 'JSXAttribute') return null;
-  return attribute.name && attribute.name.type === 'JSXIdentifier'
-    ? attribute.name.name
-    : null;
-}
-
-function isForbiddenAttribute(name) {
-  return (
-    name === 'style' ||
-    name === 'as' ||
-    name === 'css' ||
-    name === 'media' ||
-    name === 'on'
-  );
-}
-
-function getTagName(element) {
-  const openingName = element.openingElement.name;
-  if (openingName.type !== 'JSXIdentifier') return null;
-  if (openingName.name !== 'div' && openingName.name !== 'span') return null;
-
-  if (element.openingElement.selfClosing) {
-    return element.closingElement ? null : openingName.name;
+function groupByConditionAndResolve(declarations: any[]) {
+  const groups = new Map<string, any[]>();
+  for (const declaration of declarations) {
+    const key = conditionKey(declaration.condition);
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(declaration);
   }
-
-  const closingName = element.closingElement && element.closingElement.name;
-  if (!closingName || closingName.type !== 'JSXIdentifier') return null;
-  return closingName.name === openingName.name ? openingName.name : null;
+  return compactSpacing([...groups.values()].flatMap((group) => resolveLastWins(combineTransforms(group))));
 }
 
-function analyzeElement(path) {
-  const element = path.node;
-  const tagName = getTagName(element);
-  if (!tagName) return null;
+function combineTransforms(declarations: any[]) {
+  const transforms = declarations.filter((item) => item.prop === 'transform');
+  if (transforms.length < 2) return declarations;
+  const latestNone = [...transforms].reverse().find((item) => item.value === 'none');
+  const active = latestNone ? transforms.filter((item) => item.order > latestNone.order) : transforms;
+  if (!active.length) return declarations.filter((item) => item.prop !== 'transform').concat(latestNone);
+  const functions = new Map<string, any>();
+  for (const item of active) {
+    const name = typeof item.value === 'string' ? item.value.match(/^([A-Za-z0-9]+)/)?.[1] : null;
+    if (name) functions.set(name, item);
+  }
+  const order = ['translateX','translateY','translateZ','rotate','rotateX','rotateY','skewX','skewY','scale','scaleX','scaleY'];
+  const values = order.filter((name) => functions.has(name)).map((name) => functions.get(name).value);
+  const template = active[active.length - 1];
+  const combined = { ...template, value: values.join(' '), order: Math.max(...active.map((item) => item.order)) };
+  return declarations.filter((item) => item.prop !== 'transform').concat(combined).sort((a, b) => a.order - b.order);
+}
 
-  let classNameAttribute = null;
-  const existingAttributeNames = new Set();
+function byProp(declarations: any[]) {
+  const result = new Map<string, any[]>();
+  for (const declaration of declarations) {
+    if (!result.has(declaration.prop)) result.set(declaration.prop, []);
+    result.get(declaration.prop).push(declaration);
+  }
+  return result;
+}
 
-  for (const attribute of element.openingElement.attributes) {
-    if (attribute.type === 'JSXSpreadAttribute') return null;
-    const name = getSimpleAttributeName(attribute);
-    if (!name) return null;
-    if (name === 'className') {
-      if (classNameAttribute) return null;
-      classNameAttribute = attribute;
+function cloneDecls(item: any, order: number) {
+  return (item.parsed.decls || []).map((declaration: any) => ({
+    ...declaration,
+    cssProps: [...declaration.cssProps],
+    token: item.raw,
+    condition: item.condition,
+    order,
+  }));
+}
+
+function semanticDarkPairs(items: any[], report: any, node: any, darkStrategy: string) {
+  const darkItems = items.filter((item) => item.placement.kind === 'dark');
+  for (const dark of darkItems) {
+    if (dark.parsed.decls?.length !== 1) {
+      dark.forceResidual = 'dark-pair-unrecognized';
       continue;
     }
-    if (isForbiddenAttribute(name)) return null;
-    existingAttributeNames.add(name);
-  }
-
-  if (!classNameAttribute) return null;
-  const className = getStaticClassName(classNameAttribute);
-  if (className === null || !className.trim()) return null;
-
-  const generated = [];
-  const generatedPropNames = new Set();
-  for (const token of className.trim().split(/\s+/)) {
-    if (token.includes(':') || !Object.prototype.hasOwnProperty.call(CLASS_TO_PROP, token)) {
-      return null;
-    }
-
-    const [propName, value] = CLASS_TO_PROP[token];
-    if (generatedPropNames.has(propName) || existingAttributeNames.has(propName)) {
-      return null;
-    }
-    generatedPropNames.add(propName);
-    generated.push({ propName, value });
-  }
-
-  return { element, tagName, classNameAttribute, generated };
-}
-
-function addPatternBindings(pattern, bindings) {
-  if (!pattern) return;
-  switch (pattern.type) {
-    case 'Identifier':
-      bindings.add(pattern.name);
-      break;
-    case 'RestElement':
-      addPatternBindings(pattern.argument, bindings);
-      break;
-    case 'AssignmentPattern':
-      addPatternBindings(pattern.left, bindings);
-      break;
-    case 'ArrayPattern':
-      pattern.elements.forEach((element) => addPatternBindings(element, bindings));
-      break;
-    case 'ObjectPattern':
-      pattern.properties.forEach((property) => {
-        if (property.type === 'RestElement') {
-          addPatternBindings(property.argument, bindings);
-        } else {
-          addPatternBindings(property.value, bindings);
-        }
-      });
-      break;
-    case 'TSParameterProperty':
-      addPatternBindings(pattern.parameter, bindings);
-      break;
-    default:
-      break;
-  }
-}
-
-function collectBindingNames(root, j) {
-  const bindings = new Set();
-
-  root.find(j.ImportDeclaration).forEach((path) => {
-    path.node.specifiers?.forEach((specifier) => {
-      if (specifier.local && specifier.local.type === 'Identifier') {
-        bindings.add(specifier.local.name);
-      }
-    });
-  });
-  root.find(j.VariableDeclarator).forEach((path) => addPatternBindings(path.node.id, bindings));
-  root.find(j.FunctionDeclaration).forEach((path) => {
-    bindings.add(path.node.id?.name);
-    path.node.params.forEach((param) => addPatternBindings(param, bindings));
-  });
-  root.find(j.FunctionExpression).forEach((path) => {
-    bindings.add(path.node.id?.name);
-    path.node.params.forEach((param) => addPatternBindings(param, bindings));
-  });
-  root.find(j.ArrowFunctionExpression).forEach((path) => {
-    path.node.params.forEach((param) => addPatternBindings(param, bindings));
-  });
-  root.find(j.ClassDeclaration).forEach((path) => bindings.add(path.node.id?.name));
-  root.find(j.ClassExpression).forEach((path) => bindings.add(path.node.id?.name));
-  root.find(j.CatchClause).forEach((path) => addPatternBindings(path.node.param, bindings));
-
-  bindings.delete(undefined);
-  return bindings;
-}
-
-function inspectAppStudioImport(root, j) {
-  const declarations = root
-    .find(j.ImportDeclaration)
-    .filter((path) => path.node.source.value === 'app-studio')
-    .nodes();
-
-  if (declarations.length > 1) return { valid: false };
-  if (declarations.length === 0) return { valid: true, declaration: null, names: new Set() };
-
-  const declaration = declarations[0];
-  if (
-    declaration.importKind === 'type' ||
-    (declaration.assertions && declaration.assertions.length > 0) ||
-    (declaration.attributes && declaration.attributes.length > 0) ||
-    !declaration.specifiers ||
-    declaration.specifiers.length === 0
-  ) {
-    return { valid: false };
-  }
-
-  const names = new Set();
-  for (const specifier of declaration.specifiers) {
-    if (
-      specifier.type !== 'ImportSpecifier' ||
-      specifier.importKind === 'type' ||
-      !specifier.imported ||
-      specifier.imported.type !== 'Identifier' ||
-      !specifier.local ||
-      specifier.local.type !== 'Identifier' ||
-      specifier.imported.name !== specifier.local.name
-    ) {
-      return { valid: false };
-    }
-    names.add(specifier.local.name);
-  }
-
-  return { valid: true, declaration, names };
-}
-
-function jsxAttribute(j, propName, value) {
-  const valueNode =
-    typeof value === 'number'
-      ? j.jsxExpressionContainer(j.numericLiteral(value))
-      : j.stringLiteral(value);
-  return j.jsxAttribute(j.jsxIdentifier(propName), valueNode);
-}
-
-function applyElement(j, candidate, preserveClassNames) {
-  const targetName = candidate.tagName === 'div' ? 'View' : 'Span';
-  candidate.element.openingElement.name = j.jsxIdentifier(targetName);
-  if (candidate.element.closingElement) {
-    candidate.element.closingElement.name = j.jsxIdentifier(targetName);
-  }
-
-  const generatedAttributes = candidate.generated.map(({ propName, value }) =>
-    jsxAttribute(j, propName, value)
-  );
-  const attributes = [];
-  for (const attribute of candidate.element.openingElement.attributes) {
-    if (attribute !== candidate.classNameAttribute) {
-      attributes.push(attribute);
-      continue;
-    }
-    if (preserveClassNames) attributes.push(attribute);
-    attributes.push(...generatedAttributes);
-  }
-  candidate.element.openingElement.attributes = attributes;
-}
-
-function addOrMergeImport(root, j, importInfo, names) {
-  if (!names.length) return;
-  if (importInfo.declaration) {
-    const existingNames = new Set(
-      importInfo.declaration.specifiers.map((specifier) => specifier.imported.name)
+    const darkDecl = dark.parsed.decls[0];
+    const light = [...items].reverse().find((candidate) =>
+      candidate !== dark && candidate.placement.kind === 'base' && !candidate.forceResidual &&
+      conditionKey(candidate.condition) === conditionKey(dark.condition) &&
+      candidate.parsed.decls?.length === 1 && candidate.parsed.decls[0].prop === darkDecl.prop
     );
-    names.forEach((name) => {
-      if (existingNames.has(name)) return;
-      importInfo.declaration.specifiers.push(j.importSpecifier(j.identifier(name)));
-      existingNames.add(name);
-    });
-    return;
+    if (darkStrategy === 'residual') {
+      dark.forceResidual = 'dark-pair-unrecognized';
+      if (light) light.forceResidual = 'dark-pair-unrecognized';
+      continue;
+    }
+    const key = light ? pairKey(darkDecl.prop, light.parsed.decls[0].value, darkDecl.value) : '';
+    if (light && darkPairs[key]) {
+      light.parsed = { ...light.parsed, decls: [{ ...light.parsed.decls[0], value: darkPairs[key] }] };
+      dark.consumedByPair = true;
+    } else {
+      dark.forceResidual = 'dark-pair-unrecognized';
+      if (light) light.forceResidual = 'dark-pair-unrecognized';
+    }
   }
-
-  const declaration = j.importDeclaration(
-    names.map((name) => j.importSpecifier(j.identifier(name))),
-    j.stringLiteral('app-studio')
-  );
-  const program = root.find(j.Program).nodes()[0];
-  program.body.unshift(declaration);
 }
 
-export default function transform(file, api, options = {}) {
+function candidateForPath(path: any, root: any, j: any, options: any, report: any, forwarders: Map<string, any>) {
+  const element = path.node;
+  let tag = getJSXTag(element);
+  let localForwarder: any = null;
+  if (!tag) {
+    const name = element.openingElement?.name?.type === 'JSXIdentifier' ? element.openingElement.name.name : null;
+    localForwarder = name ? forwarders.get(name) : null;
+    if (localForwarder) tag = name;
+  }
+  if (!tag) {
+    const classAttribute = element.openingElement?.attributes?.find((item: any) => attributeName(item) === 'className');
+    if (classAttribute) skip(report, classAttribute, 'third-party-component', []);
+    return null;
+  }
+  const target = localForwarder ? { component: tag, local: true, forwarder: localForwarder } : targetForTag(tag, !falseOption(options.allTags));
+  if (!target) return null;
+
+  const attributes = element.openingElement.attributes || [];
+  const classAttributes = attributes.filter((item: any) => attributeName(item) === 'className');
+  if (classAttributes.length !== 1) return null;
+  const classAttribute = classAttributes[0];
+  if (attributes.some((item: any) => item.type === 'JSXSpreadAttribute')) {
+    skip(report, classAttribute, 'spread-classname-unknown', []);
+    return null;
+  }
+  const existing = new Set(attributes.map(attributeName).filter(Boolean));
+  const existingCss = existingPhysicalProps(existing);
+  if (['style','as','css','on'].some((name) => existing.has(name))) {
+    skip(report, classAttribute, 'jsx-prop-conflict', []);
+    return null;
+  }
+
+  const analysis = analyzeClassAttribute(classAttribute, root, j);
+  if (!analysis.analyzable || !analysis.tokens.length) {
+    skip(report, classAttribute, 'unsafe-expression', []);
+    return null;
+  }
+  const context = { group: proveParentMarker(path, 'group'), peer: provePreviousPeer(path), variants: provenAttributeVariants(element) };
+  const items = analysis.tokens.map((token: any, index: number) => {
+    const parsed = parseClass(token.raw);
+    return { ...token, parsed, raw: token.raw, index, placement: place(parsed, context) };
+  });
+
+  semanticDarkPairs(items, report, classAttribute, options.darkStrategy || 'tokens');
+  const residual: any[] = [];
+  const base: any[] = [];
+  const states = new Map<string, any[]>();
+  const media = new Map<string, any[]>();
+  let converted = 0;
+  let needsAnimation = false;
+
+  const addResidual = (item: any, reason?: string, count = true) => {
+    residual.push({ raw: item.raw, condition: item.condition });
+    if (reason && reason !== 'marker') skip(report, classAttribute, reason, [item.raw]);
+    else if (count) report.residual++;
+  };
+
+  for (const item of items) {
+    if (item.raw === 'group' || item.raw === 'peer') { addResidual(item, 'marker', false); continue; }
+    if (item.consumedByPair) { converted++; continue; }
+    if (item.forceResidual) { addResidual(item, item.forceResidual); continue; }
+    if (!item.parsed.decls) { unknown(report, classAttribute, item.raw); residual.push({ raw: item.raw, condition: item.condition }); continue; }
+    if (item.parsed.approximation) report.approximations.push({ token: item.raw, reason: item.parsed.approximation });
+    if (item.placement.kind === 'residual' || item.placement.kind === 'dark') {
+      addResidual(item, item.placement.reason || 'dark-pair-unrecognized');
+      continue;
+    }
+    const declarations = cloneDecls(item, item.index);
+    const conflicts = declarations.filter((declaration: any) => existingCss.has(declaration.prop) || declaration.cssProps.some((prop: string) => existingCss.has(prop)));
+    if (conflicts.length || (item.placement.kind === 'state' && existing.has(item.placement.prop)) || (item.placement.kind === 'responsive' && existing.has('media'))) {
+      addResidual(item, 'jsx-prop-conflict');
+      conflicts.forEach((declaration: any) => report.conflicts.push({ token: item.raw, prop: declaration.prop, reason: 'existing JSX prop' }));
+      continue;
+    }
+    if (declarations.some((declaration: any) => declaration.value?.kind === 'expression')) needsAnimation = true;
+    if (item.placement.kind === 'base') base.push(...declarations);
+    else if (item.placement.kind === 'state') {
+      if (!states.has(item.placement.prop)) states.set(item.placement.prop, []);
+      states.get(item.placement.prop).push(...declarations);
+    } else if (item.placement.kind === 'responsive') {
+      const responsive = responsiveKeys(item.placement.bp, options.breakpointStrategy || 'range');
+      if (responsive.approximation) report.approximations.push({ token: item.raw, reason: responsive.approximation });
+      const rank: any = { sm:1, md:2, lg:3, xl:4, '2xl':5 };
+      for (const key of responsive.keys) {
+        if (!media.has(key)) media.set(key, []);
+        media.get(key).push(...declarations.map((declaration: any) => ({ ...declaration, order: rank[item.placement.bp] * 100000 + item.index })));
+      }
+    }
+    converted++;
+  }
+
+  if (trueOption(options.strict) && residual.length) {
+    report.skipped.push({ loc: classAttribute.loc?.start || null, reason: 'strict-element-skip', tokens: residual.map((item) => item.raw) });
+    return null;
+  }
+  if (!converted) return null;
+  return { path, element, tag, target, classAttribute, existing, analysis, residual, base, states, media, converted, needsAnimation };
+}
+
+function falseOption(value: any) {
+  return value === false || value === 'false';
+}
+
+function applyCandidate(candidate: any, j: any, options: any) {
+  const { element, target } = candidate;
+  element.openingElement.name = j.jsxIdentifier(target.component);
+  if (element.closingElement) element.closingElement.name = j.jsxIdentifier(target.component);
+
+  const generated: any[] = [];
+  if (target.as) generated.push(j.jsxAttribute(j.jsxIdentifier('as'), j.stringLiteral(target.as)));
+  const resolvedBase = groupByConditionAndResolve(candidate.base);
+  for (const [prop, declarations] of byProp(resolvedBase)) generated.push(scalarAttribute(j, prop, declarations));
+  for (const [state, declarations] of candidate.states) generated.push(objectAttribute(j, state, groupByConditionAndResolve(declarations)));
+  if (candidate.media.size) {
+    const resolvedMedia = new Map<string, any[]>();
+    for (const [key, declarations] of candidate.media) resolvedMedia.set(key, groupByConditionAndResolve(declarations));
+    generated.push(mediaAttribute(j, resolvedMedia));
+  }
+
+  const preserve = trueOption(options.preserveClassNames);
+  const residual = preserve ? candidate.classAttribute : residualClassAttribute(j, candidate.residual);
+  const attributes: any[] = [];
+  for (const attribute of element.openingElement.attributes) {
+    if (attribute !== candidate.classAttribute) { attributes.push(attribute); continue; }
+    if (residual) attributes.push(residual);
+    attributes.push(...generated);
+  }
+  element.openingElement.attributes = attributes;
+}
+
+export default function transform(file: any, api: any, rawOptions: any = {}) {
   const j = api.jscodeshift;
   const root = j(file.source);
-  const candidates = [];
-
-  root.find(j.JSXElement).forEach((path) => {
-    const candidate = analyzeElement(path);
+  const options = {
+    ...rawOptions,
+    breakpointStrategy: rawOptions.breakpointStrategy || rawOptions['breakpoint-strategy'] || 'range',
+    darkStrategy: rawOptions.darkStrategy || rawOptions['dark-strategy'] || 'tokens',
+    reportPath: rawOptions.reportPath || rawOptions['report-path'],
+  };
+  const report = createFileReport(file.path || '<unknown>');
+  const importInfo = inspectAppStudioImport(root, j);
+  if (!importInfo.valid) {
+    skip(report, root.find(j.Program).nodes()[0], 'import-conflict', []);
+    publishReport(report, options);
+    return file.source;
+  }
+  const bindings = collectBindings(root, j);
+  const forwarders = findLocalForwarders(root, j);
+  const candidates: any[] = [];
+  root.find(j.JSXElement).forEach((path: any) => {
+    const candidate = candidateForPath(path, root, j, options, report, forwarders);
     if (candidate) candidates.push(candidate);
   });
 
-  if (!candidates.length) return file.source;
-
-  const importInfo = inspectAppStudioImport(root, j);
-  if (!importInfo.valid) return file.source;
-
-  const bindings = collectBindingNames(root, j);
-  const allowedImportedBindings = importInfo.names;
-  if (
-    (bindings.has('View') && !allowedImportedBindings.has('View')) ||
-    (bindings.has('Span') && !allowedImportedBindings.has('Span'))
-  ) {
+  const requested = new Set<string>();
+  const successful: any[] = [];
+  for (const candidate of candidates) {
+    const names = [candidate.target.local ? candidate.target.forwarder.target.component : candidate.target.component, ...(candidate.needsAnimation ? ['Animation'] : [])];
+    const conflict = names.find((name) => bindings.has(name) && !importInfo.names.has(name));
+    if (conflict) {
+      skip(report, candidate.classAttribute, 'import-conflict', candidate.analysis.tokens.map((token: any) => token.raw));
+      continue;
+    }
+    names.forEach((name) => requested.add(name));
+    successful.push(candidate);
+  }
+  if (!successful.length) {
+    publishReport(report, options);
     return file.source;
   }
 
-  const preserveClassNames =
-    options.preserveClassNames === true || options.preserveClassNames === 'true';
-  candidates.forEach((candidate) => applyElement(j, candidate, preserveClassNames));
+  successful.forEach((candidate) => {
+    applyCandidate(candidate, j, options);
+    report.converted += candidate.converted;
+  });
+  const convertedForwarders = new Set<any>();
+  successful.filter((candidate) => candidate.target.local).forEach((candidate) => {
+    const forwarder = candidate.target.forwarder;
+    if (convertedForwarders.has(forwarder)) return;
+    convertedForwarders.add(forwarder);
+    forwarder.element.openingElement.name = j.jsxIdentifier(forwarder.target.component);
+    if (forwarder.element.closingElement) forwarder.element.closingElement.name = j.jsxIdentifier(forwarder.target.component);
+    if (forwarder.target.as) forwarder.element.openingElement.attributes.unshift(j.jsxAttribute(j.jsxIdentifier('as'), j.stringLiteral(forwarder.target.as)));
+  });
+  addOrMergeImport(root, j, importInfo, requested);
 
-  const names = [];
-  if (candidates.some((candidate) => candidate.tagName === 'div')) names.push('View');
-  if (candidates.some((candidate) => candidate.tagName === 'span')) names.push('Span');
-  addOrMergeImport(root, j, importInfo, names);
-
+  if (!trueOption(options.preserveClassNames)) {
+    const consumedBindings = new Set<string>();
+    const helpers = new Set<string>();
+    successful.forEach((candidate) => {
+      candidate.analysis.bindings.forEach((name: string) => consumedBindings.add(name));
+      candidate.analysis.helpers.forEach((name: string) => helpers.add(name));
+    });
+    cleanupConsumed(root, j, consumedBindings, helpers);
+  }
+  publishReport(report, options);
   return root.toSource();
 }

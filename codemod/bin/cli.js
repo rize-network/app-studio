@@ -15,6 +15,7 @@ const path = require('path');
 const execa = require('execa');
 const chalk = require('chalk');
 const isGitClean = require('is-git-clean');
+const fs = require('fs');
 
 const transformerDirectory = path.join(__dirname, '../', 'transforms');
 const jscodeshiftExecutable = require.resolve('.bin/jscodeshift');
@@ -65,6 +66,19 @@ function runTransform({ files, flags, transformer }) {
   if (flags.preserveClassNames) {
     args.push('--preserveClassNames');
   }
+  if (transformer === 'tailwind-to-app-studio') {
+    if (flags.strict) args.push('--strict');
+    if (flags.allTags === false || flags.noAllTags) args.push('--allTags=false');
+    if (flags.breakpointStrategy) args.push(`--breakpointStrategy=${flags.breakpointStrategy}`);
+    if (flags.darkStrategy) args.push(`--darkStrategy=${flags.darkStrategy}`);
+    if (flags.report === false || flags.noReport) {
+      args.push('--report=false');
+    } else {
+      const reportPath = path.resolve(flags.reportPath || './tailwind-codemod-report.json');
+      fs.writeFileSync(reportPath, '', 'utf8');
+      args.push(`--reportPath=${reportPath}`);
+    }
+  }
 
   args.push('--verbose=0');
 
@@ -93,6 +107,51 @@ function runTransform({ files, flags, transformer }) {
   if (result.error) {
     throw result.error;
   }
+
+  if (
+    transformer === 'tailwind-to-app-studio' &&
+    flags.report !== false &&
+    !flags.noReport
+  ) {
+    const reportPath = path.resolve(flags.reportPath || './tailwind-codemod-report.json');
+    const lines = fs.existsSync(reportPath)
+      ? fs.readFileSync(reportPath, 'utf8').split(/\r?\n/).filter(Boolean)
+      : [];
+    const reports = lines.map((line) => JSON.parse(line));
+    const unknown = {};
+    const reasons = {};
+    const totals = reports.reduce(
+      (summary, report) => {
+        summary.converted += report.converted || 0;
+        summary.residual += report.residual || 0;
+        summary.skipped += (report.skipped || []).length;
+        Object.entries(report.unknownClasses || {}).forEach(([name, count]) => {
+          unknown[name] = (unknown[name] || 0) + count;
+        });
+        (report.skipped || []).forEach((item) => {
+          reasons[item.reason] = (reasons[item.reason] || 0) + 1;
+        });
+        return summary;
+      },
+      { files: reports.length, converted: 0, residual: 0, skipped: 0 }
+    );
+    const aggregate = {
+      generatedAt: new Date().toISOString(),
+      totals,
+      topUnknownClasses: Object.entries(unknown)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 20)
+        .map(([name, count]) => ({ name, count })),
+      skipReasons: reasons,
+      files: reports,
+    };
+    fs.writeFileSync(reportPath, `${JSON.stringify(aggregate, null, 2)}\n`, 'utf8');
+    console.log(
+      `Tailwind summary: ${totals.files} files, ${totals.converted} tokens converted, ` +
+        `${totals.residual} residual, ${totals.skipped} skips.`
+    );
+    console.log(`Report written to ${reportPath}`);
+  }
 }
 
 const TRANSFORMER_INQUIRER_CHOICES = [
@@ -101,7 +160,7 @@ const TRANSFORMER_INQUIRER_CHOICES = [
     value: 'to-app-studio', // This should correspond to a file named "to-app-studio.js" in your "transforms" directory
   },
   {
-    name: 'tailwind-to-app-studio: Converts exact static Tailwind layout classes on div/span to App Studio props.',
+    name: 'tailwind-to-app-studio: Converts Tailwind classes to App Studio props with safe residuals.',
     value: 'tailwind-to-app-studio',
   },
 ];
@@ -118,7 +177,7 @@ function expandFilePathsIfNeeded(filesBeforeExpansion) {
 function run() {
   const cli = meow(
     {
-      description: 'Codemods for updating Reflexjs apps.',
+      description: 'Codemods for updating App Studio apps.',
       help: `
     Usage
       $ npx app-studio/codemod <transform> <path> <...options>
@@ -129,12 +188,19 @@ function run() {
       --dry              Dry run (no changes are made to files)
       --print            Print transformed files to your terminal
       --preserveClassNames  Keep converted className attributes for contract selectors (tailwind-to-app-studio only)
+      --strict           Skip an entire element when any class cannot be converted
+      --breakpoint-strategy=range|devices  Responsive mapping strategy (default: range)
+      --dark-strategy=tokens|residual      Dark-mode strategy (default: tokens)
+      --report-path=<file>  Report destination (default: ./tailwind-codemod-report.json)
+      --no-report        Disable the Tailwind migration report
+      --no-all-tags      Restrict native tag conversion to div/span/img/button/input/form
       --jscodeshift  (Advanced) Pass options directly to jscodeshift
     `,
     },
     {
-      boolean: ['force', 'dry', 'print', 'help', 'preserveClassNames'],
-      string: ['_'],
+      boolean: ['force', 'dry', 'print', 'help', 'preserveClassNames', 'strict', 'report', 'allTags'],
+      string: ['_', 'breakpointStrategy', 'darkStrategy', 'reportPath'],
+      default: { report: true, allTags: true },
       alias: {
         h: 'help',
       },
@@ -186,7 +252,7 @@ function run() {
 
       if (!filesExpanded.length) {
         console.log(
-          `No files found matching ${filesBeforeExpansion.join(' ')}`
+          `No files found matching ${filesBeforeExpansion}`
         );
         return null;
       }

@@ -14,8 +14,15 @@
     "coverage": "jest run --coverage",
     "dev": "npx nodemon --watch src/**/*.tsx --exec yarn build"
   },
+  "jest": {
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/transforms/__tests__/fixtures/"
+    ]
+  },
   "files": [
     "transforms/*.js",
+    "transforms/tailwind/**/*.js",
     "bin/*.js"
   ],
   "bin": "./bin/app-studio-codemod.js",
@@ -54,6 +61,7 @@
     "@vitest/coverage-v8": "^1.0.0",
     "babel-plugin-styled-components": "^2.1.4",
     "eslint": "^8.43.0",
+    "jest": "^29.7.0",
     "prettier": "^3.0.0",
     "prettier-plugin-tailwindcss": "^0.5.0",
     "typescript": "^5.1.3",

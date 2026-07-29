@@ -57,13 +57,16 @@ export default function () {
 
 ### `tailwind-to-app-studio`
 
-This transform converts only exact, static Tailwind `className` values on
-`div` and `span` elements into App Studio `View` and `Span` style props. It
-adds or merges a direct named import from `app-studio` and is intentionally
-strict: dynamic/template-substituted class names, responsive or pseudo-state
-tokens, unknown tokens, spreads, style/App Studio props, generated-prop
-conflicts, ambiguous tag pairs, complex or aliased `app-studio` imports, and
-local `View`/`Span` bindings are skipped. No partial class conversion occurs.
+This transform converts Tailwind `className` values into App Studio style
+props. It covers layout, spacing, sizing, typography, colors, borders,
+effects, states, responsive utilities, common `dark:` pairs, and expressions
+composed with `cn`, `clsx`, `classnames`, or `twMerge`. Native tags are mapped
+to their App Studio primitive, with `View as="tag"` preserving other DOM tags.
+
+Conversion is partial by default: supported tokens become props and unknown or
+unsafe tokens remain in a residual `className`. This makes large migrations
+incremental without silently dropping styles. Use `--strict` to skip the whole
+element whenever any token has to remain.
 
 ```sh
 npx @app-studio/codemod tailwind-to-app-studio path/to/src --dry --print
@@ -77,8 +80,17 @@ remain alongside the generated props:
 npx @app-studio/codemod tailwind-to-app-studio path/to/src --preserveClassNames
 ```
 
-The transform is deterministic and idempotent. Its deliberately minimal table
-covers display, position, flex direction/wrap, alignment, growth/shrink,
-zero/full dimensions, overflow, text alignment, whitespace, word breaking,
-cursor, pointer-events, and user-select tokens. It does not attempt arbitrary
-Tailwind values, modifiers, colors, spacing, typography, or utility composition.
+Responsive utilities use bounded App Studio breakpoint ranges. Since these do
+not exactly match Tailwind's min-width breakpoints, approximations are recorded
+in the report. `--breakpoint-strategy=devices` opts into device keys instead.
+Recognized light/dark color pairs become auto-switching theme tokens;
+`--dark-strategy=residual` keeps every `dark:` token in `className`.
+
+The transform writes `./tailwind-codemod-report.json` with per-file skips,
+unknown utilities, conflicts, and approximations. Configure this with
+`--report-path=<file>` or disable it with `--no-report`. Use `--no-all-tags` to
+restrict conversion to the direct primitive tag table.
+
+The transform is deterministic and structurally idempotent: converted App
+Studio components are not candidates on a second pass, while group/peer marker
+classes and unsupported utilities remain available as passthrough class names.
