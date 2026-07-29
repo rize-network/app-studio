@@ -21,12 +21,7 @@ export type EdgeInsetsValue = {
 };
 
 export type GenericStyleProp<T> =
-  | null
-  | void
-  | T
-  | false
-  | ''
-  | readonly GenericStyleProp<T>[];
+  null | void | T | false | '' | readonly GenericStyleProp<T>[];
 
 export type LayoutValue = {
   x: number;
@@ -54,11 +49,7 @@ type NumberOrString = number | string;
  * Animations and transitions
  */
 export type AnimationDirection =
-  | 'alternate'
-  | 'alternate-reverse'
-  | 'forwards'
-  | 'normal'
-  | 'reverse';
+  'alternate' | 'alternate-reverse' | 'forwards' | 'normal' | 'reverse';
 export type AnimationFillMode = 'none' | 'forwards' | 'backwards' | 'both';
 export type AnimationIterationCount = number | string | 'infinite';
 export type AnimationKeyframes = string | Object;
@@ -67,26 +58,16 @@ export type AnimationPlayState = 'paused' | 'running';
 export type AnimationStyles = {
   animationDelay?: (string | string[]) | null | undefined;
   animationDirection?:
-    | (AnimationDirection | AnimationDirection[])
-    | null
-    | undefined;
+    (AnimationDirection | AnimationDirection[]) | null | undefined;
   animationDuration?: (string | string[]) | null | undefined;
   animationFillMode?:
-    | (AnimationFillMode | AnimationFillMode[])
-    | null
-    | undefined;
+    (AnimationFillMode | AnimationFillMode[]) | null | undefined;
   animationIterationCount?:
-    | (AnimationIterationCount | AnimationIterationCount[])
-    | null
-    | undefined;
+    (AnimationIterationCount | AnimationIterationCount[]) | null | undefined;
   animationKeyframes?:
-    | (AnimationKeyframes | AnimationKeyframes[])
-    | null
-    | undefined;
+    (AnimationKeyframes | AnimationKeyframes[]) | null | undefined;
   animationPlayState?:
-    | (AnimationPlayState | AnimationPlayState[])
-    | null
-    | undefined;
+    (AnimationPlayState | AnimationPlayState[]) | null | undefined;
   animationTimingFunction?: (string | string[]) | null | undefined;
   transitionDelay?: (string | string[]) | null | undefined;
   transitionDuration?: (string | string[]) | null | undefined;
@@ -231,9 +212,7 @@ export type LayoutStyles = {
   flex?: number | null | undefined;
   flexBasis?: DimensionValue | null | undefined;
   flexDirection?:
-    | ('column' | 'column-reverse' | 'row' | 'row-reverse')
-    | null
-    | undefined;
+    ('column' | 'column-reverse' | 'row' | 'row-reverse') | null | undefined;
   flexGrow?: number | null | undefined;
   flexShrink?: number | null | undefined;
   flexWrap?: ('nowrap' | 'wrap' | 'wrap-reverse') | null | undefined;
@@ -536,12 +515,7 @@ type SourceObject = {
 };
 
 export type ResizeMode =
-  | 'center'
-  | 'contain'
-  | 'cover'
-  | 'none'
-  | 'repeat'
-  | 'stretch';
+  'center' | 'contain' | 'cover' | 'none' | 'repeat' | 'stretch';
 
 export type Source = number | string | SourceObject | SourceObject[];
 
@@ -623,18 +597,12 @@ export type TextStyle = ViewStyle & {
   textAlignVertical?: string | null | undefined;
   textDecorationColor?: ColorValue | null | undefined;
   textDecorationLine?:
-    | 'none'
-    | 'underline'
-    | 'line-through'
-    | 'underline line-through';
+    'none' | 'underline' | 'line-through' | 'underline line-through';
   textDecorationStyle?: 'solid' | 'double' | 'dotted' | 'dashed';
   textIndent?: NumberOrString | null | undefined;
   textOverflow?: string | null | undefined;
   textRendering?:
-    | 'auto'
-    | 'geometricPrecision'
-    | 'optimizeLegibility'
-    | 'optimizeSpeed';
+    'auto' | 'geometricPrecision' | 'optimizeLegibility' | 'optimizeSpeed';
   textShadowColor?: ColorValue | null | undefined;
   textShadowOffset?: { width?: number; height?: number };
   textShadowRadius?: number | null | undefined;

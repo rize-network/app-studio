@@ -81,6 +81,7 @@ describe('Constants', () => {
       expect(excludedKeys.has('shadow')).toBe(true);
       expect(excludedKeys.has('css')).toBe(true);
       expect(excludedKeys.has('media')).toBe(true);
+      expect(excludedKeys.has('className')).toBe(true);
     });
 
     it('should contain animation props', () => {
@@ -94,6 +95,24 @@ describe('Constants', () => {
       expect(excludedKeys.has('_active')).toBe(true);
       expect(excludedKeys.has('_focus')).toBe(true);
       expect(excludedKeys.has('_disabled')).toBe(true);
+    });
+
+    it('should exclude every typed structural, group, and peer pseudo prop', () => {
+      [
+        '_odd',
+        '_even',
+        '_groupHover',
+        '_groupFocus',
+        '_groupActive',
+        '_groupDisabled',
+        '_peerHover',
+        '_peerFocus',
+        '_peerActive',
+        '_peerDisabled',
+        '_peerChecked',
+      ].forEach((prop) => {
+        expect(excludedKeys.has(prop)).toBe(true);
+      });
     });
 
     it('should contain pseudo-element props', () => {

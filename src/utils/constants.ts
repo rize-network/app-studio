@@ -44,6 +44,8 @@ export const excludedKeys = new Set<string>([
   'animateIn',
   'animateOut',
   'theme',
+  // Merged explicitly in Element before DOM props are forwarded.
+  'className',
 
   // Safe-area control props (translated to padding/margin + env() in Element)
   'safeArea',
@@ -75,10 +77,22 @@ export const excludedKeys = new Set<string>([
   '_onlyChild',
   '_firstOfType',
   '_lastOfType',
+  '_odd',
+  '_even',
   '_empty',
   '_focusVisible',
   '_focusWithin',
   '_placeholder',
+  // Parent/sibling state selectors
+  '_groupHover',
+  '_groupFocus',
+  '_groupActive',
+  '_groupDisabled',
+  '_peerHover',
+  '_peerFocus',
+  '_peerActive',
+  '_peerDisabled',
+  '_peerChecked',
   // Pseudo-element props
   '_before',
   '_after',
@@ -117,12 +131,7 @@ export interface AnimationProps {
   leave?: CSSProperties | any;
   duration?: string;
   timingFunction?:
-    | string
-    | 'linear'
-    | 'ease'
-    | 'ease-in'
-    | 'ease-out'
-    | 'ease-in-out';
+    string | 'linear' | 'ease' | 'ease-in' | 'ease-out' | 'ease-in-out';
   delay?: string;
   property?: string;
   iterationCount?: AnimationIterationCount;

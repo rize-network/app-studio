@@ -99,6 +99,13 @@ describe('Style Utilities', () => {
     it('should return true for custom style props', () => {
       expect(isStyleProp('shadow')).toBe(true);
     });
+
+    it('recognizes the complete static CSS property registry without CSS.supports', () => {
+      expect(isStyleProp('textOverflow')).toBe(true);
+      expect(isStyleProp('borderBottomWidth')).toBe(true);
+      expect(isStyleProp('fontVariantNumeric')).toBe(true);
+      expect(isStyleProp('overscrollBehavior')).toBe(true);
+    });
   });
 
   describe('styleObjectToCss', () => {

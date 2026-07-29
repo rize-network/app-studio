@@ -134,8 +134,7 @@ const ElementBase = React.forwardRef<any, ElementProps>((props, ref) => {
   // RN primitive. `animateIn` is treated as a mount animation (aliases
   // `animate` on native) so mount-in motion authors identically to web.
   const animateProp = ((props as any).animate ?? (props as any).animateIn) as
-    | undefined
-    | Parameters<typeof useAnimation>[0];
+    undefined | Parameters<typeof useAnimation>[0];
   const {
     style: animatedStyle,
     AnimatedView,

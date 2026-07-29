@@ -7,16 +7,45 @@ export interface ViewProps
   onPress?: (..._args: any) => void;
 }
 
-export const View = React.forwardRef<
+export type ViewElement = React.ElementType;
+
+// The Element runtime is intentionally permissive because it can render many
+// HTML tags. At a View call site, the App Studio style surface keeps priority
+// (including media/on/css), while the target component supplies the DOM event
+// handlers and ref: a button onClick gets MouseEvent<HTMLButtonElement> and a
+// Link keeps its own navigation props/ref.
+type ViewStyleSurface = Omit<
+  ViewProps,
+  'as' | 'ref' | 'to' | keyof React.DOMAttributes<HTMLElement>
+>;
+
+type PolymorphicViewTargetProps<T extends ViewElement> = Omit<
+  React.ComponentPropsWithRef<T>,
+  keyof ViewStyleSurface | 'as'
+> &
+  (T extends 'a' ? Pick<ViewProps, 'to'> : {});
+
+export type PolymorphicViewProps<T extends ViewElement = 'div'> =
+  ViewStyleSurface &
+    PolymorphicViewTargetProps<T> & {
+      as?: T;
+    };
+
+export interface ViewComponent {
+  <T extends ViewElement = 'div'>(
+    props: PolymorphicViewProps<T>
+  ): React.ReactElement | null;
+  displayName?: string;
+}
+
+const ViewRuntime = React.forwardRef<
   HTMLElement,
   React.ComponentPropsWithRef<typeof Element> & ViewProps
->((props, ref) => (
-  <Element {...props} ref={ref} />
-)) as unknown as React.ForwardRefExoticComponent<
-  React.ComponentPropsWithRef<typeof Element> &
-    ViewProps &
-    React.RefAttributes<HTMLElement>
->;
+>((props, ref) => <Element {...props} ref={ref} />);
+
+// The cast changes only the public TypeScript surface. Runtime remains the
+// same forwarded Element, including its ref forwarding and `as` rendering.
+export const View = ViewRuntime as unknown as ViewComponent;
 
 export const Horizontal = React.forwardRef<
   HTMLElement,

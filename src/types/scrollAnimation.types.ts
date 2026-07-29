@@ -5,20 +5,11 @@
 
 /** Animation range when element enters/exits viewport */
 export type ViewAnimationRange =
-  | 'entry'
-  | 'exit'
-  | 'cover'
-  | 'contain'
-  | string;
+  'entry' | 'exit' | 'cover' | 'contain' | string;
 
 /** Timing function options */
 export type ViewAnimationTimingFunction =
-  | 'linear'
-  | 'ease'
-  | 'ease-in'
-  | 'ease-out'
-  | 'ease-in-out'
-  | string;
+  'linear' | 'ease' | 'ease-in' | 'ease-out' | 'ease-in-out' | string;
 
 /** Fill mode options */
 export type ViewAnimationFillMode = 'none' | 'forwards' | 'backwards' | 'both';

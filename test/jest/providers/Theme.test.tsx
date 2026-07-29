@@ -15,6 +15,25 @@ describe('ThemeProvider', () => {
     );
   };
 
+  const DefaultContextComponent = () => {
+    const { getColor } = useTheme();
+
+    return (
+      <div>
+        <div data-testid="default-color-token">
+          {getColor('color-blue-500')}
+        </div>
+        <div data-testid="default-theme-alpha">
+          {getColor('theme-primary-200')}
+        </div>
+        <div data-testid="default-css-value">
+          {getColor('var(--brand-color)')}
+        </div>
+        <div data-testid="default-hex-value">{getColor('#123456')}</div>
+      </div>
+    );
+  };
+
   it('should provide theme context to children', () => {
     render(
       <ThemeProvider>
@@ -49,6 +68,23 @@ describe('ThemeProvider', () => {
     expect(() => {
       render(<TestComponent />);
     }).toThrow();
+  });
+
+  it('should resolve CSS values safely outside a provider', () => {
+    render(<DefaultContextComponent />);
+
+    expect(screen.getByTestId('default-color-token')).toHaveTextContent(
+      'var(--color-blue-500)'
+    );
+    expect(screen.getByTestId('default-theme-alpha')).toHaveTextContent(
+      'color-mix(in srgb, var(--theme-primary) 20%, transparent)'
+    );
+    expect(screen.getByTestId('default-css-value')).toHaveTextContent(
+      'var(--brand-color)'
+    );
+    expect(screen.getByTestId('default-hex-value')).toHaveTextContent(
+      '#123456'
+    );
   });
 
   it('should provide getColor function', () => {

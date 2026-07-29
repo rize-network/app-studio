@@ -62,6 +62,9 @@ function runTransform({ files, flags, transformer }) {
   if (print) {
     args.push('--print');
   }
+  if (flags.preserveClassNames) {
+    args.push('--preserveClassNames');
+  }
 
   args.push('--verbose=0');
 
@@ -97,6 +100,10 @@ const TRANSFORMER_INQUIRER_CHOICES = [
     name: 'to-app-studio: Transforms styled-components to App Studio View components.',
     value: 'to-app-studio', // This should correspond to a file named "to-app-studio.js" in your "transforms" directory
   },
+  {
+    name: 'tailwind-to-app-studio: Converts exact static Tailwind layout classes on div/span to App Studio props.',
+    value: 'tailwind-to-app-studio',
+  },
 ];
 
 function expandFilePathsIfNeeded(filesBeforeExpansion) {
@@ -121,11 +128,12 @@ function run() {
       --force            Bypass Git safety checks and forcibly run codemods
       --dry              Dry run (no changes are made to files)
       --print            Print transformed files to your terminal
+      --preserveClassNames  Keep converted className attributes for contract selectors (tailwind-to-app-studio only)
       --jscodeshift  (Advanced) Pass options directly to jscodeshift
     `,
     },
     {
-      boolean: ['force', 'dry', 'print', 'help'],
+      boolean: ['force', 'dry', 'print', 'help', 'preserveClassNames'],
       string: ['_'],
       alias: {
         h: 'help',

@@ -1,6 +1,10 @@
 // styleHelpers.ts
 import { extraKeys, includeKeys, NumberProps } from './constants';
-import { vendorPrefixToKebabCase, numericCssProperties } from './cssProperties';
+import {
+  cssPropertyKeys,
+  vendorPrefixToKebabCase,
+  numericCssProperties,
+} from './cssProperties';
 import { hasColorToken, replaceColorTokens } from './colors';
 
 /**
@@ -177,10 +181,22 @@ const cssProperties = new Set([
 
   // Additional properties from cssExtraProps
   'textJustify',
+  'textUnderlineOffset',
+  'fontVariantNumeric',
   'lineClamp',
   'textIndent',
   'perspective',
+  'overscrollBehavior',
+  'inset',
 ]);
+
+// Keep SSR and test environments aligned with browsers. CSS.supports is not
+// available there, so relying on the runtime fallback caused valid style props
+// such as textOverflow, borderBottomWidth and fontVariantNumeric to leak onto
+// the rendered DOM instead of becoming utility classes.
+for (const property of cssPropertyKeys) {
+  cssProperties.add(String(property));
+}
 
 // Function to set the widthHeight of the element
 export const setSize = (

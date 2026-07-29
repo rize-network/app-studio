@@ -308,9 +308,26 @@ const defaultDarkColorConfig: Colors = {
   palette: defaultDarkPalette,
 };
 
+const getDefaultContextColor = (name: string): string => {
+  if (!name || typeof name !== 'string') return String(name);
+  if (name === TRANSPARENT) return name;
+
+  if (name.startsWith(THEME_PREFIX) || name.startsWith(COLOR_PREFIX)) {
+    return colorTokenToCss(name);
+  }
+
+  if (name.startsWith(LIGHT_PREFIX) || name.startsWith(DARK_PREFIX)) {
+    const prefix = name.startsWith(LIGHT_PREFIX) ? LIGHT_PREFIX : DARK_PREFIX;
+    const colorPart = name.substring(prefix.length);
+    return `var(--${prefix}color-${colorPart})`;
+  }
+
+  return name;
+};
+
 // --- Create Theme Context ---
 export const ThemeContext = createContext<ThemeContextProps>({
-  getColor: () => '',
+  getColor: getDefaultContextColor,
   getColorHex: () => '',
   getColorRGBA: () => '',
   getColorScheme: () => undefined,
