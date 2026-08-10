@@ -1,5 +1,5 @@
 {
-  "version": "0.9.1",
+  "version": "0.9.2",
   "name": "app-studio",
   "description": "App Studio is a responsive and themeable framework to build cross platform applications",
   "repository": "git@github.com:rize-network/app-studio.git",
@@ -70,6 +70,8 @@
   "scripts": {
     "start": "tsup --watch",
     "build": "tsup",
+    "postpublish": "npm run promote:latest",
+    "promote:latest": "npm dist-tag add \"${npm_package_name}@${npm_package_version}\" latest && npm dist-tag ls \"${npm_package_name}\"",
     "typecheck": "npm run typecheck:web && npm run typecheck:native",
     "typecheck:web": "tsc -p tsconfig.web.json --noEmit",
     "typecheck:native": "tsc -p tsconfig.native.json --noEmit",
