@@ -278,6 +278,11 @@ const htmlOnlyAttributes = new Set([
   'accept',
   'maxLength',
   'minLength',
+  // `min`/`max` are the number/date input bounds. They are not CSS properties,
+  // but without this entry their classification would fall through to a
+  // CSS.supports() probe — list them explicitly so they are always attributes.
+  'min',
+  'max',
   'pattern',
   'noValidate',
   'formAction',

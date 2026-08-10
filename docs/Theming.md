@@ -191,54 +191,81 @@ const colors = {
 
 ## How ThemeProvider Works
 
-App-Studio's `ThemeProvider` uses a modern, React-idiomatic approach to theming with CSS variables.
+`ThemeProvider` generates one stylesheet of CSS variables and injects it into
+`document.head` (id `app-studio-theme-vars`; during SSR it renders an inline
+`<style>` instead). The stylesheet has three parts:
 
-### CSS Variables via Style Prop
-
-Instead of imperatively injecting a `<style>` tag into the DOM, the `ThemeProvider` generates CSS variables and passes them directly to the wrapper element's `style` prop:
-
-```tsx
-// Under the hood, ThemeProvider does this:
-<div 
-  data-theme={themeMode}
-  style={{
-    '--color-white': '#FFFFFF',
-    '--color-black': '#000000',
-    '--color-blue-500': '#3b82f6',
-    '--theme-primary': 'var(--color-black)',
-    // ... hundreds more CSS variables
-    width: '100%',
-    height: '100%',
-  }}
->
-  {children}
-</div>
+```css
+:root {
+  --color-white: #ffffff;            /* base (light) value */
+  --light-color-white: #ffffff;      /* mode-pinned aliases */
+  --dark-color-white: #000000;
+  --theme-primary: var(--color-black);
+  /* ... every palette shade and theme slot ... */
+}
+[data-theme='light'] { --color-white: var(--light-color-white); /* ... */ }
+[data-theme='dark']  { --color-white: var(--dark-color-white);  /* ... */ }
 ```
 
-### Benefits of This Approach
+### `data-theme` is what makes light/dark flip
 
-1. **React-Managed**: Fully declarative, no imperative DOM manipulation
-2. **SSR-Friendly**: Works in server-side rendering without requiring `document`
-3. **Auto-Cleanup**: CSS variables are automatically removed when the component unmounts
-4. **Performance**: Variables are memoized and only regenerated when theme configuration changes
-5. **Type-Safe**: TypeScript-friendly with proper typing for all variables
+The light/dark blocks are keyed on a **`data-theme` attribute**. An element
+resolves its `--color-*` / `--theme-*` variables from the nearest ancestor
+carrying `data-theme`; without one it gets the `:root` base values (light).
+
+Two elements carry it:
+
+1. The provider's own wrapper `<div data-theme={mode}>` — covers everything
+   rendered inside the provider subtree.
+2. Since the document-stamping fix, **the root provider also stamps
+   `document.documentElement`** (`<html data-theme="...">`), keeping it in
+   sync with the active mode. This is what makes **portaled content** flip:
+   modals, drawers and toasts mounted at `document.body` are outside the
+   wrapper div, so before this they stayed frozen on light whatever the mode.
+
+Rules:
+
+- Only the **root** provider stamps the document. A **nested** provider is a
+  subtree override — it stamps its own wrapper only.
+- A provider given `targetWindow` (iframe) stamps that iframe's
+  `documentElement` and injects the stylesheet into that document. See
+  [IframeSupport](IframeSupport.md).
+- Opt out (or force) with the `stampDocument` prop:
+  `<ThemeProvider stampDocument={false}>` if the host page manages the
+  attribute itself. The provider restores the previous attribute value on
+  unmount.
+- SSR: there is no document to stamp, so if your prerendered HTML must be
+  dark-correct before hydration, render `data-theme` on `<html>`/`<body>`
+  server-side yourself; the provider takes over after hydration.
+
+### `color-*` vs `theme-*` — what flips and what doesn't
+
+- `color-*` tokens (`color-white`, `color-gray-200`, `color-blue-500`)
+  always resolve per mode: the palettes define light and dark values and the
+  `[data-theme]` blocks switch them.
+- `theme-*` slots resolve to whatever the theme maps them to:
+  - a **token** value (`primary: 'color-blue-500'`) is emitted as
+    `--theme-primary: var(--color-blue-500)` and re-declared inside both
+    `[data-theme]` blocks, so it flips exactly like the token it points at;
+  - a **parseable literal** (`primary: '#2563eb'`, `rgb(...)`) is snapped to
+    the nearest palette token (`normalizeThemeColors`) so it adapts to dark
+    mode too;
+  - an **unparseable literal** (a CSS named colour, a gradient) stays frozen
+    across modes. For the neutral slots (`canvas`, `surface`, `text`,
+    `muted`, `border`) this is almost always a bug — the provider warns about
+    it in development.
+- `light-*` / `dark-*` tokens pin a palette colour to one mode regardless of
+  the active theme.
 
 ### Theme Mode Switching
 
-When you switch theme modes (light ↔ dark), React automatically updates all CSS variables:
-
 ```tsx
 const { setThemeMode } = useTheme();
-
-// This triggers a re-render with new CSS variable values
 setThemeMode('dark');
-// All --color-* variables now point to dark mode values
+// wrapper div + <html data-theme> update; every --color-* and
+// token-backed --theme-* re-resolves. Add CSS transitions if you want the
+// change animated.
 ```
-
-The transition is smooth because:
-- CSS variables update instantly
-- You can add CSS transitions for smooth color changes
-- No DOM manipulation or style tag injection needed
 
 
 ## Using `ThemeProvider`

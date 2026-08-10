@@ -90,7 +90,25 @@ export const Vertical = React.forwardRef<
     React.RefAttributes<HTMLElement>
 >;
 
-export interface GridProps extends Omit<ViewProps, 'columns' | 'rows'> {
+/**
+ * ViewProps minus the HTML/CSS attributes that collide with ergonomic layout
+ * props. `rows`/`cols` are the numeric `<textarea>` attributes, `columns` is
+ * the CSS multi-column shorthand, `wrap` is the `<textarea>` wrap attribute —
+ * a layout component that redeclares any of them with its own shape
+ * (`rows?: number | string`, `wrap?: boolean`, …) hits TS2430 unless they are
+ * omitted first. Extend this instead of hand-rolling the Omit:
+ *
+ *   interface MyLayoutProps extends LayoutViewProps {
+ *     columns?: number | string;
+ *     rows?: number | string;
+ *   }
+ */
+export type LayoutViewProps = Omit<
+  ViewProps,
+  'rows' | 'columns' | 'cols' | 'wrap'
+>;
+
+export interface GridProps extends LayoutViewProps {
   // Column track definition. A number renders that many equal columns
   // (`repeat(n, 1fr)`); a string is used verbatim ("1fr 2fr", "repeat(3, 1fr)").
   columns?: number | string;

@@ -16,6 +16,7 @@ import {
   defaultDarkPalette,
   defaultLightColors,
   defaultLightPalette,
+  isColorToken,
   normalizeThemeColors,
 } from '../utils/colors'; // Assuming this path is correct
 
@@ -129,7 +130,15 @@ export interface Colors {
   palette: ColorPalette;
 }
 
-export interface Theme {
+/**
+ * The named theme slots, without the index signature. This is the type to
+ * accept where a theme comes from an external interface: TypeScript never
+ * infers an implicit index signature for `interface` declarations, so a
+ * design-system interface with these keys is NOT assignable to
+ * `Partial<Theme>` — but it IS assignable to `ThemeSlots`. The ThemeProvider
+ * `theme` prop accepts both for that reason.
+ */
+export interface ThemeSlots {
   primary?: string;
   secondary?: string;
   success?: string;
@@ -146,6 +155,9 @@ export interface Theme {
   border?: string;
   onPrimary?: string;
   info?: string;
+}
+
+export interface Theme extends ThemeSlots {
   [extra: string]: string | undefined;
 }
 
@@ -555,13 +567,30 @@ const ThemeNestingContext = createContext<boolean>(false);
 
 // --- ThemeProvider Component ---
 interface ThemeProviderProps {
-  theme?: Partial<Theme>;
+  /**
+   * Accepts `ThemeSlots` in addition to `Partial<Theme>` so a theme coming
+   * from an external interface (e.g. a design-system config type) is
+   * assignable without a cast — interfaces never satisfy the index signature
+   * that `Theme` carries.
+   */
+  theme?: Partial<Theme> | ThemeSlots;
   dark?: Partial<Colors>;
   light?: Partial<Colors>;
   mode?: 'light' | 'dark';
   children: ReactNode;
   strict?: boolean;
   targetWindow?: Window;
+  /**
+   * Whether this provider stamps `data-theme` on the owning
+   * `document.documentElement`. The light/dark CSS-variable blocks are keyed
+   * on `[data-theme]`, so content portaled to `document.body` (modals,
+   * toasts, drawers) only flips when the attribute is present ABOVE the
+   * portal target — the provider's own wrapper div cannot reach it.
+   * Defaults to `true` for a root provider (and for `targetWindow` — the
+   * iframe document gets stamped) and `false` for nested providers, which
+   * scope their mode to their own subtree.
+   */
+  stampDocument?: boolean;
   /**
    * When `true`, the wrapper renders as `display: contents` (no background,
    * color, sizing, or transition). Useful when nesting a ThemeProvider inside
@@ -585,6 +614,7 @@ export const ThemeProvider = ({
   strict = false,
   targetWindow,
   transparentWrapper,
+  stampDocument,
 }: ThemeProviderProps): React.ReactElement => {
   const isNested = useContext(ThemeNestingContext);
   const wrapperIsTransparent = transparentWrapper ?? isNested;
@@ -1121,6 +1151,56 @@ export const ThemeProvider = ({
     }
     tag.textContent = cssVariables;
   }, [cssVariables, targetWindow]);
+
+  // Stamp the active mode on the owning document element. The light/dark
+  // variable blocks generated above are keyed on `[data-theme='...']`, and
+  // content portaled to `document.body` (modals, drawers, toasts) mounts
+  // OUTSIDE the provider's wrapper div — without the attribute on <html> it
+  // stays frozen on the :root (light) values whatever the active mode is.
+  // Only the root provider stamps by default: a nested provider is a subtree
+  // override and must not repaint the whole page. `stampDocument` forces it
+  // either way.
+  const shouldStampDocument = stampDocument ?? (!isNested || !!targetWindow);
+  useInsertionEffect(() => {
+    if (!shouldStampDocument) return;
+    const doc =
+      targetWindow?.document ??
+      (typeof document !== 'undefined' ? document : undefined);
+    if (!doc) return;
+    const root = doc.documentElement;
+    const previous = root.getAttribute('data-theme');
+    root.setAttribute('data-theme', themeMode);
+    return () => {
+      if (previous === null) root.removeAttribute('data-theme');
+      else root.setAttribute('data-theme', previous);
+    };
+  }, [shouldStampDocument, targetWindow, themeMode]);
+
+  // Dev-only: a neutral slot (canvas/surface/text/muted/border) is expected to
+  // flip with the mode. Parseable literals were snapped to palette tokens by
+  // normalizeThemeColors above; whatever is left frozen (e.g. a CSS named
+  // color) renders identically in light and dark, which reads as a dark-mode
+  // regression at the call site. Say so once per slot/value.
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'production') return;
+    const neutralSlots = [
+      'canvas',
+      'surface',
+      'text',
+      'muted',
+      'border',
+    ] as const;
+    for (const slot of neutralSlots) {
+      const value = mergedTheme[slot];
+      if (typeof value === 'string' && !isColorToken(value)) {
+        warnOnce(
+          `frozen-neutral-slot:${slot}:${value}`,
+          `[Theme] theme.${slot} = '${value}' could not be mapped to a palette token, so it will NOT flip in dark mode. ` +
+            `Neutral slots should use auto-flipping tokens (e.g. 'color-white', 'color-gray-200') or a parseable literal (hex/rgb).`
+        );
+      }
+    }
+  }, [mergedTheme]);
 
   // Inject CSS variables into target document (for iframe support)
   useEffect(() => {
