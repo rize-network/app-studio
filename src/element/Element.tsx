@@ -448,7 +448,22 @@ export const Element = React.memo(
       }
 
       const Component = as;
-      return children ? (
+
+      // Anything React would render, not anything truthy.
+      //
+      // `children ? …` dropped `0` and `''` — so `<Text>{count}</Text>` rendered
+      // an empty element whenever the count was zero, which is the one value a
+      // reader most needs to distinguish from "no data". It also swallowed
+      // `before` and `after`, which have nothing to do with what `children` is.
+      //
+      // React's own rule is the right one: `null`, `undefined`, `false` and
+      // `true` render nothing; every other value renders, `0` included.
+      const isRenderable = (value: unknown) =>
+        value !== null && value !== undefined && typeof value !== 'boolean';
+
+      return isRenderable(children) ||
+        isRenderable(before) ||
+        isRenderable(after) ? (
         <Component {...newProps}>
           {before}
           {children}
