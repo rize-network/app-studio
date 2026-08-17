@@ -229,6 +229,33 @@ describe('Style Utilities', () => {
       expect(result).toBe('flex');
     });
 
+    it('should resolve a bare token inside a composite non-color value', () => {
+      const themeGetColor = (color: string) =>
+        /^(color|theme)-/.test(color) ? `var(--${color})` : color;
+
+      expect(
+        processStyleProperty(
+          'boxShadow',
+          '0 0 0 3px theme-primary',
+          themeGetColor
+        )
+      ).toBe('0 0 0 3px var(--theme-primary)');
+    });
+
+    it('should leave an already expanded var(--…) composite value alone', () => {
+      const themeGetColor = (color: string) =>
+        /^(color|theme)-/.test(color) ? `var(--${color})` : color;
+
+      // What @app-studio/components pre-expands before handing the value over.
+      const ring = '0 0 0 2px var(--color-white), 0 0 0 4px var(--theme-primary)';
+      expect(processStyleProperty('boxShadow', ring, themeGetColor)).toBe(ring);
+
+      const outline = '2px solid var(--theme-primary)';
+      expect(processStyleProperty('outline', outline, themeGetColor)).toBe(
+        outline
+      );
+    });
+
     it('should join array values with space', () => {
       const result = processStyleProperty(
         'transform',

@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.9.4
+
+### Fixed
+
+- **Composite values are no longer token-expanded twice.** A value that already
+  contained an expanded token — `boxShadow: '0 0 0 2px var(--color-white)'`,
+  `outline: '2px solid var(--theme-primary)'` — was rewritten again into
+  `var(--var(--color-white))`. That is a parse error, so the browser dropped the
+  whole declaration and the style silently never applied (focus rings were the
+  common casualty). `replaceColorTokens` now resolves a token only where it
+  starts its own identifier, so pre-expanded values pass through untouched,
+  bare tokens still resolve, and a value mixing both forms works. A token used
+  as a `var()` fallback (`var(--ring, theme-primary)`) still resolves.
+
 ## 0.9.0
 
 ### Fixed

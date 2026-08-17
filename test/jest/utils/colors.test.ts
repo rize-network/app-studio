@@ -7,6 +7,7 @@ import {
   nearestColorToken,
   normalizeThemeColors,
   isColorToken,
+  replaceColorTokens,
 } from '../../../src/utils/colors';
 
 describe('Colors', () => {
@@ -273,6 +274,65 @@ describe('Colors', () => {
       const theme = { primary: '#ef4444' };
       normalizeThemeColors(theme, light);
       expect(theme.primary).toBe('#ef4444');
+    });
+  });
+
+  describe('replaceColorTokens', () => {
+    // Mirrors what ThemeProvider's getColor actually returns for a dash token.
+    const resolve = (token: string) => `var(--${token})`;
+
+    it('resolves a bare token inside a composite value', () => {
+      expect(replaceColorTokens('0 0 0 3px theme-primary', resolve)).toBe(
+        '0 0 0 3px var(--theme-primary)'
+      );
+    });
+
+    it('resolves every occurrence of a bare token in one value', () => {
+      expect(
+        replaceColorTokens(
+          '0 0 0 2px color-white, 0 0 0 4px theme-primary',
+          resolve
+        )
+      ).toBe('0 0 0 2px var(--color-white), 0 0 0 4px var(--theme-primary)');
+    });
+
+    it('leaves a token that is already inside var(--…) untouched', () => {
+      const value = '2px solid var(--theme-primary)';
+      expect(replaceColorTokens(value, resolve)).toBe(value);
+    });
+
+    it('never produces a nested var(--var(--…)) for a pre-expanded ring', () => {
+      const value =
+        '0 0 0 2px var(--color-white), 0 0 0 4px var(--theme-primary)';
+      const result = replaceColorTokens(value, resolve);
+      expect(result).toBe(value);
+      expect(result).not.toContain('var(--var(');
+    });
+
+    it('resolves only the bare token when a value mixes both forms', () => {
+      expect(
+        replaceColorTokens(
+          '0 0 0 2px var(--color-white), 0 0 0 4px theme-primary',
+          resolve
+        )
+      ).toBe('0 0 0 2px var(--color-white), 0 0 0 4px var(--theme-primary)');
+    });
+
+    it('leaves a token embedded in a longer custom property name untouched', () => {
+      const value = '1px solid var(--lightcolor-blue-500)';
+      expect(replaceColorTokens(value, resolve)).toBe(value);
+    });
+
+    it('still resolves a bare token used as a var() fallback', () => {
+      expect(
+        replaceColorTokens('var(--ring-color, theme-primary)', resolve)
+      ).toBe('var(--ring-color, var(--theme-primary))');
+    });
+
+    it('returns values without any token unchanged', () => {
+      expect(replaceColorTokens('1px solid #fff', resolve)).toBe(
+        '1px solid #fff'
+      );
     });
   });
 });

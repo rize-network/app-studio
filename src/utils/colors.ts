@@ -745,8 +745,30 @@ export const hasColorToken = (value: string): boolean => {
   return value.includes('color-') || value.includes('theme-');
 };
 
+// Characters that can appear inside a CSS identifier / custom property name.
+const IDENTIFIER_CHAR = /[a-zA-Z0-9_-]/;
+
+/**
+ * True when the token found at `offset` is only a fragment of a longer
+ * identifier, and therefore must NOT be resolved again.
+ *
+ * The case that matters is an already expanded token: `var(--theme-primary)`
+ * contains the substring `theme-primary`, and resolving it a second time
+ * produces `var(--var(--theme-primary))`, which is a parse error — the browser
+ * drops the whole declaration silently. It also covers custom properties that
+ * merely embed a token name (`var(--lightcolor-blue-500)`).
+ *
+ * A real token always starts its own identifier: it follows whitespace, a
+ * comma, an opening parenthesis, or the start of the value. That keeps
+ * `var(--ring, theme-primary)` working, where the fallback is a bare token.
+ */
+const isIdentifierFragment = (value: string, offset: number): boolean =>
+  offset > 0 && IDENTIFIER_CHAR.test(value.charAt(offset - 1));
+
 /**
  * Replaces color tokens in a string with values returned by a resolver function.
+ * Tokens that are already part of a CSS identifier — typically inside
+ * `var(--…)` — are left untouched so a value can safely be resolved twice.
  * @param value - The string containing color tokens.
  * @param resolver - A function that takes a token and returns its replacement value.
  * @returns The string with color tokens replaced.
@@ -759,9 +781,15 @@ export const replaceColorTokens = (
     return value;
   }
 
-  return value.replace(COLOR_TOKEN_REGEX, (token) => {
-    return resolver(token);
-  });
+  return value.replace(
+    COLOR_TOKEN_REGEX,
+    (token: string, _group: string, offset: number) => {
+      if (isIdentifierFragment(value, offset)) {
+        return token;
+      }
+      return resolver(token);
+    }
+  );
 };
 
 // --- Literal color -> palette token mapping --------------------------------
