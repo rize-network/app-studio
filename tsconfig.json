@@ -1,0 +1,27 @@
+// tsconfig.json
+{
+  "include": ["src", "types", "stories", ".storybook"],
+  "compilerOptions": {
+    "module": "esnext",
+    // ----- ENSURE THIS IS ES2020 or newer -----
+    "target": "es2020",
+    // ------------------------------------------
+    "lib": ["dom", "esnext"], // Keep esnext here to allow using latest features in TS code
+    "importHelpers": true,
+    "declaration": true,
+    "sourceMap": false,
+    "rootDir": ".",
+    "strict": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "moduleResolution": "bundler",
+    "jsx": "react",
+    "types": ["jest", "node", "@testing-library/jest-dom"],
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true // Keep true as tsdx handles the final emit
+  }
+}

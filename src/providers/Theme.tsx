@@ -1,0 +1,1259 @@
+import React, {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useEffect,
+  useInsertionEffect,
+  useRef,
+  useMemo,
+  useCallback,
+} from 'react';
+import {
+  ColorPalette,
+  ColorSingleton,
+  defaultDarkColors,
+  defaultDarkPalette,
+  defaultLightColors,
+  defaultLightPalette,
+  isColorToken,
+  normalizeThemeColors,
+} from '../utils/colors'; // Assuming this path is correct
+
+// --- Constants ---
+// Public API prefixes (dash notation: theme-primary, color-blue-500)
+const THEME_PREFIX = 'theme-';
+const COLOR_PREFIX = 'color-';
+const LIGHT_PREFIX = 'light-';
+const DARK_PREFIX = 'dark-';
+
+const TRANSPARENT = 'transparent';
+
+// --- Development-time token validation ---------------------------------------
+// A colour token that does not resolve is the worst kind of bug this library
+// can produce: nothing throws, no type is violated, and the only symptom is a
+// colour that silently never applies. These helpers turn that into a console
+// warning during development. Each distinct token is reported once so a token
+// used on hundreds of nodes does not flood the console.
+
+const warnedColorTokens = new Set<string>();
+
+/** `color.gray.500` / `theme.primary` — the dot-notation mistake. */
+const DOTTED_TOKEN = /^(color|theme|light|dark)\./;
+
+const isAlphaSuffix = (part: string): boolean => {
+  const value = parseInt(part, 10);
+  return !isNaN(value) && value >= 0 && value <= 1000;
+};
+
+const warnOnce = (token: string, message: string): void => {
+  if (warnedColorTokens.has(token)) return;
+  warnedColorTokens.add(token);
+  console.warn(message);
+};
+
+/**
+ * Warns when a value looks like a design token but cannot resolve to a real
+ * colour. Deliberately silent for legitimate CSS values (`#fff`, `rgb(...)`,
+ * `currentColor`, named colours) — unlike `strict`, which flags those too and
+ * is therefore off by default.
+ */
+function warnIfUnresolvable(
+  name: string,
+  colors: { main: ColorSingleton; palette: ColorPalette },
+  theme: Theme
+): void {
+  if (DOTTED_TOKEN.test(name)) {
+    warnOnce(
+      name,
+      `[Theme] '${name}' uses dot notation, which is not supported and applies no colour. ` +
+        `Use dashes instead: '${name.replace(/\./g, '-')}'.`
+    );
+    return;
+  }
+
+  if (name.startsWith(THEME_PREFIX)) {
+    const parts = name.slice(THEME_PREFIX.length).split('-');
+    const slot =
+      parts.length >= 2 && isAlphaSuffix(parts[parts.length - 1])
+        ? parts.slice(0, -1).join('-')
+        : parts.join('-');
+
+    if (typeof theme[slot as keyof Theme] !== 'string') {
+      warnOnce(
+        name,
+        `[Theme] Unknown theme slot '${name}' — it resolves to var(--${name}), which is not defined, ` +
+          `so no colour is applied. Known slots: ${Object.keys(theme).sort().join(', ')}.`
+      );
+    }
+    return;
+  }
+
+  if (name.startsWith(COLOR_PREFIX)) {
+    let parts = name.slice(COLOR_PREFIX.length).split('-');
+    if (parts.length >= 3 && isAlphaSuffix(parts[parts.length - 1])) {
+      parts = parts.slice(0, -1);
+    }
+
+    // color-<name>-<shade>
+    if (parts.length >= 2) {
+      const shade = parts[parts.length - 1];
+      const family = parts.slice(0, -1).join('-');
+      if (typeof colors.palette[family]?.[Number(shade)] === 'string') return;
+
+      const known = Object.keys(colors.palette).sort().join(', ');
+      warnOnce(
+        name,
+        colors.palette[family]
+          ? `[Theme] '${name}' — palette '${family}' has no shade ${shade}, so no colour is applied. ` +
+              `Available: ${Object.keys(colors.palette[family]).join(', ')}.`
+          : `[Theme] Unknown colour '${name}' — no palette named '${family}', so no colour is applied. ` +
+              `Available palettes: ${known}.`
+      );
+      return;
+    }
+
+    // color-<singleton>
+    if (typeof colors.main[parts[0]] !== 'string') {
+      warnOnce(
+        name,
+        `[Theme] Unknown colour '${name}' — it resolves to var(--${name}), which is not defined, ` +
+          `so no colour is applied. Available: ${Object.keys(colors.main).sort().join(', ')}.`
+      );
+    }
+  }
+}
+
+// --- Interfaces ---
+export interface Colors {
+  main: ColorSingleton;
+  palette: ColorPalette;
+}
+
+/**
+ * The named theme slots, without the index signature. This is the type to
+ * accept where a theme comes from an external interface: TypeScript never
+ * infers an implicit index signature for `interface` declarations, so a
+ * design-system interface with these keys is NOT assignable to
+ * `Partial<Theme>` — but it IS assignable to `ThemeSlots`. The ThemeProvider
+ * `theme` prop accepts both for that reason.
+ */
+export interface ThemeSlots {
+  primary?: string;
+  secondary?: string;
+  success?: string;
+  error?: string;
+  warning?: string;
+  disabled?: string;
+  loading?: string;
+  // Optional surface/ink slots — used by design-system style brand themes.
+  // Iterated and emitted as `--theme-<key>` CSS variables alongside the rest.
+  canvas?: string;
+  surface?: string;
+  text?: string;
+  muted?: string;
+  border?: string;
+  onPrimary?: string;
+  info?: string;
+}
+
+export interface Theme extends ThemeSlots {
+  [extra: string]: string | undefined;
+}
+
+interface Override {
+  colors?: Colors;
+  theme?: Theme;
+  themeMode?: 'light' | 'dark';
+}
+
+// Converts a dash-notation color/theme token into a CSS value: a plain token
+// maps to `var(--token)`, while an alpha-suffixed token (e.g.
+// `color-blue-500-500` or `theme-primary-200`) maps to a `color-mix()` so the
+// alpha is applied against the base CSS variable (which still flips per mode).
+const colorTokenToCss = (value: string): string => {
+  const parts = value.split('-');
+  const maybeAlpha = parseInt(parts[parts.length - 1], 10);
+  // color-<name>-<shade>-<alpha> needs 4+ parts; theme-<key>-<alpha> needs 3+.
+  const minPartsForAlpha = value.startsWith(COLOR_PREFIX) ? 4 : 3;
+  if (
+    parts.length >= minPartsForAlpha &&
+    !isNaN(maybeAlpha) &&
+    maybeAlpha >= 0 &&
+    maybeAlpha <= 1000
+  ) {
+    const baseVar = parts.slice(0, -1).join('-');
+    const percentage = Math.round((maybeAlpha / 1000) * 100);
+    return `color-mix(in srgb, var(--${baseVar}) ${percentage}%, transparent)`;
+  }
+  return `var(--${value})`;
+};
+
+// --- CSS Variable Injection Helper ---
+// Optimized: single-pass processing, minimal string allocations, minified output
+const generateCSSVariables = (
+  theme: Theme,
+  lightColors: Colors,
+  darkColors: Colors
+) => {
+  const rootVars: string[] = [];
+  const lightMappings: string[] = [];
+  const darkMappings: string[] = [];
+
+  // Single-pass helper: generates base, light, dark vars and theme-switch mappings together
+  const processColors = (lightObj: any, darkObj: any, prefix: string) => {
+    const keys = Object.keys(lightObj);
+    for (let i = 0; i < keys.length; i++) {
+      const key = keys[i];
+      const lightValue = lightObj[key];
+      const darkValue = darkObj?.[key];
+      const varName = `${prefix}-${key}`;
+
+      if (typeof lightValue === 'object' && lightValue !== null) {
+        processColors(lightValue, darkValue, varName);
+      } else if (
+        typeof lightValue === 'string' ||
+        typeof lightValue === 'number'
+      ) {
+        // :root gets base + light/dark prefixed vars
+        rootVars.push(
+          `--${varName}:${lightValue};--light-${varName}:${lightValue};--dark-${varName}:${darkValue ?? lightValue}`
+        );
+        // Theme-switching selectors
+        lightMappings.push(`--${varName}:var(--light-${varName})`);
+        darkMappings.push(`--${varName}:var(--dark-${varName})`);
+      }
+    }
+  };
+
+  processColors(lightColors.main, darkColors.main, 'color');
+  processColors(lightColors.palette, darkColors.palette, 'color');
+
+  // Process theme variables.
+  // A theme var that references a color/theme token (e.g.
+  // `--theme-primary: var(--color-black)`) MUST be re-declared inside the
+  // `[data-theme]` blocks. CSS substitutes a custom property that references
+  // another at its DECLARING element and inherits the result frozen — so a var
+  // declared only in `:root` is substituted in light context and never flips in
+  // a dark subtree (while `--color-*` flips because it IS re-declared per mode).
+  // Re-declaring the token-referencing theme vars in each mode block makes them
+  // re-substitute in that mode's context, so `theme-primary`/`theme-text`/… flip
+  // exactly like the `color-*` tokens they point at — including in nested,
+  // mode-pinned providers.
+  const themeVars: string[] = [];
+  const themeFlipVars: string[] = [];
+  const themeKeys = Object.keys(theme);
+  for (let i = 0; i < themeKeys.length; i++) {
+    const key = themeKeys[i];
+    const value = (theme as any)[key];
+    if (typeof value === 'string') {
+      const isToken = value.startsWith('color-') || value.startsWith('theme-');
+      const decl = isToken
+        ? `--theme-${key}:${colorTokenToCss(value)}`
+        : `--theme-${key}:${value}`;
+      themeVars.push(decl);
+      // Only token-referencing vars change between modes; literals are constant.
+      if (isToken) themeFlipVars.push(decl);
+    }
+  }
+
+  // Build minified CSS (no unnecessary whitespace)
+  const lightBlock = themeFlipVars.length
+    ? `${lightMappings.join(';')};${themeFlipVars.join(';')}`
+    : lightMappings.join(';');
+  const darkBlock = themeFlipVars.length
+    ? `${darkMappings.join(';')};${themeFlipVars.join(';')}`
+    : darkMappings.join(';');
+  return `:root{${rootVars.join(';')};${themeVars.join(
+    ';'
+  )}}[data-theme='light']{${lightBlock}}[data-theme='dark']{${darkBlock}}`;
+};
+
+interface ThemeContextProps {
+  // Signature allows overriding the mode for a specific lookup
+  getColor: (name: string, override?: Override) => string;
+  getColorHex: (name: string, override?: Override) => string;
+  getColorRGBA: (
+    name: string,
+    alphaOrOverride?: number | Override,
+    override?: Override
+  ) => string;
+  getColorScheme: (name: string, override?: Override) => string | undefined;
+  getContrastColor: (name: string, override?: Override) => 'black' | 'white';
+  theme: Theme;
+  colors: Colors; // Current mode's colors
+  themeMode: 'light' | 'dark';
+  setThemeMode: (mode: 'light' | 'dark') => void;
+}
+
+// --- Default Configuration ---
+// Theme values use dash notation (color-X or color-X-shade)
+// which gets resolved to CSS variables (var(--color-X-shade))
+export const defaultThemeMain: Theme = {
+  primary: 'color-black',
+  secondary: 'color-blue',
+  success: 'color-green-500',
+  error: 'color-red-500',
+  warning: 'color-orange-500',
+  disabled: 'color-gray-500',
+  loading: 'color-dark-500',
+  // Neutral surface/ink slots map to auto-flipping `color-*` tokens, so
+  // `theme-canvas` / `theme-surface` / `theme-text` / `theme-muted` /
+  // `theme-border` / `theme-on-primary` resolve AND adapt to dark mode out of
+  // the box — even without a custom theme. (`color-white` -> black in dark,
+  // `color-black` -> white, the gray ramp inverts.) A user theme still overrides.
+  canvas: 'color-white',
+  surface: 'color-gray-50',
+  text: 'color-black',
+  muted: 'color-gray-500',
+  border: 'color-gray-200',
+  onPrimary: 'color-white',
+};
+
+const defaultLightColorConfig: Colors = {
+  main: defaultLightColors,
+  palette: defaultLightPalette,
+};
+
+const defaultDarkColorConfig: Colors = {
+  main: defaultDarkColors,
+  palette: defaultDarkPalette,
+};
+
+const getDefaultContextColor = (name: string): string => {
+  if (!name || typeof name !== 'string') return String(name);
+  if (name === TRANSPARENT) return name;
+
+  if (name.startsWith(THEME_PREFIX) || name.startsWith(COLOR_PREFIX)) {
+    return colorTokenToCss(name);
+  }
+
+  if (name.startsWith(LIGHT_PREFIX) || name.startsWith(DARK_PREFIX)) {
+    const prefix = name.startsWith(LIGHT_PREFIX) ? LIGHT_PREFIX : DARK_PREFIX;
+    const colorPart = name.substring(prefix.length);
+    return `var(--${prefix}color-${colorPart})`;
+  }
+
+  return name;
+};
+
+// --- Create Theme Context ---
+export const ThemeContext = createContext<ThemeContextProps>({
+  getColor: getDefaultContextColor,
+  getColorHex: () => '',
+  getColorRGBA: () => '',
+  getColorScheme: () => undefined,
+  getContrastColor: () => 'black',
+  theme: {},
+  colors: { main: defaultLightColors, palette: defaultLightPalette },
+  themeMode: 'light',
+  setThemeMode: () => {},
+});
+
+// --- Custom Hook ---
+export const useTheme = () => {
+  const context = useContext(ThemeContext);
+  if (!context) {
+    throw new Error('useTheme must be used within a ThemeProvider');
+  }
+  return context;
+};
+
+// --- Helper Function to Convert Color to RGBA with Alpha ---
+/**
+ * Converts a color (hex, rgb, or rgba) to rgba format with specified alpha.
+ * @param color - The base color in hex, rgb, or rgba format
+ * @param alpha - Alpha value on a 0-1000 scale (e.g., 200 = 0.2 opacity)
+ * @returns RGBA color string
+ */
+const convertToRgba = (color: string, alpha: number): string => {
+  // Normalize alpha to 0-1 range
+  const normalizedAlpha = Math.max(0, Math.min(1000, alpha)) / 1000;
+
+  // Handle hex colors (#RGB or #RRGGBB)
+  if (color.startsWith('#')) {
+    let hex = color.slice(1);
+    // Convert shorthand hex to full form
+    if (hex.length === 3) {
+      hex = hex
+        .split('')
+        .map((char) => char + char)
+        .join('');
+    }
+    const r = parseInt(hex.slice(0, 2), 16);
+    const g = parseInt(hex.slice(2, 4), 16);
+    const b = parseInt(hex.slice(4, 6), 16);
+    return `rgba(${r}, ${g}, ${b}, ${normalizedAlpha})`;
+  }
+
+  // Handle rgb/rgba colors
+  if (color.startsWith('rgb')) {
+    // Extract the values from rgb() or rgba()
+    const rgbMatch = color.match(/rgba?\(([^)]+)\)/);
+    if (rgbMatch) {
+      const values = rgbMatch[1].split(',').map((v) => v.trim());
+      const r = values[0];
+      const g = values[1];
+      const b = values[2];
+      return `rgba(${r}, ${g}, ${b}, ${normalizedAlpha})`;
+    }
+  }
+
+  // If color format is not recognized, return as-is
+  console.warn(`Unable to convert color "${color}" to rgba format`);
+  return color;
+};
+
+const clamp255 = (value: number) => Math.max(0, Math.min(255, value));
+
+const toTwoHex = (value: number) =>
+  clamp255(Math.round(value)).toString(16).padStart(2, '0');
+
+const normalizeToHex = (color: string): string => {
+  if (!color || typeof color !== 'string') return String(color);
+
+  const trimmed = color.trim();
+  if (trimmed === TRANSPARENT) return '#00000000';
+
+  if (trimmed.startsWith('#')) {
+    const hex = trimmed.slice(1);
+    if (hex.length === 3) {
+      const r = hex[0] + hex[0];
+      const g = hex[1] + hex[1];
+      const b = hex[2] + hex[2];
+      return `#${r}${g}${b}`.toLowerCase();
+    }
+    if (hex.length === 4) {
+      const r = hex[0] + hex[0];
+      const g = hex[1] + hex[1];
+      const b = hex[2] + hex[2];
+      const a = hex[3] + hex[3];
+      return `#${r}${g}${b}${a}`.toLowerCase();
+    }
+    if (hex.length === 6 || hex.length === 8) {
+      return `#${hex}`.toLowerCase();
+    }
+    return trimmed;
+  }
+
+  if (trimmed.startsWith('rgb')) {
+    const match = trimmed.match(/rgba?\(([^)]+)\)/i);
+    if (!match) return trimmed;
+
+    const parts = match[1].split(',').flatMap((p) => {
+      const t = p.trim();
+      return t ? [t] : [];
+    });
+
+    const r = Number(parts[0]);
+    const g = Number(parts[1]);
+    const b = Number(parts[2]);
+    const a = parts.length >= 4 ? Number(parts[3]) : 1;
+
+    if ([r, g, b].some((v) => Number.isNaN(v)) || Number.isNaN(a))
+      return trimmed;
+
+    const rr = toTwoHex(r);
+    const gg = toTwoHex(g);
+    const bb = toTwoHex(b);
+
+    const alpha = Math.max(0, Math.min(1, a));
+    if (alpha >= 1) return `#${rr}${gg}${bb}`.toLowerCase();
+
+    const aa = toTwoHex(alpha * 255);
+    return `#${rr}${gg}${bb}${aa}`.toLowerCase();
+  }
+
+  return trimmed;
+};
+
+const normalizeToRgba = (color: string, alphaOverride?: number): string => {
+  if (!color || typeof color !== 'string') return String(color);
+
+  const trimmed = color.trim();
+  const overrideAlpha =
+    typeof alphaOverride === 'number'
+      ? Math.max(0, Math.min(1000, alphaOverride)) / 1000
+      : undefined;
+
+  if (trimmed === TRANSPARENT) {
+    const a = overrideAlpha ?? 0;
+    return `rgba(0, 0, 0, ${a})`;
+  }
+
+  if (trimmed.startsWith('#')) {
+    let hex = trimmed.slice(1);
+    if (hex.length === 3 || hex.length === 4) {
+      hex = hex
+        .split('')
+        .map((ch) => ch + ch)
+        .join('');
+    }
+
+    if (hex.length !== 6 && hex.length !== 8) return trimmed;
+
+    const r = parseInt(hex.slice(0, 2), 16);
+    const g = parseInt(hex.slice(2, 4), 16);
+    const b = parseInt(hex.slice(4, 6), 16);
+    const aFromHex = hex.length === 8 ? parseInt(hex.slice(6, 8), 16) / 255 : 1;
+    const a = overrideAlpha ?? aFromHex;
+    return `rgba(${r}, ${g}, ${b}, ${a})`;
+  }
+
+  if (trimmed.startsWith('rgb')) {
+    const match = trimmed.match(/rgba?\(([^)]+)\)/i);
+    if (!match) return trimmed;
+
+    const parts = match[1].split(',').flatMap((p) => {
+      const t = p.trim();
+      return t ? [t] : [];
+    });
+
+    const r = Number(parts[0]);
+    const g = Number(parts[1]);
+    const b = Number(parts[2]);
+    const aExisting = parts.length >= 4 ? Number(parts[3]) : 1;
+
+    if ([r, g, b].some((v) => Number.isNaN(v)) || Number.isNaN(aExisting))
+      return trimmed;
+
+    const a = overrideAlpha ?? Math.max(0, Math.min(1, aExisting));
+    return `rgba(${r}, ${g}, ${b}, ${a})`;
+  }
+
+  // If it's already something else (var(), color-mix(), named color), we can't reliably convert.
+  return trimmed;
+};
+
+// --- Deep Merge Function (remains the same, assuming it works as intended) ---
+// Consider using a library like `lodash.merge` or `deepmerge` if complexity grows
+// or edge cases (like merging arrays) need different handling.
+export const deepMerge = (target: any, source: any): any => {
+  // (Implementation from original code)
+  if (typeof source !== 'object' || source === null) {
+    return target;
+  }
+  const merged = { ...target };
+  for (const key in source) {
+    if (Object.prototype.hasOwnProperty.call(source, key)) {
+      const sourceValue = source[key];
+      const targetValue = target[key];
+      if (Array.isArray(sourceValue)) {
+        // Overwrite arrays, don't merge them (common for theme configs)
+        merged[key] = sourceValue;
+      } else if (
+        typeof sourceValue === 'object' &&
+        sourceValue !== null &&
+        !Array.isArray(sourceValue)
+      ) {
+        merged[key] = deepMerge(targetValue || {}, sourceValue);
+      } else if (sourceValue !== undefined) {
+        // Ensure undefined doesn't overwrite
+        merged[key] = sourceValue;
+      }
+    }
+  }
+  return merged;
+};
+
+// --- CSS Variable Injection Helper (Deprecated/Replaced) ---
+// The new logic generates CSS variables within the component and applies them to the container style.
+
+// Detects whether a ThemeProvider is being nested inside another. Nested
+// providers skip the wrapper's background/color/sizing so they can override
+// theme variables for a subtree (e.g. a design-system brand context) without
+// repainting the page or breaking the host layout.
+const ThemeNestingContext = createContext<boolean>(false);
+
+// --- ThemeProvider Component ---
+interface ThemeProviderProps {
+  /**
+   * Accepts `ThemeSlots` in addition to `Partial<Theme>` so a theme coming
+   * from an external interface (e.g. a design-system config type) is
+   * assignable without a cast — interfaces never satisfy the index signature
+   * that `Theme` carries.
+   */
+  theme?: Partial<Theme> | ThemeSlots;
+  dark?: Partial<Colors>;
+  light?: Partial<Colors>;
+  mode?: 'light' | 'dark';
+  children: ReactNode;
+  strict?: boolean;
+  targetWindow?: Window;
+  /**
+   * Whether this provider stamps `data-theme` on the owning
+   * `document.documentElement`. The light/dark CSS-variable blocks are keyed
+   * on `[data-theme]`, so content portaled to `document.body` (modals,
+   * toasts, drawers) only flips when the attribute is present ABOVE the
+   * portal target — the provider's own wrapper div cannot reach it.
+   * Defaults to `true` for a root provider (and for `targetWindow` — the
+   * iframe document gets stamped) and `false` for nested providers, which
+   * scope their mode to their own subtree.
+   */
+  stampDocument?: boolean;
+  /**
+   * When `true`, the wrapper renders as `display: contents` (no background,
+   * color, sizing, or transition). Useful when nesting a ThemeProvider inside
+   * an existing themed subtree — the inner provider only contributes its CSS
+   * variables and `data-theme` attribute. Automatically inferred when a parent
+   * ThemeProvider exists in the React tree.
+   */
+  transparentWrapper?: boolean;
+}
+
+// Stable default references to prevent unnecessary re-renders and cache invalidation
+const DEFAULT_THEME_OVERRIDE: Partial<Theme> = {};
+const DEFAULT_COLORS_OVERRIDE: Partial<Colors> = {};
+
+export const ThemeProvider = ({
+  theme: themeOverride = DEFAULT_THEME_OVERRIDE,
+  mode: initialMode = 'light',
+  dark: darkOverride = DEFAULT_COLORS_OVERRIDE,
+  light: lightOverride = DEFAULT_COLORS_OVERRIDE,
+  children,
+  strict = false,
+  targetWindow,
+  transparentWrapper,
+  stampDocument,
+}: ThemeProviderProps): React.ReactElement => {
+  const isNested = useContext(ThemeNestingContext);
+  const wrapperIsTransparent = transparentWrapper ?? isNested;
+  const [themeMode, setThemeMode] = useState<'light' | 'dark'>(initialMode);
+  const colorCache = useRef(new Map<string, string>()).current;
+
+  // Sync state with prop changes
+  useEffect(() => {
+    setThemeMode(initialMode);
+  }, [initialMode]);
+
+  // Clear cache when theme definitions change to avoid stale colors
+  useEffect(() => {
+    colorCache.clear();
+  }, [lightOverride, darkOverride, themeOverride, colorCache]);
+
+  // --- Memoize derived values ---
+  const themeColors = useMemo<{ light: Colors; dark: Colors }>(
+    () => ({
+      light: deepMerge(defaultLightColorConfig, lightOverride),
+      dark: deepMerge(defaultDarkColorConfig, darkOverride),
+    }),
+    [lightOverride, darkOverride]
+  );
+
+  // Snap any literal colors configured in the theme (e.g. `#ef4444`) to the
+  // nearest palette token, so user themes keep flipping between light/dark mode
+  // instead of being frozen to a single value.
+  const mergedTheme = useMemo<Theme>(
+    () =>
+      normalizeThemeColors(
+        deepMerge(defaultThemeMain, themeOverride),
+        themeColors.light
+      ),
+    [themeOverride, themeColors.light]
+  );
+
+  const currentColors = useMemo(
+    () => themeColors[themeMode],
+    [themeColors, themeMode]
+  );
+
+  const resolveColorTokenForMode = useCallback(
+    (
+      token: string,
+      mode: 'light' | 'dark',
+      override?: Override,
+      depth: number = 0
+    ): string => {
+      if (!token || typeof token !== 'string') return String(token);
+      if (token === TRANSPARENT) return token;
+      if (depth > 25) return token;
+
+      const effectiveTheme = override?.theme
+        ? (deepMerge(mergedTheme, override.theme) as Theme)
+        : mergedTheme;
+
+      // Convert dash notation to internal format for resolution
+      // theme-primary-100 -> parts for processing
+      if (token.startsWith(THEME_PREFIX)) {
+        const parts = token.substring(THEME_PREFIX.length).split('-');
+        const lastPart = parts[parts.length - 1];
+        const maybeAlpha = parseInt(lastPart, 10);
+
+        // Check for alpha suffix: theme-primary-100 (2+ parts after prefix, last is 0-1000)
+        if (
+          parts.length >= 2 &&
+          !isNaN(maybeAlpha) &&
+          maybeAlpha >= 0 &&
+          maybeAlpha <= 1000
+        ) {
+          const themeKey = parts.slice(0, -1).join('-') as keyof Theme;
+          const baseToken = `${THEME_PREFIX}${themeKey}`;
+          const resolvedBase = resolveColorTokenForMode(
+            baseToken,
+            mode,
+            override,
+            depth + 1
+          );
+          return convertToRgba(resolvedBase, maybeAlpha);
+        }
+
+        const themeKey = parts.join('-') as keyof Theme;
+        const themeValue = effectiveTheme[themeKey as keyof Theme];
+        if (typeof themeValue === 'string') {
+          // Theme values use dash notation (color-blue-500)
+          return resolveColorTokenForMode(
+            themeValue,
+            mode,
+            override,
+            depth + 1
+          );
+        }
+        return token;
+      }
+
+      // Handle dash notation: color-blue-500, light-blue-500, dark-blue-500
+      if (token.startsWith(COLOR_PREFIX)) {
+        const parts = token.substring(COLOR_PREFIX.length).split('-');
+        const colorsToUse = themeColors[mode];
+        const palette = deepMerge(
+          colorsToUse.palette,
+          override?.colors?.palette || {}
+        );
+        const main = deepMerge(colorsToUse.main, override?.colors?.main || {});
+
+        // color-blue-500-200 (alpha)
+        if (parts.length >= 3) {
+          const lastPart = parts[parts.length - 1];
+          const maybeAlpha = parseInt(lastPart, 10);
+          if (!isNaN(maybeAlpha) && maybeAlpha >= 0 && maybeAlpha <= 1000) {
+            const colorName = parts[0];
+            const variant = parts[1];
+            const base = palette?.[colorName]?.[variant];
+            if (typeof base === 'string') {
+              return convertToRgba(base, maybeAlpha);
+            }
+          }
+        }
+        // color-blue-500
+        if (parts.length === 2) {
+          const [colorName, variant] = parts;
+          const value = palette?.[colorName]?.[variant];
+          return typeof value === 'string' ? value : token;
+        }
+        // color-blue
+        if (parts.length === 1) {
+          const value = main?.[parts[0]];
+          return typeof value === 'string' ? value : token;
+        }
+        return token;
+      }
+
+      // Handle light-* and dark-* tokens
+      if (token.startsWith(LIGHT_PREFIX) || token.startsWith(DARK_PREFIX)) {
+        const explicitMode = token.startsWith(LIGHT_PREFIX) ? 'light' : 'dark';
+        const prefix = token.startsWith(LIGHT_PREFIX)
+          ? LIGHT_PREFIX
+          : DARK_PREFIX;
+        const colorPart = token.substring(prefix.length);
+        return resolveColorTokenForMode(
+          `${COLOR_PREFIX}${colorPart}`,
+          explicitMode,
+          override,
+          depth + 1
+        );
+      }
+
+      return token;
+    },
+    [mergedTheme, themeColors]
+  );
+
+  // --- Helper function to resolve color tokens to actual values ---
+  // This is used internally and handles dash notation (public API)
+  const resolveColorToken = useCallback(
+    (token: string): string => {
+      if (!token || typeof token !== 'string') return String(token);
+      if (token === TRANSPARENT) return token;
+
+      const colors = currentColors;
+
+      // Handle dash notation: color-blue-500
+      if (token.startsWith(COLOR_PREFIX)) {
+        const parts = token.substring(COLOR_PREFIX.length).split('-');
+
+        // color-blue-500-200 (alpha)
+        if (parts.length >= 3) {
+          const lastPart = parts[parts.length - 1];
+          const maybeAlpha = parseInt(lastPart, 10);
+          if (!isNaN(maybeAlpha) && maybeAlpha >= 0 && maybeAlpha <= 1000) {
+            const percentage = Math.round((maybeAlpha / 1000) * 100);
+            const baseVar = `color-${parts.slice(0, -1).join('-')}`;
+            return `color-mix(in srgb, var(--${baseVar}) ${percentage}%, transparent)`;
+          }
+        }
+        // color-blue-500
+        if (parts.length === 2) {
+          const [colorName, shade] = parts;
+          const shadeValue = colors.palette[colorName]?.[Number(shade)];
+          return typeof shadeValue === 'string' ? shadeValue : token;
+        }
+        // color-blue
+        if (parts.length === 1) {
+          const colorValue = colors.main[parts[0]];
+          return typeof colorValue === 'string' ? colorValue : token;
+        }
+      }
+
+      // Handle dash notation: theme-primary, theme-primary-100
+      if (token.startsWith(THEME_PREFIX)) {
+        const parts = token.substring(THEME_PREFIX.length).split('-');
+        const lastPart = parts[parts.length - 1];
+        const maybeAlpha = parseInt(lastPart, 10);
+
+        // theme-primary-100 (alpha)
+        if (
+          parts.length >= 2 &&
+          !isNaN(maybeAlpha) &&
+          maybeAlpha >= 0 &&
+          maybeAlpha <= 1000
+        ) {
+          const percentage = Math.round((maybeAlpha / 1000) * 100);
+          const baseVar = `theme-${parts.slice(0, -1).join('-')}`;
+          return `color-mix(in srgb, var(--${baseVar}) ${percentage}%, transparent)`;
+        }
+
+        const themeKey = parts.join('-') as keyof Theme;
+        const themeValue = mergedTheme[themeKey as keyof Theme];
+        if (typeof themeValue === 'string') {
+          return resolveColorToken(themeValue);
+        }
+      }
+
+      return token;
+    },
+    [currentColors, mergedTheme]
+  );
+
+  // The mode is now handled by the data-attribute on the container
+
+  // --- Memoized getColor function - Dash notation only ---
+  const getColor = useCallback(
+    (name: string): string => {
+      if (!name || typeof name !== 'string') return String(name);
+      if (name === TRANSPARENT) return name;
+
+      // Strict Mode Check - only dash notation is supported
+      if (
+        strict &&
+        !name.startsWith(COLOR_PREFIX) &&
+        !name.startsWith(THEME_PREFIX) &&
+        !name.startsWith(LIGHT_PREFIX) &&
+        !name.startsWith(DARK_PREFIX)
+      ) {
+        console.warn(
+          `[Theme] Invalid color token: '${name}'. Use dash notation: theme-primary, color-blue-500`
+        );
+      }
+
+      // Always-on development check for values that cannot be anything but a
+      // mistake. This is deliberately narrower than `strict`, which also fires
+      // on perfectly valid CSS like '#fff' and is therefore off by default.
+      //
+      // Both cases below fail *silently* in production: dotted notation is
+      // emitted verbatim as an invalid CSS value, and an unknown dash token
+      // becomes `var(--typo)`, which resolves to nothing. In neither case does
+      // anything throw, so the only symptom is a colour that never appears.
+      if (process.env.NODE_ENV !== 'production') {
+        warnIfUnresolvable(name, currentColors, mergedTheme);
+      }
+
+      const parts = name.split('-');
+      const lastPart = parts[parts.length - 1];
+      const maybeAlpha = parseInt(lastPart, 10);
+
+      // Handle theme-* tokens (e.g., theme-primary, theme-primary-100)
+      if (name.startsWith(THEME_PREFIX)) {
+        // Check for alpha suffix: theme-primary-100 (3+ parts, last is 0-1000)
+        if (
+          parts.length >= 3 &&
+          !isNaN(maybeAlpha) &&
+          maybeAlpha >= 0 &&
+          maybeAlpha <= 1000
+        ) {
+          const baseVar = parts.slice(0, -1).join('-');
+          const percentage = Math.round((maybeAlpha / 1000) * 100);
+          return `color-mix(in srgb, var(--${baseVar}) ${percentage}%, transparent)`;
+        }
+        return `var(--${name})`;
+      }
+
+      // Handle color-* tokens (e.g., color-blue-500, color-blue-500-200)
+      if (name.startsWith(COLOR_PREFIX)) {
+        // Check for alpha suffix: color-blue-500-200 (4+ parts, last is 0-1000)
+        if (
+          parts.length >= 4 &&
+          !isNaN(maybeAlpha) &&
+          maybeAlpha >= 0 &&
+          maybeAlpha <= 1000
+        ) {
+          const baseVar = parts.slice(0, -1).join('-');
+          const percentage = Math.round((maybeAlpha / 1000) * 100);
+          return `color-mix(in srgb, var(--${baseVar}) ${percentage}%, transparent)`;
+        }
+        return `var(--${name})`;
+      }
+
+      // Handle light-* and dark-* tokens (e.g., light-blue-500, dark-red-200)
+      if (name.startsWith(LIGHT_PREFIX) || name.startsWith(DARK_PREFIX)) {
+        const prefix = name.startsWith(LIGHT_PREFIX)
+          ? LIGHT_PREFIX
+          : DARK_PREFIX;
+        const colorPart = name.substring(prefix.length);
+        return `var(--${prefix}color-${colorPart})`;
+      }
+
+      // Return as-is for direct values (#hex, rgb(), etc.)
+      return name;
+    },
+    [strict, currentColors, mergedTheme]
+  );
+
+  const getColorHex = useCallback(
+    (name: string, override?: Override): string => {
+      if (!name || typeof name !== 'string') return String(name);
+      if (name === TRANSPARENT) return '#00000000';
+
+      const effectiveMode = override?.themeMode ?? themeMode;
+      const cacheKey = `${name}-${effectiveMode}-hex`;
+
+      // Cache only when no override object is provided
+      if (!override && colorCache.has(cacheKey)) {
+        return colorCache.get(cacheKey)!;
+      }
+
+      const resolved = resolveColorTokenForMode(name, effectiveMode, override);
+      const hex = normalizeToHex(resolved);
+
+      if (!override) colorCache.set(cacheKey, hex);
+      return hex;
+    },
+    [themeMode, colorCache, resolveColorTokenForMode]
+  );
+
+  const getColorRGBA = useCallback(
+    (
+      name: string,
+      alphaOrOverride?: number | Override,
+      overrideMaybe?: Override
+    ): string => {
+      if (!name || typeof name !== 'string') return String(name);
+
+      const alpha =
+        typeof alphaOrOverride === 'number' ? alphaOrOverride : undefined;
+      const override = (
+        typeof alphaOrOverride === 'object' ? alphaOrOverride : overrideMaybe
+      ) as Override | undefined;
+
+      const effectiveMode = override?.themeMode ?? themeMode;
+      const alphaKey = typeof alpha === 'number' ? String(alpha) : 'auto';
+      const cacheKey = `${name}-${effectiveMode}-rgba-${alphaKey}`;
+
+      if (!override && colorCache.has(cacheKey)) {
+        return colorCache.get(cacheKey)!;
+      }
+
+      const resolved = resolveColorTokenForMode(name, effectiveMode, override);
+      const rgba = normalizeToRgba(resolved, alpha);
+
+      if (!override) colorCache.set(cacheKey, rgba);
+      return rgba;
+    },
+    [themeMode, colorCache, resolveColorTokenForMode]
+  );
+
+  const getColorScheme = useCallback(
+    (name: string, override?: Override): string | undefined => {
+      if (!name || typeof name !== 'string') return undefined;
+
+      const effectiveMode = override?.themeMode ?? themeMode;
+      const effectiveTheme = override?.theme
+        ? (deepMerge(mergedTheme, override.theme) as Theme)
+        : mergedTheme;
+
+      // Resolve theme-* tokens to get the underlying color token
+      let colorToken = name;
+      if (name.startsWith(THEME_PREFIX)) {
+        const themeKey = name.substring(THEME_PREFIX.length) as keyof Theme;
+        const themeValue = effectiveTheme[themeKey];
+        if (typeof themeValue === 'string') {
+          colorToken = themeValue;
+        }
+      }
+
+      // Handle light-* or dark-* prefixes
+      if (
+        colorToken.startsWith(LIGHT_PREFIX) ||
+        colorToken.startsWith(DARK_PREFIX)
+      ) {
+        const prefix = colorToken.startsWith(LIGHT_PREFIX)
+          ? LIGHT_PREFIX
+          : DARK_PREFIX;
+        colorToken = `${COLOR_PREFIX}${colorToken.substring(prefix.length)}`;
+      }
+
+      // Extract color scheme from color-* tokens (e.g., color-blue-500 -> 'blue')
+      if (colorToken.startsWith(COLOR_PREFIX)) {
+        const parts = colorToken.substring(COLOR_PREFIX.length).split('-');
+        if (parts.length >= 1) {
+          return parts[0]; // Return the color scheme name (e.g., 'blue', 'pink')
+        }
+      }
+
+      // Handle hex or rgba colors by finding the closest match in the palette
+      const normalizedInput = normalizeToHex(colorToken).toLowerCase();
+      if (normalizedInput.startsWith('#')) {
+        const colorsToUse = themeColors[effectiveMode];
+        const palette = deepMerge(
+          colorsToUse.palette,
+          override?.colors?.palette || {}
+        );
+        const main = deepMerge(colorsToUse.main, override?.colors?.main || {});
+
+        // First check main colors for exact match
+        for (const [colorName, colorValue] of Object.entries(main)) {
+          if (typeof colorValue === 'string') {
+            const normalizedPalette = normalizeToHex(colorValue).toLowerCase();
+            if (normalizedPalette === normalizedInput) {
+              return colorName;
+            }
+          }
+        }
+
+        // Then check palette colors for exact match
+        for (const [colorName, shades] of Object.entries(palette)) {
+          if (typeof shades === 'object' && shades !== null) {
+            for (const [, shadeValue] of Object.entries(shades)) {
+              if (typeof shadeValue === 'string') {
+                const normalizedPalette =
+                  normalizeToHex(shadeValue).toLowerCase();
+                if (normalizedPalette === normalizedInput) {
+                  return colorName;
+                }
+              }
+            }
+          }
+        }
+      }
+
+      return undefined;
+    },
+    [mergedTheme, themeMode, themeColors]
+  );
+
+  const getContrastColor = useCallback(
+    (name: string, override?: Override): 'black' | 'white' => {
+      if (!name || typeof name !== 'string') return 'black';
+
+      const effectiveMode = override?.themeMode ?? themeMode;
+
+      // First resolve the color to a hex value
+      let hexColor: string;
+
+      // Check if it's already a hex or rgb color
+      if (name.startsWith('#') || name.startsWith('rgb')) {
+        hexColor = normalizeToHex(name);
+      } else {
+        // Resolve the token to get the actual color value
+        const resolved = resolveColorTokenForMode(
+          name,
+          effectiveMode,
+          override
+        );
+        hexColor = normalizeToHex(resolved);
+      }
+
+      // If we couldn't get a valid hex, default to black
+      if (!hexColor.startsWith('#') || hexColor.length < 7) {
+        return 'black';
+      }
+
+      // Extract RGB values
+      const hex = hexColor.slice(1);
+      const r = parseInt(hex.slice(0, 2), 16);
+      const g = parseInt(hex.slice(2, 4), 16);
+      const b = parseInt(hex.slice(4, 6), 16);
+
+      // Calculate relative luminance using the sRGB formula
+      // https://www.w3.org/TR/WCAG20/#relativeluminancedef
+      const toLinear = (c: number) => {
+        const sRGB = c / 255;
+        return sRGB <= 0.03928
+          ? sRGB / 12.92
+          : Math.pow((sRGB + 0.055) / 1.055, 2.4);
+      };
+
+      const luminance =
+        0.2126 * toLinear(r) + 0.7152 * toLinear(g) + 0.0722 * toLinear(b);
+
+      // Use threshold of 0.179 (WCAG recommendation)
+      // Return white for dark colors, black for light colors
+      return luminance > 0.179 ? 'black' : 'white';
+    },
+    [themeMode, resolveColorTokenForMode]
+  );
+
+  // --- Memoize Context Value ---
+  const contextValue = useMemo(
+    () => ({
+      getColor,
+      getColorHex,
+      getColorRGBA,
+      getColorScheme,
+      getContrastColor,
+      theme: mergedTheme,
+      colors: currentColors,
+      themeMode,
+      setThemeMode,
+    }),
+    [
+      getColor,
+      getColorHex,
+      getColorRGBA,
+      getColorScheme,
+      getContrastColor,
+      mergedTheme,
+      currentColors,
+      themeMode,
+    ]
+  );
+
+  // Generate CSS variables
+  const cssVariables = useMemo(
+    () =>
+      generateCSSVariables(mergedTheme, themeColors.light, themeColors.dark),
+    [mergedTheme, themeColors]
+  );
+
+  // On the client, inject the theme CSS variables into the main document's head
+  // (rather than rendering an inline <style> in the React tree — see the render
+  // below). useInsertionEffect runs before the browser paints, so there is no
+  // flash, and keeping the <style> out of the hydrated tree lets a prerendered +
+  // hydrated page match the server HTML exactly. SSR has no document, so it
+  // renders the inline <style> instead (lifted into <head> by the prerenderer).
+  useInsertionEffect(() => {
+    if (typeof document === 'undefined' || targetWindow) return;
+    const styleId = 'app-studio-theme-vars';
+    let tag = document.getElementById(styleId) as HTMLStyleElement | null;
+    if (!tag) {
+      tag = document.createElement('style');
+      tag.id = styleId;
+      document.head.appendChild(tag);
+    }
+    tag.textContent = cssVariables;
+  }, [cssVariables, targetWindow]);
+
+  // Stamp the active mode on the owning document element. The light/dark
+  // variable blocks generated above are keyed on `[data-theme='...']`, and
+  // content portaled to `document.body` (modals, drawers, toasts) mounts
+  // OUTSIDE the provider's wrapper div — without the attribute on <html> it
+  // stays frozen on the :root (light) values whatever the active mode is.
+  // Only the root provider stamps by default: a nested provider is a subtree
+  // override and must not repaint the whole page. `stampDocument` forces it
+  // either way.
+  const shouldStampDocument = stampDocument ?? (!isNested || !!targetWindow);
+  useInsertionEffect(() => {
+    if (!shouldStampDocument) return;
+    const doc =
+      targetWindow?.document ??
+      (typeof document !== 'undefined' ? document : undefined);
+    if (!doc) return;
+    const root = doc.documentElement;
+    const previous = root.getAttribute('data-theme');
+    root.setAttribute('data-theme', themeMode);
+    return () => {
+      if (previous === null) root.removeAttribute('data-theme');
+      else root.setAttribute('data-theme', previous);
+    };
+  }, [shouldStampDocument, targetWindow, themeMode]);
+
+  // Dev-only: a neutral slot (canvas/surface/text/muted/border) is expected to
+  // flip with the mode. Parseable literals were snapped to palette tokens by
+  // normalizeThemeColors above; whatever is left frozen (e.g. a CSS named
+  // color) renders identically in light and dark, which reads as a dark-mode
+  // regression at the call site. Say so once per slot/value.
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'production') return;
+    const neutralSlots = [
+      'canvas',
+      'surface',
+      'text',
+      'muted',
+      'border',
+    ] as const;
+    for (const slot of neutralSlots) {
+      const value = mergedTheme[slot];
+      if (typeof value === 'string' && !isColorToken(value)) {
+        warnOnce(
+          `frozen-neutral-slot:${slot}:${value}`,
+          `[Theme] theme.${slot} = '${value}' could not be mapped to a palette token, so it will NOT flip in dark mode. ` +
+            `Neutral slots should use auto-flipping tokens (e.g. 'color-white', 'color-gray-200') or a parseable literal (hex/rgb).`
+        );
+      }
+    }
+  }, [mergedTheme]);
+
+  // Inject CSS variables into target document (for iframe support)
+  useEffect(() => {
+    if (!targetWindow) return;
+
+    const targetDoc = targetWindow.document;
+    const styleId = 'app-studio-theme-vars';
+
+    // Remove existing style tag if any
+    const existing = targetDoc.getElementById(styleId);
+    if (existing) {
+      existing.remove();
+    }
+
+    // Create and inject new style tag
+    const styleTag = targetDoc.createElement('style');
+    styleTag.id = styleId;
+    styleTag.textContent = cssVariables;
+    targetDoc.head.appendChild(styleTag);
+
+    // Cleanup on unmount
+    return () => {
+      const styleToRemove = targetDoc.getElementById(styleId);
+      if (styleToRemove) {
+        styleToRemove.remove();
+      }
+    };
+  }, [targetWindow, cssVariables]);
+
+  const wrapperStyle: React.CSSProperties = wrapperIsTransparent
+    ? { display: 'contents' }
+    : {
+        backgroundColor: 'var(--color-white)',
+        color: 'var(--color-black)',
+        width: '100%',
+        height: '100%',
+        transition: 'background-color 0.2s, color 0.2s',
+      };
+
+  return (
+    <ThemeNestingContext.Provider value={true}>
+      <ThemeContext.Provider value={contextValue}>
+        {/* SSR-only: on the client the variables are injected into <head> via
+            the insertion effect above, so this stays out of the hydrated tree.
+            During SSR (no window) it renders inline; the prerenderer lifts it
+            into <head>. */}
+        {typeof window === 'undefined' && !targetWindow && (
+          <style>{cssVariables}</style>
+        )}
+        <div data-theme={themeMode} style={wrapperStyle}>
+          {children}
+        </div>
+      </ThemeContext.Provider>
+    </ThemeNestingContext.Provider>
+  );
+};

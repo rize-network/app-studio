@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "jsx": "react",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "target": "ES2020",
+    "sourceMap": true,
+    "skipLibCheck": true
+  },
+  "include": ["**/*.ts", "transforms/tests.js"],
+  "exclude": ["node_modules"]
+}

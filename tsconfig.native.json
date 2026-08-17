@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.json",
+  "include": ["src/native", "src/shared", "src/utils", "src/types", "src/element/Animation.tsx"],
+  "exclude": ["src/components", "src/providers/Theme.tsx", "src/providers/Responsive.tsx"],
+  "compilerOptions": {
+    "lib": ["dom", "esnext"],
+    "jsx": "react-native",
+    "types": ["react", "react-native"],
+    "noEmit": true
+  }
+}

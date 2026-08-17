@@ -1,0 +1,14 @@
+{
+  "ignore": {
+    "overrides": [
+      {
+        "files": ["stories/**", "test/**", "src/test/**"],
+        "rules": ["react-doctor/rn-no-raw-text"]
+      },
+      {
+        "files": ["stories/**"],
+        "rules": ["react-doctor/iframe-missing-sandbox"]
+      }
+    ]
+  }
+}

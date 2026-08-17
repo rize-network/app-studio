@@ -1,0 +1,95 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Regression Suite renders Horizontal stack (flex row) 1`] = `
+<div
+  data-theme="light"
+  style="width: 100%; height: 100%; transition: background-color 0.2s, color 0.2s;"
+>
+  <div
+    class="gp-10px dy-flex fdn-row"
+  >
+    <div
+      class="wh-50px ht-50px wh-50px ht-50px bcr-red"
+    />
+    <div
+      class="wh-50px ht-50px wh-50px ht-50px bcr-blue"
+    />
+  </div>
+</div>
+`;
+
+exports[`Regression Suite renders Text with typography props 1`] = `
+<div
+  data-theme="light"
+  style="width: 100%; height: 100%; transition: background-color 0.2s, color 0.2s;"
+>
+  <span
+    class="tdn-none fse-16px fwt-bold cr-blue"
+    font-style="normal"
+  >
+    Hello World
+  </span>
+</div>
+`;
+
+exports[`Regression Suite renders Vertical stack (flex column) 1`] = `
+<div
+  data-theme="light"
+  style="width: 100%; height: 100%; transition: background-color 0.2s, color 0.2s;"
+>
+  <div
+    class="pg-5px dy-flex fdn-column"
+  >
+    <div
+      class="fx-1"
+    />
+    <div
+      class="fx-2"
+    />
+  </div>
+</div>
+`;
+
+exports[`Regression Suite renders View with basic styles 1`] = `
+<div
+  data-theme="light"
+  style="width: 100%; height: 100%; transition: background-color 0.2s, color 0.2s;"
+>
+  <div
+    class="bcr-red pg-10px mn-20px"
+  />
+</div>
+`;
+
+exports[`Regression Suite renders custom tokens 1`] = `
+<div
+  data-theme="light"
+  style="width: 100%; height: 100%; transition: background-color 0.2s, color 0.2s;"
+>
+  <div
+    class="bcr-var--color-blue-500 cr-var--theme-primary"
+  />
+</div>
+`;
+
+exports[`Regression Suite renders media queries 1`] = `
+<div
+  data-theme="light"
+  style="width: 100%; height: 100%; transition: background-color 0.2s, color 0.2s;"
+>
+  <div
+    class="wh-100px mobile--wh-100 tablet--wh-50"
+  />
+</div>
+`;
+
+exports[`Regression Suite renders pseudo-selectors (_hover) 1`] = `
+<div
+  data-theme="light"
+  style="width: 100%; height: 100%; transition: background-color 0.2s, color 0.2s;"
+>
+  <div
+    class="bcr-white bcr-gray--hover oy-0p8--active"
+  />
+</div>
+`;

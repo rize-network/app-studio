@@ -1,0 +1,325 @@
+import {
+  propertyToKebabCase,
+  setSize,
+  isStyleProp,
+  styleObjectToCss,
+  toKebabCase,
+  processStyleProperty,
+  generateClassName,
+  shouldBeAttribute,
+} from '../../../src/utils/style';
+
+describe('Style Utilities', () => {
+  describe('propertyToKebabCase', () => {
+    it('should convert camelCase to kebab-case', () => {
+      expect(propertyToKebabCase('backgroundColor')).toBe('background-color');
+    });
+
+    it('should handle simple properties', () => {
+      expect(propertyToKebabCase('color')).toBe('color');
+      expect(propertyToKebabCase('display')).toBe('display');
+    });
+
+    it('should handle webkit prefix (uppercase)', () => {
+      expect(propertyToKebabCase('WebkitTransform')).toBe('-webkit-transform');
+    });
+
+    it('should handle moz prefix (uppercase)', () => {
+      expect(propertyToKebabCase('MozUserSelect')).toBe('-moz-user-select');
+    });
+
+    it('should handle ms prefix', () => {
+      expect(propertyToKebabCase('msFilter')).toBe('-ms-filter');
+    });
+
+    it('should handle o prefix (uppercase)', () => {
+      expect(propertyToKebabCase('OTransform')).toBe('-o-transform');
+    });
+
+    it('should handle lowercase webkit prefix (no leading dash)', () => {
+      // Note: hyphenate-style-name doesn't add leading dash for lowercase vendor prefixes
+      expect(propertyToKebabCase('webkitTransform')).toBe('webkit-transform');
+    });
+  });
+
+  describe('setSize', () => {
+    it('should set both width and height to the same value', () => {
+      const styleProps: Record<string, any> = {};
+      setSize(100, styleProps);
+      expect(styleProps.width).toBe(100);
+      expect(styleProps.height).toBe(100);
+    });
+
+    it('should set string size values', () => {
+      const styleProps: Record<string, any> = {};
+      setSize('50%', styleProps);
+      expect(styleProps.width).toBe('50%');
+      expect(styleProps.height).toBe('50%');
+    });
+
+    it('should override existing values', () => {
+      const styleProps: Record<string, any> = { width: 50, height: 50 };
+      setSize(100, styleProps);
+      expect(styleProps.width).toBe(100);
+      expect(styleProps.height).toBe(100);
+    });
+  });
+
+  describe('isStyleProp', () => {
+    it('should return true for color property', () => {
+      expect(isStyleProp('color')).toBe(true);
+    });
+
+    it('should return true for backgroundColor property', () => {
+      expect(isStyleProp('backgroundColor')).toBe(true);
+    });
+
+    it('should return true for margin properties', () => {
+      expect(isStyleProp('margin')).toBe(true);
+      expect(isStyleProp('marginTop')).toBe(true);
+    });
+
+    it('should return false for event handlers', () => {
+      expect(isStyleProp('onClick')).toBe(false);
+      expect(isStyleProp('onChange')).toBe(false);
+      expect(isStyleProp('onSubmit')).toBe(false);
+    });
+
+    it('should return true for explicitly listed vendor prefixed properties', () => {
+      // Only explicitly listed vendor prefixed properties are recognized
+      expect(isStyleProp('WebkitTextFillColor')).toBe(true);
+      expect(isStyleProp('WebkitBackgroundClip')).toBe(true);
+    });
+
+    it('should return true for CSS variables', () => {
+      expect(isStyleProp('--my-color')).toBe(true);
+      expect(isStyleProp('--primary')).toBe(true);
+    });
+
+    it('should return true for custom style props', () => {
+      expect(isStyleProp('shadow')).toBe(true);
+    });
+
+    it('recognizes the complete static CSS property registry without CSS.supports', () => {
+      expect(isStyleProp('textOverflow')).toBe(true);
+      expect(isStyleProp('borderBottomWidth')).toBe(true);
+      expect(isStyleProp('fontVariantNumeric')).toBe(true);
+      expect(isStyleProp('overscrollBehavior')).toBe(true);
+    });
+  });
+
+  describe('styleObjectToCss', () => {
+    it('should convert style object to CSS string', () => {
+      const styles = { color: 'red', display: 'flex' };
+      const result = styleObjectToCss(styles);
+      expect(result).toContain('color: red');
+      expect(result).toContain('display: flex');
+    });
+
+    it('should skip null and undefined values', () => {
+      const styles = { color: 'red', margin: null, padding: undefined };
+      const result = styleObjectToCss(styles);
+      expect(result).toContain('color: red');
+      expect(result).not.toContain('margin');
+      expect(result).not.toContain('padding');
+    });
+
+    it('should skip non-style properties', () => {
+      const styles = { color: 'red', onClick: () => {} };
+      const result = styleObjectToCss(styles);
+      expect(result).toContain('color: red');
+      expect(result).not.toContain('onClick');
+    });
+
+    it('should handle multiple properties', () => {
+      const styles = {
+        backgroundColor: 'blue',
+        color: 'white',
+        fontSize: '14px',
+      };
+      const result = styleObjectToCss(styles);
+      expect(result).toContain('background-color: blue');
+      expect(result).toContain('color: white');
+      expect(result).toContain('font-size: 14px');
+    });
+
+    it('should return formatted CSS with semicolons', () => {
+      const styles = { color: 'red' };
+      const result = styleObjectToCss(styles);
+      expect(result).toMatch(/color: red;/);
+    });
+
+    it('should normalize numeric line heights consistently', () => {
+      expect(styleObjectToCss({ lineHeight: '1.6' })).toContain(
+        'line-height: 1.6;'
+      );
+      expect(styleObjectToCss({ lineHeight: 20.5 })).toContain(
+        'line-height: 20.5px;'
+      );
+    });
+  });
+
+  describe('toKebabCase', () => {
+    it('should convert camelCase to kebab-case', () => {
+      const result = toKebabCase('backgroundColor');
+      expect(result).toBe('background-color');
+    });
+
+    it('should handle vendor prefixes', () => {
+      const result = toKebabCase('WebkitTransform');
+      expect(result).toBe('-webkit-transform');
+    });
+  });
+
+  describe('processStyleProperty', () => {
+    const mockGetColor = (color: string) => color; // Simple mock that returns input
+
+    it('should handle null and undefined values', () => {
+      expect(processStyleProperty('color', null, mockGetColor)).toBe('');
+      expect(processStyleProperty('color', undefined, mockGetColor)).toBe('');
+    });
+
+    it('should pass CSS variables as-is', () => {
+      expect(processStyleProperty('--primary', '#FF0000', mockGetColor)).toBe(
+        '#FF0000'
+      );
+    });
+
+    it('should add px to numeric values for appropriate properties', () => {
+      const result = processStyleProperty('width', 100, mockGetColor);
+      expect(result).toBe('100px');
+    });
+
+    it('should not add px to unitless properties', () => {
+      const result = processStyleProperty('flex', 1, mockGetColor);
+      expect(result).toBe(1);
+    });
+
+    it.each([1.1, 1.2, 1.3, 1.6, 2.1])(
+      'should preserve lineHeight=%s as a unitless multiplier for numbers and strings',
+      (lineHeight) => {
+        expect(
+          processStyleProperty('lineHeight', lineHeight, mockGetColor)
+        ).toBe(lineHeight);
+        expect(
+          processStyleProperty('lineHeight', String(lineHeight), mockGetColor)
+        ).toBe(lineHeight);
+      }
+    );
+
+    it('should preserve fractional absolute line heights without rounding', () => {
+      expect(processStyleProperty('lineHeight', 20.5, mockGetColor)).toBe(
+        '20.5px'
+      );
+      expect(processStyleProperty('lineHeight', '20.5', mockGetColor)).toBe(
+        '20.5px'
+      );
+      expect(processStyleProperty('lineHeight', '1.2rem', mockGetColor)).toBe(
+        '1.2rem'
+      );
+    });
+
+    it('should process color properties', () => {
+      const result = processStyleProperty('color', 'red', mockGetColor);
+      expect(result).toBe('red');
+    });
+
+    it('should handle string values', () => {
+      const result = processStyleProperty('display', 'flex', mockGetColor);
+      expect(result).toBe('flex');
+    });
+
+    it('should resolve a bare token inside a composite non-color value', () => {
+      const themeGetColor = (color: string) =>
+        /^(color|theme)-/.test(color) ? `var(--${color})` : color;
+
+      expect(
+        processStyleProperty(
+          'boxShadow',
+          '0 0 0 3px theme-primary',
+          themeGetColor
+        )
+      ).toBe('0 0 0 3px var(--theme-primary)');
+    });
+
+    it('should leave an already expanded var(--…) composite value alone', () => {
+      const themeGetColor = (color: string) =>
+        /^(color|theme)-/.test(color) ? `var(--${color})` : color;
+
+      // What @app-studio/components pre-expands before handing the value over.
+      const ring = '0 0 0 2px var(--color-white), 0 0 0 4px var(--theme-primary)';
+      expect(processStyleProperty('boxShadow', ring, themeGetColor)).toBe(ring);
+
+      const outline = '2px solid var(--theme-primary)';
+      expect(processStyleProperty('outline', outline, themeGetColor)).toBe(
+        outline
+      );
+    });
+
+    it('should join array values with space', () => {
+      const result = processStyleProperty(
+        'transform',
+        ['rotate(45deg)', 'scale(1.5)'],
+        mockGetColor
+      );
+      expect(result).toBe('rotate(45deg) scale(1.5)');
+    });
+  });
+
+  describe('generateClassName', () => {
+    const mockGetColor = (color: string) => color;
+
+    it('should generate class name from property and value', () => {
+      const result = generateClassName('color', 'red', mockGetColor);
+      expect(result).toContain('color-red');
+    });
+
+    it('should remove special characters from value', () => {
+      const result = generateClassName('margin', '10px', mockGetColor);
+      expect(result).toContain('10px');
+    });
+
+    it('should handle null values', () => {
+      const result = generateClassName('color', null, mockGetColor);
+      expect(typeof result).toBe('string');
+    });
+
+    it('should handle numeric values', () => {
+      const result = generateClassName('flex', 1, mockGetColor);
+      expect(result).toContain('flex');
+    });
+  });
+
+  describe('shouldBeAttribute', () => {
+    it('should return true for id attribute', () => {
+      expect(shouldBeAttribute('id')).toBe(true);
+    });
+
+    it('should return true for className attribute', () => {
+      expect(shouldBeAttribute('className')).toBe(true);
+    });
+
+    it('should return true for role attribute', () => {
+      expect(shouldBeAttribute('role')).toBe(true);
+    });
+
+    it('should return true for aria-* attributes', () => {
+      expect(shouldBeAttribute('aria-label')).toBe(true);
+      expect(shouldBeAttribute('aria-hidden')).toBe(true);
+    });
+
+    it('should return true for tabIndex', () => {
+      expect(shouldBeAttribute('tabIndex')).toBe(true);
+    });
+
+    it('should return false for style properties', () => {
+      expect(shouldBeAttribute('color')).toBe(false);
+      expect(shouldBeAttribute('backgroundColor')).toBe(false);
+    });
+
+    it('should return false for event handlers', () => {
+      expect(shouldBeAttribute('onClick')).toBe(false);
+      expect(shouldBeAttribute('onChange')).toBe(false);
+    });
+  });
+});

@@ -1,0 +1,916 @@
+import React, { useState, useEffect } from 'react';
+import type { Meta, StoryFn } from '@storybook/react';
+import {
+  View,
+  Button,
+  Animation,
+  Text,
+  fadeInOnView,
+  slideUpOnView,
+  revealOnView,
+  scaleUpOnView,
+  blurInOnView,
+} from '../src/index';
+
+// Create a typed map for Animation functions to allow string indexing
+const AnimationMap = Animation as Record<string, (...args: any[]) => any>;
+
+export default {
+  title: 'Animation/Selectable',
+  component: View,
+  argTypes: {
+    animationName: {
+      control: {
+        type: 'select',
+      },
+      options: Object.keys(Animation),
+    },
+    duration: {
+      control: 'text',
+      defaultValue: '1s',
+    },
+    timingFunction: {
+      control: 'text',
+      defaultValue: 'ease',
+    },
+    iterationCount: {
+      control: 'text',
+      defaultValue: '1',
+    },
+  },
+} as Meta<typeof View>;
+
+const Template: StoryFn<typeof View> = (args) => {
+  const {
+    animationName,
+    duration,
+    timingFunction,
+    iterationCount,
+    ...rest
+  }: any = args;
+
+  // Retrieve the corresponding animation function
+  const animationFunc = AnimationMap[animationName as string];
+
+  // Build the animation object passing parameters
+  const animate = animationFunc
+    ? animationFunc({ duration, timingFunction, iterationCount })
+    : undefined;
+
+  return (
+    <View
+      widthHeight={100}
+      backgroundColor="color-blue-500"
+      animate={animate}
+      {...rest}
+    />
+  );
+};
+
+export const SelectableAnimation = Template.bind({});
+SelectableAnimation.args = {
+  animationName: 'fadeIn',
+  duration: '1s',
+  timingFunction: 'ease',
+  iterationCount: '1',
+};
+
+const animationSequence: any = [
+  {
+    from: { opacity: 0, transform: 'translateY(-100px)' },
+    to: { opacity: 1, transform: 'translateY(0)' },
+    duration: '2s',
+    timingFunction: 'ease-in',
+  },
+  {
+    from: { opacity: 1, transform: 'translateY(100px)' },
+    to: { opacity: 0, transform: 'translateY(0)' },
+    duration: '2s',
+    timingFunction: 'ease-out',
+  },
+];
+
+export const SequencesAnimation: StoryFn<typeof View> = () => (
+  <View>
+    <View
+      animate={animationSequence}
+      backgroundColor={'red'}
+      widthHeight={50}
+    ></View>
+  </View>
+);
+
+export const TranslationAnimation: StoryFn<typeof View> = () => (
+  <View
+    widthHeight={100}
+    backgroundColor="color-blue"
+    animate={Animation.bounce({
+      duration: '1s',
+      timingFunction: 'ease',
+      iterationCount: 'infinite',
+    })}
+  />
+);
+
+export const RotationOnHover: StoryFn<typeof View> = () => (
+  <View>
+    <View
+      widthHeight={100}
+      backgroundColor="color-green"
+      on={{
+        hover: {
+          animate: Animation.rotate({ duration: '1s', timingFunction: 'ease' }),
+        },
+      }}
+    />
+  </View>
+);
+
+export const ScalingAnimation: StoryFn<typeof View> = () => {
+  const [visible, setVisible] = useState(true);
+
+  return (
+    <>
+      <Button onPress={() => setVisible(!visible)}>
+        {visible ? 'Hide' : 'Show'} Component
+      </Button>
+      {visible && (
+        <View
+          widthHeight={100}
+          backgroundColor="color-red"
+          animate={{
+            from: { transform: 'scale(0)' },
+            to: { transform: 'scale(1)' },
+            leave: { transform: 'scale(0.5)' },
+            duration: '0.5s',
+            timingFunction: 'ease-in-out',
+          }}
+        />
+      )}
+    </>
+  );
+};
+
+export const ColorChangeAnimation: StoryFn<typeof View> = () => (
+  <View
+    widthHeight={100}
+    animate={{
+      from: { backgroundColor: 'yellow' },
+      to: { backgroundColor: 'purple' },
+      duration: '3s',
+      timingFunction: 'linear',
+    }}
+  />
+);
+
+export const InfiniteRotation: StoryFn<typeof View> = () => (
+  <View
+    widthHeight={100}
+    backgroundColor="color-orange"
+    animate={{
+      from: { transform: 'rotate(0deg)' },
+      to: { transform: 'rotate(360deg)' },
+      duration: '2s',
+      timingFunction: 'linear',
+      iterationCount: 'infinite',
+    }}
+  />
+);
+
+export const ResponsiveAnimation: StoryFn<typeof View> = () => (
+  <View
+    widthHeight={100}
+    backgroundColor="color-pink"
+    animate={{
+      from: { opacity: 0 },
+      to: { opacity: 1 },
+      duration: '1s',
+      timingFunction: 'ease-in',
+    }}
+    media={{
+      mobile: {
+        animate: {
+          from: { transform: 'translateY(100%)' },
+          to: { transform: 'translateY(0%)' },
+          duration: '0.5s',
+          timingFunction: 'ease-out',
+        },
+      },
+      desktop: {
+        animate: {
+          from: { transform: 'translateX(-100%)' },
+          to: { transform: 'translateX(0%)' },
+          duration: '1s',
+          timingFunction: 'ease-out',
+        },
+      },
+    }}
+  />
+);
+
+export const BlinkAnimation: StoryFn<typeof View> = () => (
+  <View
+    widthHeight={100}
+    backgroundColor="color-black"
+    animate={{
+      from: { opacity: 0 },
+      to: { opacity: 1 },
+      duration: '0.5s',
+      timingFunction: 'ease-in-out',
+      delay: '1s',
+      iterationCount: 5,
+      direction: 'alternate',
+    }}
+  />
+);
+
+export const ComplexAnimation: StoryFn<typeof View> = () => (
+  <View
+    widthHeight={100}
+    backgroundColor="color-black"
+    animate={{
+      from: {
+        opacity: 0,
+        transform: 'scale(0.5) rotate(0deg)',
+      },
+      to: {
+        opacity: 1,
+        transform: 'scale(1) rotate(360deg)',
+      },
+      duration: '2s',
+      timingFunction: 'ease-in-out',
+    }}
+  />
+);
+
+export const CustomTiming: StoryFn<typeof View> = () => (
+  <View
+    widthHeight={100}
+    backgroundColor="color-black"
+    animate={{
+      from: { transform: 'translateY(0)' },
+      to: { transform: 'translateY(-100px)' },
+      duration: '1s',
+      timingFunction: 'cubic-bezier(0.68, -0.55, 0.27, 1.55)',
+    }}
+  />
+);
+
+export const ClickAnimation: StoryFn<typeof View> = () => {
+  const [animate, setAnimate] = useState(false);
+
+  return (
+    <View
+      widthHeight={100}
+      backgroundColor="color-cyan"
+      onPress={() => setAnimate(!animate)}
+      animate={
+        animate
+          ? {
+              from: { transform: 'scale(1)' },
+              to: { transform: 'scale(1.5)' },
+              duration: '0.3s',
+              timingFunction: 'ease-in-out',
+              fillMode: 'forwards',
+            }
+          : {
+              from: { transform: 'scale(1.5)' },
+              to: { transform: 'scale(1)' },
+              duration: '0.3s',
+              timingFunction: 'ease-in-out',
+              fillMode: 'forwards',
+            }
+      }
+    />
+  );
+};
+
+export const AnimateInExample: StoryFn<typeof View> = () => {
+  const [visible, setVisible] = useState(false);
+  const [render, setRender] = useState(false);
+
+  useEffect(() => {
+    if (visible) {
+      setRender(true);
+    } else {
+      const timer = setTimeout(() => {
+        setRender(false);
+      }, 500); // Match the duration of animateIn
+      return () => clearTimeout(timer);
+    }
+  }, [visible]);
+
+  return (
+    <>
+      <Button onPress={() => setVisible(!visible)}>
+        {visible ? 'Hide' : 'Show'} Component (Animate In)
+      </Button>
+      {render && (
+        <View
+          widthHeight={100}
+          backgroundColor="color-blue"
+          animateIn={{
+            from: { opacity: 0, transform: 'translateY(-50px)' },
+            to: { opacity: 1, transform: 'translateY(0)' },
+            duration: '0.5s',
+            timingFunction: 'ease-out',
+          }}
+        />
+      )}
+    </>
+  );
+};
+
+export const AnimateOutExample: StoryFn<typeof View> = () => {
+  const [visible, setVisible] = useState(true);
+  const [render, setRender] = useState(true);
+
+  useEffect(() => {
+    if (visible) {
+      setRender(true);
+    } else {
+      const timer = setTimeout(() => {
+        setRender(false);
+      }, 500); // Match the duration of animateOut
+      return () => clearTimeout(timer);
+    }
+  }, [visible]);
+
+  return (
+    <>
+      <Button onPress={() => setVisible(!visible)}>
+        {visible ? 'Hide' : 'Show'} Component (Animate Out)
+      </Button>
+      {render && (
+        <View
+          widthHeight={100}
+          backgroundColor="color-green"
+          animateOut={{
+            from: { opacity: 1, transform: 'translateX(0)' },
+            to: { opacity: 0, transform: 'translateX(50px)' },
+            duration: '0.5s',
+            timingFunction: 'ease-in',
+          }}
+        />
+      )}
+    </>
+  );
+};
+
+export const VisibleAnimation: StoryFn<typeof View> = () => (
+  <View
+    style={{
+      width: '100%',
+      minHeight: '100vh',
+      display: 'flex',
+      flexDirection: 'column',
+    }}
+  >
+    <View
+      style={{
+        width: '100%',
+        height: '110vh',
+        backgroundColor: '#f0f0f0',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}
+    >
+      <div style={{ fontSize: '24px', fontWeight: 'bold' }}>Scroll Down ↓</div>
+    </View>
+    <View
+      widthHeight={200}
+      backgroundColor="color-purple"
+      style={{ margin: '50px auto' }}
+      animateIn={{
+        from: { opacity: 0, transform: 'scale(0.5) translateY(100px)' },
+        to: { opacity: 1, transform: 'scale(1) translateY(0)' },
+        duration: '1s',
+        timingFunction: 'ease-out',
+      }}
+    />
+    <View
+      style={{ width: '100%', height: '50vh', backgroundColor: '#e0e0e0' }}
+    />
+  </View>
+);
+
+/**
+ * Special Use Cases: Scroll-Driven Animations using Scroll Timeline
+ * These animations progress as the user scrolls, rather than just triggering on view.
+ */
+export const ScrollDrivenAnimations: StoryFn<typeof View> = () => (
+  <View width="100%" height="300vh" padding={20}>
+    <View
+      position="sticky"
+      top={20}
+      zIndex={10}
+      backgroundColor="white"
+      padding={20}
+      boxShadow="0 4px 6px rgba(0,0,0,0.1)"
+      borderRadius={8}
+      marginBottom={60}
+    >
+      <Text fontSize={24} fontWeight="bold" marginBottom={10}>
+        Scroll-Linked Animations
+      </Text>
+      <Text color="#555">
+        These elements animate based on your scroll position. The animation
+        effect is tied to the scroll progress.
+      </Text>
+    </View>
+    <View height="20vh" />
+
+    {/* Text Fill Scroll */}
+    <View marginBottom={100}>
+      <Text fontSize={18} fontWeight="bold" marginBottom={10}>
+        1. Text Fill Effect
+      </Text>
+      <Text
+        fontSize={48}
+        fontWeight="800"
+        animate={Animation.fillTextScroll()}
+        style={{
+          // @ts-ignore - CSS variables for this specific effect
+          '--fill': '0',
+          '--finish-fill': 'var(--color-blue-600)',
+          background:
+            'linear-gradient(90deg, var(--color-blue-600) var(--fill), var(--color-gray-200) var(--fill))',
+          backgroundClip: 'text',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          color: 'transparent', // Fallback
+        }}
+      >
+        Scroll to fill this text...
+      </Text>
+    </View>
+
+    {/* Scroll Fader */}
+    <View marginBottom={100}>
+      <Text fontSize={18} fontWeight="bold" marginBottom={10}>
+        2. Opacity Linked to Scroll
+      </Text>
+      <View
+        width={200}
+        height={200}
+        backgroundColor="color-red-500"
+        borderRadius={20}
+        animate={Animation.fadeInScroll()}
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+      >
+        <Text color="white" fontWeight="bold">
+          I fade in as you scroll
+        </Text>
+      </View>
+    </View>
+
+    {/* Scale Down Scroll */}
+    <View marginBottom={100}>
+      <Text fontSize={18} fontWeight="bold" marginBottom={10}>
+        3. Scale Linked to Scroll
+      </Text>
+      <View
+        width={200}
+        height={200}
+        backgroundColor="color-blue-500"
+        borderRadius="50%"
+        animate={Animation.scaleDownScroll()}
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+      >
+        <Text color="white" fontWeight="bold" textAlign="center">
+          I shrink as you scroll
+        </Text>
+      </View>
+    </View>
+
+    <View height="50vh" />
+  </View>
+);
+
+/**
+ * Special Use Cases: View Timeline Presets
+ * Performant, pure-CSS animations that trigger when elements enter the viewport.
+ */
+export const ViewDrivenPresets: StoryFn<typeof View> = () => (
+  <View width="100%" minHeight="300vh" padding={20}>
+    <View
+      position="sticky"
+      top={20}
+      zIndex={10}
+      backgroundColor="white"
+      padding={20}
+      boxShadow="0 4px 6px rgba(0,0,0,0.1)"
+      borderRadius={8}
+      marginBottom={60}
+    >
+      <Text fontSize={24} fontWeight="bold" marginBottom={10}>
+        View Timeline Presets
+      </Text>
+      <Text color="#555">
+        These use optimized CSS View Timelines (`view()`) for smooth entry
+        animations. Scroll down to see them trigger.
+      </Text>
+    </View>
+
+    <View height="30vh" />
+
+    <View
+      animate={fadeInOnView()}
+      padding={30}
+      backgroundColor="color-indigo-100"
+      marginBottom={40}
+      borderRadius={12}
+    >
+      <Text fontSize={20} fontWeight="bold">
+        Fade In On View
+      </Text>
+    </View>
+
+    <View
+      animate={slideUpOnView()}
+      padding={30}
+      backgroundColor="color-pink-100"
+      marginBottom={40}
+      borderRadius={12}
+    >
+      <Text fontSize={20} fontWeight="bold">
+        Slide Up On View
+      </Text>
+    </View>
+
+    <View
+      animate={scaleUpOnView()}
+      padding={30}
+      backgroundColor="color-amber-100"
+      marginBottom={40}
+      borderRadius={12}
+    >
+      <Text fontSize={20} fontWeight="bold">
+        Scale Up On View
+      </Text>
+    </View>
+
+    <View
+      animate={revealOnView()}
+      padding={30}
+      backgroundColor="color-emerald-100"
+      marginBottom={40}
+      borderRadius={12}
+    >
+      <Text fontSize={20} fontWeight="bold">
+        Clip Path Reveal On View
+      </Text>
+    </View>
+
+    <View
+      animate={blurInOnView()}
+      padding={30}
+      backgroundColor="color-cyan-100"
+      marginBottom={40}
+      borderRadius={12}
+    >
+      <Text fontSize={20} fontWeight="bold">
+        Blur In On View
+      </Text>
+    </View>
+
+    <View height="50vh" />
+  </View>
+);
+
+/**
+ * Typewriter Effect
+ * Demonstrates a classic typewriter animation with a blinking cursor.
+ */
+export const TypewriterEffect: StoryFn<typeof View> = () => {
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [showCursor, setShowCursor] = useState(true);
+  const text = 'Hello, this is a typewriter effect!';
+
+  // Calculate the width needed for the text (approximate)
+  const textWidth = text.length * 16; // Approximate 16px per character
+
+  // Build animation array conditionally
+  const getAnimation = (
+    duration: string,
+    steps: number,
+    width: number,
+    cursorColor: string,
+    blinkDuration: string
+  ) => {
+    const animations: any[] = [
+      Animation.typewriter({
+        duration,
+        steps,
+        iterationCount: 1,
+        width,
+      }),
+    ];
+
+    if (showCursor) {
+      animations.push({
+        from: { borderRight: `3px solid ${cursorColor}` },
+        to: { borderRight: `3px solid ${cursorColor}` },
+        '0%': { borderRight: `3px solid ${cursorColor}` },
+        '50%': { borderRight: `3px solid transparent` },
+        '100%': { borderRight: `3px solid ${cursorColor}` },
+        duration: blinkDuration,
+        timingFunction: 'step-end',
+        iterationCount: 'infinite',
+      });
+    }
+
+    return animations;
+  };
+
+  return (
+    <View width="100%" padding={40} backgroundColor="#f5f5f5">
+      <View
+        backgroundColor="white"
+        padding={40}
+        borderRadius={12}
+        boxShadow="0 4px 12px rgba(0,0,0,0.1)"
+        maxWidth={800}
+        margin="0 auto"
+      >
+        <Text fontSize={24} fontWeight="bold" marginBottom={20}>
+          Typewriter Animation
+        </Text>
+
+        <Text color="#666" marginBottom={30}>
+          Click the button to see the typewriter effect in action. The text will
+          appear character by character with an optional blinking cursor.
+        </Text>
+
+        <View
+          style={{
+            display: 'flex',
+            gap: '10px',
+            marginBottom: '30px',
+            flexWrap: 'wrap',
+          }}
+        >
+          <Button
+            onPress={() => setIsAnimating(!isAnimating)}
+            style={{
+              padding: '12px 24px',
+              backgroundColor: '#2563eb',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontSize: '16px',
+              fontWeight: '600',
+            }}
+          >
+            {isAnimating ? 'Reset' : 'Start Typewriter'}
+          </Button>
+
+          <Button
+            onPress={() => setShowCursor(!showCursor)}
+            style={{
+              padding: '12px 24px',
+              backgroundColor: showCursor ? '#059669' : '#6b7280',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontSize: '16px',
+              fontWeight: '600',
+            }}
+          >
+            Cursor: {showCursor ? 'ON' : 'OFF'}
+          </Button>
+        </View>
+
+        {/* Typewriter container */}
+        <View
+          style={{
+            fontFamily: 'monospace',
+            fontSize: '24px',
+            fontWeight: '500',
+            color: '#1f2937',
+            minHeight: '40px',
+            display: 'flex',
+            alignItems: 'center',
+            position: 'relative',
+          }}
+        >
+          {isAnimating && (
+            <View
+              style={{
+                display: 'inline-block',
+                overflow: 'hidden',
+                whiteSpace: 'nowrap',
+                paddingRight: '2px',
+                borderRight: showCursor ? 'none' : '3px solid #2563eb',
+              }}
+              animate={getAnimation(
+                '4s',
+                text.length,
+                textWidth,
+                '#2563eb',
+                '0.75s'
+              )}
+            >
+              <Text
+                style={{
+                  display: 'inline',
+                  fontFamily: 'monospace',
+                  fontSize: '24px',
+                }}
+              >
+                {text}
+              </Text>
+            </View>
+          )}
+        </View>
+
+        {/* Additional examples */}
+        <View marginTop={60}>
+          <Text fontSize={20} fontWeight="bold" marginBottom={20}>
+            Multiple Typewriter Examples
+          </Text>
+
+          {/* Fast typing WITH cursor */}
+          <View marginBottom={30}>
+            <Text fontSize={14} color="#666" marginBottom={10}>
+              Fast typing speed (with cursor):
+            </Text>
+            <View
+              style={{
+                fontFamily: 'monospace',
+                fontSize: '18px',
+                color: '#059669',
+                overflow: 'hidden',
+                whiteSpace: 'nowrap',
+                display: 'inline-block',
+                paddingRight: '2px',
+              }}
+              animate={[
+                Animation.typewriter({
+                  duration: '2s',
+                  steps: 25,
+                  iterationCount: 1,
+                  width: 400,
+                }),
+                {
+                  from: { borderRight: '2px solid #059669' },
+                  to: { borderRight: '2px solid #059669' },
+                  '0%': { borderRight: '2px solid #059669' },
+                  '50%': { borderRight: '2px solid transparent' },
+                  '100%': { borderRight: '2px solid #059669' },
+                  duration: '0.5s',
+                  timingFunction: 'step-end',
+                  iterationCount: 'infinite',
+                },
+              ]}
+            >
+              <Text
+                style={{
+                  display: 'inline',
+                  fontFamily: 'monospace',
+                  fontSize: '18px',
+                }}
+              >
+                Fast typing animation...
+              </Text>
+            </View>
+          </View>
+
+          {/* Slow typing WITHOUT cursor */}
+          <View marginBottom={30}>
+            <Text fontSize={14} color="#666" marginBottom={10}>
+              Slow typing speed (without cursor):
+            </Text>
+            <View
+              style={{
+                fontFamily: 'monospace',
+                fontSize: '18px',
+                color: '#dc2626',
+                overflow: 'hidden',
+                whiteSpace: 'nowrap',
+                display: 'inline-block',
+                paddingRight: '2px',
+                borderRight: '2px solid #dc2626',
+              }}
+              animate={Animation.typewriter({
+                duration: '6s',
+                steps: 30,
+                iterationCount: 1,
+                width: 480,
+              })}
+            >
+              <Text
+                style={{
+                  display: 'inline',
+                  fontFamily: 'monospace',
+                  fontSize: '18px',
+                }}
+              >
+                Slow and steady typing effect...
+              </Text>
+            </View>
+          </View>
+
+          {/* Code-like appearance WITH cursor */}
+          <View marginBottom={30}>
+            <Text fontSize={14} color="#666" marginBottom={10}>
+              Code-style typewriter (with cursor):
+            </Text>
+            <View
+              style={{
+                fontFamily: '"Courier New", monospace',
+                fontSize: '16px',
+                color: '#f59e0b',
+                backgroundColor: '#1f2937',
+                padding: '15px',
+                borderRadius: '6px',
+                overflow: 'hidden',
+                whiteSpace: 'nowrap',
+                display: 'inline-block',
+                paddingRight: '2px',
+              }}
+              animate={[
+                Animation.typewriter({
+                  duration: '5s',
+                  steps: 45,
+                  iterationCount: 1,
+                  width: 720,
+                }),
+                {
+                  from: { borderRight: '2px solid #f59e0b' },
+                  to: { borderRight: '2px solid #f59e0b' },
+                  '0%': { borderRight: '2px solid #f59e0b' },
+                  '50%': { borderRight: '2px solid transparent' },
+                  '100%': { borderRight: '2px solid #f59e0b' },
+                  duration: '0.75s',
+                  timingFunction: 'step-end',
+                  iterationCount: 'infinite',
+                },
+              ]}
+            >
+              <Text
+                style={{
+                  display: 'inline',
+                  fontFamily: '"Courier New", monospace',
+                  fontSize: '16px',
+                }}
+              >
+                const message = "Coding with style and animation!";
+              </Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Usage instructions */}
+        <View
+          marginTop={40}
+          padding={20}
+          backgroundColor="#eff6ff"
+          borderRadius={8}
+          borderLeft="4px solid #2563eb"
+        >
+          <Text
+            fontSize={16}
+            fontWeight="bold"
+            marginBottom={10}
+            color="#1e40af"
+          >
+            How to use:
+          </Text>
+          <Text
+            fontSize={14}
+            color="#1e3a8a"
+            style={{ fontFamily: 'monospace' }}
+          >
+            {`Animation.typewriter({
+  duration: '4s',
+  steps: text.length,
+  iterationCount: 1,
+  width: textWidth,
+})`}
+          </Text>
+          <Text fontSize={14} color="#1e3a8a" marginTop={10}>
+            Combine with{' '}
+            <code
+              style={{
+                backgroundColor: '#dbeafe',
+                padding: '2px 6px',
+                borderRadius: '3px',
+              }}
+            >
+              blinkCursor()
+            </code>{' '}
+            for the classic cursor effect!
+          </Text>
+        </View>
+      </View>
+    </View>
+  );
+};

@@ -1,0 +1,16 @@
+# OSX
+.DS_Store
+
+# node.js
+node_modules
+*.log
+#build
+dist/*
+.eslintcache
+
+.cache
+dist
+
+
+/.aider.tags.cache.v3
+.aider.chat.history.md
