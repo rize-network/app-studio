@@ -19,6 +19,8 @@ import {
   isColorToken,
   normalizeThemeColors,
 } from '../utils/colors'; // Assuming this path is correct
+import { Brand, resolveBrandTheme } from '../utils/brand';
+import { BrandContext, BrandValues } from './BrandContext';
 
 // --- Constants ---
 // Public API prefixes (dash notation: theme-primary, color-blue-500)
@@ -565,6 +567,31 @@ export const deepMerge = (target: any, source: any): any => {
 // repainting the page or breaking the host layout.
 const ThemeNestingContext = createContext<boolean>(false);
 
+// `prefers-color-scheme: dark`, live, for a provider whose mode is `system`.
+const DARK_SCHEME_QUERY = '(prefers-color-scheme: dark)';
+const usePrefersColorScheme = (
+  enabled: boolean,
+  targetWindow?: Window
+): 'light' | 'dark' => {
+  const win =
+    targetWindow ?? (typeof window !== 'undefined' ? window : undefined);
+  const read = (): 'light' | 'dark' =>
+    win?.matchMedia?.(DARK_SCHEME_QUERY).matches ? 'dark' : 'light';
+  const [scheme, setScheme] = useState<'light' | 'dark'>(() =>
+    enabled ? read() : 'light'
+  );
+  useEffect(() => {
+    if (!enabled || !win?.matchMedia) return;
+    const query = win.matchMedia(DARK_SCHEME_QUERY);
+    setScheme(query.matches ? 'dark' : 'light');
+    const onChange = (event: MediaQueryListEvent) =>
+      setScheme(event.matches ? 'dark' : 'light');
+    query.addEventListener('change', onChange);
+    return () => query.removeEventListener('change', onChange);
+  }, [enabled, win]);
+  return scheme;
+};
+
 // --- ThemeProvider Component ---
 interface ThemeProviderProps {
   /**
@@ -577,6 +604,21 @@ interface ThemeProviderProps {
   dark?: Partial<Colors>;
   light?: Partial<Colors>;
   mode?: 'light' | 'dark';
+  /**
+   * A brand look (mode, #rrggbb colours, radius, font) resolved with
+   * `resolveBrandTheme`. It composes on top of the other props:
+   * - slots: built-in defaults < `theme` < brand-derived slots (primary,
+   *   secondary, accent, accentSoft, canvas, text, onPrimary — only those the
+   *   brand sets);
+   * - mode: `brand.mode` when set, else `mode`, else light. `system` follows
+   *   `prefers-color-scheme` live (on `targetWindow` when given);
+   * - font: an allowed Google family is loaded once (one stylesheet link per
+   *   href in the owning document head) and applied to this provider's subtree,
+   *   and to `document.documentElement` when the provider stamps the document
+   *   (see `stampDocument`).
+   * `useBrand()` exposes radiusScale/fontFamily/fontHref and `scaleRadius`.
+   */
+  brand?: Brand;
   children: ReactNode;
   strict?: boolean;
   targetWindow?: Window;
@@ -607,7 +649,8 @@ const DEFAULT_COLORS_OVERRIDE: Partial<Colors> = {};
 
 export const ThemeProvider = ({
   theme: themeOverride = DEFAULT_THEME_OVERRIDE,
-  mode: initialMode = 'light',
+  mode: modeProp,
+  brand,
   dark: darkOverride = DEFAULT_COLORS_OVERRIDE,
   light: lightOverride = DEFAULT_COLORS_OVERRIDE,
   children,
@@ -618,6 +661,20 @@ export const ThemeProvider = ({
 }: ThemeProviderProps): React.ReactElement => {
   const isNested = useContext(ThemeNestingContext);
   const wrapperIsTransparent = transparentWrapper ?? isNested;
+
+  // Brand: resolved once per distinct brand value (callers often pass an
+  // inline object). Its reference appearance follows the effective mode.
+  const brandKey = brand ? JSON.stringify(brand) : '';
+  const requestedMode = brand?.mode ?? modeProp ?? 'light';
+  const resolvedBrand = useMemo(
+    () => (brand ? resolveBrandTheme({ ...brand, mode: requestedMode }) : null),
+    [brandKey, requestedMode]
+  );
+  const systemMode = usePrefersColorScheme(
+    requestedMode === 'system',
+    targetWindow
+  );
+  const initialMode = requestedMode === 'system' ? systemMode : requestedMode;
   const [themeMode, setThemeMode] = useState<'light' | 'dark'>(initialMode);
   const colorCache = useRef(new Map<string, string>()).current;
 
@@ -646,10 +703,13 @@ export const ThemeProvider = ({
   const mergedTheme = useMemo<Theme>(
     () =>
       normalizeThemeColors(
-        deepMerge(defaultThemeMain, themeOverride),
+        deepMerge(
+          deepMerge(defaultThemeMain, themeOverride),
+          resolvedBrand?.slots ?? {}
+        ),
         themeColors.light
       ),
-    [themeOverride, themeColors.light]
+    [themeOverride, resolvedBrand, themeColors.light]
   );
 
   const currentColors = useMemo(
@@ -1176,6 +1236,52 @@ export const ThemeProvider = ({
     };
   }, [shouldStampDocument, targetWindow, themeMode]);
 
+  // Brand font: load the stylesheet once per document, and apply the family to
+  // the document element when this provider stamps the document (portaled
+  // content then inherits it too); the wrapper carries it for the subtree.
+  const fontHref = resolvedBrand?.fontHref ?? null;
+  const fontFamily = resolvedBrand?.fontFamily ?? null;
+  useInsertionEffect(() => {
+    const doc =
+      targetWindow?.document ??
+      (typeof document !== 'undefined' ? document : undefined);
+    if (!doc || !fontHref) return;
+    const loaded = Array.from(
+      doc.head.querySelectorAll<HTMLLinkElement>('link[data-app-studio-font]')
+    ).some((link) => link.getAttribute('href') === fontHref);
+    if (loaded) return;
+    const link = doc.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = fontHref;
+    link.setAttribute('data-app-studio-font', '');
+    doc.head.appendChild(link);
+  }, [fontHref, targetWindow]);
+  useInsertionEffect(() => {
+    if (!shouldStampDocument || !fontFamily) return;
+    const doc =
+      targetWindow?.document ??
+      (typeof document !== 'undefined' ? document : undefined);
+    if (!doc) return;
+    const root = doc.documentElement;
+    const previous = root.style.fontFamily;
+    root.style.fontFamily = fontFamily;
+    return () => {
+      root.style.fontFamily = previous;
+    };
+  }, [shouldStampDocument, targetWindow, fontFamily]);
+
+  const brandValues = useMemo<BrandValues | null>(
+    () =>
+      resolvedBrand
+        ? {
+            radiusScale: resolvedBrand.radiusScale,
+            fontFamily: resolvedBrand.fontFamily,
+            fontHref: resolvedBrand.fontHref,
+          }
+        : null,
+    [resolvedBrand]
+  );
+
   // Dev-only: a neutral slot (canvas/surface/text/muted/border) is expected to
   // flip with the mode. Parseable literals were snapped to palette tokens by
   // normalizeThemeColors above; whatever is left frozen (e.g. a CSS named
@@ -1230,7 +1336,7 @@ export const ThemeProvider = ({
     };
   }, [targetWindow, cssVariables]);
 
-  const wrapperStyle: React.CSSProperties = wrapperIsTransparent
+  const baseWrapperStyle: React.CSSProperties = wrapperIsTransparent
     ? { display: 'contents' }
     : {
         backgroundColor: 'var(--color-white)',
@@ -1239,6 +1345,15 @@ export const ThemeProvider = ({
         height: '100%',
         transition: 'background-color 0.2s, color 0.2s',
       };
+  const wrapperStyle: React.CSSProperties = fontFamily
+    ? { ...baseWrapperStyle, fontFamily }
+    : baseWrapperStyle;
+
+  const content = (
+    <div data-theme={themeMode} style={wrapperStyle}>
+      {children}
+    </div>
+  );
 
   return (
     <ThemeNestingContext.Provider value={true}>
@@ -1250,9 +1365,13 @@ export const ThemeProvider = ({
         {typeof window === 'undefined' && !targetWindow && (
           <style>{cssVariables}</style>
         )}
-        <div data-theme={themeMode} style={wrapperStyle}>
-          {children}
-        </div>
+        {brandValues ? (
+          <BrandContext.Provider value={brandValues}>
+            {content}
+          </BrandContext.Provider>
+        ) : (
+          content
+        )}
       </ThemeContext.Provider>
     </ThemeNestingContext.Provider>
   );

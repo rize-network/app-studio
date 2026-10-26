@@ -302,6 +302,40 @@ which is why it is opt-in.
 You do not need `strict` to catch typos and dot notation — those are reported in
 development regardless. See [Color Reference Formats](#color-reference-formats).
 
+### `brand` — a brand look from four settings
+
+`brand` turns a mode, brand colours, a corner radius and a font into theme slots.
+It works the same on web and native.
+
+```tsx
+<ThemeProvider
+  brand={{
+    mode: 'system', // 'light' | 'dark' | 'system' (follows the device, live)
+    colors: { primary: '#2563eb', accent: '#7c3aed', background: '#fafafa' },
+    radius: 'lg', // 'none' | 'sm' | 'md' | 'lg'
+    font: 'Inter', // one of BRAND_FONT_FAMILIES
+  }}
+>
+  <App />
+</ThemeProvider>
+```
+
+- Each `#rrggbb` snaps to the nearest palette token of the reference appearance
+  (dark for `dark`, light otherwise), so `system` shows the matching shade in the
+  other appearance. Slots set: `primary`, `secondary`, `accent`, `accentSoft`,
+  `canvas` (from `background`), `text`, and `onPrimary`, which reads with a
+  contrast of at least 4.5 in every appearance shown.
+- Precedence: built-in defaults < `theme` < brand slots (only the slots the brand
+  sets). Mode: `brand.mode`, else `mode` (`initialMode` on native), else light.
+- Web: an allowed Google family is loaded once (`<link data-app-studio-font>`) and
+  applied to the provider subtree, and to `<html>` when the provider stamps the
+  document (`stampDocument`). Native keeps the platform system font.
+- `resolveBrandTheme(brand)` is the pure resolver (`slots`, `radiusScale`
+  none 0 / sm 0.5 / md 1 / lg 1.5, `fontFamily`, `fontHref`).
+- `useBrand()` returns `{ radiusScale, fontFamily, fontHref, scaleRadius(px) }`
+  from the nearest provider given a `brand` (radius 1 and no font otherwise);
+  `scaleRadius` keeps pills (>= 999) as pills. `fontFamily`/`fontHref` are null on native.
+
 ## Using the Theme in Components
 
 Now that the theme is available, you can use it in your components. All color references are resolved automatically based on the current theme mode.
