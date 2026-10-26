@@ -1,4 +1,4 @@
 #!/bin/sh
-. "$(dirname "$0")/_/husky.sh"
-
-#npm run test
+# qa-retention-pre-push/v1
+runtime=$(git config --local --get qa.prePushRuntime) || { echo 'QA hook runtime missing; reinstall with qa demos install-hook' >&2; exit 1; }
+exec node "$runtime" "$(dirname "$0")/pre-push.qa-previous" "$@"
