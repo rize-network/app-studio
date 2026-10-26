@@ -3,9 +3,11 @@ import React, {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
 } from 'react';
+import { Appearance } from 'react-native';
 import {
   Colors,
   Theme,
@@ -18,6 +20,8 @@ import {
   resolveThemeColor,
 } from '../../shared/theme';
 import { normalizeThemeColors } from '../../utils/colors';
+import { Brand, resolveBrandTheme } from '../../utils/brand';
+import { BrandContext, BrandValues } from '../../providers/BrandContext';
 
 interface ThemeContextProps {
   getColor: (name: string) => string;
@@ -37,6 +41,14 @@ export interface ThemeProviderProps {
   darkColors?: Partial<Colors>;
   theme?: Theme;
   initialMode?: ThemeMode;
+  /**
+   * A brand look resolved with `resolveBrandTheme`. Slots: built-in defaults <
+   * `theme` < brand-derived slots. Mode: `brand.mode` when set, else
+   * `initialMode`, else light; `system` follows `useColorScheme()` live.
+   * Fonts stay the platform system font on native: `useBrand()` reports
+   * `fontFamily`/`fontHref` as null and only `radiusScale` applies.
+   */
+  brand?: Brand;
   children?: ReactNode;
 }
 
@@ -79,15 +91,49 @@ function contrastColor(hex: string): 'black' | 'white' {
   return luminance > 0.58 ? 'black' : 'white';
 }
 
+// The device appearance, live, for a provider whose mode is `system`. Guarded so
+// a host or test that stubs react-native without `Appearance` reads light.
+const readDeviceColorScheme = (): ThemeMode =>
+  Appearance?.getColorScheme?.() === 'dark' ? 'dark' : 'light';
+const useDeviceColorScheme = (enabled: boolean): ThemeMode => {
+  const [scheme, setScheme] = useState<ThemeMode>(() =>
+    enabled ? readDeviceColorScheme() : 'light'
+  );
+  useEffect(() => {
+    if (!enabled || !Appearance?.addChangeListener) return;
+    setScheme(readDeviceColorScheme());
+    const subscription = Appearance.addChangeListener(({ colorScheme }) =>
+      setScheme(colorScheme === 'dark' ? 'dark' : 'light')
+    );
+    return () => subscription.remove();
+  }, [enabled]);
+  return scheme;
+};
+
 export const ThemeProvider = ({
   colors,
   lightColors,
   darkColors,
   theme,
-  initialMode = 'light',
+  initialMode,
+  brand,
   children,
 }: ThemeProviderProps) => {
-  const [themeMode, setThemeMode] = useState<ThemeMode>(initialMode);
+  const brandKey = brand ? JSON.stringify(brand) : '';
+  const requestedMode = brand?.mode ?? initialMode ?? 'light';
+  const resolvedBrand = useMemo(
+    () => (brand ? resolveBrandTheme({ ...brand, mode: requestedMode }) : null),
+    [brandKey, requestedMode]
+  );
+  const deviceMode = useDeviceColorScheme(requestedMode === 'system');
+  const effectiveMode: ThemeMode =
+    requestedMode === 'system' ? deviceMode : requestedMode;
+  const [themeMode, setThemeMode] = useState<ThemeMode>(effectiveMode);
+
+  // `system` follows the device appearance; a fixed mode stays an initial value.
+  useEffect(() => {
+    if (requestedMode === 'system') setThemeMode(effectiveMode);
+  }, [requestedMode, effectiveMode]);
 
   const mergedColors = useMemo<ThemeColorConfig>(
     () => ({
@@ -108,10 +154,13 @@ export const ThemeProvider = ({
   const mergedTheme = useMemo(
     () =>
       normalizeThemeColors(
-        deepMerge(defaultThemeMain, theme),
+        deepMerge(
+          deepMerge(defaultThemeMain, theme),
+          resolvedBrand?.slots ?? {}
+        ),
         mergedColors.light
       ),
-    [theme, mergedColors.light]
+    [theme, resolvedBrand, mergedColors.light]
   );
 
   const getColor = useCallback(
@@ -169,8 +218,28 @@ export const ThemeProvider = ({
     ]
   );
 
+  const brandValues = useMemo<BrandValues | null>(
+    () =>
+      resolvedBrand
+        ? {
+            radiusScale: resolvedBrand.radiusScale,
+            fontFamily: null,
+            fontHref: null,
+          }
+        : null,
+    [resolvedBrand]
+  );
+
   return (
-    <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
+    <ThemeContext.Provider value={value}>
+      {brandValues ? (
+        <BrandContext.Provider value={brandValues}>
+          {children}
+        </BrandContext.Provider>
+      ) : (
+        children
+      )}
+    </ThemeContext.Provider>
   );
 };
 

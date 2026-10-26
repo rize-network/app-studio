@@ -945,3 +945,26 @@ export const normalizeThemeColors = <T extends Record<string, any>>(
   }
   return result as T;
 };
+
+const relativeLuminance = ({ r, g, b }: RGBA): number => {
+  const channel = (value: number) => {
+    const c = value / 255;
+    return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  };
+  return 0.2126 * channel(r) + 0.7152 * channel(g) + 0.0722 * channel(b);
+};
+
+/**
+ * WCAG contrast ratio (1..21) between two opaque literal colors (hex / rgb).
+ * Returns null when either value is not a parseable opaque color.
+ */
+export const contrastRatio = (a: string, b: string): number | null => {
+  const first = parseColorToRgba(a);
+  const second = parseColorToRgba(b);
+  if (!first || !second || first.a < 1 || second.a < 1) return null;
+  const [light, dark] = [
+    relativeLuminance(first),
+    relativeLuminance(second),
+  ].sort((x, y) => y - x);
+  return (light + 0.05) / (dark + 0.05);
+};
